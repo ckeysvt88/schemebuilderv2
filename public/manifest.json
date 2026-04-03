@@ -2,7 +2,7 @@
   "name": "Scheme Builders",
   "short_name": "SchemeBuilders",
   "description": "Scout opponents, build defensive game plans, and find the right formations for CFB26.",
-  "start_url": "/schemebuilderv2/",
+  "start_url": "/",
   "display": "standalone",
   "orientation": "portrait",
   "background_color": "#07080f",
