@@ -75,20 +75,20 @@ export default function ScoutScreen({
       </div>
 
       {/* ── Hero Image — sits in flow to reserve space, content overlaps from below ── */}
-      <div style={{ position: "relative", overflow: "hidden", flexShrink: 0, margin: "0 16px", aspectRatio: "5/2" }}>
+      <div style={{ position: "relative", overflow: "hidden", flexShrink: 0, margin: "0 auto", width: "81%", aspectRatio: "5/2" }}>
         <img
           src={`${import.meta.env.BASE_URL}header.png`}
           alt=""
-          style={{ display: "block", width: "100%", height: "100%", objectFit: "cover", objectPosition: "center center" }}
+          style={{ display: "block", width: "100%", height: "100%", objectFit: "cover", objectPosition: "center 62%" }}
         />
         {/* Fade left */}
-        <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to right, var(--color-bg) 0%, transparent 18%)" }} />
+        <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to right, var(--color-bg) 0%, transparent 21%)" }} />
         {/* Fade right */}
-        <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to left, var(--color-bg) 0%, transparent 18%)" }} />
+        <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to left, var(--color-bg) 0%, transparent 21%)" }} />
         {/* Fade bottom */}
-        <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to top, var(--color-bg) 0%, transparent 50%)" }} />
+        <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to top, var(--color-bg) 0%, transparent 58%)" }} />
         {/* Fade top */}
-        <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to bottom, var(--color-bg) 0%, transparent 25%)" }} />
+        <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to bottom, var(--color-bg) 0%, transparent 29%)" }} />
       </div>
 
       <div style={{ padding: "16px 16px 32px", marginTop: -60, position: "relative", zIndex: 1 }}>
@@ -127,11 +127,7 @@ export default function ScoutScreen({
             <span>Editing active game plan — update traits then rebuild.</span>
             <button onClick={() => { setSel({}); setScored([]); setSelFm(null); setActiveP(null); }} style={{ ...smallBtn, color: "#70aa50", borderColor: "#2a4a1e", whiteSpace: "nowrap", flexShrink: 0 }}>Clear All</button>
           </div>
-        ) : (
-          <div style={{ background: "var(--color-surface-1)", border: "1px solid var(--color-border-subtle)", borderLeft: "3px solid var(--color-text-3)", borderRadius: "var(--r-md)", padding: "10px 14px", marginBottom: 16, fontSize: 13, color: "var(--color-text-2)", lineHeight: 1.5 }}>
-            Select every trait you know about your opponent — more traits = sharper game plan.
-          </div>
-        )}
+        ) : null}
 
         {/* ── Trait groups ── */}
         {TRAITS.map(group => {
@@ -283,6 +279,11 @@ export default function ScoutScreen({
           >
             {scored.length > 0 ? "Update Game Plan →" : "Build Game Plan →"}
           </button>
+        </div>
+
+        {/* ── Footer ── */}
+        <div style={{ marginTop: 32, paddingTop: 16, borderTop: "1px solid var(--color-border-subtle)", textAlign: "center", fontSize: 11, color: "var(--color-text-3)", fontFamily: "var(--font-mono)", letterSpacing: "0.5px" }}>
+          Designed by CK · Scheme Builders 2026
         </div>
       </div>
 
