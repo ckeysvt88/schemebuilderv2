@@ -61,6 +61,7 @@ export function scoreForPersonnel(personnelTag, allTraits) {
   if (!allTraits.length) return [];
   // Personnel-adjacent tags that co-occur with this package
   const personnelContext = {
+    p00:  ["p00","empty","no_run","four_wide","elite_wr","hurry_up","quick_game","pass_heavy_3rd","two_minute_pass","qb_pocket","no_huddle","screens","trips"],
     p10:  ["p10","no_run","empty","trips","elite_wr","slot_threat","hurry_up","quick_game","screens","rpo","four_wide"],
     p11:  ["p11","rpo","play_action","quick_game","outside_run","inside_run","elite_wr","slot_threat","trips","motion_heavy"],
     p12:  ["p12","p21","elite_te","inside_run","outside_run","play_action","seam_routes","run_heavy_1st","strong_oline"],

@@ -9,6 +9,7 @@ export const TRAIT_LABELS = {
   flat_attack:"Flat / Sideline Routes", seam_routes:"Seam Routes (TE/Slot)",
   back_shoulder:"Back-Shoulder / Fades", slant_heavy:"Slant / Quick Hitch",
   redzone_spec:"Red Zone Specialist", p10:"10p Spread (4 WR, 1 RB)", p11:"11 Personnel (3 WR)",
+  p00:"00p (5 WR, Air Raid / Empty Spread)",
   p12:"12 Personnel (2 TE)", p13:"13 Personnel (3 TE)", p21:"21 Personnel (2 RB)", p22:"22p Heavy / Power",
   trips:"Trips / Bunch Sets", empty:"Empty Backfield", elite_wr:"Elite WR",
   elite_te:"Elite TE", elite_rb:"Elite HB", mobile_qb:"Mobile QB",
@@ -44,6 +45,7 @@ export const TRAITS = [
     { id: "slant_heavy", label: "Slant / Quick Hitch" }, { id: "redzone_spec", label: "Red Zone Specialist" },
   ]},
   { id: "personnel", label: "His Personnel", icon: "👥", items: [
+    { id: "p00", label: "00p (5 WR, No RB/TE — Pure Spread)" },
     { id: "p10", label: "10p (4 WR, 1 RB Spread)" }, { id: "p11", label: "11p (1 RB, 1 TE, 3 WR)" },
     { id: "p12", label: "12p (1 RB, 2 TE)" }, { id: "p13", label: "13p (1 RB, 3 TE)" },
     { id: "p21", label: "21p (2 RB, 1 TE)" },

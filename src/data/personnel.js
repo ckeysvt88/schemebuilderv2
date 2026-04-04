@@ -1,5 +1,6 @@
 // Personnel map — DC guidance for each offensive package
 export const PMAP = {
+  p00:   { label: "00p (5 WR — Pure Spread / Air Raid)", priority: "Go Dime immediately — no RB, no TE means zero run threat and zero protection help. 5 WRs spread cross the entire field. Your LBs cannot cover WRs — sub out the moment this package appears.", avoid: "Any base formation, Nickel with LBs on WRs, 4-3, 3-4, 5-2, 4-4 Split", blitzNote: "High (32–45%). No back in protection means any extra rusher is free. Their 5 WRs give them range to hot-route but no pick-up protection — overload them." },
   p10:   { label: "10p (4 WR, 1 RB Spread)",  priority: "Sub into Nickel immediately. 4 WRs still outnumber base LBs — RB stays as a run threat. Never go Dime unless it's obviously a passing down.", avoid: "4-3 base, 3-4 base, 5-2, 4-4 Split", blitzNote: "Moderate (20–28%). 5 DBs handle all receivers — selective pressure works well." },
   p11:   { label: "11p (1 RB, 1 TE, 3 WR)", priority: "Sub in Nickelback. Base 4-3 LB on the slot = mismatch every time.", avoid: "Base 4-3 without nickelback sub, 5-2, 4-4 Split", blitzNote: "Varies by QB (18–28%). Higher vs pocket QB. Lower vs scrambler." },
   p12:   { label: "12p (1 RB, 2 TE)",      priority: "Base or Nickel+LB. Two TEs threaten run AND seam simultaneously.", avoid: "Dime (need LBs for run), 3-2-6 (hybrid LBs vs physical TEs = mismatch)", blitzNote: "Low-moderate (15–22%). TE hot routes beat blitz. Coverage wins this matchup." },
@@ -13,6 +14,10 @@ export const PMAP = {
 
 // Formation families — sub-groups within personnel packages
 export const PERSONNEL_FAMILIES = {
+  // ── 00 Personnel ───────────────────────────────────────────────
+  p00_gun:    { label:"00p Gun",           desc:"5 WRs, no RB/TE from shotgun — pure spread, maximum pass coverage required", base:"empty" },
+  p00_trips:  { label:"00p Trips",         desc:"5 WRs with trips alignment — flood one side, 3-on-2 overload every snap", base:"trips" },
+  p00_motion: { label:"00p Motion",        desc:"5 WRs with pre-snap motion — shifts coverage responsibilities last second", base:"empty" },
   // ── 10 Personnel ───────────────────────────────────────────────
   p10_gun:    { label:"10p Gun",           desc:"4 WR, 1 RB from shotgun — run threat stays, CBs cannot press", base:"p10" },
   p10_trips:  { label:"10p Trips",         desc:"4 WR with trips surface and 1 RB — flood one side, RB checkdown", base:"p10" },
@@ -49,6 +54,10 @@ export const PERSONNEL_FAMILIES = {
 
 // DC alignment rules per family
 export const FAMILY_ADJUSTMENTS = {
+  // ── 00 Personnel ─────────────────────────────────────────────────────────
+  p00_gun:    { extra:"00p Gun — 5 WRs, no RB, no TE. Go Dime Rush or 3-2-6 Mug immediately. No run threat whatsoever — LBs are automatic mismatches on WRs. Blitz freely: their 5 OL cannot account for any extra rusher without a back.", bias:["Dime Rush","3-2-6 Mug","Dime Normal"] },
+  p00_trips:  { extra:"00p Trips — 5 WRs with a trips surface. The 3-on-2 overload is every snap, every formation. 3-2-6 Mug gives 6 DBs to match all 5 WRs plus an apex for the flood. Cover 6 to the trips side is the only answer — Cover 3 is outnumbered 3-to-2.", bias:["3-2-6 Mug","3-3-5 Split","Nickel Wide"] },
+  p00_motion: { extra:"00p with motion shifts the 5-WR surface last second. Hold your 2-high shell until motion settles, then rotate. Dime gives you 6 DBs to match any alignment they shift to. Never press — 5 WRs with motion will rub defenders into each other.", bias:["Dime Normal","3-2-6 Mug","Nickel 3-3 Dbl Mug"] },
   // ── 10 Personnel ─────────────────────────────────────────────────────────
   p10_gun:    { extra:"10p Gun — 4 WRs with 1 RB. Sub into Nickel immediately. RB is still a run threat — do not go Dime unless it's obviously a passing down. CBs at 7 yards, never press. SS in the flat eliminates the bubble read.", bias:["Nickel 3-3 Over","Nickel Wide","3-3-5 Stack"] },
   p10_trips:  { extra:"10p Trips — 4 WRs with trips surface and 1 RB. Rotate a safety to trips at the snap. Cover 4 Quarters handles the overload — 3 receivers on one side beats Cover 3 math. RB is a checkdown, not a non-factor.", bias:["3-3-5 Split","Nickel Wide","3-2-6 Mug"] },
@@ -86,6 +95,13 @@ export const FAMILY_ADJUSTMENTS = {
 export function getAvailableFamilies(flat) {
   const has = (tag) => flat.includes(tag);
   const fams = [];
+
+  // ── 00 Personnel ──────────────────────────────────────────────
+  if (has("p00")) {
+    fams.push("p00_gun");
+    if (has("trips")) fams.push("p00_trips");
+    if (has("motion_heavy")) fams.push("p00_motion");
+  }
 
   // ── 10 Personnel ──────────────────────────────────────────────
   if (has("p10")) {
@@ -161,7 +177,8 @@ export function getAvailableFamilies(flat) {
 
   // Always guarantee at least one family shows if any personnel tagged ─────────
   if (fams.length === 0) {
-    if (has("p11")) fams.push("p11_gun");
+    if (has("p00")) fams.push("p00_gun");
+    else if (has("p11")) fams.push("p11_gun");
     else if (has("p12")) fams.push("p12_gun");
     else if (has("p13")) fams.push("p13_iForm");
     else if (has("p21")) fams.push("p21_iForm");
