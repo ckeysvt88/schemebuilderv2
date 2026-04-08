@@ -62,6 +62,8 @@ export function scoreForPersonnel(personnelTag, allTraits) {
   // Personnel-adjacent tags that co-occur with this package
   const personnelContext = {
     p00:  ["p00","empty","no_run","four_wide","elite_wr","hurry_up","quick_game","pass_heavy_3rd","two_minute_pass","qb_pocket","no_huddle","screens","trips"],
+    p01:  ["p01","p00","empty","no_run","four_wide","elite_wr","elite_te","slot_threat","hurry_up","quick_game","pass_heavy_3rd","seam_routes","two_minute_pass"],
+    p02:  ["p02","p00","p01","empty","no_run","elite_te","seam_routes","elite_wr","quick_game","pass_heavy_3rd","west_coast","hurry_up","flat_attack"],
     p10:  ["p10","no_run","empty","trips","elite_wr","slot_threat","hurry_up","quick_game","screens","rpo","four_wide"],
     p11:  ["p11","rpo","play_action","quick_game","outside_run","inside_run","elite_wr","slot_threat","trips","motion_heavy"],
     p12:  ["p12","p21","elite_te","inside_run","outside_run","play_action","seam_routes","run_heavy_1st","strong_oline"],
@@ -69,6 +71,7 @@ export function scoreForPersonnel(personnelTag, allTraits) {
     p20:  ["p20","p10","p11","elite_wr","slot_threat","outside_run","inside_run","rpo","trips","motion_heavy","elite_rb"],
     p21:  ["p21","p22","fb_lead","inside_run","counter_trap","strong_oline","run_heavy_1st","short_yardage_run"],
     p22:  ["p22","p21","strong_oline","inside_run","run_heavy_1st","fb_lead","four_down_go","short_yardage_run"],
+    p23:  ["p23","p22","p21","p13","strong_oline","inside_run","run_heavy_1st","fb_lead","short_yardage_run","four_down_go","elite_te"],
     trips:["trips","p10","p11","elite_wr","slot_threat","motion_heavy","rpo","quick_game","flat_attack"],
     empty:["empty","p10","pass_heavy_3rd","qb_pocket","no_run","hurry_up","west_coast","quick_game"],
   };

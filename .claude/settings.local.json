@@ -1,7 +1,8 @@
 {
   "permissions": {
     "allow": [
-      "WebFetch(domain:cfb.fan)"
+      "WebFetch(domain:cfb.fan)",
+      "Bash(node --input-type=module)"
     ]
   }
 }

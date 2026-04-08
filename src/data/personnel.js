@@ -1,13 +1,16 @@
 // Personnel map — DC guidance for each offensive package
 export const PMAP = {
-  p00:   { label: "00p (5 WR — Pure Spread / Air Raid)", priority: "Go Dime immediately — no RB, no TE means zero run threat and zero protection help. 5 WRs spread cross the entire field. Your LBs cannot cover WRs — sub out the moment this package appears.", avoid: "Any base formation, Nickel with LBs on WRs, 4-3, 3-4, 5-2, 4-4 Split", blitzNote: "High (32–45%). No back in protection means any extra rusher is free. Their 5 WRs give them range to hot-route but no pick-up protection — overload them." },
-  p10:   { label: "10p (4 WR, 1 RB Spread)",  priority: "Sub into Nickel immediately. 4 WRs still outnumber base LBs — RB stays as a run threat. Never go Dime unless it's obviously a passing down.", avoid: "4-3 base, 3-4 base, 5-2, 4-4 Split", blitzNote: "Moderate (20–28%). 5 DBs handle all receivers — selective pressure works well." },
+  p00:   { label: "00p (0 RB, 0 TE, 5 WR — Pure Spread)", priority: "Go Dime immediately — no RB, no TE means zero run threat and zero protection help. 5 WRs spread cross the entire field. Your LBs cannot cover WRs — sub out the moment this package appears.", avoid: "Any base formation, Nickel with LBs on WRs, 4-3, 3-4, 5-2, 4-4 Split", blitzNote: "High (32–45%). No back in protection means any extra rusher is free. Their 5 WRs give them range to hot-route but no pick-up protection — overload them." },
+  p01:   { label: "01p (0 RB, 1 TE, 4 WR — Near-Empty)", priority: "Go Dime immediately. Treat this almost identically to 00p — zero run threat, 4 WRs demand 5+ DBs, and the TE in the slot or on the seam is a mismatch problem for any LB left on the field. Identify the TE alignment pre-snap: if he's in the slot, put your best slot DB on him, not a linebacker.", avoid: "Base 4-3, 3-4, any formation keeping LBs in coverage (LBs vs. WRs and a receiving TE = automatic mismatches on every route)", blitzNote: "High (30–42%). No RB means the 5 OL are on their own. Any extra rusher is a free run at the QB. Blitz from the edge opposite the TE's alignment." },
+  p02:   { label: "02p (0 RB, 2 TE, 3 WR — Empty TE)", priority: "Sub into Dime or 3-2-6 Mug. No RB = no run threat and no blitz pickup. Two TEs create twin seam threats that LBs cannot handle — you need DBs in the middle. Identify which TE is the seam receiver and which is blocking before the snap. MLB must wall the seam if he stays on the field; otherwise use a safety over the top.", avoid: "Any base formation with LBs covering TEs in space, 4-3, 3-4, 5-2 (you have no WRs to guard against but every TE and WR route wins vs. a LB)", blitzNote: "High (28–42%). 5 OL with no RB pickup — overload one side from the edge. If both TEs stay in protection (7-man protection), reduce blitz and play Cover 2 behind." },
+  p10:   { label: "10p (1 RB, 0 TE, 4 WR)",  priority: "Sub into Nickel immediately. 4 WRs still outnumber base LBs — RB stays as a run threat. Never go Dime unless it's obviously a passing down.", avoid: "4-3 base, 3-4 base, 5-2, 4-4 Split", blitzNote: "Moderate (20–28%). 5 DBs handle all receivers — selective pressure works well." },
   p11:   { label: "11p (1 RB, 1 TE, 3 WR)", priority: "Sub in Nickelback. Base 4-3 LB on the slot = mismatch every time.", avoid: "Base 4-3 without nickelback sub, 5-2, 4-4 Split", blitzNote: "Varies by QB (18–28%). Higher vs pocket QB. Lower vs scrambler." },
   p12:   { label: "12p (1 RB, 2 TE)",      priority: "Base or Nickel+LB. Two TEs threaten run AND seam simultaneously.", avoid: "Dime (need LBs for run), 3-2-6 (hybrid LBs vs physical TEs = mismatch)", blitzNote: "Low-moderate (15–22%). TE hot routes beat blitz. Coverage wins this matchup." },
   p13:   { label: "13p (1 RB, 3 TE)",      priority: "Max box defenders immediately. Three TEs can block or release — identify the pass-catching TE pre-snap. Never go Nickel — you need LBs to account for the extra gap.", avoid: "Nickel, Dime, 3-2-6 (massively outnumbered at the point of attack)", blitzNote: "Very low (10–15%). Three TEs in protection collapses blitz lanes. Run defense wins this." },
   p20:   { label: "20p (2 RB, 3 WR — Spread Power)", priority: "Sub into Nickel. Three WRs demand a nickel DB, but two RBs mean you cannot go Dime — the run threat is very real. The second RB can lead block, receive out of the flat, or serve as a pitch man. MLB must account for the second back every snap.", avoid: "Base 4-3 without nickelback (3 WRs expose every LB on WR), Dime (removes too many LBs for 2 RBs)", blitzNote: "Moderate (18–26%). Two RBs in protection absorbs extra rushers naturally. Selective pressure on confirmed passing downs — do not blitz blindly." },
   p21:   { label: "21p (2 RB, 1 TE)",      priority: "Base personnel. MLB must take the FB — frees everyone else for the HB.", avoid: "Dime, 3-2-6 (not enough run defenders)", blitzNote: "Low (14–20%). FB blocks blitzers naturally. Coverage gaps more dangerous." },
-  p22:   { label: "22p (Heavy / Power)",    priority: "Maximum box defenders. Match his physicality — he outweighs you.", avoid: "Nickel (removes LBs vs 22p), 3-2-6 (disaster vs power run)", blitzNote: "Very low (10–16%). Gap integrity wins this matchup — don't sacrifice gaps." },
+  p22:   { label: "22p (2 RB, 2 TE, 1 WR — Heavy)", priority: "Base or max-box personnel. Two TEs and two RBs give them 9 potential blockers — you need LBs in the box. The 1 WR means you still carry one CB but never sub to Nickel. OLBs set hard edges; MLB takes the lead FB.", avoid: "Nickel (removes LBs vs 9 blockers), Dime, 3-2-6 (disaster vs power run — completely outmanned)", blitzNote: "Very low (10–16%). FB and TE in protection soak up extra rushers. Gap integrity wins this matchup — don't sacrifice gaps for pressure." },
+  p23:   { label: "23p (2 RB, 3 TE, 0 WR — Jumbo)", priority: "Absolute max box. This is the heaviest possible offensive package — 2 RBs and 3 TEs provide up to 10 blockers with zero WRs on the field. Sub into Goal Line 5-3, 5-2, or 46 Bear immediately. Assign every gap before the snap. Safeties become extra box defenders — there is nothing to cover downfield. Power inside zone and QB sneaks are the primary threats.", avoid: "Nickel (you lose a LB vs 10 blockers), Dime (complete disaster), 3-2-6, any sub package — you are outnumbered at every gap if you remove LBs", blitzNote: "Very low (5–12%). With up to 10 blockers, gap-assignment defense beats any blitz. Interior DL stunts and twists work better than pure blitzes. Contain first." },
   trips: { label: "Trips / Bunch",          priority: "Trips floods one side with 3 receivers. Rotate coverage to match the overload.", avoid: "Standard base 4-3 without coverage adjustment — 3 DBs vs 3 receivers = overload wins", blitzNote: "Low-moderate (16–22%). Trips flooding exploits coverage busts from blitz." },
   empty: { label: "Empty Backfield",        priority: "No RB = no run threat and no protection help on blitzes. Maximum pass coverage.", avoid: "Any base formation with LBs (LBs on spread WRs = automatic mismatches)", blitzNote: "High (28–40%). No RB in protection — any blitz has a free rusher. Capitalize." },
   option_run:{ label:"Option / Triple Option", priority:"Assignment defense mandatory. DE takes HB every snap. LB spies QB. Safety has pitch man. Coach adjustments: set Option Read Key and RPO Read Key to Conservative.", avoid:"Any blitz removing the pitch key defender — automatic pitch TD. Never blitz unassigned option threat.", blitzNote:"Very low (8–12%). Contain first, pressure never. Blitzing into option = free pitch or QB keeper every time." },
@@ -19,6 +22,12 @@ export const PERSONNEL_FAMILIES = {
   p00_gun:    { label:"00p Gun",           desc:"5 WRs, no RB/TE from shotgun — pure spread, maximum pass coverage required", base:"empty" },
   p00_trips:  { label:"00p Trips",         desc:"5 WRs with trips alignment — flood one side, 3-on-2 overload every snap", base:"trips" },
   p00_motion: { label:"00p Motion",        desc:"5 WRs with pre-snap motion — shifts coverage responsibilities last second", base:"empty" },
+  // ── 01 Personnel ───────────────────────────────────────────────
+  p01_gun:    { label:"01p Gun",           desc:"No RB, 1 TE + 4 WRs from shotgun — near-empty spread, TE is seam/slot mismatch", base:"p01" },
+  p01_trips:  { label:"01p Trips TE",      desc:"Trips surface from near-empty — 4 receivers to one side with TE as extra flood option", base:"p01" },
+  // ── 02 Personnel ───────────────────────────────────────────────
+  p02_gun:    { label:"02p Gun",           desc:"No RB, 2 TEs + 3 WRs from shotgun — twin seam threats plus spread; 5 eligible, no run threat", base:"p02" },
+  p02_trips:  { label:"02p Trips TE",      desc:"Trips surface from 02p — flood one side with a TE as a mismatch in the mix", base:"p02" },
   // ── 10 Personnel ───────────────────────────────────────────────
   p10_gun:    { label:"10p Gun",           desc:"4 WR, 1 RB from shotgun — run threat stays, CBs cannot press", base:"p10" },
   p10_trips:  { label:"10p Trips",         desc:"4 WR with trips surface and 1 RB — flood one side, RB checkdown", base:"p10" },
@@ -50,6 +59,9 @@ export const PERSONNEL_FAMILIES = {
   p22_iForm:  { label:"22p I-Form / Jumbo",desc:"2 FBs or FB + extra TE — maximum power run", base:"p22" },
   p22_pistol: { label:"22p Pistol",        desc:"Heavy personnel from pistol — power inside zone", base:"p22" },
   p22_wildcat:{ label:"22p Wildcat",       desc:"Direct snap to RB or wildcat — unorthodox assignment rules", base:"p22" },
+  // ── 23 Personnel ───────────────────────────────────────────────
+  p23_jumbo:     { label:"23p Jumbo",       desc:"2 RBs + 3 TEs from I-Form — heaviest possible package, goal line and short yardage power", base:"p23" },
+  p23_goal_line: { label:"23p Goal Line",   desc:"Stacked goal line with all TEs and 2 RBs — every gap loaded, QB sneak or FB dive", base:"p23" },
   // ── Trips / Empty standalone ───────────────────────────────────
   trips_gun:  { label:"Trips Gun",         desc:"Trips or bunch from shotgun — 3 receivers one side", base:"trips" },
   trips_motion:{ label:"Trips w/ Motion",  desc:"Trips with pre-snap motion — coverage disguise essential", base:"trips" },
@@ -63,6 +75,12 @@ export const FAMILY_ADJUSTMENTS = {
   p00_gun:    { extra:"00p Gun — 5 WRs, no RB, no TE. Go Dime Rush or 3-2-6 Mug immediately. No run threat whatsoever — LBs are automatic mismatches on WRs. Blitz freely: their 5 OL cannot account for any extra rusher without a back.", bias:["Dime Rush","3-2-6 Mug","Dime Normal"] },
   p00_trips:  { extra:"00p Trips — 5 WRs with a trips surface. The 3-on-2 overload is every snap, every formation. 3-2-6 Mug gives 6 DBs to match all 5 WRs plus an apex for the flood. Cover 6 to the trips side is the only answer — Cover 3 is outnumbered 3-to-2.", bias:["3-2-6 Mug","3-3-5 Split","Nickel Wide"] },
   p00_motion: { extra:"00p with motion shifts the 5-WR surface last second. Hold your 2-high shell until motion settles, then rotate. Dime gives you 6 DBs to match any alignment they shift to. Never press — 5 WRs with motion will rub defenders into each other.", bias:["Dime Normal","3-2-6 Mug","Nickel 3-3 Dbl Mug"] },
+  // ── 01 Personnel ─────────────────────────────────────────────────────────
+  p01_gun:    { extra:"01p Gun — no RB, 1 TE, 4 WRs. Go Dime immediately — this is nearly identical to 00p but the TE creates a specific seam or slot mismatch. Identify the TE alignment pre-snap: slot TE = put your best slot DB on him, not a LB. Blitz freely from both edges — OL has no RB help.", bias:["Dime Rush","3-2-6 Mug","Dime Normal"] },
+  p01_trips:  { extra:"01p Trips — near-empty with a trips surface and a TE as the 4th receiver to one side. 3-2-6 Mug gives 6 DBs to match all 5 threats plus the flood overload. Cover 6 to the trips side; hold the rotation until the TE declares his route — seam or flat.", bias:["3-2-6 Mug","Dime Normal","3-3-5 Split"] },
+  // ── 02 Personnel ─────────────────────────────────────────────────────────
+  p02_gun:    { extra:"02p Gun — no RB, 2 TEs, 3 WRs. Sub into Dime or 3-2-6 Mug. No run threat from the backfield — the OL has zero pickup help on blitzes. Identify both TE alignments: a TE in the slot or released to the seam beats any LB in coverage. MLB must wall both seams or use safety help over the top of each TE.", bias:["3-2-6 Mug","Dime Normal","Nickel 3-3 Dbl Mug"] },
+  p02_trips:  { extra:"02p Trips — empty TE spread with a trips flood and a TE as extra mismatch. Cover 6 to the trips side; identify which TE is the seam threat and which is in-line. 3-2-6 gives 6 DBs to match every route — the only correct answer when 5 eligible receivers are on one side of the field.", bias:["3-2-6 Mug","3-3-5 Split","Dime Normal"] },
   // ── 10 Personnel ─────────────────────────────────────────────────────────
   p10_gun:    { extra:"10p Gun — 4 WRs with 1 RB. Sub into Nickel immediately. RB is still a run threat — do not go Dime unless it's obviously a passing down. CBs at 7 yards, never press. SS in the flat eliminates the bubble read.", bias:["Nickel 3-3 Over","Nickel Wide","3-3-5 Stack"] },
   p10_trips:  { extra:"10p Trips — 4 WRs with trips surface and 1 RB. Rotate a safety to trips at the snap. Cover 4 Quarters handles the overload — 3 receivers on one side beats Cover 3 math. RB is a checkdown, not a non-factor.", bias:["3-3-5 Split","Nickel Wide","3-2-6 Mug"] },
@@ -94,6 +112,9 @@ export const FAMILY_ADJUSTMENTS = {
   p22_iForm:  { extra:"22p Jumbo is pure physical power. Sub into 5-2, 4-4, or 46 Bear immediately. Never stay in Nickel or Dime vs this look. Every gap assigned at the LOS. MLB takes the lead FB every snap.", bias:["5-2 Normal","4-4 Split","46 Bear"] },
   p22_pistol: { extra:"22p from Pistol means power inside zone or QB counter. DL two-gap — never penetrate blindly. OLBs set the hard edge, LBs flow to the ball after DL contact. Goal Line 5-3 near the end zone.", bias:["4-3 Even 6-1","3-4 Bear","5-2 Normal"] },
   p22_wildcat:{ extra:"Wildcat — direct snap to an athlete, not the QB. Assign a LB to the ball carrier before the snap. DL cannot penetrate blindly or they open running lanes. Cover 1 behind — the pass is secondary.", bias:["3-4 Bear","4-3 Under","4-3 Even 6-1"] },
+  // ── 23 Personnel ─────────────────────────────────────────────────────────
+  p23_jumbo:     { extra:"23p Jumbo — the heaviest possible package: 2 RBs, 3 TEs, zero WRs. Up to 10 blockers. Sub into Goal Line 5-3 or 5-2 immediately — you need every defender in the box. Assign each gap pre-snap. Safeties become 8th and 9th box defenders; there is nothing to cover downfield. QB sneak, FB dive, and power inside zone are the only plays in this package.", bias:["Goal Line 5-3","5-2 Normal","4-4 Split","46 Bear"] },
+  p23_goal_line: { extra:"23p stacked at the goal line — every gap is loaded with a blocker. 46 Bear forces the offense to block 8 defenders at the LOS. MLB takes the lead FB; both OLBs hold the edges. DL must two-gap — never single-gap penetrate blindly or you create a cutback lane. Cover 0 behind.", bias:["46 Bear","Goal Line 5-3","3-4 Bear","5-2 Normal"] },
   // ── Trips / Empty standalone ─────────────────────────────────────────────
   trips_gun:  { extra:"Trips from Gun creates a 3-on-2 surface. Cover 6 to the trips side is the sound answer — Cover 4 to the strength, Cover 2 to the boundary. Rotate the safety at the snap only. Cover 3 has only 2 DBs for 3 receivers — it loses the math every time.", bias:["3-3-5 Split","Nickel 3-3 Mint","Nickel Wide"] },
   trips_motion:{ extra:"Trips with motion shifts surface strength at the last second — show a 2-high shell and hold your rotation until the motion settles. Cover 6 to the final trips side is the answer. LB mirrors the motion man, safety holds until declared.", bias:["3-3-5 Split","Nickel 3-3 Mint","3-3-5 Over Flex"] },
@@ -110,6 +131,18 @@ export function getAvailableFamilies(flat) {
     fams.push("p00_gun");
     if (has("trips")) fams.push("p00_trips");
     if (has("motion_heavy")) fams.push("p00_motion");
+  }
+
+  // ── 01 Personnel ──────────────────────────────────────────────
+  if (has("p01")) {
+    fams.push("p01_gun");
+    if (has("trips") || has("motion_heavy")) fams.push("p01_trips");
+  }
+
+  // ── 02 Personnel ──────────────────────────────────────────────
+  if (has("p02")) {
+    fams.push("p02_gun");
+    if (has("trips") || has("motion_heavy")) fams.push("p02_trips");
   }
 
   // ── 10 Personnel ──────────────────────────────────────────────
@@ -182,6 +215,13 @@ export function getAvailableFamilies(flat) {
       fams.push("p22_wildcat");
   }
 
+  // ── 23 Personnel ──────────────────────────────────────────────
+  if (has("p23")) {
+    fams.push("p23_jumbo");
+    if (has("short_yardage_run") || has("four_down_go") || has("inside_run") || has("fb_lead"))
+      fams.push("p23_goal_line");
+  }
+
   // ── Trips / Empty standalone (when not already covered under 11p) ──────────
   if (has("trips") && !has11) {
     fams.push("trips_gun");
@@ -195,12 +235,15 @@ export function getAvailableFamilies(flat) {
   // Always guarantee at least one family shows if any personnel tagged ─────────
   if (fams.length === 0) {
     if (has("p00")) fams.push("p00_gun");
+    else if (has("p01")) fams.push("p01_gun");
+    else if (has("p02")) fams.push("p02_gun");
     else if (has("p11")) fams.push("p11_gun");
     else if (has("p12")) fams.push("p12_gun");
     else if (has("p13")) fams.push("p13_iForm");
     else if (has("p20")) fams.push("p20_gun");
     else if (has("p21")) fams.push("p21_iForm");
     else if (has("p22")) fams.push("p22_iForm");
+    else if (has("p23")) fams.push("p23_jumbo");
     else fams.push("p11_gun"); // fallback
   }
 
