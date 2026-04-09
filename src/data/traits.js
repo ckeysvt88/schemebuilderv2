@@ -54,8 +54,6 @@ export const TRAITS = [
     { id: "p12", label: "12p (1 RB, 2 TE, 2 WR)" }, { id: "p13", label: "13p (1 RB, 3 TE, 1 WR)" },
     { id: "p20", label: "20p (2 RB, 0 TE, 3 WR)" }, { id: "p21", label: "21p (2 RB, 1 TE, 2 WR)" },
     { id: "p22", label: "22p (2 RB, 2 TE, 1 WR — Heavy)" }, { id: "p23", label: "23p (2 RB, 3 TE, 0 WR — Jumbo)" },
-    { id: "trips", label: "Trips / Bunch Sets" },
-    { id: "empty", label: "Empty Backfield" },
   ]},
   { id: "threats", label: "Key Threats", icon: "⚡", items: [
     { id: "elite_wr", label: "Elite WR / Speed Threat" }, { id: "elite_te", label: "Elite TE" },

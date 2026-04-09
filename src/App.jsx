@@ -1,6 +1,7 @@
 import { useState, useCallback } from 'react';
 import { TRAIT_LABELS } from './data/traits.js';
 import { scoreAll } from './engine/scoring.js';
+import { getAvailableFamilies } from './data/personnel.js';
 import { applyDownDistance } from './engine/downDistance.js';
 import TeamsScreen from './components/TeamsScreen.jsx';
 import ScoutScreen from './components/ScoutScreen.jsx';
@@ -86,7 +87,10 @@ export default function App() {
   const build = () => {
     const results = scoreAll(flat, myBook || "All", runPass);
     setScored(results);
-    setActiveP((personnelSel.length ? personnelSel : ["p11"])[0]);
+    // Default to the first available personnel family (applies expert bias immediately)
+    // rather than a raw personnel tag which bypasses family-level guidance
+    const fams = getAvailableFamilies(flat);
+    setActiveP(fams[0] || (personnelSel.length ? personnelSel[0] : "p11"));
     setSelFm(null);
     setMainTab("personnel");
     navigate("plan");
@@ -179,7 +183,9 @@ export default function App() {
         try { localStorage.setItem("cfb26_myBook", "All"); } catch(e) {}
         setSel({ _team: team.traits });
         setScored(results);
-        setActiveP(team.traits.find(t => ["p10","p11","p12","p21","p22","trips","empty"].includes(t)) || "p11");
+        // Use getAvailableFamilies to pick the most contextually relevant starting family
+        const teamFams = getAvailableFamilies(team.traits);
+        setActiveP(teamFams[0] || "p11_gun");
         setSelFm(null); setMainTab("personnel"); navigate("plan");
         document.getElementById('root')?.scrollTo(0, 0);
       }} />}

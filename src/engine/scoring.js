@@ -1,5 +1,5 @@
 import { FDB } from '../data/formations.js';
-import { PERSONNEL_FAMILIES, FAMILY_ADJUSTMENTS } from '../data/personnel.js';
+import { PERSONNEL_FAMILIES, FAMILY_ADJUSTMENTS, deriveImpliedTraits } from '../data/personnel.js';
 
 // ── SCORING ENGINE ────────────────────────────────────────────────────────────
 export function getBlitz(f, flat) {
@@ -26,6 +26,9 @@ export function blitzInfo(pct) {
 // runPass: 1-7 discrete positions (1=Full Pass, 4=Balanced, 7=Full Run)
 export function scoreAll(flat, book, runPass) {
   if (!flat.length) return [];
+  // Expand personnel selections with implied formation traits (trips, empty, four_wide, etc.)
+  // so formations score correctly even when those aren't explicitly scouted.
+  flat = deriveImpliedTraits(flat);
   const pos = runPass !== undefined ? runPass : 4;
   const BIAS_MAP = { 1: -1.0, 2: -0.65, 3: -0.30, 4: 0, 5: 0.30, 6: 0.65, 7: 1.0 };
   const runBias = BIAS_MAP[pos] || 0;  // negative=pass-heavy, positive=run-heavy
@@ -82,8 +85,12 @@ export function scoreForPersonnel(personnelTag, allTraits) {
     const raw = coreHits.length * 2 + suppHits.length;
     const maxPossible = d.coreTags.length * 2 + d.suppTags.length;
     const baseNorm = maxPossible > 0 ? (raw / maxPossible) * 100 : 0;
-    const personnelBonus = ctx.filter(t => d.coreTags.includes(t)).length * 3
-                         + ctx.filter(t => d.suppTags.includes(t)).length * 1;
+    // Only apply personnel-context bonus when the formation already has tag matches —
+    // prevents surfacing formations with zero scouted-trait relevance
+    const personnelBonus = baseNorm > 0
+      ? ctx.filter(t => d.coreTags.includes(t)).length * 3
+        + ctx.filter(t => d.suppTags.includes(t)).length * 1
+      : 0;
     const sc = Math.round(baseNorm + personnelBonus);
     if (sc === 0) return null;
     return { name, sc, coreHits, suppHits, blitz: getBlitz(d, allTraits), ...d };
@@ -104,10 +111,22 @@ export function groupByPersonnel(scored) {
 export function scoreForFamily(familyId, allTraits) {
   const family = PERSONNEL_FAMILIES[familyId];
   if (!family) return scoreForPersonnel("p11", allTraits);
+  // Expand implied traits so family-specific scoring matches formation tags correctly
+  allTraits = deriveImpliedTraits(allTraits);
   const adj = FAMILY_ADJUSTMENTS[familyId];
   const biasNames = adj ? adj.bias : [];
   const baseResults = scoreForPersonnel(family.base, allTraits);
-  const biased = baseResults.filter(f => biasNames.includes(f.name)).sort((a, b) => b.sc - a.sc);
-  const rest   = baseResults.filter(f => !biasNames.includes(f.name));
-  return [...biased, ...rest];
+  if (!biasNames.length) return baseResults;
+  // Apply a tiered score bonus to expert-recommended (biased) formations.
+  // The bonus reflects defensive football knowledge about what works vs this package,
+  // but a significantly better-matching formation will still rank above a weakly-matched biased one.
+  // Bonus tiers: 1st bias +20, 2nd +14, 3rd +9, 4th +5, beyond +3
+  // Zero-score formations get no bonus — they have no scouted-trait relevance.
+  const BIAS_BONUS = [20, 14, 9, 5, 3];
+  return baseResults.map(f => {
+    const biasIdx = biasNames.indexOf(f.name);
+    if (biasIdx < 0 || f.sc === 0) return f;
+    const bonus = BIAS_BONUS[biasIdx] ?? 3;
+    return { ...f, sc: Math.min(100, f.sc + bonus) };
+  }).sort((a, b) => b.sc - a.sc);
 }

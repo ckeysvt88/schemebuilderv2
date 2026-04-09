@@ -126,57 +126,48 @@ export function getAvailableFamilies(flat) {
   const has = (tag) => flat.includes(tag);
   const fams = [];
 
-  // ── 00 Personnel ──────────────────────────────────────────────
+  // ── 00 Personnel: 5 WR, no backs — always gun + trips; motion if scouted ──
   if (has("p00")) {
-    fams.push("p00_gun");
-    if (has("trips")) fams.push("p00_trips");
+    fams.push("p00_gun", "p00_trips");
     if (has("motion_heavy")) fams.push("p00_motion");
   }
 
-  // ── 01 Personnel ──────────────────────────────────────────────
+  // ── 01 Personnel: 1 TE + 4 WR, no backs — always gun + trips ──
   if (has("p01")) {
-    fams.push("p01_gun");
-    if (has("trips") || has("motion_heavy")) fams.push("p01_trips");
+    fams.push("p01_gun", "p01_trips");
   }
 
-  // ── 02 Personnel ──────────────────────────────────────────────
+  // ── 02 Personnel: 2 TE + 3 WR, no backs — always gun + trips ──
   if (has("p02")) {
-    fams.push("p02_gun");
-    if (has("trips") || has("motion_heavy")) fams.push("p02_trips");
+    fams.push("p02_gun", "p02_trips");
   }
 
-  // ── 10 Personnel ──────────────────────────────────────────────
+  // ── 10 Personnel: 4 WR + 1 RB — always gun, trips, empty (back can vacate) ──
   if (has("p10")) {
-    fams.push("p10_gun");
-    if (has("trips")) fams.push("p10_trips");
-    if (has("empty")) fams.push("p10_empty");
+    fams.push("p10_gun", "p10_trips", "p10_empty");
   }
 
   // ── 11 Personnel — require p11 explicitly OR strong spread signal (2+ co-occurring tendencies) ──
-  const spreadSignals = [has("rpo"), has("outside_run"), has("quick_game"), has("motion_heavy"), has("hurry_up"), has("trips")].filter(Boolean).length;
+  const spreadSignals = [has("rpo"), has("outside_run"), has("quick_game"), has("motion_heavy"), has("hurry_up")].filter(Boolean).length;
   const has11 = has("p11") || spreadSignals >= 2;
   if (has11) {
     // Pistol: run-based spread teams
     if (has("rpo") || has("option_run") || has("outside_run") || has("inside_run") || has("hb_stretch"))
       fams.push("p11_pistol");
-    // Gun: standard spread
-    fams.push("p11_gun");
-    // Trips: if they bunch/trips
-    if (has("trips") || has("motion_heavy")) fams.push("p11_trips");
-    // Empty: if they go empty
-    if (has("empty")) fams.push("p11_empty");
-    // Motion: if motion is heavy
-    if (has("motion_heavy") && !fams.includes("p11_trips")) fams.push("p11_motion");
+    // Gun + trips + empty always auto-populate — any 11p team can show these
+    fams.push("p11_gun", "p11_trips", "p11_empty");
+    // Motion variant only if motion is a scouted tendency
+    if (has("motion_heavy")) fams.push("p11_motion");
   }
 
-  // ── 12 Personnel ──────────────────────────────────────────────
+  // ── 12 Personnel: 2 TE — gun always; pistol/under by run tendency; trips always (TE split wide is standard) ──
   if (has("p12") || has("elite_te") || has("seam_routes")) {
     fams.push("p12_gun");
     if (has("outside_run") || has("inside_run") || has("run_heavy_1st") || has("hb_stretch"))
       fams.push("p12_pistol");
     if (has("strong_oline") || has("fb_lead") || has("run_heavy_1st") || has("p21"))
       fams.push("p12_under");
-    if (has("trips") || has("motion_heavy")) fams.push("p12_trips");
+    fams.push("p12_trips"); // TE split wide is a standard 12p concept
   }
 
   // ── 13 Personnel ──────────────────────────────────────────────
@@ -186,12 +177,12 @@ export function getAvailableFamilies(flat) {
       fams.push("p13_gun");
   }
 
-  // ── 20 Personnel ──────────────────────────────────────────────
+  // ── 20 Personnel: 2 RB + 3 WR — gun always; pistol by run tendency; trips always ──
   if (has("p20")) {
     fams.push("p20_gun");
     if (has("outside_run") || has("inside_run") || has("hb_stretch") || has("rpo"))
       fams.push("p20_pistol");
-    if (has("trips") || has("motion_heavy")) fams.push("p20_trips");
+    fams.push("p20_trips"); // 3 WR alignment can always show trips
   }
 
   // ── 21 Personnel ──────────────────────────────────────────────
@@ -222,16 +213,6 @@ export function getAvailableFamilies(flat) {
       fams.push("p23_goal_line");
   }
 
-  // ── Trips / Empty standalone (when not already covered under 11p) ──────────
-  if (has("trips") && !has11) {
-    fams.push("trips_gun");
-    if (has("motion_heavy")) fams.push("trips_motion");
-  }
-  if (has("empty") && !has("p10") && !has11) {
-    fams.push("empty_gun");
-    if (has("trips")) fams.push("empty_trips");
-  }
-
   // Always guarantee at least one family shows if any personnel tagged ─────────
   if (fams.length === 0) {
     if (has("p00")) fams.push("p00_gun");
@@ -248,4 +229,28 @@ export function getAvailableFamilies(flat) {
   }
 
   return [...new Set(fams)];
+}
+
+// Derives implied formation-type traits from personnel selection.
+// Used to ensure scoreAll / scoreForFamily rank formations correctly
+// even when trips and empty are not explicitly scouted as separate traits.
+export function deriveImpliedTraits(flat) {
+  const derived = new Set(flat);
+  // No-back packages always align in empty or near-empty sets
+  if (flat.some(t => ["p00","p01","p02"].includes(t))) {
+    derived.add("empty");
+    derived.add("no_run");
+  }
+  // 4-wide packages routinely use trips, empty, and four-wide surfaces
+  if (flat.includes("p10")) {
+    derived.add("trips");
+    derived.add("four_wide");
+    derived.add("empty");
+    derived.add("no_run");
+  }
+  // Standard spread packages — trips surface is always available
+  if (flat.includes("p11")) derived.add("trips");
+  if (flat.includes("p12")) derived.add("trips");  // TE split wide
+  if (flat.includes("p20")) derived.add("trips");  // 3-WR surface
+  return [...derived];
 }

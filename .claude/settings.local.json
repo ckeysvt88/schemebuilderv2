@@ -2,7 +2,9 @@
   "permissions": {
     "allow": [
       "WebFetch(domain:cfb.fan)",
-      "Bash(node --input-type=module)"
+      "Bash(node --input-type=module)",
+      "WebFetch(domain:en.wikipedia.org)",
+      "Bash(grep:*)"
     ]
   }
 }

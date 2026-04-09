@@ -253,7 +253,7 @@ export default function GamePlanScreen({
               const persMatches = (myBook && myBook !== "All"
                 ? persMatchesRaw.filter(f => f.books && (f.books.includes(myBook) || f.books.includes("All")))
                 : persMatchesRaw
-              ).slice(0, 8);
+              ).sort((a, b) => b.sc - a.sc).slice(0, 8);
 
               return (
                 <div>
