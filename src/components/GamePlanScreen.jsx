@@ -8,6 +8,7 @@ import { getAvailableFamilies } from '../data/personnel.js';
 import { getSituationTip, situationLabel } from '../engine/downDistance.js';
 import FormationCard, { PC, PL } from './FormationCard.jsx';
 import FormationDetail from './FormationDetail.jsx';
+import { ExportPDFButton } from './CallSheetPDF.jsx';
 
 
 export default function GamePlanScreen({
@@ -116,6 +117,9 @@ export default function GamePlanScreen({
             </button>
           </div>
         </div>
+
+        {/* ── Export call sheet — full-width button, second header row ── */}
+        <ExportPDFButton variant="full" rawScored={rawScored} sel={sel} myBook={myBook} runPass={runPass} />
 
       </div>
 
