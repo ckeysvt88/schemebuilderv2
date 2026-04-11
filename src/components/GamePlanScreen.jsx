@@ -8,6 +8,7 @@ import { getAvailableFamilies } from '../data/personnel.js';
 import { getSituationTip, situationLabel } from '../engine/downDistance.js';
 import FormationCard, { PC, PL } from './FormationCard.jsx';
 import FormationDetail from './FormationDetail.jsx';
+import { ExportPDFButton } from './CallSheetPDF.jsx';
 
 
 export default function GamePlanScreen({
@@ -114,6 +115,7 @@ export default function GamePlanScreen({
             <button onClick={handleShare} style={hdrBtn} aria-label="Share game plan">
               {shareToast === "shared" ? "✓ Sent" : shareToast === "copied" ? "✓ Copied" : "Share"}
             </button>
+            <ExportPDFButton rawScored={rawScored} sel={sel} myBook={myBook} runPass={runPass} />
           </div>
         </div>
 
