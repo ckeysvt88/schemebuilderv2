@@ -25,17 +25,10 @@ const C = {
   pass:     '#1A4FA8',
   hybrid:   '#6A40A8',
   pressure: '#A02020',
-
-  coreTagBg:  '#FFF3CC',
-  coreTagBdr: '#C8960C',
-  coreTagTxt: '#7A5000',
-  suppTagBg:  '#EEF2F8',
-  suppTagBdr: '#9AAAC0',
-  suppTagTxt: '#3A4A60',
 };
 
 const PC = { run: C.run, pass: C.pass, hybrid: C.hybrid, pressure: C.pressure };
-const PL = { run: 'RUN STOP', pass: 'PASS DEF', hybrid: 'HYBRID', pressure: 'PRESSURE' };
+const PL = { run: 'RUN', pass: 'PASS', hybrid: 'HYB', pressure: 'PRES' };
 
 function sitColor(label) {
   if (label.startsWith('1ST'))   return '#183870';
@@ -79,7 +72,7 @@ const S = StyleSheet.create({
 
   // ── Body two-column ──
   body:    { flexDirection: 'row', flex: 1 },
-  leftCol: { width: 152 },
+  leftCol: { width: 168 },
   rightCol:{ flex: 1, paddingLeft: 12 },
 
   // Section headers
@@ -93,6 +86,28 @@ const S = StyleSheet.create({
   profDot:      { width: 3.5, height: 3.5, borderRadius: 2, backgroundColor: C.goldBorder, marginRight: 5, marginTop: 1.5 },
   profTraitTxt: { fontSize: 7, color: C.text1, flex: 1, lineHeight: 1.35 },
   noProfile:    { fontSize: 7, color: C.text3, fontStyle: 'italic' },
+
+  // ── Compact Top Formations (left column subsection) ──
+  tfSection: { marginTop: 10 },
+  tfItem: {
+    paddingVertical: 5,
+    borderBottomWidth: 1,
+    borderBottomColor: C.border,
+  },
+  tfHdr: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+    marginBottom: 1.5,
+  },
+  tfHdrL: { flex: 1, flexDirection: 'row', alignItems: 'flex-start', marginRight: 6 },
+  tfRank: { fontSize: 6, color: C.text3, fontFamily: 'Helvetica-Bold', marginRight: 3, marginTop: 0.5 },
+  tfName: { fontSize: 7, fontFamily: 'Helvetica-Bold', flex: 1, lineHeight: 1.3 },
+  tfBadge: { paddingVertical: 1.5, paddingHorizontal: 3.5, borderRadius: 2, marginLeft: 4, marginTop: 0.5 },
+  tfBadgeTxt: { fontSize: 5, fontFamily: 'Helvetica-Bold', color: '#FFFFFF' },
+  tfPct: { fontSize: 9.5, fontFamily: 'Helvetica-Bold', color: C.gold, lineHeight: 1 },
+  tfMeta: { fontSize: 5.5, color: C.text3, marginBottom: 2.5 },
+  tfNote: { fontSize: 5.5, color: C.goldDark, lineHeight: 1.35, fontStyle: 'italic' },
 
   // ── Matrix table ──
   matHdrRow: { flexDirection: 'row', backgroundColor: C.hdrBg },
@@ -127,73 +142,11 @@ const S = StyleSheet.create({
   footer:    { marginTop: 8, borderTopWidth: 1, borderTopColor: C.border, paddingTop: 5, flexDirection: 'row', justifyContent: 'space-between' },
   footerTxt: { fontSize: 6, color: C.text3 },
 
-  // ── PAGE 2: Formation Cards ──
+  // ── PAGE 2: Situational Coaching Guide ──
   p2Hdr:   { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: 10, paddingBottom: 8, borderBottomWidth: 2, borderBottomColor: C.goldBorder },
   p2Title: { fontSize: 14, fontFamily: 'Helvetica-Bold', color: C.navy },
   p2Brand: { fontSize: 6, color: C.gold, fontFamily: 'Helvetica-Bold', letterSpacing: 2, marginBottom: 2 },
   p2Sub:   { fontSize: 7, color: C.text3 },
-
-  fmCard:    { marginBottom: 8, borderWidth: 1, borderColor: C.border, borderRadius: 3 },
-  fmHdr:     { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 6, paddingHorizontal: 10, borderBottomWidth: 1, borderBottomColor: C.border },
-  fmHdrL:    { flex: 1 },
-  fmNameRow: { flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap' },
-  fmName:    { fontSize: 10, fontFamily: 'Helvetica-Bold', color: C.navy, marginRight: 6 },
-  fmBadge:   { paddingVertical: 2, paddingHorizontal: 5, borderRadius: 2, marginRight: 4 },
-  fmBadgeTxt:{ fontSize: 5.5, fontFamily: 'Helvetica-Bold', color: '#FFFFFF' },
-  fmPersBdg: { paddingVertical: 2, paddingHorizontal: 5, borderRadius: 2, borderWidth: 1, borderColor: C.border },
-  fmPersTxt: { fontSize: 5.5, color: C.text2 },
-  fmHdrR:    { alignItems: 'flex-end', paddingLeft: 10 },
-  fmScore:   { fontSize: 15, fontFamily: 'Helvetica-Bold', color: C.gold, lineHeight: 1 },
-  fmBlitzRow:{ flexDirection: 'row', alignItems: 'center', marginTop: 2 },
-  fmBlitzPct:{ fontSize: 6.5, fontFamily: 'Helvetica-Bold', marginRight: 3 },
-  fmBlitzLbl:{ fontSize: 5.5, color: C.text3 },
-
-  // DC Coaching Note
-  fmNote:    { flexDirection: 'row', alignItems: 'flex-start', backgroundColor: C.noteBg, borderBottomWidth: 1, borderBottomColor: C.noteBorder, paddingVertical: 5, paddingHorizontal: 10 },
-  fmNoteBar: { width: 2.5, backgroundColor: C.goldBorder, borderRadius: 1, marginRight: 7, alignSelf: 'stretch' },
-  fmNoteLbl: { fontSize: 5.5, color: C.gold, fontFamily: 'Helvetica-Bold', letterSpacing: 1, marginBottom: 2 },
-  fmNoteTxt: { fontSize: 6.5, color: C.goldDark, lineHeight: 1.4, fontStyle: 'italic', flex: 1 },
-
-  fmBody:    { flexDirection: 'row', paddingVertical: 7, paddingHorizontal: 10 },
-  fmLeft:    { flex: 1, paddingRight: 8 },
-  fmRight:   { width: 164 },
-
-  fmSecLbl:  { fontSize: 5.5, color: C.text3, fontFamily: 'Helvetica-Bold', letterSpacing: 1, marginBottom: 4 },
-
-  // Coverages
-  covRow:   { flexDirection: 'row', flexWrap: 'wrap', marginBottom: 6 },
-  covPill:  { paddingVertical: 2.5, paddingHorizontal: 5, borderWidth: 1, borderColor: C.border, borderRadius: 2, marginRight: 4, marginBottom: 3 },
-  covStars: { fontSize: 5.5, color: C.gold, marginBottom: 1 },
-  covName:  { fontSize: 6.5, fontFamily: 'Helvetica-Bold', color: C.text1, marginBottom: 1 },
-  covTag:   { fontSize: 5.5, color: C.text3 },
-
-  // Why Selected tags
-  tagRow:    { flexDirection: 'row', flexWrap: 'wrap', marginBottom: 4 },
-  tagCore:   { paddingVertical: 1.5, paddingHorizontal: 4, borderRadius: 2, backgroundColor: C.coreTagBg, borderWidth: 1, borderColor: C.coreTagBdr, marginRight: 3, marginBottom: 2.5 },
-  tagCoreTxt:{ fontSize: 5.5, color: C.coreTagTxt, fontFamily: 'Helvetica-Bold' },
-  tagSupp:   { paddingVertical: 1.5, paddingHorizontal: 4, borderRadius: 2, backgroundColor: C.suppTagBg, borderWidth: 1, borderColor: C.suppTagBdr, marginRight: 3, marginBottom: 2.5 },
-  tagSuppTxt:{ fontSize: 5.5, color: C.suppTagTxt },
-
-  // Pre-snap keys
-  preList:  { marginBottom: 6 },
-  preItem:  { flexDirection: 'row', marginBottom: 2.5 },
-  preArrow: { fontSize: 7, color: C.goldBorder, marginRight: 4 },
-  preTxt:   { fontSize: 6.5, color: C.text2, flex: 1, lineHeight: 1.35 },
-
-  // Call guide mini-table
-  callTbl:    { borderWidth: 1, borderColor: C.border },
-  callTblRow: { flexDirection: 'row', borderBottomWidth: 1, borderBottomColor: C.border },
-  callDnCell: { width: 68, paddingVertical: 3.5, paddingHorizontal: 5, backgroundColor: C.sectionBg, borderRightWidth: 1, borderRightColor: C.border, justifyContent: 'center' },
-  callDnTxt:  { fontSize: 6, fontFamily: 'Helvetica-Bold', color: C.navy },
-  callBdyCell:{ flex: 1, paddingVertical: 3.5, paddingHorizontal: 5 },
-  callCallTxt:{ fontSize: 6.5, fontFamily: 'Helvetica-Bold', color: C.text1 },
-  callNoteTxt:{ fontSize: 5.5, color: C.text3, fontStyle: 'italic', marginTop: 0.5 },
-
-  // ── PAGE 3: Situational Coaching Guide ──
-  p3Hdr:       { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: 10, paddingBottom: 8, borderBottomWidth: 2, borderBottomColor: C.goldBorder },
-  p3Title:     { fontSize: 14, fontFamily: 'Helvetica-Bold', color: C.navy },
-  p3Brand:     { fontSize: 6, color: C.gold, fontFamily: 'Helvetica-Bold', letterSpacing: 2, marginBottom: 2 },
-  p3Sub:       { fontSize: 7, color: C.text3 },
 
   guideEntry:  { marginBottom: 5, paddingBottom: 5, borderBottomWidth: 1, borderBottomColor: '#E8EDF4' },
   guideHdrRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: 2 },
@@ -272,7 +225,7 @@ function MatrixRow({ row, isAlt }) {
         </View>
       </View>
 
-      {/* DC Tip inline — shown for all situations that have one */}
+      {/* DC Tip inline */}
       {row.dcTip && (
         <View style={S.matTipRow}>
           <Text style={S.matTipTxt}>
@@ -285,118 +238,25 @@ function MatrixRow({ row, isAlt }) {
   );
 }
 
-function FormationCard({ fm, rank }) {
+// Compact formation item for the left column
+function TopFormationItem({ fm, rank, isLast }) {
   const prColor = PC[fm.priority] || C.navy;
   return (
-    <View style={[S.fmCard, { borderLeftWidth: 3, borderLeftColor: prColor }]}>
-      {/* Card header — name, badges, match score */}
-      <View style={S.fmHdr}>
-        <View style={S.fmHdrL}>
-          <View style={S.fmNameRow}>
-            <Text style={S.fmName}>#{rank} {fm.name}</Text>
-            <View style={[S.fmBadge, { backgroundColor: prColor }]}>
-              <Text style={S.fmBadgeTxt}>{PL[fm.priority] || fm.priority}</Text>
-            </View>
-            <View style={S.fmPersBdg}>
-              <Text style={S.fmPersTxt}>{fm.personnel}</Text>
-            </View>
+    <View style={[S.tfItem, isLast && { borderBottomWidth: 0 }]}>
+      <View style={S.tfHdr}>
+        <View style={S.tfHdrL}>
+          <Text style={S.tfRank}>#{rank}</Text>
+          <Text style={[S.tfName, { color: prColor }]} numberOfLines={1}>{fm.name}</Text>
+          <View style={[S.tfBadge, { backgroundColor: prColor }]}>
+            <Text style={S.tfBadgeTxt}>{PL[fm.priority] || fm.priority}</Text>
           </View>
         </View>
-        <View style={S.fmHdrR}>
-          <Text style={S.fmScore}>{fm.sc}%</Text>
-          <View style={S.fmBlitzRow}>
-            <Text style={[S.fmBlitzPct, { color: fm.blitzColor || C.text3 }]}>{fm.blitz}%</Text>
-            <Text style={S.fmBlitzLbl}>{fm.blitzLabel}</Text>
-          </View>
-        </View>
+        <Text style={S.tfPct}>{fm.sc}%</Text>
       </View>
-
-      {/* DC Coaching Note — the expert insight that makes this call work */}
+      <Text style={S.tfMeta}>{fm.coverage}  ·  {fm.blitz}% blitz</Text>
       {fm.dcNote ? (
-        <View style={S.fmNote}>
-          <View style={S.fmNoteBar} />
-          <View style={{ flex: 1 }}>
-            <Text style={S.fmNoteLbl}>DC NOTE</Text>
-            <Text style={S.fmNoteTxt}>{fm.dcNote}</Text>
-          </View>
-        </View>
+        <Text style={S.tfNote} numberOfLines={2}>{fm.dcNote}</Text>
       ) : null}
-
-      {/* Card body */}
-      <View style={S.fmBody}>
-        {/* Left: coverages + why selected */}
-        <View style={S.fmLeft}>
-          <Text style={S.fmSecLbl}>COVERAGES</Text>
-          <View style={S.covRow}>
-            {fm.coverages.map((cov, i) => (
-              <View key={i} style={S.covPill}>
-                <Text style={S.covStars}>
-                  {'★'.repeat(cov.rating)}{'☆'.repeat(5 - cov.rating)}
-                </Text>
-                <Text style={S.covName}>{cov.name}</Text>
-                {cov.tag ? <Text style={S.covTag}>{cov.tag}</Text> : null}
-              </View>
-            ))}
-          </View>
-
-          {(fm.coreHits.length > 0 || fm.suppHits.length > 0) && (
-            <>
-              <Text style={S.fmSecLbl}>WHY SELECTED</Text>
-              <View style={S.tagRow}>
-                {fm.coreHits.map((t, i) => (
-                  <View key={`c${i}`} style={S.tagCore}>
-                    <Text style={S.tagCoreTxt}>{t}</Text>
-                  </View>
-                ))}
-                {fm.suppHits.map((t, i) => (
-                  <View key={`s${i}`} style={S.tagSupp}>
-                    <Text style={S.tagSuppTxt}>{t}</Text>
-                  </View>
-                ))}
-              </View>
-            </>
-          )}
-        </View>
-
-        {/* Right: pre-snap keys + call guide */}
-        <View style={S.fmRight}>
-          {fm.preSnap.length > 0 && (
-            <>
-              <Text style={S.fmSecLbl}>PRE-SNAP KEYS</Text>
-              <View style={S.preList}>
-                {fm.preSnap.slice(0, 3).map((key, i) => (
-                  <View key={i} style={S.preItem}>
-                    <Text style={S.preArrow}>▸</Text>
-                    <Text style={S.preTxt}>{key}</Text>
-                  </View>
-                ))}
-              </View>
-            </>
-          )}
-
-          {fm.callsheet.length > 0 && (
-            <>
-              <Text style={S.fmSecLbl}>CALL GUIDE</Text>
-              <View style={S.callTbl}>
-                {fm.callsheet.map((c, i) => (
-                  <View
-                    key={i}
-                    style={[S.callTblRow, i === fm.callsheet.length - 1 && { borderBottomWidth: 0 }]}
-                  >
-                    <View style={S.callDnCell}>
-                      <Text style={S.callDnTxt}>{c.down}</Text>
-                    </View>
-                    <View style={S.callBdyCell}>
-                      <Text style={S.callCallTxt}>{c.call}</Text>
-                      {c.note ? <Text style={S.callNoteTxt}>{c.note}</Text> : null}
-                    </View>
-                  </View>
-                ))}
-              </View>
-            </>
-          )}
-        </View>
-      </View>
     </View>
   );
 }
@@ -407,7 +267,6 @@ function GuideEntry({ entry, isLast }) {
 
   return (
     <View style={[S.guideEntry, isLast && { borderBottomWidth: 0, marginBottom: 0 }]}>
-      {/* Situation label + likely personnel */}
       <View style={S.guideHdrRow}>
         <Text style={[S.guideSitLbl, { color: sc }]}>{entry.label}</Text>
         {entry.likelyPersonnel ? (
@@ -415,7 +274,6 @@ function GuideEntry({ entry, isLast }) {
         ) : null}
       </View>
 
-      {/* Primary call */}
       {hasPrimary ? (
         <View style={S.guideCallRow}>
           <Text style={S.guideCallLbl}>CALL</Text>
@@ -428,7 +286,6 @@ function GuideEntry({ entry, isLast }) {
         <Text style={S.guideNoCall}>No formation matched for this situation</Text>
       )}
 
-      {/* DC Tip */}
       {entry.dcTip ? (
         <>
           <Text style={S.guideTipLbl}>DC KEY</Text>
@@ -449,7 +306,7 @@ function CallSheetDocument({ data }) {
   return (
     <Document title="Defensive Call Sheet" author="Scheme Builders">
 
-      {/* ══ PAGE 1: Offensive Profile + Down/Distance Matrix ══ */}
+      {/* ══ PAGE 1: Offensive Profile + Top Formations (left) + D&D Matrix (right) ══ */}
       <Page size="LETTER" style={S.page}>
         <View style={S.header}>
           <View>
@@ -465,7 +322,7 @@ function CallSheetDocument({ data }) {
         </View>
 
         <View style={S.body}>
-          {/* Left: Offensive Profile */}
+          {/* Left: Offensive Profile + Top Formations */}
           <View style={S.leftCol}>
             <View style={S.secHdr}>
               <Text style={S.secHdrTxt}>OFFENSIVE PROFILE</Text>
@@ -483,6 +340,25 @@ function CallSheetDocument({ data }) {
                 ))}
               </View>
             ))}
+
+            {/* Top Formations — compact subsection below profile */}
+            {topFormations.length > 0 && (
+              <View style={S.tfSection}>
+                <View style={S.secHdr}>
+                  <Text style={S.secHdrTxt}>TOP FORMATIONS</Text>
+                </View>
+                {topFormations.map((fm, i) =>
+                  fm ? (
+                    <TopFormationItem
+                      key={i}
+                      fm={fm}
+                      rank={i + 1}
+                      isLast={i === topFormations.length - 1 || !topFormations[i + 1]}
+                    />
+                  ) : null
+                )}
+              </View>
+            )}
           </View>
 
           {/* Right: Situation Matrix */}
@@ -507,38 +383,18 @@ function CallSheetDocument({ data }) {
 
         <View style={S.footer}>
           <Text style={S.footerTxt}>Scheme Builders · CFB26 Defensive Scheme Builder · CONFIDENTIAL — GAME PREP</Text>
-          <Text style={S.footerTxt}>Page 1 of 3</Text>
+          <Text style={S.footerTxt}>Page 1 of 2</Text>
         </View>
       </Page>
 
-      {/* ══ PAGE 2: Top Formation Cards ══ */}
+      {/* ══ PAGE 2: Situational Coaching Guide ══ */}
       <Page size="LETTER" style={S.page}>
         <View style={S.p2Hdr}>
           <View>
             <Text style={S.p2Brand}>SCHEME BUILDERS</Text>
-            <Text style={S.p2Title}>TOP FORMATIONS</Text>
+            <Text style={S.p2Title}>SITUATIONAL COACHING GUIDE</Text>
           </View>
-          <Text style={S.p2Sub}>Ranked by match score · Playbook: {myBook} · {runPassLabel} tendency</Text>
-        </View>
-
-        {topFormations.map((fm, i) =>
-          fm ? <FormationCard key={i} fm={fm} rank={i + 1} /> : null
-        )}
-
-        <View style={S.footer}>
-          <Text style={S.footerTxt}>Scheme Builders · CFB26 Defensive Scheme Builder · CONFIDENTIAL — GAME PREP</Text>
-          <Text style={S.footerTxt}>Page 2 of 3</Text>
-        </View>
-      </Page>
-
-      {/* ══ PAGE 3: Situational Coaching Guide ══ */}
-      <Page size="LETTER" style={S.page}>
-        <View style={S.p3Hdr}>
-          <View>
-            <Text style={S.p3Brand}>SCHEME BUILDERS</Text>
-            <Text style={S.p3Title}>SITUATIONAL COACHING GUIDE</Text>
-          </View>
-          <Text style={S.p3Sub}>DC keys · likely personnel · best call — for every game situation</Text>
+          <Text style={S.p2Sub}>DC keys · likely personnel · best call — for every game situation</Text>
         </View>
 
         {situationGuide.map((entry, i) => (
@@ -551,7 +407,7 @@ function CallSheetDocument({ data }) {
 
         <View style={S.footer}>
           <Text style={S.footerTxt}>Scheme Builders · CFB26 Defensive Scheme Builder · CONFIDENTIAL — GAME PREP</Text>
-          <Text style={S.footerTxt}>Page 3 of 3</Text>
+          <Text style={S.footerTxt}>Page 2 of 2</Text>
         </View>
       </Page>
 
@@ -602,7 +458,7 @@ export function ExportPDFButton({ rawScored, sel, myBook, runPass, variant = 'co
           >
             {loading
               ? 'Building Call Sheet…'
-              : 'Export Defensive Call Sheet  ↓  PDF  (3 pages)'}
+              : 'Export Defensive Call Sheet  ↓  PDF  (2 pages)'}
           </button>
         ) : (
           // ── Compact header button ─────────────────────────────────────────
