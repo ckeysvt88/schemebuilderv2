@@ -42,23 +42,23 @@ const DOWN_DIST_MODS = {
 
 // Personnel personnel tags that the offense is most likely to use per situation
 const LIKELY_PERSONNEL = {
-  '1_short':  ['p21', 'p22', 'p11', 'p12'],
+  '1_short':  ['p21', 'p22', 'p13', 'p23', 'p11', 'p12'],
   '1_medium': ['p11', 'p12', 'p21'],
   '1_long':   ['p11', 'p10'],
-  '2_short':  ['p21', 'p11', 'p22'],
+  '2_short':  ['p21', 'p22', 'p13', 'p11'],
   '2_medium': ['p11', 'p12'],
   '2_long':   ['p11', 'p10', 'empty'],
-  '3_short':  ['p11', 'p21', 'p22'],
+  '3_short':  ['p11', 'p21', 'p22', 'p13', 'p23'],
   '3_medium': ['p11', 'p10'],
   '3_long':   ['p10', 'p11', 'empty'],
-  '4_short':  ['p22', 'p21', 'p11'],
+  '4_short':  ['p22', 'p21', 'p23', 'p13', 'p11'],
   '4_medium': ['p11', 'p10'],
   '4_long':   ['p10', 'empty'],
 };
 
 // DC tip shown in the UI for the current situation
 const SITUATION_TIPS = {
-  '1_short':  'Run-stop priority. Expect 21/22p physicality. Keep base personnel — do NOT sub Nickel on 1st & short.',
+  '1_short':  'Run-stop priority. Expect 21/22p or 13/23p physicality. Keep base/heavy personnel — NEVER sub Nickel on 1st & short vs heavy personnel.',
   '1_medium': 'Stay balanced. He can run OR pass. Base or Nickel with LB integrity. Do not give up inside zone.',
   '1_long':   '1st & long favors him passing. Consider early Nickel sub — he will spread you out.',
   '2_short':  'Expect power run or a quick RPO. Stack the box. He needs minimal gain — make him earn it physically.',
