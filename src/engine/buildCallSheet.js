@@ -27,12 +27,39 @@ const SITUATIONS = [
   { label: '4TH & LONG',    down: 4, distance: 7  },
 ];
 
-function pluck(f) {
+// Select the most situationally correct coverage for this formation + down/distance.
+// Formations always list coverages sorted by general rating (5 = best).
+// For 3rd/4th & long we need a deep-zone call (Cover 2/4/Quarters) — Cover 3 bleeds
+// the seam between safeties on must-convert distances.
+// For 3rd/4th & short / goal-line we want assignment man (Cover 0/1).
+// All other situations default to the formation's #1-rated coverage.
+function selectCoverage(f, down, distance) {
+  const covs = f?.coverages;
+  if (!covs || covs.length === 0) return '—';
+  if (covs.length === 1) return covs[0].name;
+
+  if ((down === 3 || down === 4) && distance >= 7) {
+    // Prefer deep-zone coverage on must-convert long situations
+    const deepZone = covs.find(c => /\bcover\s*[24]\b|quarters/i.test(c.name));
+    if (deepZone) return deepZone.name;
+  }
+
+  if ((down === 3 || down === 4) && distance <= 3) {
+    // Prefer man/zero on assignment short-yardage stops
+    const man = covs.find(c => /cover\s*0\b|zero|cover\s*1[^3\s]|cover\s*1$/i.test(c.name));
+    if (man) return man.name;
+  }
+
+  // All other situations: top-rated coverage (index 0)
+  return covs[0].name;
+}
+
+function pluck(f, down, distance) {
   if (!f) return null;
   const bi = blitzInfo(f.blitz);
   return {
     name:       f.name,
-    coverage:   f.coverages?.[0]?.name || '—',
+    coverage:   selectCoverage(f, down, distance),
     sc:         f.sc,
     blitz:      f.blitz,
     blitzLabel: bi.label,
@@ -64,34 +91,34 @@ export function buildCallSheetData({ rawScored, sel, myBook, runPass }) {
     const ranked = applyDownDistance(rawScored, sit.down, sit.distance);
     return {
       label:     sit.label,
-      primary:   pluck(ranked[0]),
-      secondary: pluck(ranked[1]),
+      primary:   pluck(ranked[0], sit.down, sit.distance),
+      secondary: pluck(ranked[1], sit.down, sit.distance),
       dcTip:     getSituationTip(sit.down, sit.distance) || null,
     };
   });
 
-  // Goal Line — personnel-filtered, not score-adjusted
+  // Goal Line — personnel-filtered, not score-adjusted; 4th & 1 seeds coverage logic
   const glForms = rawScored.filter(f => f.personnel === 'Goal Line');
   situationMatrix.push({
     label:     'GOAL LINE',
-    primary:   pluck(glForms[0]),
-    secondary: pluck(glForms[1]),
+    primary:   pluck(glForms[0], 4, 1),
+    secondary: pluck(glForms[1], 4, 1),
     dcTip:     'Sub into Goal Line 5-3, 5-2, or 46 Bear immediately. All gaps assigned pre-snap. Cover 0 viable — make them earn every inch.',
   });
 
-  // 2-Minute defense
+  // 2-Minute defense — treat as 3rd & long for coverage selection
   const pvForms = rawScored.filter(f => f.personnel === 'Prevent');
   situationMatrix.push({
     label:     '2-MINUTE DEF',
-    primary:   pluck(pvForms[0]),
-    secondary: pluck(pvForms[1]),
+    primary:   pluck(pvForms[0], 3, 10),
+    secondary: pluck(pvForms[1], 3, 10),
     dcTip:     'Allow the short throw — attack the tackle. Clock is your ally. Three-deep eliminates the explosive play.',
   });
 
-  // 3. Top 4 formations for detail cards (page 2) — 4 cards to allow room for dcNote block
-  const topFormations = rawScored.slice(0, 4).map(pluck);
+  // 3. Top 4 formations for detail cards — no situation context, use default coverage
+  const topFormations = rawScored.slice(0, 4).map(f => pluck(f));
 
-  // 4. Situational coaching guide (page 3) — DC tips + likely personnel + best call per situation
+  // 4. Situational coaching guide — DC tips + likely personnel + best call per situation
   const situationGuide = SITUATIONS.map(sit => {
     const ranked = applyDownDistance(rawScored, sit.down, sit.distance);
     return {
@@ -101,20 +128,20 @@ export function buildCallSheetData({ rawScored, sel, myBook, runPass }) {
         .slice(0, 4)
         .map(p => TRAIT_LABELS[p] || p)
         .join(' · '),
-      primary: pluck(ranked[0]),
+      primary: pluck(ranked[0], sit.down, sit.distance),
     };
   });
   situationGuide.push({
     label:           'GOAL LINE',
     dcTip:           'Sub into Goal Line 5-3, 5-2, or 46 Bear immediately. All gaps assigned pre-snap. Cover 0 viable — make them earn every inch.',
     likelyPersonnel: '22p (2 RB, 2 TE, 1 WR) · 23p (2 RB, 3 TE — Jumbo) · 13p (1 RB, 3 TE, 1 WR)',
-    primary: pluck(glForms[0]),
+    primary: pluck(glForms[0], 4, 1),
   });
   situationGuide.push({
     label:           '2-MINUTE DEF',
     dcTip:           'Allow the short throw — attack the tackle. Clock is your ally. NEVER press from Prevent. Three-deep eliminates the explosive play. Do NOT deploy before 2:00 remaining.',
     likelyPersonnel: '10p (1 RB, 4 WR) · 11p (1 RB, 1 TE, 3 WR) · Empty Backfield',
-    primary: pluck(pvForms[0]),
+    primary: pluck(pvForms[0], 3, 10),
   });
 
   return {

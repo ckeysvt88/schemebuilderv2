@@ -288,7 +288,7 @@ function GuideEntry({ entry, isLast }) {
 
       {entry.dcTip ? (
         <>
-          <Text style={S.guideTipLbl}>DC KEY</Text>
+          <Text style={S.guideTipLbl}>DEFENSIVE KEYS</Text>
           <Text style={S.guideTipTxt}>{entry.dcTip}</Text>
         </>
       ) : null}
