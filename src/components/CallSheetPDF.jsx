@@ -437,42 +437,72 @@ function CallSheetDocument({ data }) {
   );
 }
 
-// ── Exported button component — drop this into any screen ─────────────────────
-export function ExportPDFButton({ rawScored, sel, myBook, runPass, style: extStyle }) {
+// ── Exported button component ─────────────────────────────────────────────────
+// variant="compact"  →  small header button (default)
+// variant="full"     →  wide, prominent banner button for top-of-page placement
+export function ExportPDFButton({ rawScored, sel, myBook, runPass, variant = 'compact' }) {
   if (!rawScored || rawScored.length === 0) return null;
 
-  const data = buildCallSheetData({ rawScored, sel, myBook, runPass });
-
+  const data     = buildCallSheetData({ rawScored, sel, myBook, runPass });
   const fileName = `call-sheet-${new Date().toISOString().slice(0, 10)}.pdf`;
+  const isFull   = variant === 'full';
 
   return (
     <PDFDownloadLink
       document={<CallSheetDocument data={data} />}
       fileName={fileName}
-      style={{ textDecoration: 'none', display: 'inline-block' }}
+      style={{ textDecoration: 'none', display: isFull ? 'block' : 'inline-block' }}
     >
-      {({ loading }) => (
-        <button
-          disabled={loading}
-          style={{
-            minHeight: 36,
-            padding: '0 13px',
-            background: loading ? 'var(--color-surface-1)' : 'transparent',
-            border: '1px solid var(--color-border)',
-            borderRadius: 'var(--r-sm)',
-            color: loading ? 'var(--color-text-3)' : 'var(--color-text-2)',
-            fontSize: 12,
-            cursor: loading ? 'wait' : 'pointer',
-            fontFamily: 'var(--font-mono)',
-            whiteSpace: 'nowrap',
-            transition: 'all 150ms ease',
-            opacity: loading ? 0.6 : 1,
-            ...extStyle,
-          }}
-        >
-          {loading ? '...' : 'PDF'}
-        </button>
-      )}
+      {({ loading }) =>
+        isFull ? (
+          // ── Full-width banner button ──────────────────────────────────────
+          <button
+            disabled={loading}
+            style={{
+              width: '100%',
+              minHeight: 38,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: 8,
+              background: loading ? 'transparent' : 'rgba(200,150,12,0.07)',
+              border: '1px solid var(--color-gold-border, #4a3808)',
+              borderRadius: 'var(--r-sm)',
+              color: loading ? 'var(--color-text-3)' : 'var(--color-gold)',
+              fontSize: 12,
+              fontWeight: '700',
+              letterSpacing: '0.5px',
+              cursor: loading ? 'wait' : 'pointer',
+              fontFamily: 'var(--font-mono)',
+              transition: 'all 150ms ease',
+              opacity: loading ? 0.55 : 1,
+            }}
+          >
+            {loading ? 'Building PDF…' : 'Export Defensive Call Sheet  ↓  PDF'}
+          </button>
+        ) : (
+          // ── Compact header button ─────────────────────────────────────────
+          <button
+            disabled={loading}
+            style={{
+              minHeight: 36,
+              padding: '0 13px',
+              background: 'transparent',
+              border: '1px solid var(--color-border)',
+              borderRadius: 'var(--r-sm)',
+              color: loading ? 'var(--color-text-3)' : 'var(--color-text-2)',
+              fontSize: 12,
+              cursor: loading ? 'wait' : 'pointer',
+              fontFamily: 'var(--font-mono)',
+              whiteSpace: 'nowrap',
+              transition: 'all 150ms ease',
+              opacity: loading ? 0.6 : 1,
+            }}
+          >
+            {loading ? '…' : 'PDF'}
+          </button>
+        )
+      }
     </PDFDownloadLink>
   );
 }

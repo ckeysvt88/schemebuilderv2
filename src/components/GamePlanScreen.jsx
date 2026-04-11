@@ -115,9 +115,11 @@ export default function GamePlanScreen({
             <button onClick={handleShare} style={hdrBtn} aria-label="Share game plan">
               {shareToast === "shared" ? "✓ Sent" : shareToast === "copied" ? "✓ Copied" : "Share"}
             </button>
-            <ExportPDFButton rawScored={rawScored} sel={sel} myBook={myBook} runPass={runPass} />
           </div>
         </div>
+
+        {/* ── Export call sheet — full-width button, second header row ── */}
+        <ExportPDFButton variant="full" rawScored={rawScored} sel={sel} myBook={myBook} runPass={runPass} />
 
       </div>
 
