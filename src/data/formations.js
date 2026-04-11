@@ -36,7 +36,7 @@ export const FDB = {
     desc:"Five DL, three LBs. Better pursuit angles than 6-2. More coverage flexibility near goal line when concerned about PA fades. The preferred GL front when offense mixes PA.",
     dcNote:"5-3 is superior to 6-2 when the offense mixes PA or fades into their GL package. 5 DL handle all gaps while the extra LB (vs 6-2's extra DL) gives you a coverage athlete who can carry a TE or HB.",
     blitzBase:25, blitzMods:[{tags:["short_yardage_run","four_down_go"],d:+10},{tags:["redzone_spec"],d:+8},{tags:["play_action","back_shoulder"],d:-8}],
-    avoidTags:["p10","empty","no_huddle","hurry_up","elite_wr","four_wide"],
+    avoidTags:["p00","p01","p02","p10","empty","no_huddle","hurry_up","elite_wr","four_wide"],
     coreTags:["inside_run","short_yardage_run","p21","p22","p13","p23","strong_oline","fb_lead","four_down_go","redzone_spec"],
     suppTags:["counter_trap","outside_run","hb_stretch","p12","play_action"],
     coverages:[
@@ -52,7 +52,7 @@ export const FDB = {
     desc:"Six DL, two LBs. Maximum gap-filling power. Available in every playbook. Most physically dominant formation in CFB26. 6 DL vs 5 OL — the math is simply unblockable.",
     dcNote:"Six DL means the center and guards face impossible 1-on-2 assignments. LBs have clean sight lines. Sub immediately if he goes spread — there is literally no pass coverage in 6-2.",
     blitzBase:30, blitzMods:[{tags:["short_yardage_run","four_down_go"],d:+15},{tags:["redzone_spec"],d:+10},{tags:["rpo","quick_game","play_action","p10","p11","empty"],d:-35}],
-    avoidTags:["p10","p11","empty","no_huddle","hurry_up","rpo","elite_wr","trips","four_wide"],
+    avoidTags:["p00","p01","p02","p10","p11","empty","no_huddle","hurry_up","rpo","elite_wr","trips","four_wide"],
     coreTags:["inside_run","short_yardage_run","p22","p21","p13","p23","strong_oline","fb_lead","four_down_go","redzone_spec","run_heavy_1st"],
     suppTags:["counter_trap","hb_stretch","outside_run","p12"],
     coverages:[
@@ -68,8 +68,8 @@ export const FDB = {
     desc:"Three deep zone defenders + flooding all underneath zones. Intentionally surrenders short yardage to eliminate the explosive play. Use ONLY when protecting a lead late in the game.",
     dcNote:"Prevent is a deliberate trade — yards for time. The mistake DCs make is using it too early. Deploy with 2+ min left protecting a 2-score lead. Short completions kill clock in your favor.",
     blitzBase:5, blitzMods:[{tags:["qb_pressure"],d:+5},{tags:["deep_shots","elite_wr"],d:-5}],
-    avoidTags:["inside_run","outside_run","option_run","p22","p21","strong_oline","run_heavy_1st"],
-    coreTags:["two_minute_pass","tempo_shift","deep_shots","no_run","p10","elite_wr","back_shoulder","pass_heavy_3rd","no_huddle"],
+    avoidTags:["inside_run","outside_run","option_run","p22","p21","p13","p23","strong_oline","run_heavy_1st"],
+    coreTags:["two_minute_pass","tempo_shift","deep_shots","no_run","p10","elite_wr","back_shoulder","pass_heavy_3rd","no_huddle","empty"],
     suppTags:["west_coast","crossers","trips","empty","hurry_up"],
     coverages:[
       {name:"Cover 3",rating:5,tag:"Base",detail:"Three deep thirds. Allow the short throw — attack the tackle. Clock management trades yards for time."},
@@ -86,8 +86,9 @@ export const FDB = {
     desc:"Classic 3-tech over the guard. Most fundamentally sound college front vs pro-style offenses. Balanced run/pass fits. The standard starting point for any DC.",
     dcNote:"The 3-tech over the guard disrupts inside zone by occupying two blockers. MLB reads the B-gap. The Over has been the dominant college base front since the 1980s — it accounts for all 7 gaps.",
     blitzBase:18, blitzMods:[{tags:["qb_pressure","qb_one_read"],d:+10},{tags:["qb_scramble","dual_threat"],d:-10},{tags:["quick_game","rpo"],d:-8},{tags:["qb_pocket"],d:+5},{tags:["seam_routes","elite_te"],d:-6}],
+    avoidTags:["p00","p01","p02"],
     coreTags:["inside_run","counter_trap","fb_lead","p21","p22","strong_oline","run_heavy_1st","play_action","p11","p12","rpo"],
-    suppTags:["outside_run","hb_stretch","p12","qb_pocket","boundary_hash","hurry_up"],
+    suppTags:["outside_run","hb_stretch","qb_pocket","boundary_hash","hurry_up"],
     coverages:[
       {name:"Cover 3 Sky",rating:5,tag:"Base All-Purpose",detail:"SS rotates to strong flat. CBs at 7 yards. MLB/WLB own curl/flat. Handles run AND play-action simultaneously. The textbook call. Note: CBs' 7-yard hard drop creates short outside timing windows vs flat attack — OLBs must get to flat zones quickly."},
       {name:"Cover 3 Cloud",rating:4,tag:"Boundary/Fade Stopper",detail:"CB traps the fade on boundary side. Forces short throws underneath. Best vs back-shoulder, out routes, and teams attacking the boundary hash."},
@@ -103,6 +104,7 @@ export const FDB = {
     desc:"4-3 Over with compressed Solid DL alignment. Stronger interior run-stop — DL shaded tighter to center occupying A and B gaps simultaneously. Unique to Multiple playbook.",
     dcNote:"Solid compresses the DL to dominate the interior. Better vs power inside run (iso, trap, lead) than standard Over. Trades some edge width for interior dominance.",
     blitzBase:16, blitzMods:[{tags:["qb_pressure"],d:+8},{tags:["outside_run","hb_stretch"],d:-8},{tags:["rpo","quick_game"],d:-8}],
+    avoidTags:["p00","p01","p02"],
     coreTags:["inside_run","counter_trap","fb_lead","p21","p22","strong_oline","run_heavy_1st"],
     suppTags:["outside_run","hb_stretch","p12","short_yardage_run"],
     coverages:[
@@ -118,6 +120,7 @@ export const FDB = {
     desc:"4-3 Over with a walked-up LB on the LOS. Creates 5-man surface pre-snap. Walked-up LB can blitz, spy, or drop. Saban/Smart staple for disguising coverage vs motion-heavy offenses.",
     dcNote:"The walked-up LB forces the OL to account for a 5th rusher. Against motion teams this LB follows motion and resets the front without a coverage tell. His assignment MUST be decided pre-snap.",
     blitzBase:22, blitzMods:[{tags:["qb_pressure"],d:+12},{tags:["motion_heavy"],d:+8},{tags:["qb_scramble","dual_threat"],d:-12},{tags:["quick_game","rpo"],d:-10}],
+    avoidTags:["p00","p01","p02"],
     coreTags:["motion_heavy","rpo","play_action","p11","qb_pre_snap","trips","flat_attack"],
     suppTags:["outside_run","slant_heavy","middle_heavy","qb_one_read","seam_routes"],
     coverages:[
@@ -134,6 +137,7 @@ export const FDB = {
     desc:"Under front shifts DL to weak side. 5-tech DE + OLB create a two-man edge that's nearly impossible to reach. The dominant outside run-stop formation in college football history.",
     dcNote:"Under is the best college formation vs outside zone and HB stretch. The 5-tech DE and OLB create a two-man edge. The 3-tech backside DE collapses the cutback lane. MLB is free to fill B-gap.",
     blitzBase:16, blitzMods:[{tags:["qb_pressure"],d:+10},{tags:["outside_run","hb_stretch"],d:-10},{tags:["strong_oline"],d:-6},{tags:["qb_pocket","qb_one_read"],d:+8},{tags:["rpo","quick_game"],d:-6},{tags:["seam_routes","elite_te"],d:-6}],
+    avoidTags:["p00","p01","p02"],
     coreTags:["p12","p21","p22","p13","strong_oline","run_heavy_1st","fb_lead","p11","play_action","inside_run"],
     suppTags:["short_yardage_run","mobile_qb","boundary_hash","flat_attack","outside_run","hb_stretch","counter_trap"],
     coverages:[
@@ -151,7 +155,7 @@ export const FDB = {
     desc:"Six defenders in the box — 4-3 Even alignment with all gaps accounted for pre-snap. Specifically designed to overwhelm 21 and 22 personnel who bring extra blockers.",
     dcNote:"21/22p give the offense a numerical blocker advantage. 6-1 counters with a 6th box defender. Every gap assigned before the snap. The offense must win one-on-one blocking matchups.",
     blitzBase:15, blitzMods:[{tags:["p22","strong_oline"],d:-8},{tags:["p13","p23"],d:-8},{tags:["fb_lead","inside_run"],d:-5},{tags:["qb_pressure"],d:+8},{tags:["rpo","quick_game","p10","p11"],d:-15},{tags:["seam_routes","elite_te"],d:-5}],
-    avoidTags:["p10","empty","four_wide","hurry_up","no_huddle","rpo","quick_game"],
+    avoidTags:["p00","p01","p02","p10","empty","four_wide","hurry_up","no_huddle","rpo","quick_game"],
     coreTags:["p21","p22","p13","fb_lead","inside_run","short_yardage_run","strong_oline","run_heavy_1st"],
     suppTags:["outside_run","hb_stretch","counter_trap","redzone_spec","p12","four_down_go"],
     coverages:[
@@ -167,6 +171,7 @@ export const FDB = {
     desc:"Odd-shade front — no obvious strong/weak DL shade. OLBs walked up. OL cannot ID assignments pre-snap. Saban/Smart staple for coverage disguise and blitz confusion.",
     dcNote:"The Odd front creates ambiguity — OL must make blocking decisions without alignment cues. Both OLBs are pre-snap threats. Confusion creates pressure even without a blitz. Maximum pre-snap information denial.",
     blitzBase:22, blitzMods:[{tags:["qb_pre_snap","qb_one_read"],d:+10},{tags:["qb_pressure"],d:+12},{tags:["qb_scramble","dual_threat"],d:-12},{tags:["rpo","quick_game"],d:-8}],
+    avoidTags:["p00","p01","p02"],
     coreTags:["qb_pre_snap","play_action","motion_heavy","p11","trips","seam_routes","middle_heavy"],
     suppTags:["rpo","deep_shots","elite_te","crossers","back_shoulder","qb_pocket"],
     coverages:[
@@ -279,7 +284,7 @@ export const FDB = {
     desc:"Both ILBs mug A-gaps in a 3-3 shell. Center cannot block both threats alone. Interior pressure from confusion, not athleticism. Best pre-snap pressure package in the Nickel family.",
     dcNote:"The center must communicate pick-ups for two A-gap threats. Guards must decide inside help or primary assignment. This indecision creates pressure windows even when the LB drops. Against a one-read QB, he will panic.",
     blitzBase:30, blitzMods:[{tags:["qb_pressure","qb_one_read"],d:+15},{tags:["qb_pocket"],d:+10},{tags:["quick_game","rpo","screens"],d:-18},{tags:["qb_scramble","dual_threat"],d:-15},{tags:["empty"],d:+10}],
-    avoidTags:["p13","p23"],
+    avoidTags:["p13","p22","p23"],
     coreTags:["qb_pocket","qb_pressure","qb_one_read","p10","p11","empty","pass_heavy_3rd","tempo_shift","trips","hurry_up"],
     suppTags:["west_coast","middle_heavy","crossers","trips","hurry_up","no_deep","two_minute_pass","four_wide"],
     coverages:[
@@ -296,7 +301,7 @@ export const FDB = {
     desc:"Both inside linebackers walk up to A-gaps in standard Nickel shell. Same A-gap pressure concept as 3-3 Dbl Mug but from 4-3 Nickel personnel. Stand-up LBs generate better burst than hand-in-dirt DEs.",
     dcNote:"Identical football logic to 3-3 Dbl Mug but different personnel creates different pre-snap appearance. Use when your base book is 4-3 or 4-2-5 and you want A-gap pressure without changing personnel.",
     blitzBase:30, blitzMods:[{tags:["qb_pressure","qb_one_read"],d:+15},{tags:["qb_pocket"],d:+10},{tags:["quick_game","rpo","screens"],d:-18},{tags:["qb_scramble","dual_threat"],d:-15},{tags:["empty"],d:+10}],
-    avoidTags:["p13","p23"],
+    avoidTags:["p13","p22","p23"],
     coreTags:["qb_pocket","qb_pressure","qb_one_read","p11","empty","pass_heavy_3rd","p10"],
     suppTags:["west_coast","crossers","middle_heavy","trips","no_deep"],
     coverages:[
@@ -329,7 +334,7 @@ export const FDB = {
     desc:"Load LB + mugging A-gap LB. Shows 7 defenders near box. Forces OL to communicate and assign 7 threats pre-snap — impossible in available time. Maximum box confusion.",
     dcNote:"The offense must account for both the Load LB (run threat) and the Mug LB (blitz threat) simultaneously. Center cannot handle both and protect his guard's outside assignment.",
     blitzBase:28, blitzMods:[{tags:["qb_pressure","qb_one_read"],d:+12},{tags:["rpo","quick_game"],d:-14},{tags:["qb_scramble"],d:-12}],
-    avoidTags:["p13","p23"],
+    avoidTags:["p13","p22","p23"],
     coreTags:["qb_pocket","p11","qb_one_read","qb_pressure","pass_heavy_3rd","play_action","empty"],
     suppTags:["motion_heavy","middle_heavy","crossers","west_coast","trips"],
     coverages:[
@@ -345,7 +350,7 @@ export const FDB = {
     desc:"One LB mugs the A-gap in Nickel shell. Less commitment than Double Mug — run integrity maintained while creating center indecision. Best all-purpose Nickel pressure look at 50/50 blitz/drop.",
     dcNote:"A single mug forces center to communicate a pick-up for a potential blitzer. The guard must decide inside help or primary. This indecision slows OL reaction — creating pressure windows even when the LB drops.",
     blitzBase:30, blitzMods:[{tags:["qb_pressure","qb_one_read"],d:+10},{tags:["rpo","quick_game"],d:-8},{tags:["qb_scramble"],d:-6},{tags:["motion_heavy"],d:+5}],
-    avoidTags:["p13","p23"],
+    avoidTags:["p13","p22","p23"],
     coreTags:["qb_pocket","p11","motion_heavy","play_action","qb_pre_snap","qb_one_read","seam_routes"],
     suppTags:["rpo","flat_attack","slant_heavy","crossers","middle_heavy","elite_te"],
     coverages:[
@@ -451,6 +456,7 @@ export const FDB = {
     desc:"3-4 Bear packs all four LBs near LOS. Creates a 7-man box with 3-4 flexibility. Four LBs can blitz any combination of A, B, or C gaps — the permutations are too many for the offense to account for.",
     dcNote:"The 3-4 Bear gives you 7 near the LOS while only rushing 3. Four LBs can blitz any gap combination. The offense cannot ID the protection assignment against 4 potential blitzers from all combinations.",
     blitzBase:20, blitzMods:[{tags:["short_yardage_run","inside_run"],d:+8},{tags:["qb_pressure"],d:+10},{tags:["qb_scramble","dual_threat"],d:-8},{tags:["rpo","quick_game","p10"],d:-10}],
+    avoidTags:["p00","p01","p02"],
     coreTags:["inside_run","short_yardage_run","counter_trap","p21","p22","p13","p23","strong_oline","run_heavy_1st","fb_lead","option_run"],
     suppTags:["outside_run","hb_stretch","play_action","qb_pocket","four_down_go","redzone_spec","p12"],
     coverages:[
@@ -466,8 +472,9 @@ export const FDB = {
     desc:"Most versatile 3-4 formation. No obvious 3-tech or 1-tech — OL cannot ID assignments. OLBs can rush or cover. ILBs can blitz any A/B gap combination. Maximum flexibility.",
     dcNote:"The 3-4 Odd confuses OL blocking assignments because there's no obvious shade — every gap looks different. OLBs can be pass rushers or coverage players. Maximum alignment ambiguity.",
     blitzBase:22, blitzMods:[{tags:["qb_pressure","qb_one_read"],d:+12},{tags:["play_action","deep_shots"],d:-8},{tags:["elite_te","seam_routes"],d:-6},{tags:["qb_scramble"],d:-8}],
+    avoidTags:["p00","p01","p02"],
     coreTags:["play_action","deep_shots","p12","p11","p13","elite_te","seam_routes","back_shoulder","qb_pocket","middle_heavy"],
-    suppTags:["inside_run","counter_trap","crossers","qb_pre_snap"],
+    suppTags:["inside_run","counter_trap","crossers","qb_pre_snap","p21"],
     coverages:[
       {name:"Tampa 2",rating:5,tag:"Seam/Middle Stopper",detail:"MLB drops seam between safeties, closing the Cover 2 void completely. The most effective seam-coverage call in college football. REQUIRES athletic MLB — he's running with TEs and slot receivers. Short middle 5-8 yards underneath stays open; effective vs TE/seam-route teams, not vs screen/flat teams."},
       {name:"Cover 4 Drop",rating:4,tag:"Deep Shot Stopper",detail:"OLBs and DBs each own a quarter. Eliminates post, corner, and seam routes. 9-in-box run support capability — safeties read run first, defend deep second."},
@@ -482,8 +489,9 @@ export const FDB = {
     desc:"3-4 Over shifts DL to strong side. Strong OLB becomes the natural edge setter. Backside OLB has blitz or coverage flexibility. Excellent balanced front for 11/12p run-pass mix.",
     dcNote:"The Over shift occupies the strong-side guard, disrupting play-side blocking. Strong OLB sets the edge without walking up. Backside OLB's flexibility — blitz or drop — is the formation's key variable.",
     blitzBase:20, blitzMods:[{tags:["rpo","play_action"],d:-8},{tags:["qb_pressure"],d:+10},{tags:["mobile_qb","dual_threat"],d:-8}],
+    avoidTags:["p00","p01","p02"],
     coreTags:["rpo","play_action","outside_run","p11","p12","flat_attack","mobile_qb","qb_pre_snap"],
-    suppTags:["inside_run","hb_stretch","seam_routes","elite_te","boundary_hash"],
+    suppTags:["inside_run","hb_stretch","seam_routes","elite_te","boundary_hash","p21"],
     coverages:[
       {name:"Cover 3 Sky",rating:5,tag:"Base",detail:"Strong OLB sets edge. SS to flat — 8 in box vs run, superior run support to Cover 2's 7. Handles outside run AND PA in one coverage. Short outside window vs flat attack when CBs hard-drop."},
       {name:"Cover 3 Buzz",rating:4,tag:"PA / Crossers",detail:"Safety buzzes to hook-curl zone after PA fake. Reads QB eyes — takes away the TE seam and mesh concept off play action."},
@@ -499,8 +507,9 @@ export const FDB = {
     desc:"3 DL, 4 LBs in Under alignment. THE spy formation — purpose-built for mobile QBs and play-action bootleg teams. One OLB spies QB, other rushes edge — you get contain AND 7-man coverage without using a DB as spy.",
     dcNote:"The 3-4 Under's key advantage vs mobile QBs: OLB spy while the other rushes the edge. You get QB contain AND 7-man coverage without sacrificing a DB. No other common formation achieves this. Mandatory vs dual-threat QBs.",
     blitzBase:18, blitzMods:[{tags:["qb_pressure","qb_one_read"],d:+10},{tags:["mobile_qb","dual_threat","qb_scramble"],d:-12},{tags:["play_action","rpo"],d:-6},{tags:["seam_routes","elite_te"],d:-6}],
+    avoidTags:["p00","p01","p02"],
     coreTags:["rpo","play_action","mobile_qb","dual_threat","qb_scramble","option_run","p11","qb_pre_snap","motion_heavy","seam_routes"],
-    suppTags:["outside_run","middle_heavy","crossers","inside_run","hb_stretch"],
+    suppTags:["outside_run","middle_heavy","crossers","inside_run","hb_stretch","p21"],
     coverages:[
       {name:"Cover 3",rating:5,tag:"Mobile QB Killer",detail:"One OLB spies the QB. Others drop zones. Contain + 7-man coverage without sacrificing a DB. SS in box = 8 defenders vs run. The definitive call vs mobile QBs and PA bootlegs."},
       {name:"Cover 3 Buzz",rating:4,tag:"Crosser / RPO",detail:"Safety buzzes to hook-curl as a robber. Reads QB eyes — excellent vs crossing routes and RPO concepts that attack the hook zone."},
@@ -516,8 +525,9 @@ export const FDB = {
     desc:"Even-front 3-4 — both OLBs equidistant from center. Neither run nor blitz telegraphed by alignment. Offense cannot identify the strong side pre-snap.",
     dcNote:"Even alignment forces the OC to make blocking assignments without alignment cues — a significant pre-snap disadvantage. Symmetry denies pre-snap information.",
     blitzBase:20, blitzMods:[{tags:["qb_pre_snap","motion_heavy"],d:+8},{tags:["qb_pressure"],d:+10},{tags:["rpo","quick_game"],d:-8}],
+    avoidTags:["p00","p01","p02"],
     coreTags:["qb_pre_snap","play_action","motion_heavy","p11","p12","flat_attack"],
-    suppTags:["inside_run","seam_routes","qb_pocket","middle_heavy"],
+    suppTags:["inside_run","seam_routes","qb_pocket","middle_heavy","p21"],
     coverages:[
       {name:"Cover 3 Sky",rating:5,tag:"Base",detail:"Even front creates alignment confusion. Cover 3 is the stability behind it. CBs at 7 yards, SS to flat."},
       {name:"Cover 2",rating:4,tag:"Hash Coverage",detail:"Even OLBs handle flat/curl zones. Good vs hash route attacks."},
@@ -531,6 +541,7 @@ export const FDB = {
     desc:"3-4 Over with stacked ILBs behind DL. Stacking removes ILBs from OL's pre-snap ID. Center cannot find both stacked ILBs to assign protection — creates interior pressure lanes.",
     dcNote:"Stacking ILBs removes them from the OL's pre-snap ID. The Over DL accounts for the strong side while stacked ILBs bring interior pressure from unexpected angles.",
     blitzBase:25, blitzMods:[{tags:["qb_pressure","qb_one_read"],d:+15},{tags:["qb_pocket"],d:+10},{tags:["qb_scramble"],d:-14},{tags:["quick_game","rpo"],d:-12}],
+    avoidTags:["p00","p01","p02"],
     coreTags:["qb_pocket","qb_pressure","qb_one_read","p11","play_action","crossers","middle_heavy"],
     suppTags:["inside_run","seam_routes","west_coast","empty","pass_heavy_3rd","p10","rpo"],
     coverages:[
@@ -547,9 +558,9 @@ export const FDB = {
     desc:"Tite front compresses DL into interior A and B gaps. Walls against inside run while freeing OLBs for coverage. The modern 3-4 front used by Kirby Smart, Nick Saban, and Ryan Day.",
     dcNote:"Tite front eliminates inside zone running lanes while freeing OLBs to drop into coverage. Against 11p, no interior running lanes AND four coverage players on the perimeter. The dominant modern answer to spread-run-pass offenses.",
     blitzBase:20, blitzMods:[{tags:["rpo","play_action"],d:-8},{tags:["qb_pressure"],d:+10},{tags:["mobile_qb"],d:-6},{tags:["outside_run"],d:-6}],
-    avoidTags:["p22","p13"],
+    avoidTags:["p00","p01","p02","p22","p13"],
     coreTags:["rpo","play_action","p11","inside_run","middle_heavy","seam_routes","qb_pre_snap","crossers","option_run","dual_threat","mobile_qb"],
-    suppTags:["flat_attack","p12","p10","elite_te","outside_run","slant_heavy","motion_heavy"],
+    suppTags:["flat_attack","p12","p10","elite_te","outside_run","slant_heavy","motion_heavy","p21"],
     coverages:[
       {name:"Cover 3 Sky",rating:5,tag:"Base",detail:"Tite wall stops inside run. OLBs drop to curl/flat. Three-deep. Stops inside zone AND covers perimeter pass game simultaneously. SS in box = 8 defenders vs run — superior to Cover 2's 7. CBs' hard drop creates short outside timing window vs flat attack."},
       {name:"Cover 3 Buzz",rating:4,tag:"West Coast / Crossers",detail:"Safety buzzes to hook-curl as a robber. Reads QB eyes — excellent vs West Coast crossing routes and mesh concepts at 8-12 yards."},
@@ -600,7 +611,7 @@ export const FDB = {
     desc:"Stand-up OLBs mug both A-gaps in 2-4 shell. Superior to traditional DL double mug — stand-up OLBs generate more explosive initial burst. Looks like coverage players pre-snap.",
     dcNote:"Stand-up OLBs in 2-4 alignment look like coverage players to the QB. When they mug the A-gap, the center has never seen this exact threat pattern. Communication breakdown creates pressure from confusion.",
     blitzBase:32, blitzMods:[{tags:["qb_pressure","qb_one_read"],d:+15},{tags:["qb_pocket"],d:+10},{tags:["quick_game","rpo","screens"],d:-18},{tags:["qb_scramble","dual_threat"],d:-14},{tags:["empty"],d:+10}],
-    avoidTags:["p13","p23"],
+    avoidTags:["p13","p22","p23"],
     coreTags:["qb_pocket","qb_pressure","qb_one_read","p10","p11","empty","pass_heavy_3rd"],
     suppTags:["west_coast","middle_heavy","crossers","trips","hurry_up"],
     coverages:[
@@ -632,7 +643,7 @@ export const FDB = {
     desc:"2-4 Load with mugging OLB. Combines run-stop Load LB with A-gap pressure threat. Two box threats shown — one for run, one threatening pressure. Maximum box confusion from Nickel.",
     dcNote:"Offense must account for Load LB (run threat) AND Mug OLB (blitz threat) simultaneously. Center cannot handle both and protect his guard's outside assignment.",
     blitzBase:28, blitzMods:[{tags:["qb_pressure","qb_one_read"],d:+12},{tags:["rpo","quick_game"],d:-14},{tags:["qb_scramble"],d:-12}],
-    avoidTags:["p13","p23"],
+    avoidTags:["p13","p22","p23"],
     coreTags:["qb_pocket","p11","qb_one_read","qb_pressure","pass_heavy_3rd","play_action"],
     suppTags:["motion_heavy","middle_heavy","crossers","seam_routes","empty"],
     coverages:[
