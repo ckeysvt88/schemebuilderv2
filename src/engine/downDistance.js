@@ -29,10 +29,10 @@ const DOWN_DIST_MODS = {
   '2_medium': { run: +5,  pass: +3,  pressure: +5,  hybrid: +5  },
   '2_long':   { run: -5,  pass: +10, pressure: +8,  hybrid: +3  },
 
-  // 3rd down — pass-heavy, pressure premium
-  '3_short':  { run: +5,  pass: +5,  pressure: +10, hybrid: +8  },
-  '3_medium': { run: -8,  pass: +10, pressure: +15, hybrid: +5  },
-  '3_long':   { run: -15, pass: +15, pressure: +20, hybrid: 0   },
+  // 3rd down — pressure must clearly dominate pass-coverage on all 3rd downs
+  '3_short':  { run: +3,  pass: +2,  pressure: +15, hybrid: +8  },
+  '3_medium': { run: -10, pass: +8,  pressure: +18, hybrid: +5  },
+  '3_long':   { run: -15, pass: +12, pressure: +22, hybrid: 0   },
 
   // 4th down — all-in
   '4_short':  { run: +15, pass: 0,   pressure: +15, hybrid: +8  },
