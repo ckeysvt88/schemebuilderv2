@@ -3,8 +3,9 @@
 // assembles a structured data object consumed by CallSheetPDF.jsx.
 // Pure JS — no JSX, no React.
 
-import { applyDownDistance } from './downDistance.js';
+import { applyDownDistance, getSituationTip, getLikelyPersonnel } from './downDistance.js';
 import { TRAIT_LABELS, TRAITS } from '../data/traits.js';
+import { blitzInfo } from './scoring.js';
 
 const RUN_PASS_LABELS = {
   1: 'Full Pass', 2: 'Pass Heavy', 3: 'Pass Lean',
@@ -28,21 +29,25 @@ const SITUATIONS = [
 
 function pluck(f) {
   if (!f) return null;
+  const bi = blitzInfo(f.blitz);
   return {
-    name:      f.name,
-    coverage:  f.coverages?.[0]?.name || '—',
-    sc:        f.sc,
-    blitz:     f.blitz,
-    priority:  f.priority,
-    personnel: f.personnel,
+    name:       f.name,
+    coverage:   f.coverages?.[0]?.name || '—',
+    sc:         f.sc,
+    blitz:      f.blitz,
+    blitzLabel: bi.label,
+    blitzColor: bi.color,
+    priority:   f.priority,
+    personnel:  f.personnel,
     // Detailed fields for formation cards
-    desc:      f.desc || '',
-    dcNote:    f.dcNote || '',
-    coverages: (f.coverages || []),
-    preSnap:   (f.preSnap  || []).slice(0, 4),
-    callsheet: (f.callsheet || []),
-    coreHits:  (f.coreHits || []),
-    suppHits:  (f.suppHits || []),
+    desc:       f.desc || '',
+    dcNote:     f.dcNote || '',
+    coverages:  (f.coverages || []),
+    preSnap:    (f.preSnap  || []).slice(0, 4),
+    callsheet:  (f.callsheet || []),
+    // Translate raw tag IDs → human-readable labels for PDF display
+    coreHits:   (f.coreHits || []).map(t => TRAIT_LABELS[t] || t),
+    suppHits:   (f.suppHits || []).map(t => TRAIT_LABELS[t] || t),
   };
 }
 
@@ -61,6 +66,7 @@ export function buildCallSheetData({ rawScored, sel, myBook, runPass }) {
       label:     sit.label,
       primary:   pluck(ranked[0]),
       secondary: pluck(ranked[1]),
+      dcTip:     getSituationTip(sit.down, sit.distance) || null,
     };
   });
 
@@ -70,6 +76,7 @@ export function buildCallSheetData({ rawScored, sel, myBook, runPass }) {
     label:     'GOAL LINE',
     primary:   pluck(glForms[0]),
     secondary: pluck(glForms[1]),
+    dcTip:     'Sub into Goal Line 5-3, 5-2, or 46 Bear immediately. All gaps assigned pre-snap. Cover 0 viable — make them earn every inch.',
   });
 
   // 2-Minute defense
@@ -78,18 +85,46 @@ export function buildCallSheetData({ rawScored, sel, myBook, runPass }) {
     label:     '2-MINUTE DEF',
     primary:   pluck(pvForms[0]),
     secondary: pluck(pvForms[1]),
+    dcTip:     'Allow the short throw — attack the tackle. Clock is your ally. Three-deep eliminates the explosive play.',
   });
 
-  // 3. Top 5 formations for detail cards (page 2)
-  const topFormations = rawScored.slice(0, 5).map(pluck);
+  // 3. Top 4 formations for detail cards (page 2) — 4 cards to allow room for dcNote block
+  const topFormations = rawScored.slice(0, 4).map(pluck);
+
+  // 4. Situational coaching guide (page 3) — DC tips + likely personnel + best call per situation
+  const situationGuide = SITUATIONS.map(sit => {
+    const ranked = applyDownDistance(rawScored, sit.down, sit.distance);
+    return {
+      label:           sit.label,
+      dcTip:           getSituationTip(sit.down, sit.distance) || '',
+      likelyPersonnel: getLikelyPersonnel(sit.down, sit.distance)
+        .slice(0, 4)
+        .map(p => TRAIT_LABELS[p] || p)
+        .join(' · '),
+      primary: pluck(ranked[0]),
+    };
+  });
+  situationGuide.push({
+    label:           'GOAL LINE',
+    dcTip:           'Sub into Goal Line 5-3, 5-2, or 46 Bear immediately. All gaps assigned pre-snap. Cover 0 viable — make them earn every inch.',
+    likelyPersonnel: '22p (2 RB, 2 TE, 1 WR) · 23p (2 RB, 3 TE — Jumbo) · 13p (1 RB, 3 TE, 1 WR)',
+    primary: pluck(glForms[0]),
+  });
+  situationGuide.push({
+    label:           '2-MINUTE DEF',
+    dcTip:           'Allow the short throw — attack the tackle. Clock is your ally. NEVER press from Prevent. Three-deep eliminates the explosive play. Do NOT deploy before 2:00 remaining.',
+    likelyPersonnel: '10p (1 RB, 4 WR) · 11p (1 RB, 1 TE, 3 WR) · Empty Backfield',
+    primary: pluck(pvForms[0]),
+  });
 
   return {
     profile,
     situationMatrix,
     topFormations,
-    myBook:        myBook || 'All',
-    runPassLabel:  RUN_PASS_LABELS[runPass] || 'Balanced',
-    date:          new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
+    situationGuide,
+    myBook:          myBook || 'All',
+    runPassLabel:    RUN_PASS_LABELS[runPass] || 'Balanced',
+    date:            new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
     totalFormations: rawScored.length,
   };
 }
