@@ -17,10 +17,9 @@ const ICONS = {
 export default function ScoutScreen({
   sel, setSel, flat, runPass, setRunPass,
   myBook, changeBook,
-  scored, setScored, rawScored,
-  selFm, setSelFm,
-  activeP, setActiveP,
-  mainTab, setMainTab,
+  scored, setScored,
+  setSelFm,
+  setActiveP,
   modal, setModal,
   saveName, setSaveName,
   profiles, saveProfiles,
