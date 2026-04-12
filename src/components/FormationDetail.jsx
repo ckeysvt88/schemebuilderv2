@@ -66,7 +66,7 @@ export default function FormationDetail({ fm, flat, situation = "base", runPass 
   const situAdj = fm._situationAdj || 0;
 
   return (
-    <div style={{ background: "#090f1a", border: `2px solid ${PC[fm.priority]}`, borderTop: "none", borderRadius: "0 0 9px 9px", overflow: "hidden", marginBottom: 18 }}>
+    <div style={{ background: "#090f1a", border: "1px solid var(--color-gold)", borderTop: "none", borderRadius: "0 0 9px 9px", overflow: "hidden", marginBottom: 18 }}>
       {/* Blitz bar */}
       <div style={{ padding: "16px 16px", borderBottom: "1px solid #1e2a3a", background: "#090f1a" }}>
         <BlitzBar pct={blitz} />
@@ -93,7 +93,7 @@ export default function FormationDetail({ fm, flat, situation = "base", runPass 
         </button>
 
         {showWhy && (
-          <div style={{ padding: "12px 16px 12px", background: "#1a2030", borderTop: "1px solid #2a3545" }}>
+          <div style={{ padding: "12px 16px 12px", background: "linear-gradient(to bottom, #0e1828 0%, #1a2030 25%)", borderTop: "1px solid #2a3545" }}>
             <WhySelected coreHits={fm.coreHits} suppHits={fm.suppHits} />
 
             {/* DC Logic */}

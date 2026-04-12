@@ -16,7 +16,7 @@ export default function FormationCard({ fm, onSelect, isSelected }) {
           : "linear-gradient(135deg, #0e1420, #0a0f1a)",
         border: `1px solid ${isSelected ? "var(--color-gold)" : "var(--color-border)"}`,
         borderLeft: `3px solid ${PC[fm.priority]}`,
-        borderRight: isSelected ? `2px solid ${PC[fm.priority]}` : undefined,
+        borderRight: undefined,
         borderBottom: isSelected ? "none" : undefined,
         borderRadius: isSelected ? "var(--r-md) var(--r-md) 0 0" : "var(--r-md)",
         padding: "14px 16px",
