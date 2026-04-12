@@ -1,0 +1,38 @@
+{
+  "name": "Scheme Builders",
+  "short_name": "Scheme Builders",
+  "description": "Scout opponents, build defensive game plans, and find the right formations and coverages for CFB26.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#07080f",
+  "theme_color": "#c8960c",
+  "categories": [
+    "games",
+    "sports"
+  ],
+  "icons": [
+    {
+      "src": "/icon.png",
+      "sizes": "1024x1024",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon.png",
+      "sizes": "1024x1024",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/og-image.png",
+      "sizes": "1500x500",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "Scheme Builders \u2014 Scout, Plan, Dominate"
+    }
+  ]
+}

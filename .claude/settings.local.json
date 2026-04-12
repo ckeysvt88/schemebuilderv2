@@ -9,7 +9,10 @@
       "Bash(npx vite:*)",
       "Bash(npm install:*)",
       "Bash(npx kill-port:*)",
-      "Bash(taskkill /F /IM node.exe)"
+      "Bash(taskkill /F /IM node.exe)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(node -e \"const {FDB} = require\\('./src/data/formations.js'\\); const priorities = [...new Set\\(FDB.map\\(f => f.priority\\)\\)]; console.log\\(priorities\\);\")"
     ]
   }
 }

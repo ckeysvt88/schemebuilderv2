@@ -1,11 +1,12 @@
 import { useState } from 'react';
-import { getBlitz } from '../engine/scoring.js';
+import { getBlitz, blitzInfo } from '../engine/scoring.js';
 import { ADJUSTMENTS } from '../data/adjustments.js';
 import { TRAIT_LABELS } from '../data/traits.js';
 import BlitzBar from './BlitzBar.jsx';
 import WhySelected from './WhySelected.jsx';
 
 const PC = { run: "#a06030", pass: "#1a6fe8", hybrid: "#7858a0", pressure: "#aa5050" };
+const PL = { run: "RUN STOP", pass: "PASS DEF", hybrid: "HYBRID", pressure: "PRESSURE" };
 
 function AdjSection({ sec, items, icon }) {
   if (!items || items.length === 0) return null;
@@ -50,8 +51,8 @@ const BIAS_MAP_RP = { 1:-1.0, 2:-0.65, 3:-0.30, 4:0, 5:0.30, 6:0.65, 7:1.0 };
 export default function FormationDetail({ fm, flat, situation = "base", runPass = 4 }) {
   const [tab, setTab] = useState("coverages");
   const [showWhy, setShowWhy] = useState(false);
-  const [showScoring, setShowScoring] = useState(false);
   const blitz = getBlitz(fm, flat);
+  const bi = blitzInfo(blitz);
 
   // ── Scoring factor calculations ───────────────────────────────────────────
   const runBias = BIAS_MAP_RP[runPass] || 0;
@@ -66,9 +67,31 @@ export default function FormationDetail({ fm, flat, situation = "base", runPass 
   const situAdj = fm._situationAdj || 0;
 
   return (
-    <div style={{ background: "#090f1a", border: "1px solid var(--color-gold)", borderTop: "none", borderLeft: "3px solid var(--color-gold)", borderRadius: "0 0 9px 9px", overflow: "hidden", marginBottom: 18 }}>
+    <div style={{ background: "#090f1a", border: `2px solid ${PC[fm.priority]}`, borderRadius: 9, overflow: "hidden", marginBottom: 18 }}>
+      {/* Header */}
+      <div style={{ padding: "14px 16px", borderBottom: "1px solid #1e2a3a", background: "linear-gradient(135deg,#0a0f1c,#0e1420)" }}>
+        <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 8 }}>
+          <div style={{ flex: 1 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 4, flexWrap: "wrap" }}>
+              <span style={{ fontSize: 11, fontWeight: "bold", color: "#c5cdd5" }}>{fm.name}</span>
+              <span style={{ background: PC[fm.priority], color: "#fff", fontSize: "12px", fontWeight: "bold", padding: "2px 8px", borderRadius: 6, letterSpacing: 1 }}>{PL[fm.priority]}</span>
+              <span style={{ fontSize: "12px", color: "#7898ae", fontFamily: "'IBM Plex Mono', monospace" }}>📖 {fm.books.join(" · ")}</span>
+            </div>
+            <div style={{ fontSize: 11, color: "#7f9fb2", lineHeight: 1.6, marginBottom: 16 }}>{fm.desc}</div>
+            <div style={{ background: "#080c15", border: "1px solid #1a3050", borderRadius: 5, padding: "10px 13px" }}>
+              <div style={{ fontSize: "12px", color: "#6888a0", letterSpacing: 1, textTransform: "uppercase", marginBottom: 2, fontFamily: "'IBM Plex Mono', monospace" }}>DC Logic</div>
+              <div style={{ fontSize: 11, color: "#7898ae", lineHeight: 1.65 }}>{fm.dcNote}</div>
+            </div>
+          </div>
+          <div style={{ background: "#080c15", border: "1px solid #c8960c", borderRadius: 7, padding: "6px 10px", textAlign: "center", flexShrink: 0 }}>
+            <div style={{ fontSize: 11, fontWeight: "bold", color: "#b8880c" }}>{fm.sc}%</div>
+            <div style={{ fontSize: "12px", color: "#b8880c", fontFamily: "'IBM Plex Mono', monospace" }}>MATCH</div>
+          </div>
+        </div>
+      </div>
+
       {/* Blitz bar */}
-      <div style={{ padding: "16px 16px", borderBottom: "1px solid #1e2a3a", background: "#090f1a" }}>
+      <div style={{ padding: "16px 16px", borderBottom: showWhy ? "none" : "1px solid #1e2a3a", background: "#090f1a" }}>
         <BlitzBar pct={blitz} />
         {fm.blitzMods.filter(m => m.tags.some(t => flat.includes(t))).slice(0, 3).map((m, i) => (
           <div key={i} style={{ fontSize: "11px", color: "#7f9fb2", marginTop: 3, display: "flex", gap: 8 }}>
@@ -76,83 +99,59 @@ export default function FormationDetail({ fm, flat, situation = "base", runPass 
             <span>— {m.tags.filter(t => flat.includes(t)).map(t => TRAIT_LABELS[t] || t).join(", ")}</span>
           </div>
         ))}
-      </div>
-
-      {/* Why This Formation Was Selected — collapsible */}
-      <div style={{ borderBottom: "1px solid #1e2a3a", background: "#090f1a" }}>
         <button
           onClick={() => setShowWhy(v => !v)}
-          style={{ width: "100%", display: "flex", alignItems: "center", justifyContent: "space-between", background: "none", border: "none", padding: "10px 16px", cursor: "pointer", textAlign: "left" }}
+          style={{ marginTop: 10, background: "none", border: "none", padding: 0, cursor: "pointer", fontSize: 10, color: "#b8880c", fontFamily: "'IBM Plex Mono', monospace", letterSpacing: "0.5px" }}
         >
-          <span style={{ fontSize: 11, fontWeight: "700", color: "#7f9fb2", letterSpacing: "2px", textTransform: "uppercase", fontFamily: "'IBM Plex Mono', monospace" }}>
-            Why This Formation Was Selected
-          </span>
-          <span style={{ fontSize: 11, color: "#b8880c", fontFamily: "'IBM Plex Mono', monospace", flexShrink: 0, marginLeft: 8 }}>
-            {showWhy ? "▼" : "▶"}
-          </span>
+          {showWhy ? "▼ Why this ranked here" : "▶ Why this ranked here"}
         </button>
+      </div>
 
-        {showWhy && (
-          <div style={{ padding: "12px 16px 12px", background: "linear-gradient(to bottom, #0e1828 0%, #1a2030 25%)", borderTop: "1px solid #2a3545" }}>
-            <WhySelected coreHits={fm.coreHits} suppHits={fm.suppHits} />
-
-            {/* DC Logic */}
-            <div style={{ marginTop: 12, background: "#080c15", border: "1px solid #1a3050", borderRadius: 5, padding: "10px 13px" }}>
-              <div style={{ fontSize: "12px", color: "#6888a0", letterSpacing: 1, textTransform: "uppercase", marginBottom: 2, fontFamily: "'IBM Plex Mono', monospace", fontWeight: "700" }}>DC Logic</div>
-              <div style={{ fontSize: 11, color: "#7898ae", lineHeight: 1.65 }}>{fm.dcNote}</div>
+      {/* Collapsible Why section */}
+      {showWhy && (
+        <div style={{ background: "#1a2030", border: "1px solid #2a3545", borderRadius: 8, margin: "0 12px 0", padding: 10, borderTop: "none", borderTopLeftRadius: 0, borderTopRightRadius: 0 }}>
+          <WhySelected coreHits={fm.coreHits} suppHits={fm.suppHits} />
+          <div style={{ marginTop: 12, borderTop: "1px solid #2a3545", paddingTop: 10 }}>
+            <div style={{ fontSize: 10, color: "#6888a0", letterSpacing: "2px", textTransform: "uppercase", fontFamily: "'IBM Plex Mono', monospace", marginBottom: 8 }}>Scoring Factors</div>
+            {/* Run/Pass Bias */}
+            <div style={{ fontSize: 11, fontFamily: "'IBM Plex Mono', monospace", marginBottom: 5, display: "flex", gap: 8 }}>
+              <span style={{ color: "#6888a0", minWidth: 110 }}>Run/Pass Bias:</span>
+              {biasAdj === 0
+                ? <span style={{ color: "#6888a0" }}>Balanced</span>
+                : <span style={{ color: biasAdj > 0 ? "#70b080" : "#aa6868" }}>
+                    {biasAdj > 0 ? `+${biasAdj}` : biasAdj} {fm.priority} {biasAdj > 0 ? "bias" : "penalty"}
+                  </span>
+              }
             </div>
-
-            {/* Collapsible Scoring Factors — nested inside Why */}
-            <button
-              onClick={() => setShowScoring(v => !v)}
-              style={{ marginTop: 10, background: "none", border: "none", padding: 0, cursor: "pointer", fontSize: 11, color: "#b8880c", fontFamily: "'IBM Plex Mono', monospace", letterSpacing: "0.5px", fontWeight: "700" }}
-            >
-              {showScoring ? "▼ Scoring Factors" : "▶ Scoring Factors"}
-            </button>
-
-            {showScoring && (
-              <div style={{ marginTop: 8, borderTop: "1px solid #2a3545", paddingTop: 10 }}>
-                <div style={{ fontSize: 10, color: "#6888a0", letterSpacing: "2px", textTransform: "uppercase", fontFamily: "'IBM Plex Mono', monospace", marginBottom: 8 }}>Scoring Factors</div>
-                {/* Run/Pass Bias */}
-                <div style={{ fontSize: 11, fontFamily: "'IBM Plex Mono', monospace", marginBottom: 5, display: "flex", gap: 8 }}>
-                  <span style={{ color: "#6888a0", minWidth: 110 }}>Run/Pass Bias:</span>
-                  {biasAdj === 0
-                    ? <span style={{ color: "#6888a0" }}>Balanced</span>
-                    : <span style={{ color: biasAdj > 0 ? "#70b080" : "#aa6868" }}>
-                        {biasAdj > 0 ? `+${biasAdj}` : biasAdj} {fm.priority} {biasAdj > 0 ? "bias" : "penalty"}
-                      </span>
-                  }
-                </div>
-                {/* AvoidTags Penalty */}
-                {avoidFired.length > 0 && (
-                  <div style={{ fontSize: 11, fontFamily: "'IBM Plex Mono', monospace", marginBottom: 5, display: "flex", gap: 8 }}>
-                    <span style={{ color: "#6888a0", minWidth: 110 }}>Avoid Penalty:</span>
-                    <span style={{ color: "#aa6868" }}>-25: {avoidFired.map(t => TRAIT_LABELS[t] || t).join(", ")}</span>
-                  </div>
-                )}
-                {/* Blitz Modifiers */}
-                {blitzModsFired.slice(0, 2).map((m, i) => (
-                  <div key={i} style={{ fontSize: 11, fontFamily: "'IBM Plex Mono', monospace", marginBottom: 5, display: "flex", gap: 8 }}>
-                    <span style={{ color: "#6888a0", minWidth: 110 }}>Blitz Mod:</span>
-                    <span style={{ color: m.d >= 0 ? "#d4aa30" : "#558a68" }}>
-                      {m.d >= 0 ? `+${m.d}%` : `${m.d}%`} — {m.tags.filter(t => flat.includes(t)).map(t => TRAIT_LABELS[t] || t).join(", ")}
-                    </span>
-                  </div>
-                ))}
-                {/* Situation Adjustment */}
-                {situation !== "base" && (
-                  <div style={{ fontSize: 11, fontFamily: "'IBM Plex Mono', monospace", marginBottom: 5, display: "flex", gap: 8 }}>
-                    <span style={{ color: "#6888a0", minWidth: 110 }}>Situation:</span>
-                    <span style={{ color: situAdj !== 0 ? "#b8880c" : "#6888a0" }}>
-                      {SIT_LABELS[situation]}{situAdj !== 0 ? (situAdj > 0 ? ` +${situAdj}` : ` ${situAdj}`) : " — no adjustment"}
-                    </span>
-                  </div>
-                )}
+            {/* AvoidTags Penalty */}
+            {avoidFired.length > 0 && (
+              <div style={{ fontSize: 11, fontFamily: "'IBM Plex Mono', monospace", marginBottom: 5, display: "flex", gap: 8 }}>
+                <span style={{ color: "#6888a0", minWidth: 110 }}>Avoid Penalty:</span>
+                <span style={{ color: "#aa6868" }}>-25: {avoidFired.map(t => TRAIT_LABELS[t] || t).join(", ")}</span>
+              </div>
+            )}
+            {/* Blitz Modifiers */}
+            {blitzModsFired.slice(0, 2).map((m, i) => (
+              <div key={i} style={{ fontSize: 11, fontFamily: "'IBM Plex Mono', monospace", marginBottom: 5, display: "flex", gap: 8 }}>
+                <span style={{ color: "#6888a0", minWidth: 110 }}>Blitz Mod:</span>
+                <span style={{ color: m.d >= 0 ? "#d4aa30" : "#558a68" }}>
+                  {m.d >= 0 ? `+${m.d}%` : `${m.d}%`} — {m.tags.filter(t => flat.includes(t)).map(t => TRAIT_LABELS[t] || t).join(", ")}
+                </span>
+              </div>
+            ))}
+            {/* Situation Adjustment */}
+            {situation !== "base" && (
+              <div style={{ fontSize: 11, fontFamily: "'IBM Plex Mono', monospace", marginBottom: 5, display: "flex", gap: 8 }}>
+                <span style={{ color: "#6888a0", minWidth: 110 }}>Situation:</span>
+                <span style={{ color: situAdj !== 0 ? "#b8880c" : "#6888a0" }}>
+                  {SIT_LABELS[situation]}{situAdj !== 0 ? (situAdj > 0 ? ` +${situAdj}` : ` ${situAdj}`) : " — no adjustment"}
+                </span>
               </div>
             )}
           </div>
-        )}
-      </div>
+        </div>
+      )}
+      <div style={{ borderBottom: "1px solid #1e2a3a" }} />
 
       {/* Inner tabs */}
       <div style={{ display: "flex", borderBottom: "1px solid #1e2a3a", background: "#080c15" }}>

@@ -1,4 +1,5 @@
 import { blitzInfo } from '../engine/scoring.js';
+import WhySelected from './WhySelected.jsx';
 
 const PC = { run: "#c07040", pass: "#3a80e0", hybrid: "#7858a0", pressure: "#bb5050" };
 const PL = { run: "RUN STOP", pass: "PASS DEF", hybrid: "HYBRID", pressure: "PRESSURE" };
@@ -12,15 +13,13 @@ export default function FormationCard({ fm, onSelect, isSelected }) {
       onClick={() => onSelect(fm)}
       style={{
         background: isSelected
-          ? "linear-gradient(to bottom, #1c1300 0%, #271a00 45%, #0a0f1a 100%)"
+          ? "linear-gradient(135deg, #1c1300, #271a00)"
           : "linear-gradient(135deg, #0e1420, #0a0f1a)",
-        borderTop: `1px solid ${isSelected ? "var(--color-gold)" : "var(--color-border)"}`,
-        borderRight: `1px solid ${isSelected ? "var(--color-gold)" : "var(--color-border)"}`,
-        borderBottom: isSelected ? "none" : `1px solid var(--color-border)`,
-        borderLeft: isSelected ? `3px solid var(--color-gold)` : `3px solid ${PC[fm.priority]}`,
-        borderRadius: isSelected ? "var(--r-md) var(--r-md) 0 0" : "var(--r-md)",
+        border: `1px solid ${isSelected ? "var(--color-gold)" : "var(--color-border)"}`,
+        borderLeft: `3px solid ${PC[fm.priority]}`,
+        borderRadius: "var(--r-md)",
         padding: "14px 16px",
-        marginBottom: isSelected ? 0 : 12,
+        marginBottom: 12,
         cursor: "pointer",
         transition: "all 150ms ease",
         minHeight: 64,
@@ -92,14 +91,14 @@ export default function FormationCard({ fm, onSelect, isSelected }) {
         <div style={{ height: "100%", width: `${Math.min(100, fm.sc)}%`, borderRadius: 2, background: "linear-gradient(90deg, #2a4060, #b8880c)" }} />
       </div>
 
+      {/* Why selected pills */}
+      <div style={{ marginTop: 0 }}>
+        <WhySelected coreHits={fm.coreHits} suppHits={fm.suppHits} />
+      </div>
+
       {isSelected && (
-        <div style={{ marginTop: 8 }}>
-          <div style={{ fontSize: 12, color: "var(--color-text-2)", lineHeight: 1.6, marginBottom: 6, fontFamily: "var(--font-mono)" }}>
-            {fm.desc}
-          </div>
-          <div style={{ fontSize: 11, color: "var(--color-gold)", fontFamily: "var(--font-mono)" }}>
-            ▼ Details below — tap to collapse
-          </div>
+        <div style={{ marginTop: 8, fontSize: 11, color: "var(--color-gold)", fontFamily: "var(--font-mono)" }}>
+          ▼ Details below — tap to collapse
         </div>
       )}
     </div>
