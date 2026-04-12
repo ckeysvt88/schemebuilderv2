@@ -55,7 +55,7 @@ export default function ScoutScreen({
 
       {/* Playbook selector dropdown */}
       {showPB && (
-        <div style={{ background: "linear-gradient(135deg, #07090f, #0c1220)", borderBottom: "1px solid var(--color-border-subtle)", padding: "10px 16px", position: "sticky", top: 40, zIndex: 79 }}>
+        <div style={{ background: "linear-gradient(135deg, #07090f, #0c1220)", borderBottom: "1px solid var(--color-border-subtle)", padding: "10px 16px", position: "sticky", top: "calc(40px + env(safe-area-inset-top))", zIndex: 79 }}>
           <div style={{ fontSize: 9, color: "var(--color-gold-dim)", letterSpacing: "1.5px", textTransform: "uppercase", fontFamily: "var(--font-mono)", marginBottom: 8 }}>
             My Defensive Playbook
           </div>
