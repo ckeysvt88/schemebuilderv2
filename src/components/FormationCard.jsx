@@ -1,5 +1,4 @@
 import { blitzInfo } from '../engine/scoring.js';
-import WhySelected from './WhySelected.jsx';
 
 const PC = { run: "#c07040", pass: "#3a80e0", hybrid: "#7858a0", pressure: "#bb5050" };
 const PL = { run: "RUN STOP", pass: "PASS DEF", hybrid: "HYBRID", pressure: "PRESSURE" };
@@ -91,14 +90,14 @@ export default function FormationCard({ fm, onSelect, isSelected }) {
         <div style={{ height: "100%", width: `${Math.min(100, fm.sc)}%`, borderRadius: 2, background: "linear-gradient(90deg, #2a4060, #b8880c)" }} />
       </div>
 
-      {/* Why selected pills */}
-      <div style={{ marginTop: 0 }}>
-        <WhySelected coreHits={fm.coreHits} suppHits={fm.suppHits} />
-      </div>
-
       {isSelected && (
-        <div style={{ marginTop: 8, fontSize: 11, color: "var(--color-gold)", fontFamily: "var(--font-mono)" }}>
-          ▼ Details below — tap to collapse
+        <div style={{ marginTop: 8 }}>
+          <div style={{ fontSize: 12, color: "var(--color-text-2)", lineHeight: 1.6, marginBottom: 6, fontFamily: "var(--font-mono)" }}>
+            {fm.desc}
+          </div>
+          <div style={{ fontSize: 11, color: "var(--color-gold)", fontFamily: "var(--font-mono)" }}>
+            ▼ Details below — tap to collapse
+          </div>
         </div>
       )}
     </div>
