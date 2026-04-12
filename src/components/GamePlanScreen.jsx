@@ -99,6 +99,20 @@ export default function GamePlanScreen({
 
   useEffect(() => { setShowAlignment(false); }, [activeP]);
 
+  useEffect(() => {
+    if (!selFm) return;
+    const t = setTimeout(() => {
+      const el = document.querySelector(`[data-fm-name="${selFm.name.replace(/"/g, '\\"')}"]`);
+      if (!el) return;
+      const headerEl = document.querySelector('[data-sticky-header]');
+      const headerHeight = headerEl ? headerEl.getBoundingClientRect().height : 90;
+      const rect = el.getBoundingClientRect();
+      const scrollTop = window.scrollY + rect.top - headerHeight - 8;
+      window.scrollTo({ top: scrollTop, behavior: 'smooth' });
+    }, 50);
+    return () => clearTimeout(t);
+  }, [selFm]);
+
   const situation = deriveSituation(situDown, situDist);
 
   useEffect(() => {
@@ -170,7 +184,7 @@ export default function GamePlanScreen({
     <div className="screen-enter" style={{ fontFamily: "var(--font-sans)", background: "var(--color-bg)", minHeight: "100dvh", color: "var(--color-text-1)", maxWidth: 720, margin: "0 auto" }}>
 
       {/* ── Header ── */}
-      <div style={{ background: "linear-gradient(135deg, #07090f, #0c1220)", borderBottom: "2px solid var(--color-gold)", padding: "12px 16px 10px", paddingTop: "calc(env(safe-area-inset-top) + 12px)", position: "sticky", top: 0, zIndex: 80 }}>
+      <div data-sticky-header="" style={{ background: "linear-gradient(135deg, #07090f, #0c1220)", borderBottom: "2px solid var(--color-gold)", padding: "12px 16px 10px", paddingTop: "calc(env(safe-area-inset-top) + 12px)", position: "sticky", top: 0, zIndex: 80 }}>
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 10 }}>
           <div>
             <div style={{ fontSize: 10, letterSpacing: "2px", color: "var(--color-gold-dim)", textTransform: "uppercase", fontWeight: "700", fontFamily: "var(--font-mono)", marginBottom: 2 }}>
@@ -388,7 +402,7 @@ export default function GamePlanScreen({
 
                   <div style={{ opacity: listOpacity, transition: "opacity 150ms ease" }}>
                   {persMatches.map(fm => (
-                    <div key={fm.name}>
+                    <div key={fm.name} data-fm-name={fm.name}>
                       <FormationCard fm={fm} onSelect={f => setSelFm(selFm?.name === f.name ? null : f)} isSelected={selFm?.name === fm.name} />
                       {selFm?.name === fm.name && <FormationDetail fm={selFm} flat={flat} situation={situation} runPass={runPass} />}
                     </div>
@@ -409,7 +423,7 @@ export default function GamePlanScreen({
                   {group.label} <span style={{ color: "var(--color-text-3)", fontWeight: "400" }}>({group.formations.length})</span>
                 </div>
                 {group.formations.map(fm => (
-                  <div key={fm.name}>
+                  <div key={fm.name} data-fm-name={fm.name}>
                     <FormationCard fm={fm} onSelect={f => setSelFm(selFm?.name === f.name ? null : f)} isSelected={selFm?.name === fm.name} />
                     {selFm?.name === fm.name && <FormationDetail fm={selFm} flat={flat} situation={situation} runPass={runPass} />}
                   </div>
