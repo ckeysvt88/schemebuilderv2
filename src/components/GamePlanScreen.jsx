@@ -10,6 +10,14 @@ import FormationDetail from './FormationDetail.jsx';
 import { ExportPDFButton } from './CallSheetPDF.jsx';
 
 
+const PERS_COMP = {
+  p00:"5WR", p01:"1TE, 4WR", p02:"2TE, 3WR",
+  p10:"1RB, 4WR", p11:"1RB, 1TE, 3WR", p12:"1RB, 2TE",
+  p13:"1RB, 3TE", p20:"2RB, 3WR", p21:"2RB, 1TE",
+  p22:"2RB, 2TE, 1WR", p23:"2RB, 3TE",
+  trips:"Trips", empty:"Empty", option_run:"Option",
+};
+
 const DOWN_BTNS = [
   { id: "base", label: "Base" },
   { id: "1",   label: "1st" },
@@ -208,54 +216,59 @@ export default function GamePlanScreen({
 
 
         {/* ── Down & Distance Situation ── */}
-        <div style={{ background: "#061009", border: "1px solid #1a3820", borderLeft: "3px solid #2a5030", borderRadius: "var(--r-md)", padding: "6px 10px", marginBottom: 12, display: "flex", alignItems: "center", gap: 6, overflowX: "auto", WebkitOverflowScrolling: "touch", minHeight: 40 }}>
-          <span style={{ fontSize: 9, color: "#4a7855", letterSpacing: "2px", textTransform: "uppercase", fontFamily: "var(--font-mono)", flexShrink: 0 }}>Down</span>
-          {DOWN_BTNS.map(btn => (
-            <button
-              key={btn.id}
-              onClick={() => { setSituDown(situDown === btn.id ? "" : btn.id); if (btn.id === "base" || btn.id === "rz") setSituDist(""); }}
-              style={{
-                flexShrink: 0, minHeight: 26, padding: "0 9px",
-                borderRadius: 13,
-                border: `1px solid ${situDown === btn.id ? "#3a7035" : "#1e3828"}`,
-                background: situDown === btn.id ? "#0d2a12" : "transparent",
-                color: situDown === btn.id ? "#90d070" : "#4a8858",
-                fontSize: 11, cursor: "pointer",
-                fontFamily: "var(--font-mono)", fontWeight: situDown === btn.id ? "700" : "400",
-                transition: "all 100ms ease",
-              }}
-            >
-              {btn.label}
-            </button>
-          ))}
-          <span style={{ color: "#1e3828", fontSize: 16, flexShrink: 0, margin: "0 2px" }}>|</span>
-          <span style={{ fontSize: 9, color: "#4a7855", letterSpacing: "2px", textTransform: "uppercase", fontFamily: "var(--font-mono)", flexShrink: 0 }}>Dist</span>
-          {DIST_BTNS.map(btn => {
-            const disabled = !situDown || situDown === "base" || situDown === "rz";
-            const active = !disabled && situDist === btn.id;
-            return (
+        <div style={{ background: "#061009", border: "1px solid #1a3820", borderLeft: "3px solid #2a5030", borderRadius: "var(--r-md)", padding: "8px 10px", marginBottom: 12 }}>
+          {/* Row 1: Down */}
+          <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
+            <span style={{ fontSize: 9, color: "#4a7855", letterSpacing: "2px", textTransform: "uppercase", fontFamily: "var(--font-mono)", flexShrink: 0, width: 32 }}>Down</span>
+            {DOWN_BTNS.map(btn => (
               <button
                 key={btn.id}
-                onClick={() => !disabled && setSituDist(situDist === btn.id ? "" : btn.id)}
+                onClick={() => { setSituDown(situDown === btn.id ? "" : btn.id); if (btn.id === "base" || btn.id === "rz") setSituDist(""); }}
                 style={{
-                  flexShrink: 0, minHeight: 26, padding: "0 9px",
+                  flex: 1, minHeight: 26, padding: "0 4px",
                   borderRadius: 13,
-                  border: `1px solid ${active ? "#3a7035" : "#1e3828"}`,
-                  background: active ? "#0d2a12" : "transparent",
-                  color: disabled ? "#1e3828" : active ? "#90d070" : "#4a8858",
-                  fontSize: 11, cursor: disabled ? "default" : "pointer",
-                  fontFamily: "var(--font-mono)", fontWeight: active ? "700" : "400",
-                  opacity: disabled ? 0.4 : 1,
+                  border: `1px solid ${situDown === btn.id ? "#3a7035" : "#1e3828"}`,
+                  background: situDown === btn.id ? "#0d2a12" : "transparent",
+                  color: situDown === btn.id ? "#90d070" : "#4a8858",
+                  fontSize: 11, cursor: "pointer",
+                  fontFamily: "var(--font-mono)", fontWeight: situDown === btn.id ? "700" : "400",
                   transition: "all 100ms ease",
                 }}
               >
                 {btn.label}
               </button>
-            );
-          })}
-          {situDown && (
-            <button onClick={() => { setSituDown(""); setSituDist(""); }} style={{ flexShrink: 0, background: "transparent", border: "none", color: "#4a8858", fontSize: 14, cursor: "pointer", padding: "0 2px", marginLeft: "auto", lineHeight: 1 }}>×</button>
-          )}
+            ))}
+            {situDown && (
+              <button onClick={() => { setSituDown(""); setSituDist(""); }} style={{ background: "transparent", border: "none", color: "#4a8858", fontSize: 14, cursor: "pointer", padding: "0 2px", lineHeight: 1, flexShrink: 0 }}>×</button>
+            )}
+          </div>
+          {/* Row 2: Distance */}
+          <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+            <span style={{ fontSize: 9, color: "#4a7855", letterSpacing: "2px", textTransform: "uppercase", fontFamily: "var(--font-mono)", flexShrink: 0, width: 32 }}>Dist</span>
+            {DIST_BTNS.map(btn => {
+              const disabled = !situDown || situDown === "base" || situDown === "rz";
+              const active = !disabled && situDist === btn.id;
+              return (
+                <button
+                  key={btn.id}
+                  onClick={() => !disabled && setSituDist(situDist === btn.id ? "" : btn.id)}
+                  style={{
+                    flex: 1, minHeight: 26, padding: "0 4px",
+                    borderRadius: 13,
+                    border: `1px solid ${active ? "#3a7035" : "#1e3828"}`,
+                    background: active ? "#0d2a12" : "transparent",
+                    color: disabled ? "#1e3828" : active ? "#90d070" : "#4a8858",
+                    fontSize: 11, cursor: disabled ? "default" : "pointer",
+                    fontFamily: "var(--font-mono)", fontWeight: active ? "700" : "400",
+                    opacity: disabled ? 0.4 : 1,
+                    transition: "all 100ms ease",
+                  }}
+                >
+                  {btn.label}
+                </button>
+              );
+            })}
+          </div>
         </div>
 
         {/* ── Tempo warning ── */}
@@ -284,20 +297,19 @@ export default function GamePlanScreen({
                     key={fid}
                     onClick={() => { setActiveP(fid); setSelFm(null); }}
                     style={{
-                      minHeight: 52, padding: "7px 13px",
+                      minHeight: 36, padding: "0 12px",
                       background: activeP === fid ? "var(--color-gold-surface)" : "var(--color-surface-2)",
                       border: `2px solid ${activeP === fid ? "var(--color-gold)" : "var(--color-border)"}`,
                       borderRadius: "var(--r-sm)",
                       color: activeP === fid ? "var(--color-gold)" : "var(--color-text-2)",
+                      fontSize: 11, fontWeight: activeP === fid ? "700" : "400",
                       cursor: "pointer",
                       fontFamily: "var(--font-mono)",
                       transition: "all 150ms ease",
-                      textAlign: "left",
-                      maxWidth: 200,
+                      whiteSpace: "nowrap",
                     }}
                   >
-                    <div style={{ fontSize: 11, fontWeight: "700", color: activeP === fid ? "var(--color-gold)" : "var(--color-text-2)", marginBottom: 2 }}>{fam.label}</div>
-                    <div style={{ fontSize: 10, color: "#6888a0", overflow: "hidden", whiteSpace: "nowrap", textOverflow: "ellipsis", maxWidth: 170 }}>{fam.desc.slice(0, 60)}</div>
+                    {fam.label}{PERS_COMP[fam.base] ? ` (${PERS_COMP[fam.base]})` : ""}
                   </button>
                 ) : null;
               })}
