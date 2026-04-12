@@ -66,7 +66,7 @@ export default function FormationDetail({ fm, flat, situation = "base", runPass 
   const situAdj = fm._situationAdj || 0;
 
   return (
-    <div style={{ background: "#090f1a", border: "1px solid var(--color-gold)", borderTop: "none", borderRadius: "0 0 9px 9px", overflow: "hidden", marginBottom: 18 }}>
+    <div style={{ background: "#090f1a", border: "1px solid var(--color-gold)", borderTop: "none", borderLeft: `3px solid ${PC[fm.priority]}`, borderRadius: "0 0 9px 9px", overflow: "hidden", marginBottom: 18 }}>
       {/* Blitz bar */}
       <div style={{ padding: "16px 16px", borderBottom: "1px solid #1e2a3a", background: "#090f1a" }}>
         <BlitzBar pct={blitz} />
@@ -84,7 +84,7 @@ export default function FormationDetail({ fm, flat, situation = "base", runPass 
           onClick={() => setShowWhy(v => !v)}
           style={{ width: "100%", display: "flex", alignItems: "center", justifyContent: "space-between", background: "none", border: "none", padding: "10px 16px", cursor: "pointer", textAlign: "left" }}
         >
-          <span style={{ fontSize: 10, color: "#7f9fb2", letterSpacing: "2px", textTransform: "uppercase", fontFamily: "'IBM Plex Mono', monospace" }}>
+          <span style={{ fontSize: 11, fontWeight: "700", color: "#7f9fb2", letterSpacing: "2px", textTransform: "uppercase", fontFamily: "'IBM Plex Mono', monospace" }}>
             Why This Formation Was Selected
           </span>
           <span style={{ fontSize: 11, color: "#b8880c", fontFamily: "'IBM Plex Mono', monospace", flexShrink: 0, marginLeft: 8 }}>
@@ -105,9 +105,9 @@ export default function FormationDetail({ fm, flat, situation = "base", runPass 
             {/* Collapsible Scoring Factors — nested inside Why */}
             <button
               onClick={() => setShowScoring(v => !v)}
-              style={{ marginTop: 10, background: "none", border: "none", padding: 0, cursor: "pointer", fontSize: 10, color: "#b8880c", fontFamily: "'IBM Plex Mono', monospace", letterSpacing: "0.5px", fontWeight: "700" }}
+              style={{ marginTop: 10, background: "none", border: "none", padding: 0, cursor: "pointer", fontSize: 11, color: "#b8880c", fontFamily: "'IBM Plex Mono', monospace", letterSpacing: "0.5px", fontWeight: "700" }}
             >
-              {showScoring ? "▼ Scoring factors" : "▶ Scoring factors"}
+              {showScoring ? "▼ Scoring Factors" : "▶ Scoring Factors"}
             </button>
 
             {showScoring && (
