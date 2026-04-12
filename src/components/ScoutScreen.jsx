@@ -33,8 +33,70 @@ export default function ScoutScreen({
   const [openCard, setOpenCard] = useState(null);
   const toggleCard = (id) => setOpenCard(prev => prev === id ? null : id);
 
+  const [showOnboarding, setShowOnboarding] = useState(() => {
+    try { return !localStorage.getItem('sb_onboarded'); } catch(e) { return false; }
+  });
+
+  const dismissOnboarding = () => {
+    try { localStorage.setItem('sb_onboarded', '1'); } catch(e) {}
+    setShowOnboarding(false);
+  };
+
   return (
     <div className="screen-enter" style={{ fontFamily: "var(--font-sans)", background: "var(--color-bg)", minHeight: "100dvh", color: "var(--color-text-1)", maxWidth: 720, margin: "0 auto" }}>
+
+      {/* ── First-time onboarding modal ── */}
+      {showOnboarding && (
+        <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.88)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 300, padding: 20 }}>
+          <div style={{ background: "var(--color-surface-2)", border: "1px solid var(--color-gold)", borderRadius: "var(--r-lg)", padding: "20px 18px", width: "100%", maxWidth: 340 }}>
+
+            <div style={{ fontSize: 26, textAlign: "center", marginBottom: 6 }}>🛡️</div>
+            <div style={{ fontSize: 15, fontWeight: "700", color: "var(--color-text-1)", textAlign: "center", marginBottom: 2, fontFamily: "var(--font-mono)" }}>
+              Welcome to Scheme Builders
+            </div>
+            <div style={{ fontSize: 9, color: "var(--color-text-3)", textAlign: "center", marginBottom: 14, letterSpacing: "1px", textTransform: "uppercase" }}>
+              CFB Defensive Intelligence
+            </div>
+
+            {[
+              { n: 1, title: "Scout", desc: "Tag your opponent's offensive tendencies — run style, pass concepts, personnel, QB traits" },
+              { n: 2, title: "Set Bias", desc: "Dial in their run/pass tendency to sharpen your defensive match" },
+              { n: 3, title: "Build Your Plan", desc: "Get a ranked list of defensive formations built for this opponent" },
+            ].map(({ n, title, desc }) => (
+              <div key={n} style={{ display: "flex", alignItems: "flex-start", gap: 9, marginBottom: 10 }}>
+                <div style={{ width: 20, height: 20, borderRadius: "50%", background: "var(--color-gold)", color: "#07080f", fontSize: 10, fontWeight: "700", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, marginTop: 1, fontFamily: "var(--font-mono)" }}>
+                  {n}
+                </div>
+                <div>
+                  <div style={{ fontSize: 11, fontWeight: "700", color: "var(--color-text-1)", marginBottom: 1, fontFamily: "var(--font-mono)" }}>{title}</div>
+                  <div style={{ fontSize: 10, color: "var(--color-text-3)", lineHeight: 1.4 }}>{desc}</div>
+                </div>
+              </div>
+            ))}
+
+            <div style={{ background: "var(--color-bg)", border: "1px solid var(--color-border-subtle)", borderRadius: "var(--r-md)", padding: "9px 10px", marginBottom: 14 }}>
+              <div style={{ fontSize: 8, color: "var(--color-text-3)", letterSpacing: "1px", textTransform: "uppercase", marginBottom: 6, fontFamily: "var(--font-mono)" }}>
+                You'll get
+              </div>
+              <div style={{ display: "flex", flexWrap: "wrap", gap: 4 }}>
+                {["✓ Ranked formations", "✓ Coverage packages", "✓ Blitz %", "✓ Call sheets"].map(p => (
+                  <span key={p} style={{ background: "#0a1a0a", border: "1px solid #1e4020", borderRadius: 16, padding: "3px 9px", fontSize: 9, color: "var(--color-success)" }}>
+                    {p}
+                  </span>
+                ))}
+              </div>
+            </div>
+
+            <button
+              onClick={dismissOnboarding}
+              style={{ width: "100%", height: 44, background: "linear-gradient(135deg,#b8880c,#d4a020,#b8880c)", border: "none", borderRadius: "var(--r-md)", color: "#07080f", fontWeight: "700", fontSize: 12, cursor: "pointer", fontFamily: "var(--font-mono)" }}
+            >
+              Let's Build a Game Plan →
+            </button>
+
+          </div>
+        </div>
+      )}
 
       {/* ── Slim sticky top bar ── */}
       <div style={{
