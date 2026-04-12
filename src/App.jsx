@@ -17,7 +17,6 @@ export default function App() {
   // ── Scout state ─────────────────────────────────────────────────────────────
   const [sel, setSel]         = useState({});
   const [runPass, setRunPass] = useState(4);
-  const [openGrp, setOpenGrp] = useState(null);
 
   // ── Game plan state ──────────────────────────────────────────────────────────
   const [scored, setScored]             = useState([]);
@@ -165,7 +164,6 @@ export default function App() {
     saveName, setSaveName,
     profiles, saveProfiles,
     importMsg, exportProfiles, importProfiles,
-    openGrp, setOpenGrp,
     toggle, build,
     compareA, setCompareA,
     compareB, setCompareB,
