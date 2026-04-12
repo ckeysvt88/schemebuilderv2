@@ -4,7 +4,12 @@
       "WebFetch(domain:cfb.fan)",
       "Bash(node --input-type=module)",
       "WebFetch(domain:en.wikipedia.org)",
-      "Bash(grep:*)"
+      "Bash(grep:*)",
+      "Bash(npm run:*)",
+      "Bash(npx vite:*)",
+      "Bash(npm install:*)",
+      "Bash(npx kill-port:*)",
+      "Bash(taskkill /F /IM node.exe)"
     ]
   }
 }

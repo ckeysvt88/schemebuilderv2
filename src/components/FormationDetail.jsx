@@ -29,12 +29,14 @@ function AdjustmentsPanel({ flat }) {
   const zd = matched.filter(a => a.section === "Zone Drops");
   const ps = matched.filter(a => a.section === "Pre-Snap");
   const kr = matched.filter(a => a.section === "Keys & Reads");
+  const qt = matched.filter(a => a.section === "QB Threat");
   return (
     <div>
       <div style={{ fontSize: "12px", color: "#7c9aaf", letterSpacing: "2px", textTransform: "uppercase", marginBottom: 14, fontFamily: "'IBM Plex Mono', monospace" }}>In-Game Adjustments</div>
       {matched.length === 0 && (
         <div style={{ fontSize: 11, color: "#7f9fb2", padding: "10px", textAlign: "center", fontStyle: "italic" }}>No specific adjustments flagged — default settings apply.</div>
       )}
+      <AdjSection sec="QB Threat" items={qt} icon="🏃" />
       <AdjSection sec="Safety Setup" items={ss} icon="🔭" />
       <AdjSection sec="Zone Drops" items={zd} icon="📐" />
       <AdjSection sec="Pre-Snap" items={ps} icon="🎭" />
@@ -43,10 +45,26 @@ function AdjustmentsPanel({ flat }) {
   );
 }
 
-export default function FormationDetail({ fm, flat }) {
+const SIT_LABELS = { base:"Base", "2md":"2nd & Mid", "3lg":"3rd & Long", "3sh":"3rd & Short", rz:"Red Zone" };
+const BIAS_MAP_RP = { 1:-1.0, 2:-0.65, 3:-0.30, 4:0, 5:0.30, 6:0.65, 7:1.0 };
+
+export default function FormationDetail({ fm, flat, situation = "base", runPass = 4 }) {
   const [tab, setTab] = useState("coverages");
+  const [showWhy, setShowWhy] = useState(false);
   const blitz = getBlitz(fm, flat);
   const bi = blitzInfo(blitz);
+
+  // ── Scoring factor calculations ───────────────────────────────────────────
+  const runBias = BIAS_MAP_RP[runPass] || 0;
+  let biasAdj = 0;
+  if (fm.priority === "run" && runBias > 0) biasAdj = Math.round(runBias * 15);
+  else if (fm.priority === "pass" && runBias < 0) biasAdj = Math.round(-runBias * 15);
+  else if (fm.priority === "run" && runBias < 0) biasAdj = Math.round(runBias * 10);
+  else if (fm.priority === "pass" && runBias > 0) biasAdj = Math.round(-runBias * 10);
+
+  const avoidFired = (fm.avoidTags || []).filter(t => flat.includes(t));
+  const blitzModsFired = (fm.blitzMods || []).filter(m => m.tags.some(t => flat.includes(t)));
+  const situAdj = fm._situationAdj || 0;
 
   return (
     <div style={{ background: "#090f1a", border: `2px solid ${PC[fm.priority]}`, borderRadius: 9, overflow: "hidden", marginBottom: 18 }}>
@@ -72,13 +90,8 @@ export default function FormationDetail({ fm, flat }) {
         </div>
       </div>
 
-      {/* Why selected */}
-      <div style={{ padding: "16px 16px", borderBottom: "1px solid #1e2a3a", background: "#080c15" }}>
-        <WhySelected coreHits={fm.coreHits} suppHits={fm.suppHits} />
-      </div>
-
       {/* Blitz bar */}
-      <div style={{ padding: "16px 16px", borderBottom: "1px solid #1e2a3a", background: "#090f1a" }}>
+      <div style={{ padding: "16px 16px", borderBottom: showWhy ? "none" : "1px solid #1e2a3a", background: "#090f1a" }}>
         <BlitzBar pct={blitz} />
         {fm.blitzMods.filter(m => m.tags.some(t => flat.includes(t))).slice(0, 3).map((m, i) => (
           <div key={i} style={{ fontSize: "11px", color: "#7f9fb2", marginTop: 3, display: "flex", gap: 8 }}>
@@ -86,7 +99,59 @@ export default function FormationDetail({ fm, flat }) {
             <span>— {m.tags.filter(t => flat.includes(t)).map(t => TRAIT_LABELS[t] || t).join(", ")}</span>
           </div>
         ))}
+        <button
+          onClick={() => setShowWhy(v => !v)}
+          style={{ marginTop: 10, background: "none", border: "none", padding: 0, cursor: "pointer", fontSize: 10, color: "#b8880c", fontFamily: "'IBM Plex Mono', monospace", letterSpacing: "0.5px" }}
+        >
+          {showWhy ? "▼ Why this ranked here" : "▶ Why this ranked here"}
+        </button>
       </div>
+
+      {/* Collapsible Why section */}
+      {showWhy && (
+        <div style={{ background: "#1a2030", border: "1px solid #2a3545", borderRadius: 8, margin: "0 12px 0", padding: 10, borderTop: "none", borderTopLeftRadius: 0, borderTopRightRadius: 0 }}>
+          <WhySelected coreHits={fm.coreHits} suppHits={fm.suppHits} />
+          <div style={{ marginTop: 12, borderTop: "1px solid #2a3545", paddingTop: 10 }}>
+            <div style={{ fontSize: 10, color: "#6888a0", letterSpacing: "2px", textTransform: "uppercase", fontFamily: "'IBM Plex Mono', monospace", marginBottom: 8 }}>Scoring Factors</div>
+            {/* Run/Pass Bias */}
+            <div style={{ fontSize: 11, fontFamily: "'IBM Plex Mono', monospace", marginBottom: 5, display: "flex", gap: 8 }}>
+              <span style={{ color: "#6888a0", minWidth: 110 }}>Run/Pass Bias:</span>
+              {biasAdj === 0
+                ? <span style={{ color: "#6888a0" }}>Balanced</span>
+                : <span style={{ color: biasAdj > 0 ? "#70b080" : "#aa6868" }}>
+                    {biasAdj > 0 ? `+${biasAdj}` : biasAdj} {fm.priority} {biasAdj > 0 ? "bias" : "penalty"}
+                  </span>
+              }
+            </div>
+            {/* AvoidTags Penalty */}
+            {avoidFired.length > 0 && (
+              <div style={{ fontSize: 11, fontFamily: "'IBM Plex Mono', monospace", marginBottom: 5, display: "flex", gap: 8 }}>
+                <span style={{ color: "#6888a0", minWidth: 110 }}>Avoid Penalty:</span>
+                <span style={{ color: "#aa6868" }}>-25: {avoidFired.map(t => TRAIT_LABELS[t] || t).join(", ")}</span>
+              </div>
+            )}
+            {/* Blitz Modifiers */}
+            {blitzModsFired.slice(0, 2).map((m, i) => (
+              <div key={i} style={{ fontSize: 11, fontFamily: "'IBM Plex Mono', monospace", marginBottom: 5, display: "flex", gap: 8 }}>
+                <span style={{ color: "#6888a0", minWidth: 110 }}>Blitz Mod:</span>
+                <span style={{ color: m.d >= 0 ? "#d4aa30" : "#558a68" }}>
+                  {m.d >= 0 ? `+${m.d}%` : `${m.d}%`} — {m.tags.filter(t => flat.includes(t)).map(t => TRAIT_LABELS[t] || t).join(", ")}
+                </span>
+              </div>
+            ))}
+            {/* Situation Adjustment */}
+            {situation !== "base" && (
+              <div style={{ fontSize: 11, fontFamily: "'IBM Plex Mono', monospace", marginBottom: 5, display: "flex", gap: 8 }}>
+                <span style={{ color: "#6888a0", minWidth: 110 }}>Situation:</span>
+                <span style={{ color: situAdj !== 0 ? "#b8880c" : "#6888a0" }}>
+                  {SIT_LABELS[situation]}{situAdj !== 0 ? (situAdj > 0 ? ` +${situAdj}` : ` ${situAdj}`) : " — no adjustment"}
+                </span>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+      <div style={{ borderBottom: "1px solid #1e2a3a" }} />
 
       {/* Inner tabs */}
       <div style={{ display: "flex", borderBottom: "1px solid #1e2a3a", background: "#080c15" }}>
@@ -135,7 +200,24 @@ export default function FormationDetail({ fm, flat }) {
           </div>
         )}
 
-        {tab === "coaching" && <AdjustmentsPanel flat={flat} />}
+        {tab === "coaching" && (
+          <div>
+            <AdjustmentsPanel flat={flat} />
+            {(flat.includes("boundary_hash") || flat.includes("field_hash")) && (
+              <div style={{ marginTop: 4, background: "#080c15", border: "1px solid #1e2a3a", borderLeft: "3px solid #3a5a7a", borderRadius: 5, padding: "10px 13px" }}>
+                <div style={{ fontSize: 10, color: "#b8880c", letterSpacing: "1.5px", textTransform: "uppercase", marginBottom: 4, fontFamily: "'IBM Plex Mono', monospace" }}>📐 Hash Shade</div>
+                <div style={{ fontSize: 11, fontWeight: "bold", color: "#c5d0dc", fontFamily: "'IBM Plex Mono', monospace", marginBottom: 3 }}>
+                  {flat.includes("boundary_hash") ? "Shade toward boundary" : "Shade toward field"}
+                </div>
+                <div style={{ fontSize: 11, color: "#7f9fb2", lineHeight: 1.55 }}>
+                  {flat.includes("boundary_hash")
+                    ? "Routes attack the wide side — shade your coverage toward the boundary and rotate safety support to the field."
+                    : "Safety midpoint shifts to field side — routes concentrate to the wide hash. Rotate coverage toward the field."}
+                </div>
+              </div>
+            )}
+          </div>
+        )}
 
         {tab === "callsheet" && (
           <div>

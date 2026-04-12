@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { TEAMS, CONFERENCES } from '../data/teams.js';
 
 const PERS_LABELS = { p10:"5-WR", p11:"11p", p12:"12p (2 TE)", p21:"21p (FB)", p22:"22p Jumbo", trips:"Trips", empty:"Empty" };
@@ -6,6 +6,11 @@ const PERS_LABELS = { p10:"5-WR", p11:"11p", p12:"12p (2 TE)", p21:"21p (FB)", p
 export default function TeamsScreen({ onBuildFromTeam }) {
   const [teamConf, setTeamConf]     = useState("all");
   const [teamSearch, setTeamSearch] = useState("");
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+    document.getElementById('root')?.scrollTo(0, 0);
+  }, []);
 
   const filteredTeams = TEAMS.filter(t => {
     const matchConf   = teamConf === "all" || t.conf === teamConf;

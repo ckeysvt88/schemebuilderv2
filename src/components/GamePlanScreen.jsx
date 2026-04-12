@@ -1,15 +1,72 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { PLAYBOOKS } from '../data/playbooks.js';
 import { FDB } from '../data/formations.js';
 import { TRAITS } from '../data/traits.js';
 import { PMAP, PERSONNEL_FAMILIES, FAMILY_ADJUSTMENTS } from '../data/personnel.js';
 import { scoreAll, scoreForPersonnel, scoreForFamily, groupByPersonnel } from '../engine/scoring.js';
 import { getAvailableFamilies } from '../data/personnel.js';
-import { getSituationTip, situationLabel } from '../engine/downDistance.js';
 import FormationCard, { PC, PL } from './FormationCard.jsx';
 import FormationDetail from './FormationDetail.jsx';
 import { ExportPDFButton } from './CallSheetPDF.jsx';
 
+
+const DOWN_BTNS = [
+  { id: "base", label: "Base" },
+  { id: "1",   label: "1st" },
+  { id: "2",   label: "2nd" },
+  { id: "3",   label: "3rd" },
+  { id: "4",   label: "4th" },
+  { id: "rz",  label: "Red Zone" },
+];
+
+const DIST_BTNS = [
+  { id: "short", label: "Short" },
+  { id: "mid",   label: "Mid" },
+  { id: "long",  label: "Long" },
+];
+
+const SIT_LABELS_GPS = { base:"Base", "2md":"2nd & Mid", "3lg":"3rd & Long", "3sh":"3rd & Short", rz:"Red Zone" };
+
+function deriveSituation(down, dist) {
+  if (!down || down === "base") return "base";
+  if (down === "rz") return "rz";
+  if (dist === "short") return "3sh";
+  if (dist === "long")  return "3lg";
+  if (dist === "mid") return down === "1" ? "base" : "2md";
+  // No distance selected — down-only defaults
+  if (down === "1") return "base";
+  if (down === "2") return "2md";
+  if (down === "3") return "3lg";
+  if (down === "4") return "3sh";
+  return "base";
+}
+
+function applySituationSort(fmList, sit) {
+  if (!sit || sit === "base") return [...fmList].sort((a, b) => b.sc - a.sc);
+  return fmList.map(fm => {
+    let adj = 0;
+    const pers = fm.personnel || "Base";
+    if (sit === "2md") {
+      if (fm.priority === "hybrid") adj += 10;
+      if (fm.priority === "run") adj -= 8;
+      if (pers === "Heavy" || pers === "Goal Line") adj -= 15;
+    } else if (sit === "3lg") {
+      if (fm.priority === "pass" || fm.priority === "pressure") adj += 15;
+      if (fm.priority === "run") adj -= 20;
+      if (fm.coreTags?.some(t => t === "p22" || t === "p21") ||
+          fm.suppTags?.some(t => t === "p22" || t === "p21") ||
+          pers === "Heavy" || pers === "Goal Line") adj -= 25;
+    } else if (sit === "3sh") {
+      if (fm.priority === "run" || pers === "Heavy" || pers === "Goal Line") adj += 15;
+      if (fm.priority === "pass" || pers === "Dime") adj -= 20;
+      if (fm.books?.includes("3-2-6")) adj -= 20;
+    } else if (sit === "rz") {
+      if (pers === "Nickel" || pers === "Dime") adj -= 25;
+      if (pers === "Base" || pers === "Heavy" || pers === "Goal Line" || pers === "Prevent") adj += 15;
+    }
+    return { ...fm, sc: Math.max(0, Math.min(100, fm.sc + adj)), _situationAdj: adj };
+  }).filter(f => f.sc > 0).sort((a, b) => b.sc - a.sc);
+}
 
 export default function GamePlanScreen({
   sel, setSel, flat, personnelSel,
@@ -27,8 +84,23 @@ export default function GamePlanScreen({
   setStep,
 }) {
   const [personnelSel2] = useState(personnelSel.length ? personnelSel : ["p11"]);
+  const [situDown, setSituDown] = useState("");
+  const [situDist, setSituDist] = useState("");
+  const [listOpacity, setListOpacity] = useState(1);
+  const [showAlignment, setShowAlignment] = useState(false);
 
-  const groupedPersonnel = groupByPersonnel(scored);
+  useEffect(() => { setShowAlignment(false); }, [activeP]);
+
+  const situation = deriveSituation(situDown, situDist);
+
+  useEffect(() => {
+    setListOpacity(0.6);
+    const t = setTimeout(() => setListOpacity(1), 150);
+    return () => clearTimeout(t);
+  }, [situDown, situDist]);
+
+  const situationScored = applySituationSort(scored, situation);
+  const groupedPersonnel = groupByPersonnel(situationScored);
 
   // ── Recommended playbook ──────────────────────────────────────────────────────
   const recBook = (() => {
@@ -84,7 +156,6 @@ export default function GamePlanScreen({
     return { book: best, count: cnt[best] || 0, total: allScored.length, confidence, second, gap: Math.round(gapPct * 100) };
   })();
 
-  const situationTip = getSituationTip(Number(ddDown), Number(ddDistance));
 
   return (
     <>
@@ -102,6 +173,7 @@ export default function GamePlanScreen({
             </div>
           </div>
           <div style={{ display: "flex", gap: 6, alignItems: "center", flexShrink: 0 }}>
+            <ExportPDFButton variant="compact" label="Call Sheet" rawScored={rawScored} sel={sel} myBook={myBook} runPass={runPass} />
             <button onClick={() => setStep("notes")} style={hdrBtn} aria-label="Notes">
               Notes
             </button>
@@ -112,109 +184,89 @@ export default function GamePlanScreen({
             >
               Adjust
             </button>
-            <button onClick={handleShare} style={hdrBtn} aria-label="Share game plan">
-              {shareToast === "shared" ? "✓ Sent" : shareToast === "copied" ? "✓ Copied" : "Share"}
-            </button>
+            {recBook && (
+              <button
+                onClick={() => setShowRecModal(true)}
+                style={{
+                  ...hdrBtn,
+                  color: myBook === recBook.book ? "#90d070" : "#6aaa78",
+                  borderColor: myBook === recBook.book ? "#3a7035" : "#2a4030",
+                  background: myBook === recBook.book ? "#0d2a12" : "transparent",
+                }}
+                aria-label="Recommended playbook"
+              >
+                {recBook.book}
+              </button>
+            )}
           </div>
         </div>
 
-        {/* ── Export call sheet — full-width button, second header row ── */}
-        <ExportPDFButton variant="full" rawScored={rawScored} sel={sel} myBook={myBook} runPass={runPass} />
 
       </div>
 
       <div style={{ padding: "14px 16px" }}>
 
-        {/* ── Recommended Playbook banner ── */}
-        {recBook && (() => {
-          const isActive = myBook === recBook.book;
-          return (
+
+        {/* ── Down & Distance Situation ── */}
+        <div style={{ background: "#061009", border: "1px solid #1a3820", borderLeft: "3px solid #2a5030", borderRadius: "var(--r-md)", padding: "6px 10px", marginBottom: 12, display: "flex", alignItems: "center", gap: 6, overflowX: "auto", WebkitOverflowScrolling: "touch", minHeight: 40 }}>
+          <span style={{ fontSize: 9, color: "#4a7855", letterSpacing: "2px", textTransform: "uppercase", fontFamily: "var(--font-mono)", flexShrink: 0 }}>Down</span>
+          {DOWN_BTNS.map(btn => (
             <button
-              onClick={() => setShowRecModal(true)}
+              key={btn.id}
+              onClick={() => { setSituDown(situDown === btn.id ? "" : btn.id); if (btn.id === "base" || btn.id === "rz") setSituDist(""); }}
               style={{
-                width: "100%", display: "flex", alignItems: "center", justifyContent: "space-between",
-                background: isActive ? "#0d2a12" : "#061009",
-                border: `1px solid ${isActive ? "#3a7035" : "#1a3820"}`,
-                borderLeft: `3px solid ${isActive ? "var(--color-success)" : "#2a5030"}`,
-                borderRadius: "var(--r-md)",
-                padding: "11px 14px", marginBottom: 14,
-                cursor: "pointer", textAlign: "left",
-                transition: "all 150ms ease",
-                minHeight: 52,
-                opacity: isActive ? 1 : 0.8,
+                flexShrink: 0, minHeight: 26, padding: "0 9px",
+                borderRadius: 13,
+                border: `1px solid ${situDown === btn.id ? "#3a7035" : "#1e3828"}`,
+                background: situDown === btn.id ? "#0d2a12" : "transparent",
+                color: situDown === btn.id ? "#90d070" : "#4a8858",
+                fontSize: 11, cursor: "pointer",
+                fontFamily: "var(--font-mono)", fontWeight: situDown === btn.id ? "700" : "400",
+                transition: "all 100ms ease",
               }}
             >
-              <div>
-                <div style={{ fontSize: 10, color: isActive ? "var(--color-success)" : "#4a8858", letterSpacing: "1.5px", textTransform: "uppercase", fontFamily: "var(--font-mono)", marginBottom: 3 }}>
-                  Recommended Playbook
-                </div>
-                <div style={{ fontSize: 14, fontWeight: "700", color: isActive ? "#90d070" : "#6aaa78", fontFamily: "var(--font-mono)" }}>
-                  {recBook.book}
-                  <span style={{ fontSize: 11, color: isActive ? "var(--color-success)" : "#4a8858", fontWeight: "400", marginLeft: 8 }}>
-                    · {recBook.confidence} confidence
-                  </span>
-                </div>
-              </div>
-              <span style={{ color: isActive ? "var(--color-success)" : "#4a8858", fontSize: 18, marginLeft: 10 }}>›</span>
+              {btn.label}
             </button>
-          );
-        })()}
-
-        {/* ── Down & Distance filter ── */}
-        <div style={{ background: "var(--color-surface-1)", border: "1px solid var(--color-border-subtle)", borderRadius: "var(--r-md)", padding: "12px 14px", marginBottom: 16 }}>
-          <div style={{ fontSize: 10, color: "var(--color-gold-dim)", letterSpacing: "2px", textTransform: "uppercase", fontFamily: "var(--font-mono)", marginBottom: 10 }}>
-            Down &amp; Distance Context
-          </div>
-          <div style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
-            <div style={{ display: "flex", gap: 4 }}>
-              {[1,2,3,4].map(d => (
-                <button
-                  key={d}
-                  onClick={() => setDdDown(ddDown === String(d) ? "" : String(d))}
-                  style={{
-                    minHeight: 40, minWidth: 44, padding: "0 8px",
-                    borderRadius: "var(--r-sm)",
-                    border: `1px solid ${ddDown === String(d) ? "var(--color-gold)" : "var(--color-border)"}`,
-                    background: ddDown === String(d) ? "var(--color-gold-surface)" : "transparent",
-                    color: ddDown === String(d) ? "var(--color-gold)" : "var(--color-text-3)",
-                    fontSize: 12, cursor: "pointer",
-                    fontFamily: "var(--font-mono)", fontWeight: "700",
-                    transition: "all 120ms ease",
-                  }}
-                >
-                  {d}{["st","nd","rd","th"][d-1]}
-                </button>
-              ))}
-            </div>
-            <input
-              type="number" min="1" max="99"
-              placeholder="Yards"
-              value={ddDistance}
-              onChange={e => setDdDistance(e.target.value)}
-              style={{
-                width: 90, minHeight: 40, padding: "0 10px",
-                background: "var(--color-bg)",
-                border: `1px solid ${ddDistance ? "var(--color-gold)" : "var(--color-border)"}`,
-                borderRadius: "var(--r-sm)",
-                color: "var(--color-text-1)", fontSize: 16,
-                fontFamily: "var(--font-mono)", outline: "none",
-              }}
-            />
-            {(ddDown || ddDistance) && (
+          ))}
+          <span style={{ color: "#1e3828", fontSize: 16, flexShrink: 0, margin: "0 2px" }}>|</span>
+          <span style={{ fontSize: 9, color: "#4a7855", letterSpacing: "2px", textTransform: "uppercase", fontFamily: "var(--font-mono)", flexShrink: 0 }}>Dist</span>
+          {DIST_BTNS.map(btn => {
+            const disabled = !situDown || situDown === "base" || situDown === "rz";
+            const active = !disabled && situDist === btn.id;
+            return (
               <button
-                onClick={() => { setDdDown(""); setDdDistance(""); }}
-                style={{ minHeight: 36, padding: "0 10px", background: "transparent", border: "1px solid #3a2020", borderRadius: "var(--r-sm)", color: "var(--color-danger)", fontSize: 11, cursor: "pointer" }}
+                key={btn.id}
+                onClick={() => !disabled && setSituDist(situDist === btn.id ? "" : btn.id)}
+                style={{
+                  flexShrink: 0, minHeight: 26, padding: "0 9px",
+                  borderRadius: 13,
+                  border: `1px solid ${active ? "#3a7035" : "#1e3828"}`,
+                  background: active ? "#0d2a12" : "transparent",
+                  color: disabled ? "#1e3828" : active ? "#90d070" : "#4a8858",
+                  fontSize: 11, cursor: disabled ? "default" : "pointer",
+                  fontFamily: "var(--font-mono)", fontWeight: active ? "700" : "400",
+                  opacity: disabled ? 0.4 : 1,
+                  transition: "all 100ms ease",
+                }}
               >
-                Clear
+                {btn.label}
               </button>
-            )}
-          </div>
-          {situationTip && ddDown && ddDistance && (
-            <div style={{ marginTop: 10, fontSize: 12, color: "#88bb88", lineHeight: 1.55, background: "#060a07", border: "1px solid #1e3020", borderRadius: "var(--r-sm)", padding: "8px 12px" }}>
-              {situationLabel(Number(ddDown), Number(ddDistance))} — {situationTip}
-            </div>
+            );
+          })}
+          {situDown && (
+            <button onClick={() => { setSituDown(""); setSituDist(""); }} style={{ flexShrink: 0, background: "transparent", border: "none", color: "#4a8858", fontSize: 14, cursor: "pointer", padding: "0 2px", marginLeft: "auto", lineHeight: 1 }}>×</button>
           )}
         </div>
+
+        {/* ── Tempo warning ── */}
+        {(flat.includes("hurry_up") || flat.includes("tempo_shift")) && (
+          <div style={{ background: "#0d1408", border: "1px solid var(--color-gold)", borderLeft: "4px solid #b8880c", borderRadius: "var(--r-md)", padding: "12px 14px", marginBottom: 16 }}>
+            <div style={{ fontSize: 12, color: "#b8880c", fontFamily: "var(--font-mono)", fontWeight: "700", marginBottom: 4 }}>⚡ TEMPO OFFENSE — One-Package Strategy Required</div>
+            <div style={{ fontSize: 12, color: "#c8a060", lineHeight: 1.6 }}>
+              You cannot substitute freely vs this team. Your base personnel must handle 11p through 12p without subbing. Prioritize formations that work across multiple personnel sets.
+            </div>
+          </div>
+        )}
 
         {/* ── PERSONNEL TAB ── */}
         {mainTab === "personnel" && (
@@ -232,18 +284,20 @@ export default function GamePlanScreen({
                     key={fid}
                     onClick={() => { setActiveP(fid); setSelFm(null); }}
                     style={{
-                      minHeight: 36, padding: "0 13px",
+                      minHeight: 52, padding: "7px 13px",
                       background: activeP === fid ? "var(--color-gold-surface)" : "var(--color-surface-2)",
                       border: `2px solid ${activeP === fid ? "var(--color-gold)" : "var(--color-border)"}`,
                       borderRadius: "var(--r-sm)",
                       color: activeP === fid ? "var(--color-gold)" : "var(--color-text-2)",
-                      fontSize: 12, fontWeight: activeP === fid ? "700" : "400",
                       cursor: "pointer",
                       fontFamily: "var(--font-mono)",
                       transition: "all 150ms ease",
+                      textAlign: "left",
+                      maxWidth: 200,
                     }}
                   >
-                    {fam.label}
+                    <div style={{ fontSize: 11, fontWeight: "700", color: activeP === fid ? "var(--color-gold)" : "var(--color-text-2)", marginBottom: 2 }}>{fam.label}</div>
+                    <div style={{ fontSize: 10, color: "#6888a0", overflow: "hidden", whiteSpace: "nowrap", textOverflow: "ellipsis", maxWidth: 170 }}>{fam.desc.slice(0, 60)}</div>
                   </button>
                 ) : null;
               })}
@@ -254,55 +308,80 @@ export default function GamePlanScreen({
               const pd  = fam ? PMAP[fam.base] : PMAP[activeP];
               const adj = FAMILY_ADJUSTMENTS[activeP];
               const persMatchesRaw = fam ? scoreForFamily(activeP, flat) : scoreForPersonnel(activeP, flat);
-              const persMatches = (myBook && myBook !== "All"
-                ? persMatchesRaw.filter(f => f.books && (f.books.includes(myBook) || f.books.includes("All")))
-                : persMatchesRaw
-              ).sort((a, b) => b.sc - a.sc).slice(0, 8);
+              const persMatches = applySituationSort(
+                (myBook && myBook !== "All"
+                  ? persMatchesRaw.filter(f => f.books && (f.books.includes(myBook) || f.books.includes("All")))
+                  : persMatchesRaw
+                ).slice(0, 8),
+                situation
+              );
 
               return (
                 <div>
-                  <div style={{ background: "var(--color-surface-1)", border: "1px solid var(--color-border-subtle)", borderRadius: "var(--r-md)", padding: "12px 14px", marginBottom: 16 }}>
-                    {fam && (
-                      <div style={{ marginBottom: 10, paddingBottom: 10, borderBottom: "1px solid var(--color-border-subtle)" }}>
-                        <div style={{ fontSize: 10, color: "var(--color-text-2)", letterSpacing: "2px", textTransform: "uppercase", marginBottom: 4, fontFamily: "var(--font-mono)" }}>Alignment</div>
-                        <div style={{ fontSize: 13, color: "var(--color-text-2)", lineHeight: 1.55 }}>{fam.desc}</div>
-                      </div>
-                    )}
-                    {adj && (
-                      <div style={{ marginBottom: 10, paddingBottom: 10, borderBottom: "1px solid var(--color-border-subtle)" }}>
-                        <div style={{ fontSize: 10, color: "var(--color-gold)", letterSpacing: "2px", textTransform: "uppercase", marginBottom: 5, fontFamily: "var(--font-mono)" }}>Alignment DC Rule</div>
-                        <div style={{ fontSize: 13, color: "var(--color-text-1)", lineHeight: 1.65, marginBottom: 8 }}>{adj.extra}</div>
-                        <div style={{ display: "flex", flexWrap: "wrap", gap: 5 }}>
-                          {adj.bias && adj.bias.map(b => (
-                            <span key={b} style={{ fontSize: 11, padding: "2px 9px", border: "1px solid var(--color-gold-border)", borderRadius: "var(--r-sm)", color: "var(--color-gold)", fontFamily: "var(--font-mono)" }}>{b}</span>
-                          ))}
+                  {/* ── Collapsible DC Guidance ── */}
+                  <button
+                    onClick={() => setShowAlignment(v => !v)}
+                    style={{
+                      width: "100%", display: "flex", alignItems: "center", justifyContent: "space-between",
+                      background: "var(--color-surface-1)", border: "1px solid var(--color-border-subtle)",
+                      borderRadius: showAlignment ? "var(--r-md) var(--r-md) 0 0" : "var(--r-md)",
+                      padding: "9px 14px", marginBottom: showAlignment ? 0 : 12,
+                      cursor: "pointer", textAlign: "left",
+                    }}
+                  >
+                    <span style={{ fontSize: 10, color: "var(--color-gold-dim)", letterSpacing: "2px", textTransform: "uppercase", fontFamily: "var(--font-mono)", fontWeight: "700" }}>
+                      DC Guidance — Alignment &amp; Priority
+                    </span>
+                    <span style={{ fontSize: 11, color: "var(--color-text-3)", fontFamily: "var(--font-mono)", flexShrink: 0, marginLeft: 8 }}>
+                      {showAlignment ? "▲ Hide" : "▼ Show"}
+                    </span>
+                  </button>
+                  {showAlignment && (
+                    <div style={{ background: "var(--color-surface-1)", border: "1px solid var(--color-border-subtle)", borderTop: "none", borderRadius: "0 0 var(--r-md) var(--r-md)", padding: "12px 14px", marginBottom: 12 }}>
+                      {fam && (
+                        <div style={{ marginBottom: 10, paddingBottom: 10, borderBottom: "1px solid var(--color-border-subtle)" }}>
+                          <div style={{ fontSize: 10, color: "var(--color-text-2)", letterSpacing: "2px", textTransform: "uppercase", marginBottom: 4, fontFamily: "var(--font-mono)" }}>Alignment</div>
+                          <div style={{ fontSize: 13, color: "var(--color-text-2)", lineHeight: 1.55 }}>{fam.desc}</div>
                         </div>
-                      </div>
-                    )}
-                    {pd && (
-                      <div>
-                        <div style={{ fontSize: 10, color: "var(--color-gold-dim)", letterSpacing: "2px", textTransform: "uppercase", marginBottom: 3, fontFamily: "var(--font-mono)" }}>DC Priority</div>
-                        <div style={{ fontSize: 13, color: "var(--color-text-1)", lineHeight: 1.6, marginBottom: 14 }}>{pd.priority}</div>
-                        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
-                          <div style={{ background: "#140708", border: "1px solid #4a1818", borderRadius: "var(--r-sm)", padding: "8px 10px" }}>
-                            <div style={{ fontSize: 10, color: "var(--color-danger)", letterSpacing: "1px", textTransform: "uppercase", marginBottom: 3, fontFamily: "var(--font-mono)" }}>Avoid</div>
-                            <div style={{ fontSize: 12, color: "#b07070", lineHeight: 1.6 }}>{pd.avoid}</div>
-                          </div>
-                          <div style={{ background: "#071408", border: "1px solid #184a18", borderRadius: "var(--r-sm)", padding: "8px 10px" }}>
-                            <div style={{ fontSize: 10, color: "var(--color-success)", letterSpacing: "1px", textTransform: "uppercase", marginBottom: 3, fontFamily: "var(--font-mono)" }}>Blitz Guide</div>
-                            <div style={{ fontSize: 12, color: "#70a080", lineHeight: 1.6 }}>{pd.blitzNote}</div>
+                      )}
+                      {adj && (
+                        <div style={{ marginBottom: 10, paddingBottom: 10, borderBottom: "1px solid var(--color-border-subtle)" }}>
+                          <div style={{ fontSize: 10, color: "var(--color-gold)", letterSpacing: "2px", textTransform: "uppercase", marginBottom: 5, fontFamily: "var(--font-mono)" }}>Alignment DC Rule</div>
+                          <div style={{ fontSize: 13, color: "var(--color-text-1)", lineHeight: 1.65, marginBottom: 8 }}>{adj.extra}</div>
+                          <div style={{ display: "flex", flexWrap: "wrap", gap: 5 }}>
+                            {adj.bias && adj.bias.map(b => (
+                              <span key={b} style={{ fontSize: 11, padding: "2px 9px", border: "1px solid var(--color-gold-border)", borderRadius: "var(--r-sm)", color: "var(--color-gold)", fontFamily: "var(--font-mono)" }}>{b}</span>
+                            ))}
                           </div>
                         </div>
-                      </div>
-                    )}
-                  </div>
+                      )}
+                      {pd && (
+                        <div>
+                          <div style={{ fontSize: 10, color: "var(--color-gold-dim)", letterSpacing: "2px", textTransform: "uppercase", marginBottom: 3, fontFamily: "var(--font-mono)" }}>DC Priority</div>
+                          <div style={{ fontSize: 13, color: "var(--color-text-1)", lineHeight: 1.6, marginBottom: 14 }}>{pd.priority}</div>
+                          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+                            <div style={{ background: "#140708", border: "1px solid #4a1818", borderRadius: "var(--r-sm)", padding: "8px 10px" }}>
+                              <div style={{ fontSize: 10, color: "var(--color-danger)", letterSpacing: "1px", textTransform: "uppercase", marginBottom: 3, fontFamily: "var(--font-mono)" }}>Avoid</div>
+                              <div style={{ fontSize: 12, color: "#b07070", lineHeight: 1.6 }}>{pd.avoid}</div>
+                            </div>
+                            <div style={{ background: "#071408", border: "1px solid #184a18", borderRadius: "var(--r-sm)", padding: "8px 10px" }}>
+                              <div style={{ fontSize: 10, color: "var(--color-success)", letterSpacing: "1px", textTransform: "uppercase", marginBottom: 3, fontFamily: "var(--font-mono)" }}>Blitz Guide</div>
+                              <div style={{ fontSize: 12, color: "#70a080", lineHeight: 1.6 }}>{pd.blitzNote}</div>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  )}
 
+                  <div style={{ opacity: listOpacity, transition: "opacity 150ms ease" }}>
                   {persMatches.map(fm => (
                     <div key={fm.name}>
                       <FormationCard fm={fm} onSelect={f => setSelFm(selFm?.name === f.name ? null : f)} isSelected={selFm?.name === fm.name} />
-                      {selFm?.name === fm.name && <FormationDetail fm={selFm} flat={flat} />}
+                      {selFm?.name === fm.name && <FormationDetail fm={selFm} flat={flat} situation={situation} runPass={runPass} />}
                     </div>
                   ))}
+                  </div>
                 </div>
               );
             })()}
@@ -311,8 +390,8 @@ export default function GamePlanScreen({
 
         {/* ── ALL FORMATIONS TAB ── */}
         {mainTab === "all" && (
-          <div>
-            {groupByPersonnel(myBook === "All" ? scored.filter(f => f.sc >= 20) : scored).map(group => (
+          <div style={{ opacity: listOpacity, transition: "opacity 150ms ease" }}>
+            {groupByPersonnel(myBook === "All" ? situationScored.filter(f => f.sc >= 20) : situationScored).map(group => (
               <div key={group.label} style={{ marginBottom: 28 }}>
                 <div style={{ fontSize: 10, letterSpacing: "2px", color: "var(--color-gold)", textTransform: "uppercase", marginBottom: 12, fontWeight: "700", fontFamily: "var(--font-mono)", borderBottom: "1px solid var(--color-border-subtle)", paddingBottom: 7 }}>
                   {group.label} <span style={{ color: "var(--color-text-3)", fontWeight: "400" }}>({group.formations.length})</span>
@@ -320,7 +399,7 @@ export default function GamePlanScreen({
                 {group.formations.map(fm => (
                   <div key={fm.name}>
                     <FormationCard fm={fm} onSelect={f => setSelFm(selFm?.name === f.name ? null : f)} isSelected={selFm?.name === fm.name} />
-                    {selFm?.name === fm.name && <FormationDetail fm={selFm} flat={flat} />}
+                    {selFm?.name === fm.name && <FormationDetail fm={selFm} flat={flat} situation={situation} runPass={runPass} />}
                   </div>
                 ))}
               </div>

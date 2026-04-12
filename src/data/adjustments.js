@@ -22,4 +22,8 @@ export const ADJUSTMENTS = [
   // ── Keys & Reads ──────────────────────────────────────────────────────────
   { section:"Keys & Reads", icon:"🏈", setting:"RPO Read Key: Conservative",    reason:"Do not commit until ball is handed or thrown — attacking the mesh point early creates missed assignments and open lanes.", triggers:["rpo","dual_threat","mobile_qb","qb_scramble"] },
   { section:"Keys & Reads", icon:"🏈", setting:"Option Read Key: Conservative", reason:"Assign every threat before the snap — never freelance on option. One unassigned defender guarantees a score.", triggers:["option_run","triple_option"] },
+  // ── QB Threat ─────────────────────────────────────────────────────────────
+  { section:"QB Threat", icon:"🏃", setting:"Spy Assignment: Designated LB on QB every snap", reason:"A scrambler without a spy creates a free 10+ yard run every time a play breaks down. The spy is not a blitzer — his job is to mirror the QB from 5 yards depth.", triggers:["mobile_qb"] },
+  { section:"QB Threat", icon:"🏃", setting:"RPO Assignment: No pre-snap commitment — read mesh point", reason:"A dual-threat in an RPO offense reads your pre-snap alignment. Give him nothing — hold all defenders at their assignments until after the mesh point.", triggers:["dual_threat"] },
+  { section:"QB Threat", icon:"🏈", setting:"Option Keys: DE takes dive/HB, LB has QB, Safety has pitch — no exceptions", reason:"One unassigned option key is an automatic touchdown. Never freelance. Never blitz unassigned. Assignment integrity wins option games.", triggers:["option_run"] },
 ];

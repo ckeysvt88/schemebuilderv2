@@ -35,7 +35,7 @@ function saveLog(data) {
   try { localStorage.setItem('cfb26_drive_log', JSON.stringify(data)); } catch(e) {}
 }
 
-export default function NotesScreen({ profiles, setStep, initProfile }) {
+export default function NotesScreen({ profiles, setStep, initProfile, handleShare, shareToast }) {
   const profileKeys    = Object.keys(profiles);
   const [activeTab,    setActiveTab]    = useState("notes");
   const [activeProfile,setActiveProfile]= useState(
@@ -112,6 +112,14 @@ export default function NotesScreen({ profiles, setStep, initProfile }) {
             </div>
           </div>
           <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+            {handleShare && (
+              <button
+                onClick={handleShare}
+                style={{ minHeight: 36, padding: "0 14px", background: "transparent", border: "1px solid var(--color-border)", borderRadius: "var(--r-sm)", color: "var(--color-text-2)", fontSize: 12, cursor: "pointer", fontFamily: "var(--font-mono)" }}
+              >
+                {shareToast === "shared" ? "✓ Sent" : shareToast === "copied" ? "✓ Copied" : "Share"}
+              </button>
+            )}
             <button
               onClick={() => setStep("plan")}
               style={{ minHeight: 36, padding: "0 14px", background: "transparent", border: "1px solid var(--color-border)", borderRadius: "var(--r-sm)", color: "var(--color-text-2)", fontSize: 12, cursor: "pointer", fontFamily: "var(--font-mono)" }}

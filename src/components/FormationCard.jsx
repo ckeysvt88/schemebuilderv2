@@ -29,6 +29,7 @@ export default function FormationCard({ fm, onSelect, isSelected }) {
       <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 10 }}>
         <div style={{ flex: 1, minWidth: 0 }}>
           <div style={{ display: "flex", alignItems: "center", gap: 7, flexWrap: "wrap", marginBottom: 5 }}>
+            <span style={{ display: "inline-block", width: 8, height: 8, borderRadius: "50%", background: PC[fm.priority], flexShrink: 0 }} />
             <span style={{
               fontSize: 14, fontWeight: "700",
               color: isSelected ? "var(--color-gold-bright)" : "var(--color-text-1)",
@@ -85,8 +86,13 @@ export default function FormationCard({ fm, onSelect, isSelected }) {
         </div>
       </div>
 
+      {/* Score progress bar */}
+      <div style={{ height: 3, borderRadius: 2, background: "#1a2a3a", marginTop: 8, marginBottom: 6 }}>
+        <div style={{ height: "100%", width: `${Math.min(100, fm.sc)}%`, borderRadius: 2, background: "linear-gradient(90deg, #2a4060, #b8880c)" }} />
+      </div>
+
       {/* Why selected pills */}
-      <div style={{ marginTop: 8 }}>
+      <div style={{ marginTop: 0 }}>
         <WhySelected coreHits={fm.coreHits} suppHits={fm.suppHits} />
       </div>
 

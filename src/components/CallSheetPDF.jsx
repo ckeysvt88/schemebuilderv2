@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import { Document, Page, Text, View, StyleSheet, PDFDownloadLink } from '@react-pdf/renderer';
 import { buildCallSheetData } from '../engine/buildCallSheet.js';
 
@@ -418,7 +419,7 @@ function CallSheetDocument({ data }) {
 // ── Exported button component ─────────────────────────────────────────────────
 // variant="compact"  →  small header button (default)
 // variant="full"     →  wide, prominent banner button for top-of-page placement
-export function ExportPDFButton({ rawScored, sel, myBook, runPass, variant = 'compact' }) {
+export const ExportPDFButton = memo(function ExportPDFButton({ rawScored, sel, myBook, runPass, variant = 'compact', label }) {
   if (!rawScored || rawScored.length === 0) return null;
 
   const data     = buildCallSheetData({ rawScored, sel, myBook, runPass });
@@ -479,10 +480,10 @@ export function ExportPDFButton({ rawScored, sel, myBook, runPass, variant = 'co
               opacity: loading ? 0.6 : 1,
             }}
           >
-            {loading ? '…' : 'PDF'}
+            {loading ? '…' : (label || 'PDF')}
           </button>
         )
       }
     </PDFDownloadLink>
   );
-}
+});
