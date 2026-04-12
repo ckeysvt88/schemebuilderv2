@@ -93,19 +93,19 @@ export default function FormationDetail({ fm, flat, situation = "base", runPass 
         </button>
 
         {showWhy && (
-          <div style={{ padding: "0 16px 12px", background: "#1a2030" }}>
+          <div style={{ padding: "12px 16px 12px", background: "#1a2030", borderTop: "1px solid #2a3545" }}>
             <WhySelected coreHits={fm.coreHits} suppHits={fm.suppHits} />
 
             {/* DC Logic */}
             <div style={{ marginTop: 12, background: "#080c15", border: "1px solid #1a3050", borderRadius: 5, padding: "10px 13px" }}>
-              <div style={{ fontSize: "12px", color: "#6888a0", letterSpacing: 1, textTransform: "uppercase", marginBottom: 2, fontFamily: "'IBM Plex Mono', monospace" }}>DC Logic</div>
+              <div style={{ fontSize: "12px", color: "#6888a0", letterSpacing: 1, textTransform: "uppercase", marginBottom: 2, fontFamily: "'IBM Plex Mono', monospace", fontWeight: "700" }}>DC Logic</div>
               <div style={{ fontSize: 11, color: "#7898ae", lineHeight: 1.65 }}>{fm.dcNote}</div>
             </div>
 
             {/* Collapsible Scoring Factors — nested inside Why */}
             <button
               onClick={() => setShowScoring(v => !v)}
-              style={{ marginTop: 10, background: "none", border: "none", padding: 0, cursor: "pointer", fontSize: 10, color: "#b8880c", fontFamily: "'IBM Plex Mono', monospace", letterSpacing: "0.5px" }}
+              style={{ marginTop: 10, background: "none", border: "none", padding: 0, cursor: "pointer", fontSize: 10, color: "#b8880c", fontFamily: "'IBM Plex Mono', monospace", letterSpacing: "0.5px", fontWeight: "700" }}
             >
               {showScoring ? "▼ Scoring factors" : "▶ Scoring factors"}
             </button>

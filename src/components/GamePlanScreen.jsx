@@ -102,7 +102,7 @@ export default function GamePlanScreen({
   useEffect(() => {
     if (!selFm) return;
     const t = setTimeout(() => {
-      // Wait one render cycle for FormationDetail to expand before measuring
+      // Wait past the 150ms card transition before measuring position
       const el = document.querySelector(`[data-fm-name="${selFm.name.replace(/"/g, '\\"')}"]`);
       if (!el) return;
       const headerEl = document.querySelector('[data-sticky-header]');
@@ -110,7 +110,7 @@ export default function GamePlanScreen({
       const rect = el.getBoundingClientRect();
       const scrollTop = window.scrollY + rect.top - headerHeight - 8;
       window.scrollTo({ top: scrollTop, behavior: 'smooth' });
-    }, 50);
+    }, 200);
     return () => clearTimeout(t);
   }, [selFm]);
 
