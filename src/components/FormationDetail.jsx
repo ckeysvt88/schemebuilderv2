@@ -6,7 +6,6 @@ import BlitzBar from './BlitzBar.jsx';
 import WhySelected from './WhySelected.jsx';
 
 const PC = { run: "#a06030", pass: "#1a6fe8", hybrid: "#7858a0", pressure: "#aa5050" };
-const PL = { run: "RUN STOP", pass: "PASS DEF", hybrid: "HYBRID", pressure: "PRESSURE" };
 
 function AdjSection({ sec, items, icon }) {
   if (!items || items.length === 0) return null;
