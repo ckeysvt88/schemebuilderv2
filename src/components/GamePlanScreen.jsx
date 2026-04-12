@@ -102,11 +102,13 @@ export default function GamePlanScreen({
   useEffect(() => {
     if (!selFm) return;
     const t = setTimeout(() => {
+      // Wait one render cycle for FormationDetail to expand before measuring
       const el = document.querySelector(`[data-fm-name="${selFm.name.replace(/"/g, '\\"')}"]`);
       if (!el) return;
       const headerEl = document.querySelector('[data-sticky-header]');
       const headerHeight = headerEl ? headerEl.getBoundingClientRect().height : 90;
       const rect = el.getBoundingClientRect();
+      if (rect.top >= headerHeight + 8) return; // card already visible below header
       const scrollTop = window.scrollY + rect.top - headerHeight - 8;
       window.scrollTo({ top: scrollTop, behavior: 'smooth' });
     }, 50);
