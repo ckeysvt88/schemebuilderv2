@@ -72,12 +72,6 @@ export default function FormationDetail({ fm, flat, situation = "base", runPass 
       <div style={{ padding: "14px 16px", borderBottom: "1px solid #1e2a3a", background: "linear-gradient(135deg,#0a0f1c,#0e1420)" }}>
         <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 8 }}>
           <div style={{ flex: 1 }}>
-            <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 4, flexWrap: "wrap" }}>
-              <span style={{ fontSize: 11, fontWeight: "bold", color: "#c5cdd5" }}>{fm.name}</span>
-              <span style={{ background: PC[fm.priority], color: "#fff", fontSize: "12px", fontWeight: "bold", padding: "2px 8px", borderRadius: 6, letterSpacing: 1 }}>{PL[fm.priority]}</span>
-              <span style={{ fontSize: "12px", color: "#7898ae", fontFamily: "'IBM Plex Mono', monospace" }}>📖 {fm.books.join(" · ")}</span>
-            </div>
-            <div style={{ fontSize: 11, color: "#7f9fb2", lineHeight: 1.6, marginBottom: 16 }}>{fm.desc}</div>
             <div style={{ background: "#080c15", border: "1px solid #1a3050", borderRadius: 5, padding: "10px 13px" }}>
               <div style={{ fontSize: "12px", color: "#6888a0", letterSpacing: 1, textTransform: "uppercase", marginBottom: 2, fontFamily: "'IBM Plex Mono', monospace" }}>DC Logic</div>
               <div style={{ fontSize: 11, color: "#7898ae", lineHeight: 1.65 }}>{fm.dcNote}</div>
