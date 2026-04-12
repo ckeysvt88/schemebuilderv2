@@ -103,9 +103,6 @@ export default function TeamsScreen({ onBuildFromTeam }) {
                 <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap", marginBottom: 4 }}>
                   <span style={{ fontSize: 15, fontWeight: "700", color: "var(--color-text-1)" }}>{team.name}</span>
                   <span style={{ fontSize: 10, color: "var(--color-text-3)", fontFamily: "var(--font-mono)" }}>{team.conf}</span>
-                  <span style={{ fontSize: 10, background: "var(--color-surface-1)", border: "1px solid var(--color-border)", color: "var(--color-text-2)", padding: "2px 7px", borderRadius: 4, fontFamily: "var(--font-mono)" }}>
-                    {PERS_LABELS[persTag] || persTag}
-                  </span>
                 </div>
                 <div style={{ fontSize: 12, color: "var(--color-text-3)", lineHeight: 1.4 }}>{team.notes}</div>
               </div>
