@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { TRAITS } from '../data/traits.js';
 import { PLAYBOOKS } from '../data/playbooks.js';
 import { FDB } from '../data/formations.js';
@@ -42,16 +43,31 @@ export default function ScoutScreen({
     setShowOnboarding(false);
   };
 
+  const onboardingRef = useRef(null);
+  useEffect(() => {
+    if (showOnboarding && onboardingRef.current) {
+      onboardingRef.current.focus();
+    }
+  }, [showOnboarding]);
+
   return (
     <div className="screen-enter" style={{ fontFamily: "var(--font-sans)", background: "var(--color-bg)", minHeight: "100dvh", color: "var(--color-text-1)", maxWidth: 720, margin: "0 auto" }}>
 
       {/* ── First-time onboarding modal ── */}
-      {showOnboarding && (
-        <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.88)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 300, padding: 20 }}>
-          <div style={{ background: "var(--color-surface-2)", border: "1px solid var(--color-gold)", borderRadius: "var(--r-lg)", padding: "20px 18px", width: "100%", maxWidth: 340 }}>
+      {showOnboarding && createPortal(
+        <div
+          ref={onboardingRef}
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="onboarding-title"
+          tabIndex={-1}
+          onKeyDown={e => e.key === 'Escape' && dismissOnboarding()}
+          style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.88)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 300, padding: 20 }}
+        >
+          <div style={{ background: "var(--color-surface-2)", border: "1px solid var(--color-gold)", borderRadius: "var(--r-lg)", padding: "20px 18px", width: "100%", maxWidth: 340, maxHeight: "90dvh", overflowY: "auto" }}>
 
             <div style={{ fontSize: 26, textAlign: "center", marginBottom: 6 }}>🛡️</div>
-            <div style={{ fontSize: 15, fontWeight: "700", color: "var(--color-text-1)", textAlign: "center", marginBottom: 2, fontFamily: "var(--font-mono)" }}>
+            <div id="onboarding-title" style={{ fontSize: 15, fontWeight: "700", color: "var(--color-text-1)", textAlign: "center", marginBottom: 2, fontFamily: "var(--font-mono)" }}>
               Welcome to Scheme Builders
             </div>
             <div style={{ fontSize: 9, color: "var(--color-text-3)", textAlign: "center", marginBottom: 14, letterSpacing: "1px", textTransform: "uppercase" }}>
@@ -95,7 +111,8 @@ export default function ScoutScreen({
             </button>
 
           </div>
-        </div>
+        </div>,
+        document.body
       )}
 
       {/* ── Slim sticky top bar ── */}
