@@ -185,6 +185,7 @@ export default function ScoutScreen({
         {/* ── Inline trait expansion panel ── */}
         {openCard && (() => {
           const group = TRAITS.find(g => g.id === openCard);
+          if (!group) return null;
           return (
             <div style={{ marginBottom: 12, background: "var(--color-bg)", border: "1px solid #2a5828", borderRadius: "var(--r-md)", padding: "11px 12px" }}>
               <div style={{ fontSize: 9, fontWeight: "700", color: "var(--color-success)", letterSpacing: "1px", textTransform: "uppercase", marginBottom: 8, fontFamily: "var(--font-mono)" }}>
