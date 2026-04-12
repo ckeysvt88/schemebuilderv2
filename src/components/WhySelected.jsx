@@ -4,9 +4,6 @@ export default function WhySelected({ coreHits, suppHits }) {
   if (!coreHits.length && !suppHits.length) return null;
   return (
     <div style={{ marginTop: 8 }}>
-      <div style={{ fontSize: "12px", color: "#7f9fb2", letterSpacing: "2px", textTransform: "uppercase", marginBottom: 8, fontFamily: "'IBM Plex Mono', monospace" }}>
-        Why This Formation Was Selected
-      </div>
       <div style={{ display: "flex", flexWrap: "wrap", gap: 4 }}>
         {coreHits.map(t => (
           <span key={t} style={{ fontSize: 11, padding: "3px 8px", borderRadius: 12, background: "linear-gradient(135deg,#2a1800,#3a2200)", border: "1px solid #c8960c", color: "#b08010", fontWeight: "bold" }}>
