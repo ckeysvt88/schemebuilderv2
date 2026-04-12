@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Full Design v2 — Scheme Builders Home</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: #0a0d14; color: #eaf2fa; font-family: 'IBM Plex Mono', monospace; }
+
+.page-wrap { display: flex; gap: 32px; padding: 24px 20px 60px; max-width: 1100px; margin: 0 auto; align-items: flex-start; }
+.phone-wrap { flex: 0 0 390px; }
+.phone-frame { background: #07080f; border-radius: 14px; overflow: hidden; border: 1px solid #243548; box-shadow: 0 20px 60px rgba(0,0,0,0.6); }
+
+/* ── Sticky top bar (slim — just brand sub + book btn) ── */
+.top-bar {
+  background: rgba(7,9,15,0.92);
+  border-bottom: 1px solid #182030;
+  padding: 8px 16px;
+  display: flex; align-items: center; justify-content: space-between;
+  position: relative;
+  z-index: 5;
+}
+.brand-sub { font-size: 8px; letter-spacing: 2px; color: #9a7828; text-transform: uppercase; font-weight: 700; }
+.book-btn { padding: 0 12px; height: 28px; background: transparent; border: 1px solid #243548; border-radius: 6px; color: #7a9ab4; font-size: 9px; font-weight: 600; cursor: pointer; font-family: inherit; }
+
+/* ── XO Hero — tall, title lives inside ── */
+.xo-hero {
+  position: relative;
+  background: #07080f;
+  overflow: hidden;
+  padding: 0;
+  border-bottom: 2px solid #b8880c;
+}
+
+/* XO pattern fills the whole hero */
+.xo-pattern {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+.xo-pattern::before {
+  content: 'X  O  X  O  X  O  X  O  X  O  X\AO  X  O  X  O  X  O  X  O  X  O\AX  O  X  O  X  O  X  O  X  O  X\AO  X  O  X  O  X  O  X  O  X  O\AX  O  X  O  X  O  X  O  X  O  X\AO  X  O  X  O  X  O  X  O  X  O';
+  white-space: pre;
+  display: block;
+  font-size: 12px;
+  font-weight: 700;
+  color: rgba(184,136,12,0.1);
+  letter-spacing: 4px;
+  line-height: 28px;
+  padding: 6px 10px;
+}
+
+/* Field hash lines overlay */
+.xo-pattern::after {
+  content: '';
+  position: absolute;
+  left: 50%; top: 0; bottom: 0;
+  width: 1px;
+  background: linear-gradient(to bottom, transparent, rgba(184,136,12,0.08), transparent);
+}
+
+/* Gradient fades: left, right, bottom fade into bg */
+.xo-fades {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(to right, #07080f 0%, transparent 18%),
+    linear-gradient(to left,  #07080f 0%, transparent 18%),
+    linear-gradient(to bottom, #07080f 0%, transparent 30%),
+    linear-gradient(to top,   #07080f 0%, transparent 35%);
+}
+
+/* Title block sits at bottom of hero */
+.hero-content {
+  position: relative;
+  z-index: 2;
+  padding: 28px 16px 18px;
+}
+.hero-title {
+  font-size: 26px;
+  font-weight: 700;
+  color: #eaf2fa;
+  letter-spacing: -0.5px;
+  margin-bottom: 4px;
+  line-height: 1.1;
+}
+.hero-title span { color: #b8880c; }
+.hero-tagline {
+  font-size: 12px;
+  color: #7a9ab4;
+  letter-spacing: 0.3px;
+  line-height: 1.6;
+}
+.hero-tagline strong { color: #b8880c; }
+
+/* ── Section anchors ── */
+.section-anchor {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 16px 6px;
+}
+.anchor-num {
+  width: 18px; height: 18px; border-radius: 50%;
+  background: #b8880c; color: #07080f;
+  font-size: 9px; font-weight: 700;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.anchor-lbl { font-size: 9px; font-weight: 700; color: #b8880c; letter-spacing: 1.5px; text-transform: uppercase; }
+.anchor-line { flex: 1; height: 1px; background: linear-gradient(to right, #b8880c44, transparent); }
+
+/* ── Card Grid ── */
+.card-grid-wrap { padding: 4px 16px 8px; }
+.card-row-4 { display: grid; grid-template-columns: repeat(4,1fr); gap: 6px; margin-bottom: 6px; }
+.card-row-3 { display: grid; grid-template-columns: repeat(3,1fr); gap: 6px; }
+.trait-card {
+  background: #0d1622; border: 1px solid #182030; border-radius: 8px;
+  padding: 9px 5px 7px; text-align: center; cursor: pointer;
+}
+.trait-card.active { background: #080e0a; border-color: #2a5828; }
+.tc-icon { font-size: 15px; margin-bottom: 3px; }
+.tc-lbl { font-size: 8px; font-weight: 700; color: #7a9ab4; line-height: 1.3; }
+.trait-card.active .tc-lbl { color: #5a9870; }
+.tc-badge { margin-top: 4px; background: #1a3820; border: 1px solid #2a6828; border-radius: 6px; padding: 1px 0; font-size: 7px; color: #5a9870; font-weight: 700; }
+.tc-empty { margin-top: 4px; height: 13px; }
+
+/* ── Expanded trait panel ── */
+.trait-panel {
+  margin: 0 16px 8px; background: #07080f;
+  border: 1px solid #2a5828; border-radius: 8px; padding: 11px 12px;
+}
+.panel-title { font-size: 9px; font-weight: 700; color: #5a9870; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 8px; }
+.chip { font-size: 9px; border-radius: 10px; padding: 3px 9px; cursor: pointer; display: inline-block; margin: 2px; }
+.chip.on { border: 1.5px solid #d4a020; background: #191408; color: #d4a020; font-weight: 600; }
+.chip.off { border: 1px solid #243548; background: #0d1622; color: #eaf2fa; }
+
+/* ── Bias ── */
+.bias-wrap { padding: 4px 16px 10px; }
+.bias-labels { display: flex; justify-content: space-between; margin-bottom: 6px; font-size: 9px; }
+.bias-track { display: flex; gap: 3px; background: #0a0f18; border: 1px solid #182030; padding: 3px; border-radius: 10px; }
+.bias-seg { flex: 1; height: 28px; border-radius: 6px; }
+.bias-seg.active { background: #1e2818; border: 1px solid #3a5828; }
+
+/* ── CTA ── */
+.cta-wrap { padding: 4px 16px 16px; }
+.trait-count { font-size: 11px; color: #7a9ab4; text-align: center; margin-bottom: 8px; }
+.trait-count strong { color: #b8880c; }
+.build-btn {
+  width: 100%; height: 50px;
+  background: linear-gradient(135deg, #b8880c, #d4a020, #b8880c);
+  border: none; border-radius: 10px; color: #07080f; font-weight: 700;
+  font-size: 13px; cursor: pointer; font-family: inherit; letter-spacing: 0.5px; margin-bottom: 8px;
+}
+.save-btn {
+  width: 100%; height: 36px; background: transparent;
+  border: 1px solid #243548; border-radius: 18px;
+  color: #7a9ab4; font-size: 11px; cursor: pointer; font-family: inherit;
+}
+.footer { padding: 16px; border-top: 1px solid #182030; text-align: center; font-size: 10px; color: #3a5060; }
+
+/* ── Bottom Nav ── */
+.bottom-nav { display: flex; background: rgba(7,8,15,0.97); border-top: 1px solid rgba(184,136,12,0.15); }
+.nav-tab { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; padding: 8px 4px; cursor: pointer; position: relative; }
+.nav-icon { font-size: 16px; line-height: 1; }
+.nav-lbl { font-size: 8px; font-weight: 700; }
+.nav-bar { height: 2px; width: 40%; background: #b8880c; border-radius: 0 0 2px 2px; position: absolute; top: 0; left: 50%; transform: translateX(-50%); }
+
+/* ── Modal ── */
+.modal-overlay {
+  position: absolute; inset: 0; background: rgba(0,0,0,0.88);
+  display: flex; align-items: center; justify-content: center; padding: 20px; z-index: 10; border-radius: 14px;
+}
+.modal-card { background: #0d1622; border: 1px solid #b8880c; border-radius: 12px; padding: 20px 18px; width: 100%; max-width: 300px; }
+.modal-icon { font-size: 26px; text-align: center; margin-bottom: 6px; }
+.modal-title { font-size: 15px; font-weight: 700; color: #eaf2fa; text-align: center; margin-bottom: 2px; }
+.modal-sub { font-size: 9px; color: #7a9ab4; text-align: center; margin-bottom: 14px; letter-spacing: 1px; text-transform: uppercase; }
+.ms-num { width: 20px; height: 20px; border-radius: 50%; background: #b8880c; color: #07080f; font-size: 10px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 1px; }
+.ms-body strong { display: block; font-size: 11px; color: #eaf2fa; margin-bottom: 1px; }
+.ms-body span { font-size: 10px; color: #7a9ab4; line-height: 1.4; }
+.pill { display: inline-flex; align-items: center; gap: 4px; background: #0a1a0a; border: 1px solid #1e4020; border-radius: 16px; padding: 3px 9px; font-size: 9px; color: #5a9870; margin: 2px; }
+.modal-cta { width: 100%; height: 44px; background: linear-gradient(135deg,#b8880c,#d4a020,#b8880c); border: none; border-radius: 8px; color: #07080f; font-weight: 700; font-size: 12px; cursor: pointer; font-family: inherit; }
+
+/* Right panel */
+.right-panel { flex: 1; }
+.right-panel h2 { font-size: 16px; color: #eaf2fa; margin-bottom: 16px; }
+.detail-block { background: #0a0f18; border: 1px solid #182030; border-radius: 10px; padding: 16px; margin-bottom: 14px; }
+.detail-block h3 { font-size: 11px; font-weight: 700; color: #b8880c; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 8px; }
+.detail-block p, .detail-block li { font-size: 11px; color: #b0c8dc; line-height: 1.7; }
+.detail-block ul { padding-left: 16px; }
+
+.toggle-row { display: flex; gap: 8px; margin-bottom: 20px; max-width: 360px; }
+.toggle-btn { flex: 1; padding: 8px; background: #0a0f18; border: 1px solid #243548; border-radius: 8px; color: #7a9ab4; font-size: 11px; cursor: pointer; font-family: inherit; }
+.toggle-btn.active { background: #191408; border-color: #b8880c; color: #b8880c; }
+</style>
+</head>
+<body>
+
+<div style="background:#0a0d14;padding:20px 20px 8px;max-width:1100px;margin:0 auto">
+  <h1 style="font-size:18px;color:#eaf2fa;margin-bottom:4px">Scheme Builders — Home Page v2</h1>
+  <p style="font-size:11px;color:#7a9ab4;margin-bottom:12px">Title now sits inside the hero — XO pattern is fully visible above it</p>
+  <div class="toggle-row">
+    <button class="toggle-btn active" onclick="showView('normal',this)">Normal View</button>
+    <button class="toggle-btn" onclick="showView('modal',this)">First-Time User</button>
+  </div>
+</div>
+
+<div class="page-wrap">
+
+  <div class="phone-wrap">
+    <div class="phone-frame" style="position:relative">
+
+      <!-- Modal -->
+      <div class="modal-overlay" id="modal-overlay" style="display:none">
+        <div class="modal-card">
+          <div class="modal-icon">🛡️</div>
+          <div class="modal-title">Welcome to Scheme Builders</div>
+          <div class="modal-sub">CFB Defensive Intelligence</div>
+          <div style="margin-bottom:14px">
+            <div style="display:flex;align-items:flex-start;gap:9px;margin-bottom:10px">
+              <div class="ms-num">1</div>
+              <div class="ms-body"><strong>Scout</strong><span>Tag your opponent's offensive tendencies — run style, pass concepts, personnel, QB traits</span></div>
+            </div>
+            <div style="display:flex;align-items:flex-start;gap:9px;margin-bottom:10px">
+              <div class="ms-num">2</div>
+              <div class="ms-body"><strong>Set Bias</strong><span>Dial in their run/pass tendency to sharpen your defensive match</span></div>
+            </div>
+            <div style="display:flex;align-items:flex-start;gap:9px">
+              <div class="ms-num">3</div>
+              <div class="ms-body"><strong>Build Your Plan</strong><span>Get a ranked list of defensive formations built for this opponent</span></div>
+            </div>
+          </div>
+          <div style="background:#07080f;border:1px solid #182030;border-radius:8px;padding:9px 10px;margin-bottom:14px">
+            <div style="font-size:8px;color:#5a7a8a;letter-spacing:1px;text-transform:uppercase;margin-bottom:6px">You'll get</div>
+            <div>
+              <span class="pill">✓ Ranked formations</span>
+              <span class="pill">✓ Coverage packages</span>
+              <span class="pill">✓ Blitz %</span>
+              <span class="pill">✓ Call sheets</span>
+            </div>
+          </div>
+          <button class="modal-cta" onclick="closeModal()">Let's Build a Game Plan →</button>
+        </div>
+      </div>
+
+      <!-- Slim top bar -->
+      <div class="top-bar">
+        <div class="brand-sub">CFB · Defensive Intelligence</div>
+        <button class="book-btn">All Books</button>
+      </div>
+
+      <!-- XO Hero — tall with title inside -->
+      <div class="xo-hero">
+        <div class="xo-pattern"></div>
+        <div class="xo-fades"></div>
+        <div class="hero-content">
+          <div class="hero-title">Scheme<br/><span>Builders</span></div>
+          <div class="hero-tagline">
+            <strong>Tag</strong> tendencies · <strong>Set</strong> bias · <strong>Build</strong> your plan
+          </div>
+        </div>
+      </div>
+
+      <!-- ① Scout -->
+      <div class="section-anchor">
+        <div class="anchor-num">1</div>
+        <div class="anchor-lbl">Scout Traits</div>
+        <div class="anchor-line"></div>
+      </div>
+
+      <div class="card-grid-wrap">
+        <div class="card-row-4">
+          <div class="trait-card active"><div class="tc-icon">🏃</div><div class="tc-lbl">Run Style</div><div class="tc-badge">3 ✓</div></div>
+          <div class="trait-card active"><div class="tc-icon">🎯</div><div class="tc-lbl">Pass Style</div><div class="tc-badge">2 ✓</div></div>
+          <div class="trait-card"><div class="tc-icon">📍</div><div class="tc-lbl">Field Zones</div><div class="tc-empty"></div></div>
+          <div class="trait-card"><div class="tc-icon">👥</div><div class="tc-lbl">Personnel</div><div class="tc-empty"></div></div>
+        </div>
+        <div class="card-row-3">
+          <div class="trait-card"><div class="tc-icon">⚡</div><div class="tc-lbl">Key Threats</div><div class="tc-empty"></div></div>
+          <div class="trait-card"><div class="tc-icon">🧠</div><div class="tc-lbl">QB Tends</div><div class="tc-empty"></div></div>
+          <div class="trait-card"><div class="tc-icon">📋</div><div class="tc-lbl">Situational</div><div class="tc-empty"></div></div>
+        </div>
+      </div>
+
+      <div class="trait-panel">
+        <div class="panel-title">🎯 Pass Style</div>
+        <div>
+          <span class="chip on">✓ RPO Heavy</span>
+          <span class="chip on">✓ Play Action</span>
+          <span class="chip off">Quick Game</span>
+          <span class="chip off">Deep Shots</span>
+          <span class="chip off">West Coast</span>
+          <span class="chip off">Screens</span>
+        </div>
+      </div>
+
+      <!-- ② Bias -->
+      <div class="section-anchor">
+        <div class="anchor-num">2</div>
+        <div class="anchor-lbl">Run / Pass Bias</div>
+        <div class="anchor-line"></div>
+      </div>
+      <div class="bias-wrap">
+        <div class="bias-labels">
+          <span style="color:#3a80e0;font-weight:700">PASS</span>
+          <span style="color:#b89040;font-weight:700">Balanced</span>
+          <span style="color:#c07040;font-weight:700">RUN</span>
+        </div>
+        <div class="bias-track">
+          <div class="bias-seg"></div><div class="bias-seg"></div><div class="bias-seg"></div>
+          <div class="bias-seg active"></div>
+          <div class="bias-seg"></div><div class="bias-seg"></div><div class="bias-seg"></div>
+        </div>
+      </div>
+
+      <!-- ③ Build -->
+      <div class="section-anchor">
+        <div class="anchor-num">3</div>
+        <div class="anchor-lbl">Build</div>
+        <div class="anchor-line"></div>
+      </div>
+      <div class="cta-wrap">
+        <div class="trait-count"><strong>5</strong> traits selected · All Books</div>
+        <button class="build-btn">Build Game Plan →</button>
+        <button class="save-btn">Save Opponent Profile</button>
+      </div>
+
+      <div class="footer">Designed by CK · Scheme Builders 2026</div>
+
+      <div class="bottom-nav">
+        <div class="nav-tab" style="color:#b8880c">
+          <div class="nav-bar"></div>
+          <div class="nav-icon">🎯</div>
+          <div class="nav-lbl">Scout</div>
+        </div>
+        <div class="nav-tab" style="color:#3a5060">
+          <div class="nav-icon">🏛️</div>
+          <div class="nav-lbl">Teams</div>
+        </div>
+        <div class="nav-tab" style="color:#3a5060">
+          <div class="nav-icon">📋</div>
+          <div class="nav-lbl">Plan</div>
+        </div>
+        <div class="nav-tab" style="color:#3a5060">
+          <div class="nav-icon">⚖️</div>
+          <div class="nav-lbl">Compare</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Notes panel -->
+  <div class="right-panel">
+    <h2>What Changed in v2</h2>
+
+    <div class="detail-block">
+      <h3>Hero — Title Inside the X's &amp; O's Field</h3>
+      <p>The slim top bar now only carries the sub-brand label ("CFB · Defensive Intelligence") and the playbook selector. The "Scheme Builders" title drops into the hero zone itself, so the X's and O's pattern fills the space above it. The gold bottom border of the hero visually anchors the title before the card grid begins.</p>
+    </div>
+
+    <div class="detail-block">
+      <h3>X's &amp; O's Pattern Details</h3>
+      <ul>
+        <li>6 rows of repeating X O at 10% gold opacity</li>
+        <li>Left/right edges fade into the background (no hard cut)</li>
+        <li>Top and bottom also fade — title emerges cleanly from the field</li>
+        <li>A faint center vertical line evokes a field hash mark</li>
+        <li>Pure CSS — no image asset needed</li>
+      </ul>
+    </div>
+
+    <div class="detail-block">
+      <h3>Everything Else Unchanged</h3>
+      <p>4+3 card grid, numbered anchors, bias slider, Build CTA, onboarding modal — all same as v1. Toggle "First-Time User" to preview the modal.</p>
+    </div>
+  </div>
+
+</div>
+
+<script>
+function showView(view, btn) {
+  document.querySelectorAll('.toggle-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('modal-overlay').style.display = view === 'modal' ? 'flex' : 'none';
+}
+function closeModal() {
+  document.getElementById('modal-overlay').style.display = 'none';
+  document.querySelectorAll('.toggle-btn')[0].classList.add('active');
+  document.querySelectorAll('.toggle-btn')[1].classList.remove('active');
+}
+</script>
+</body>
+</html>

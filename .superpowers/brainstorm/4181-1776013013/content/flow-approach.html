@@ -1,0 +1,67 @@
+<h2>How should the Scout screen guide users?</h2>
+<p class="subtitle">Both keep your existing trait groups — this is about how the page communicates the workflow to first-timers.</p>
+
+<div class="options">
+
+  <div class="option" data-choice="a" onclick="toggleSelect(this)">
+    <div class="letter">A</div>
+    <div class="content">
+      <h3>Guided Step Flow</h3>
+      <p>The screen visually breaks into numbered steps with a persistent progress indicator: <strong>Step 1 — Scout Traits</strong>, <strong>Step 2 — Set Run/Pass Bias</strong>, <strong>Step 3 — Build</strong>. Each step is visually distinct. The Build button is locked until Step 1 is done, with a clear "why" message.</p>
+      <div style="margin-top:10px;padding:10px;background:rgba(255,255,255,0.04);border-radius:6px;font-size:12px;color:#8899aa">
+        <div style="display:flex;gap:8px;align-items:center;margin-bottom:6px">
+          <span style="background:#b8880c;color:#07080f;font-weight:700;font-size:10px;padding:2px 7px;border-radius:10px">STEP 1</span>
+          <span>Select opponent traits</span>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center;margin-bottom:6px">
+          <span style="background:#243548;color:#7a9ab4;font-weight:700;font-size:10px;padding:2px 7px;border-radius:10px">STEP 2</span>
+          <span>Set run/pass tendency</span>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center">
+          <span style="background:#243548;color:#7a9ab4;font-weight:700;font-size:10px;padding:2px 7px;border-radius:10px">STEP 3</span>
+          <span>Build your game plan →</span>
+        </div>
+      </div>
+      <div style="margin-top:8px;font-size:11px;color:#5a7a8a"><strong>Best for:</strong> Public release — removes all ambiguity about what to do next</div>
+    </div>
+  </div>
+
+  <div class="option" data-choice="b" onclick="toggleSelect(this)">
+    <div class="letter">B</div>
+    <div class="content">
+      <h3>Enhanced Free-Form + Smart Header</h3>
+      <p>Keep the current free-form layout but add a <strong>prominent hero instruction block</strong> at the top — a short 2-line explainer ("Tag your opponent's tendencies, then build your defensive game plan") with a visual flow arrow. Trait groups get subtle step numbers. The Build CTA becomes more visually dominant as selections are made.</p>
+      <div style="margin-top:10px;padding:10px;background:rgba(255,255,255,0.04);border-radius:6px;font-size:12px;color:#8899aa">
+        <div style="padding:8px;border:1px solid #b8880c33;border-radius:6px;margin-bottom:8px;font-size:11px;color:#b8880c">
+          🏈 Tag your opponent's tendencies below, then hit Build to generate your defensive game plan.
+        </div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap">
+          <span style="background:#1e3028;border:1px solid #3a7a28;color:#5a9870;font-size:10px;padding:2px 8px;border-radius:10px">Run Style</span>
+          <span style="background:#182030;border:1px solid #243548;color:#7a9ab4;font-size:10px;padding:2px 8px;border-radius:10px">Pass Style</span>
+          <span style="background:#182030;border:1px solid #243548;color:#7a9ab4;font-size:10px;padding:2px 8px;border-radius:10px">Personnel</span>
+        </div>
+      </div>
+      <div style="margin-top:8px;font-size:11px;color:#5a7a8a"><strong>Best for:</strong> Minimal disruption to current feel — more of a polish pass</div>
+    </div>
+  </div>
+
+  <div class="option" data-choice="c" onclick="toggleSelect(this)">
+    <div class="letter">C</div>
+    <div class="content">
+      <h3>Quick-Scout Card Grid</h3>
+      <p>Replace accordion groups with a <strong>visual card grid</strong> — each trait category shown as a compact tile with its icon. Tapping a card expands it inline. A persistent "X traits selected" counter and the Build button float at the bottom above the nav bar. Feels more like an app, less like a form.</p>
+      <div style="margin-top:10px;padding:10px;background:rgba(255,255,255,0.04);border-radius:6px">
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px">
+          <div style="background:#0d1622;border:1px solid #243548;border-radius:6px;padding:8px;text-align:center;font-size:10px;color:#7a9ab4">🏃<br/>Run Style</div>
+          <div style="background:#0d1622;border:1px solid #b8880c44;border-radius:6px;padding:8px;text-align:center;font-size:10px;color:#b8880c">🎯<br/>Pass Style ✓</div>
+          <div style="background:#0d1622;border:1px solid #243548;border-radius:6px;padding:8px;text-align:center;font-size:10px;color:#7a9ab4">📍<br/>Field Zones</div>
+          <div style="background:#0d1622;border:1px solid #243548;border-radius:6px;padding:8px;text-align:center;font-size:10px;color:#7a9ab4">👥<br/>Personnel</div>
+          <div style="background:#0d1622;border:1px solid #243548;border-radius:6px;padding:8px;text-align:center;font-size:10px;color:#7a9ab4">⚡<br/>Threats</div>
+          <div style="background:#0d1622;border:1px solid #243548;border-radius:6px;padding:8px;text-align:center;font-size:10px;color:#7a9ab4">🧠<br/>QB Tends</div>
+        </div>
+      </div>
+      <div style="margin-top:8px;font-size:11px;color:#5a7a8a"><strong>Best for:</strong> Most modern app feel — biggest visual change</div>
+    </div>
+  </div>
+
+</div>

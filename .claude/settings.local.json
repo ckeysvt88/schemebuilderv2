@@ -12,7 +12,12 @@
       "Bash(taskkill /F /IM node.exe)",
       "Bash(git add:*)",
       "Bash(git commit:*)",
-      "Bash(node -e \"const {FDB} = require\\('./src/data/formations.js'\\); const priorities = [...new Set\\(FDB.map\\(f => f.priority\\)\\)]; console.log\\(priorities\\);\")"
+      "Bash(node -e \"const {FDB} = require\\('./src/data/formations.js'\\); const priorities = [...new Set\\(FDB.map\\(f => f.priority\\)\\)]; console.log\\(priorities\\);\")",
+      "Bash(bash:*)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:5173/)",
+      "Bash(curl -s http://localhost:5173)",
+      "Bash(curl -s http://localhost:5181)",
+      "Bash(npx eslint:*)"
     ]
   }
 }
