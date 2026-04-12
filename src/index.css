@@ -69,3 +69,50 @@ button, label { user-select: none; -webkit-user-select: none; }
   to   { opacity: 1; transform: translateY(0); }
 }
 .screen-enter { animation: screenEnter 220ms ease forwards; }
+
+/* ── XO Hero ─────────────────────────────────────────────────────────────── */
+.xo-hero {
+  position: relative;
+  background: var(--color-bg);
+  border-bottom: 2px solid var(--color-gold);
+  overflow: hidden;
+}
+
+.xo-hero::before {
+  content: 'X  O  X  O  X  O  X  O  X  O  X\AO  X  O  X  O  X  O  X  O  X  O\AX  O  X  O  X  O  X  O  X  O  X\AO  X  O  X  O  X  O  X  O  X  O\AX  O  X  O  X  O  X  O  X  O  X\AO  X  O  X  O  X  O  X  O  X  O';
+  white-space: pre;
+  position: absolute;
+  inset: 0;
+  font-size: 12px;
+  font-weight: 700;
+  color: rgba(184, 136, 12, 0.10);
+  letter-spacing: 4px;
+  line-height: 28px;
+  padding: 6px 10px;
+  pointer-events: none;
+  font-family: var(--font-mono);
+}
+
+.xo-fades {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(to right,  var(--color-bg) 0%, transparent 20%),
+    linear-gradient(to left,   var(--color-bg) 0%, transparent 20%),
+    linear-gradient(to bottom, var(--color-bg) 0%, transparent 30%),
+    linear-gradient(to top,    var(--color-bg) 0%, transparent 40%);
+}
+
+/* ── Trait card grid ──────────────────────────────────────────────────────── */
+.trait-card-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 6px;
+}
+
+@media (min-width: 768px) {
+  .trait-card-grid {
+    grid-template-columns: repeat(7, 1fr);
+  }
+}
