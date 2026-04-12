@@ -2,6 +2,17 @@ import { useState } from 'react';
 import { TRAITS } from '../data/traits.js';
 import { PLAYBOOKS } from '../data/playbooks.js';
 import { FDB } from '../data/formations.js';
+
+const ICONS = {
+  runStyle:   '🏃',
+  passStyle:  '🎯',
+  fieldZones: '📍',
+  personnel:  '👥',
+  threats:    '⚡',
+  qbTend:     '🧠',
+  situation:  '📋',
+};
+
 export default function ScoutScreen({
   sel, setSel, flat, runPass, setRunPass,
   myBook, changeBook,
@@ -9,7 +20,6 @@ export default function ScoutScreen({
   selFm, setSelFm,
   activeP, setActiveP,
   mainTab, setMainTab,
-  openGrp, setOpenGrp,
   modal, setModal,
   saveName, setSaveName,
   profiles, saveProfiles,
@@ -20,6 +30,8 @@ export default function ScoutScreen({
   const [showPB, setShowPB] = useState(false);
   const [pendingDelete, setPendingDelete] = useState(null);
   const [profileAction, setProfileAction] = useState(null); // name of profile to act on
+  const [openCard, setOpenCard] = useState(null);
+  const toggleCard = (id) => setOpenCard(prev => prev === id ? null : id);
 
   return (
     <div className="screen-enter" style={{ fontFamily: "var(--font-sans)", background: "var(--color-bg)", minHeight: "100dvh", color: "var(--color-text-1)", maxWidth: 720, margin: "0 auto" }}>
@@ -134,65 +146,75 @@ export default function ScoutScreen({
           </div>
         ) : null}
 
-        {/* ── Trait groups ── */}
-        {TRAITS.map(group => {
-          const cnt  = (sel[group.id] || []).length;
-          const open = openGrp === group.id;
-          return (
-            <div key={group.id} style={{ marginBottom: 10, border: `1px solid ${cnt > 0 ? "#1e3028" : "var(--color-border-subtle)"}`, borderRadius: "var(--r-md)", overflow: "hidden" }}>
+        {/* ── ① Scout Traits anchor ── */}
+        <SectionAnchor num="1" label="SCOUT TRAITS" />
+
+        {/* ── Trait card grid (4+3 on mobile, 7-across on desktop) ── */}
+        <div className="trait-card-grid" style={{ marginBottom: 8 }}>
+          {TRAITS.map(group => {
+            const cnt    = (sel[group.id] || []).length;
+            const isOpen = openCard === group.id;
+            return (
               <button
-                onClick={() => setOpenGrp(open ? null : group.id)}
+                key={group.id}
+                onClick={() => toggleCard(group.id)}
                 style={{
-                  width: "100%", minHeight: 50, padding: "0 16px",
-                  display: "flex", alignItems: "center", justifyContent: "space-between",
                   background: cnt > 0 ? "#080e0a" : "var(--color-surface-2)",
-                  border: "none", cursor: "pointer",
-                  transition: "background 150ms ease",
+                  border: `1px solid ${isOpen ? "var(--color-gold)" : cnt > 0 ? "#2a5828" : "var(--color-border-subtle)"}`,
+                  borderRadius: "var(--r-md)",
+                  padding: "9px 5px 7px",
+                  textAlign: "center",
+                  cursor: "pointer",
+                  transition: "border-color 150ms, background 150ms",
+                  outline: "none",
                 }}
               >
-                <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                  <span style={{ fontSize: 13, fontWeight: "700", color: cnt > 0 ? "var(--color-success)" : "var(--color-gold)", fontFamily: "var(--font-mono)" }}>
-                    {group.label}
-                  </span>
-                  {cnt > 0 && (
-                    <span style={{ background: "#1a3820", border: "1px solid #3a7a28", borderRadius: 10, padding: "1px 8px", fontSize: 11, color: "var(--color-success)", fontWeight: "700", fontFamily: "var(--font-mono)" }}>
-                      {cnt}
-                    </span>
-                  )}
+                <div style={{ fontSize: 15, marginBottom: 3 }}>{ICONS[group.id]}</div>
+                <div style={{ fontSize: 8, fontWeight: "700", color: cnt > 0 ? "var(--color-success)" : "var(--color-text-3)", lineHeight: 1.3, fontFamily: "var(--font-mono)" }}>
+                  {group.label}
                 </div>
-                <span style={{ color: cnt > 0 ? "var(--color-success)" : "var(--color-text-3)", fontSize: 12 }}>
-                  {open ? "▲" : "▼"}
-                </span>
+                {cnt > 0
+                  ? <div style={{ marginTop: 4, background: "#1a3820", border: "1px solid #2a6828", borderRadius: 6, padding: "1px 0", fontSize: 7, color: "var(--color-success)", fontWeight: "700", fontFamily: "var(--font-mono)" }}>{cnt} ✓</div>
+                  : <div style={{ marginTop: 4, height: 13 }} />
+                }
               </button>
+            );
+          })}
+        </div>
 
-              {open && (
-                <div style={{ padding: "12px 14px 14px", background: "var(--color-bg)", borderTop: "1px solid var(--color-border-subtle)", display: "flex", flexWrap: "wrap", gap: 8 }}>
-                  {group.items.map(item => {
-                    const on = (sel[group.id] || []).includes(item.id);
-                    return (
-                      <button
-                        key={item.id}
-                        onClick={() => toggle(group.id, item.id)}
-                        style={{
-                          minHeight: 36, padding: "0 14px",
-                          borderRadius: 18,
-                          border: on ? "2px solid var(--color-gold-bright)" : "2px solid var(--color-border)",
-                          background: on ? "var(--color-gold-surface)" : "var(--color-surface-2)",
-                          color: on ? "var(--color-gold-bright)" : "var(--color-text-1)",
-                          fontSize: 13, fontWeight: on ? "600" : "400",
-                          cursor: "pointer",
-                          transition: "all 120ms ease",
-                        }}
-                      >
-                        {on ? "✓ " : ""}{item.label}
-                      </button>
-                    );
-                  })}
-                </div>
-              )}
+        {/* ── Inline trait expansion panel ── */}
+        {openCard && (() => {
+          const group = TRAITS.find(g => g.id === openCard);
+          return (
+            <div style={{ marginBottom: 12, background: "var(--color-bg)", border: "1px solid #2a5828", borderRadius: "var(--r-md)", padding: "11px 12px" }}>
+              <div style={{ fontSize: 9, fontWeight: "700", color: "var(--color-success)", letterSpacing: "1px", textTransform: "uppercase", marginBottom: 8, fontFamily: "var(--font-mono)" }}>
+                {ICONS[group.id]} {group.label}
+              </div>
+              <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+                {group.items.map(item => {
+                  const on = (sel[group.id] || []).includes(item.id);
+                  return (
+                    <button
+                      key={item.id}
+                      onClick={() => toggle(group.id, item.id)}
+                      style={{
+                        minHeight: 34, padding: "0 13px",
+                        borderRadius: 17,
+                        border: on ? "1.5px solid var(--color-gold-bright)" : "1px solid var(--color-border)",
+                        background: on ? "var(--color-gold-surface)" : "var(--color-surface-2)",
+                        color: on ? "var(--color-gold-bright)" : "var(--color-text-1)",
+                        fontSize: 12, fontWeight: on ? "600" : "400",
+                        cursor: "pointer", transition: "all 120ms ease",
+                      }}
+                    >
+                      {on ? "✓ " : ""}{item.label}
+                    </button>
+                  );
+                })}
+              </div>
             </div>
           );
-        })}
+        })()}
 
         {/* ── Run / Pass bias ── */}
         <div style={{ marginTop: 24 }}>
@@ -373,3 +395,17 @@ const smallBtn = {
   cursor: "pointer",
   fontFamily: "var(--font-mono)",
 };
+
+function SectionAnchor({ num, label }) {
+  return (
+    <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "10px 0 6px" }}>
+      <div style={{ width: 18, height: 18, borderRadius: "50%", background: "var(--color-gold)", color: "#07080f", fontSize: 9, fontWeight: "700", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, fontFamily: "var(--font-mono)" }}>
+        {num}
+      </div>
+      <div style={{ fontSize: 9, fontWeight: "700", color: "var(--color-gold)", letterSpacing: "1.5px", textTransform: "uppercase", fontFamily: "var(--font-mono)" }}>
+        {label}
+      </div>
+      <div style={{ flex: 1, height: 1, background: "linear-gradient(to right, rgba(184,136,12,0.35), transparent)" }} />
+    </div>
+  );
+}
