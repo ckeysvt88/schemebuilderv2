@@ -24,70 +24,68 @@ export default function ScoutScreen({
   return (
     <div className="screen-enter" style={{ fontFamily: "var(--font-sans)", background: "var(--color-bg)", minHeight: "100dvh", color: "var(--color-text-1)", maxWidth: 720, margin: "0 auto" }}>
 
-      {/* ── Hero Image — topmost, above header ── */}
-      <div style={{ position: "relative", overflow: "hidden", flexShrink: 0, margin: "0 auto", paddingTop: "env(safe-area-inset-top)", width: "69%", aspectRatio: "5/2" }}>
-        <img
-          src={`${import.meta.env.BASE_URL}header.png`}
-          alt=""
-          style={{ display: "block", width: "100%", height: "100%", objectFit: "cover", objectPosition: "center 42%" }}
-        />
-        <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to right, var(--color-bg) 0%, transparent 21%)" }} />
-        <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to left, var(--color-bg) 0%, transparent 21%)" }} />
-        <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to top, var(--color-bg) 0%, transparent 75%)" }} />
-        <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to bottom, var(--color-bg) 0%, transparent 29%)" }} />
+      {/* ── Slim sticky top bar ── */}
+      <div style={{
+        background: "linear-gradient(135deg, #07090f, #0c1220)",
+        borderBottom: "1px solid var(--color-border-subtle)",
+        padding: "8px 16px",
+        paddingTop: "calc(8px + env(safe-area-inset-top))",
+        position: "sticky", top: 0, zIndex: 80,
+        display: "flex", alignItems: "center", justifyContent: "space-between",
+      }}>
+        <div style={{ fontSize: 8, letterSpacing: "2px", color: "var(--color-gold-dim)", textTransform: "uppercase", fontWeight: "700", fontFamily: "var(--font-mono)" }}>
+          CFB · Defensive Intelligence
+        </div>
+        <button
+          onClick={() => setShowPB(v => !v)}
+          style={{
+            minHeight: 32, padding: "0 14px",
+            background: (myBook !== "All" || showPB) ? "var(--color-gold-surface)" : "transparent",
+            border: `1px solid ${(myBook !== "All" || showPB) ? "var(--color-gold)" : "var(--color-border)"}`,
+            borderRadius: "var(--r-md)",
+            color: (myBook !== "All" || showPB) ? "var(--color-gold)" : "var(--color-text-2)",
+            fontSize: 11, fontWeight: "600", cursor: "pointer",
+            fontFamily: "var(--font-mono)", whiteSpace: "nowrap",
+            transition: "all 150ms ease",
+          }}
+        >
+          {myBook !== "All" ? myBook : "All Books"}
+        </button>
       </div>
 
-      {/* ── Header ── */}
-      <div style={{ background: "linear-gradient(135deg, #07090f, #0c1220)", borderBottom: "2px solid var(--color-gold)", padding: "12px 16px 10px", paddingTop: 12, position: "sticky", top: 0, zIndex: 80 }}>
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: showPB ? 10 : 0 }}>
-          <div>
-            <div style={{ fontSize: 10, letterSpacing: "2px", color: "var(--color-gold-dim)", textTransform: "uppercase", fontWeight: "700", fontFamily: "var(--font-mono)", marginBottom: 2 }}>
-              CFB · Defensive Intelligence
-            </div>
-            <div style={{ fontSize: 20, fontWeight: "700", color: "var(--color-text-1)", fontFamily: "var(--font-mono)", letterSpacing: "-0.3px" }}>
-              Scheme Builders
-            </div>
+      {/* Playbook selector dropdown */}
+      {showPB && (
+        <div style={{ background: "linear-gradient(135deg, #07090f, #0c1220)", borderBottom: "1px solid var(--color-border-subtle)", padding: "10px 16px", position: "sticky", top: 40, zIndex: 79 }}>
+          <div style={{ fontSize: 9, color: "var(--color-gold-dim)", letterSpacing: "1.5px", textTransform: "uppercase", fontFamily: "var(--font-mono)", marginBottom: 8 }}>
+            My Defensive Playbook
           </div>
-          <button
-            onClick={() => setShowPB(v => !v)}
-            style={{
-              minHeight: 44, padding: "0 16px",
-              background: (myBook !== "All" || showPB) ? "var(--color-gold-surface)" : "transparent",
-              border: `1px solid ${(myBook !== "All" || showPB) ? "var(--color-gold)" : "var(--color-border)"}`,
-              borderRadius: "var(--r-md)",
-              color: (myBook !== "All" || showPB) ? "var(--color-gold)" : "var(--color-text-2)",
-              fontSize: 12, fontWeight: "600",
-              cursor: "pointer",
-              fontFamily: "var(--font-mono)",
-              whiteSpace: "nowrap",
-              transition: "all 150ms ease",
-            }}
-          >
-            {myBook !== "All" ? myBook : "All Books"}
-          </button>
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+            {["All", ...Object.keys(PLAYBOOKS)].map(b => (
+              <button key={b} onClick={() => { changeBook(b); setShowPB(false); }} style={{
+                minHeight: 32, padding: "0 12px",
+                borderRadius: "var(--r-sm)", fontSize: 10,
+                background: myBook === b ? "var(--color-gold-surface)" : "transparent",
+                border: `1px solid ${myBook === b ? "var(--color-gold)" : "var(--color-border)"}`,
+                color: myBook === b ? "var(--color-gold)" : "var(--color-text-2)",
+                cursor: "pointer", fontFamily: "var(--font-mono)",
+                transition: "all 120ms ease",
+              }}>{b}</button>
+            ))}
+          </div>
         </div>
+      )}
 
-        {/* Playbook selector */}
-        {showPB && (
-          <div style={{ paddingTop: 10, borderTop: "1px solid var(--color-border-subtle)" }}>
-            <div style={{ fontSize: 10, color: "var(--color-gold-dim)", letterSpacing: "1.5px", textTransform: "uppercase", fontFamily: "var(--font-mono)", marginBottom: 8 }}>
-              My Defensive Playbook
-            </div>
-            <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
-              {["All", ...Object.keys(PLAYBOOKS)].map(b => (
-                <button key={b} onClick={() => { changeBook(b); setShowPB(false); }} style={{
-                  minHeight: 36, padding: "0 12px",
-                  borderRadius: "var(--r-sm)", fontSize: 11,
-                  background: myBook === b ? "var(--color-gold-surface)" : "transparent",
-                  border: `1px solid ${myBook === b ? "var(--color-gold)" : "var(--color-border)"}`,
-                  color: myBook === b ? "var(--color-gold)" : "var(--color-text-2)",
-                  cursor: "pointer", fontFamily: "var(--font-mono)",
-                  transition: "all 120ms ease",
-                }}>{b}</button>
-              ))}
-            </div>
+      {/* ── XO Hero ── */}
+      <div className="xo-hero">
+        <div className="xo-fades" />
+        <div style={{ position: "relative", zIndex: 2, padding: "28px 16px 18px" }}>
+          <div style={{ fontSize: 26, fontWeight: "700", color: "var(--color-text-1)", letterSpacing: "-0.5px", marginBottom: 4, lineHeight: 1.1, fontFamily: "var(--font-mono)" }}>
+            Scheme <span style={{ color: "var(--color-gold)" }}>Builders</span>
           </div>
-        )}
+          <div style={{ fontSize: 12, color: "var(--color-text-3)", letterSpacing: "0.3px", lineHeight: 1.6 }}>
+            <span style={{ color: "var(--color-gold)" }}>Tag</span> tendencies · <span style={{ color: "var(--color-gold)" }}>Set</span> bias · <span style={{ color: "var(--color-gold)" }}>Build</span> your plan
+          </div>
+        </div>
       </div>
 
       <div style={{ padding: "16px 16px 32px", position: "relative", zIndex: 1 }}>
