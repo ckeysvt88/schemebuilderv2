@@ -168,7 +168,7 @@ export default function ScoutScreen({
       {/* ── XO Hero ── */}
       <div className="xo-hero">
         <div className="xo-fades" />
-        <div style={{ position: "relative", zIndex: 2, padding: "28px 16px 18px" }}>
+        <div style={{ position: "relative", zIndex: 2, padding: "42px 16px 32px" }}>
           <div style={{ fontSize: 28, fontWeight: "700", color: "var(--color-text-1)", letterSpacing: "-0.5px", marginBottom: 5, lineHeight: 1.1, fontFamily: "var(--font-mono)" }}>
             Scheme <span style={{ color: "var(--color-gold)" }}>Builders</span>
           </div>

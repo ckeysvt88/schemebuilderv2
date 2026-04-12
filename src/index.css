@@ -79,7 +79,8 @@ button, label { user-select: none; -webkit-user-select: none; }
 }
 
 .xo-hero::before {
-  content: 'X  O  X  O  X  O  X  O  X  O  X\AO  X  O  X  O  X  O  X  O  X  O\AX  O  X  O  X  O  X  O  X  O  X\AO  X  O  X  O  X  O  X  O  X  O\AX  O  X  O  X  O  X  O  X  O  X\AO  X  O  X  O  X  O  X  O  X  O';
+  /* Each row is wide enough to fill the 720px max container at any font size */
+  content: 'X  O  X  O  X  O  X  O  X  O  X  O  X  O  X  O  X  O  X  O  X  O  X  O\AO  X  O  X  O  X  O  X  O  X  O  X  O  X  O  X  O  X  O  X  O  X  O  X  O  X\AX  O  X  O  X  O  X  O  X  O  X  O  X  O  X  O  X  O  X  O  X  O  X  O\AO  X  O  X  O  X  O  X  O  X  O  X  O  X  O  X  O  X  O  X  O  X  O  X  O  X\AX  O  X  O  X  O  X  O  X  O  X  O  X  O  X  O  X  O  X  O  X  O  X  O\AO  X  O  X  O  X  O  X  O  X  O  X  O  X  O  X  O  X  O  X  O  X  O  X  O  X\AX  O  X  O  X  O  X  O  X  O  X  O  X  O  X  O  X  O  X  O  X  O  X  O\AO  X  O  X  O  X  O  X  O  X  O  X  O  X  O  X  O  X  O  X  O  X  O  X  O  X';
   white-space: pre;
   position: absolute;
   inset: 0;
@@ -91,6 +92,7 @@ button, label { user-select: none; -webkit-user-select: none; }
   padding: 6px 10px;
   pointer-events: none;
   font-family: var(--font-mono);
+  overflow: hidden;
 }
 
 .xo-fades {
