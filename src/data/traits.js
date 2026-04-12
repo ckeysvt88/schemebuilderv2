@@ -46,7 +46,7 @@ export const TRAITS = [
     { id: "seam_routes", label: "Seam Routes (TE / Slot)" }, { id: "back_shoulder", label: "Back-Shoulder / Fades" },
     { id: "slant_heavy", label: "Slant / Quick Hitch" }, { id: "redzone_spec", label: "Red Zone Specialist" },
   ]},
-  { id: "personnel", label: "His Personnel", icon: "👥", items: [
+  { id: "personnel", label: "Personnel", icon: "👥", items: [
     { id: "p00", label: "00p (0 RB, 0 TE, 5 WR — Pure Spread)" },
     { id: "p01", label: "01p (0 RB, 1 TE, 4 WR — Near-Empty)" },
     { id: "p02", label: "02p (0 RB, 2 TE, 3 WR — Empty TE)" },

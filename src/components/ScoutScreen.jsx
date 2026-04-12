@@ -400,6 +400,11 @@ export default function ScoutScreen({
         <div style={{ marginTop: 32, paddingTop: 16, borderTop: "1px solid var(--color-border-subtle)", textAlign: "center", fontSize: 11, color: "var(--color-text-3)", fontFamily: "var(--font-mono)", letterSpacing: "0.5px" }}>
           Designed by CK · Scheme Builders 2026
         </div>
+
+        {/* ── Footer XO echo — faded mirror of hero pattern for visual continuity ── */}
+        <div className="xo-hero xo-hero--footer" style={{ margin: "24px -16px -32px", borderBottom: "none", borderTop: "none" }}>
+          <div className="xo-fades xo-fades--footer" />
+        </div>
       </div>
 
       {/* ── Profile action modal ── */}
