@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { getBlitz, blitzInfo } from '../engine/scoring.js';
+import { getBlitz } from '../engine/scoring.js';
 import { ADJUSTMENTS } from '../data/adjustments.js';
 import { TRAIT_LABELS } from '../data/traits.js';
 import BlitzBar from './BlitzBar.jsx';
@@ -51,7 +51,6 @@ export default function FormationDetail({ fm, flat, situation = "base", runPass 
   const [tab, setTab] = useState("coverages");
   const [showWhy, setShowWhy] = useState(false);
   const blitz = getBlitz(fm, flat);
-  const bi = blitzInfo(blitz);
 
   // ── Scoring factor calculations ───────────────────────────────────────────
   const runBias = BIAS_MAP_RP[runPass] || 0;
@@ -69,7 +68,7 @@ export default function FormationDetail({ fm, flat, situation = "base", runPass 
     <div style={{ background: "#090f1a", border: `2px solid ${PC[fm.priority]}`, borderRadius: 9, overflow: "hidden", marginBottom: 18 }}>
       {/* Header */}
       <div style={{ padding: "14px 16px", borderBottom: "1px solid #1e2a3a", background: "linear-gradient(135deg,#0a0f1c,#0e1420)" }}>
-        <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 8 }}>
+        <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "flex-end" }}>
           <div style={{ background: "#080c15", border: "1px solid #c8960c", borderRadius: 7, padding: "6px 10px", textAlign: "center", flexShrink: 0 }}>
             <div style={{ fontSize: 11, fontWeight: "bold", color: "#b8880c" }}>{fm.sc}%</div>
             <div style={{ fontSize: "12px", color: "#b8880c", fontFamily: "'IBM Plex Mono', monospace" }}>MATCH</div>
