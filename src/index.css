@@ -85,7 +85,7 @@ button, label { user-select: none; -webkit-user-select: none; }
   inset: 0;
   font-size: 12px;
   font-weight: 700;
-  color: rgba(184, 136, 12, 0.10); /* matches --color-gold (#b8880c) at 10% opacity */
+  color: rgba(184, 136, 12, 0.35); /* matches --color-gold (#b8880c) at 35% opacity */
   letter-spacing: 4px;
   line-height: 28px;
   padding: 6px 10px;
@@ -105,14 +105,18 @@ button, label { user-select: none; -webkit-user-select: none; }
 }
 
 /* ── Trait card grid ──────────────────────────────────────────────────────── */
+/* 12-column base: top 4 cards span 3 cols each (=12), bottom 3 span 4 cols each (=12) */
 .trait-card-grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(12, 1fr);
   gap: 6px;
 }
 
 @media (min-width: 768px) {
   .trait-card-grid {
     grid-template-columns: repeat(7, 1fr);
+  }
+  .trait-card-grid > * {
+    grid-column: span 1 !important;
   }
 }

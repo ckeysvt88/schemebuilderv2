@@ -123,7 +123,7 @@ export default function ScoutScreen({
         position: "sticky", top: 0, zIndex: 80,
         display: "flex", alignItems: "center", justifyContent: "space-between",
       }}>
-        <div style={{ fontSize: 8, letterSpacing: "2px", color: "var(--color-gold-dim)", textTransform: "uppercase", fontWeight: "700", fontFamily: "var(--font-mono)" }}>
+        <div style={{ fontSize: 11, letterSpacing: "2px", color: "var(--color-gold-dim)", textTransform: "uppercase", fontWeight: "700", fontFamily: "var(--font-mono)" }}>
           CFB · Defensive Intelligence
         </div>
         <button
@@ -169,10 +169,10 @@ export default function ScoutScreen({
       <div className="xo-hero">
         <div className="xo-fades" />
         <div style={{ position: "relative", zIndex: 2, padding: "28px 16px 18px" }}>
-          <div style={{ fontSize: 26, fontWeight: "700", color: "var(--color-text-1)", letterSpacing: "-0.5px", marginBottom: 4, lineHeight: 1.1, fontFamily: "var(--font-mono)" }}>
+          <div style={{ fontSize: 28, fontWeight: "700", color: "var(--color-text-1)", letterSpacing: "-0.5px", marginBottom: 5, lineHeight: 1.1, fontFamily: "var(--font-mono)" }}>
             Scheme <span style={{ color: "var(--color-gold)" }}>Builders</span>
           </div>
-          <div style={{ fontSize: 12, color: "var(--color-text-3)", letterSpacing: "0.3px", lineHeight: 1.6 }}>
+          <div style={{ fontSize: 14, color: "var(--color-text-3)", letterSpacing: "0.3px", lineHeight: 1.6 }}>
             <span style={{ color: "var(--color-gold)" }}>Tag</span> tendencies · <span style={{ color: "var(--color-gold)" }}>Set</span> bias · <span style={{ color: "var(--color-gold)" }}>Build</span> your plan
           </div>
         </div>
@@ -229,31 +229,34 @@ export default function ScoutScreen({
 
         {/* ── Trait card grid (4+3 on mobile, 7-across on desktop) ── */}
         <div className="trait-card-grid" style={{ marginBottom: 8 }}>
-          {TRAITS.map(group => {
+          {TRAITS.map((group, idx) => {
             const cnt    = (sel[group.id] || []).length;
             const isOpen = openCard === group.id;
+            // Top 4 cards span 3 of 12 cols; bottom 3 span 4 of 12 cols — both rows fill edge-to-edge
+            const colSpan = idx < 4 ? "span 3" : "span 4";
             return (
               <button
                 key={group.id}
                 onClick={() => toggleCard(group.id)}
                 style={{
+                  gridColumn: colSpan,
                   background: cnt > 0 ? "#080e0a" : "var(--color-surface-2)",
                   border: `1px solid ${isOpen ? "var(--color-gold)" : cnt > 0 ? "#2a5828" : "var(--color-border-subtle)"}`,
                   borderRadius: "var(--r-md)",
-                  padding: "9px 5px 7px",
+                  padding: "10px 5px 8px",
                   textAlign: "center",
                   cursor: "pointer",
                   transition: "border-color 150ms, background 150ms",
                   outline: "none",
                 }}
               >
-                <div style={{ fontSize: 15, marginBottom: 3 }}>{ICONS[group.id]}</div>
-                <div style={{ fontSize: 8, fontWeight: "700", color: cnt > 0 ? "var(--color-success)" : "var(--color-text-3)", lineHeight: 1.3, fontFamily: "var(--font-mono)" }}>
+                <div style={{ fontSize: 17, marginBottom: 3 }}>{ICONS[group.id]}</div>
+                <div style={{ fontSize: 10, fontWeight: "700", color: cnt > 0 ? "var(--color-success)" : "var(--color-text-3)", lineHeight: 1.3, fontFamily: "var(--font-mono)" }}>
                   {group.label}
                 </div>
                 {cnt > 0
-                  ? <div style={{ marginTop: 4, background: "#1a3820", border: "1px solid #2a6828", borderRadius: 6, padding: "1px 0", fontSize: 7, color: "var(--color-success)", fontWeight: "700", fontFamily: "var(--font-mono)" }}>{cnt} ✓</div>
-                  : <div style={{ marginTop: 4, height: 13 }} />
+                  ? <div style={{ marginTop: 4, background: "#1a3820", border: "1px solid #2a6828", borderRadius: 6, padding: "1px 0", fontSize: 9, color: "var(--color-success)", fontWeight: "700", fontFamily: "var(--font-mono)" }}>{cnt} ✓</div>
+                  : <div style={{ marginTop: 4, height: 14 }} />
                 }
               </button>
             );
@@ -266,7 +269,7 @@ export default function ScoutScreen({
           if (!group) return null;
           return (
             <div style={{ marginBottom: 12, background: "var(--color-bg)", border: "1px solid #2a5828", borderRadius: "var(--r-md)", padding: "11px 12px" }}>
-              <div style={{ fontSize: 9, fontWeight: "700", color: "var(--color-success)", letterSpacing: "1px", textTransform: "uppercase", marginBottom: 8, fontFamily: "var(--font-mono)" }}>
+              <div style={{ fontSize: 11, fontWeight: "700", color: "var(--color-success)", letterSpacing: "1px", textTransform: "uppercase", marginBottom: 8, fontFamily: "var(--font-mono)" }}>
                 {ICONS[group.id]} {group.label}
               </div>
               <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
@@ -301,11 +304,11 @@ export default function ScoutScreen({
         {/* ── Run / Pass bias ── */}
         <div style={{ marginTop: 8 }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
-            <span style={{ fontSize: 11, fontWeight: "700", color: "var(--color-pass)", fontFamily: "var(--font-mono)", letterSpacing: "1px" }}>PASS</span>
-            <span style={{ fontSize: 12, fontWeight: "700", fontFamily: "var(--font-mono)", color: ["","#3a8fe8","#4a9ed4","#4aa890","#5a9860","#b89040","#d07028","#d84810"][runPass] }}>
+            <span style={{ fontSize: 13, fontWeight: "700", color: "var(--color-pass)", fontFamily: "var(--font-mono)", letterSpacing: "1px" }}>PASS</span>
+            <span style={{ fontSize: 14, fontWeight: "700", fontFamily: "var(--font-mono)", color: ["","#3a8fe8","#4a9ed4","#4aa890","#5a9860","#b89040","#d07028","#d84810"][runPass] }}>
               {["","Full Pass","Pass","Pass Lean","Balanced","Run Lean","Run","Full Run"][runPass]}
             </span>
-            <span style={{ fontSize: 11, fontWeight: "700", color: "var(--color-run)", fontFamily: "var(--font-mono)", letterSpacing: "1px" }}>RUN</span>
+            <span style={{ fontSize: 13, fontWeight: "700", color: "var(--color-run)", fontFamily: "var(--font-mono)", letterSpacing: "1px" }}>RUN</span>
           </div>
           <div style={{ display: "flex", gap: 3, border: "1px solid var(--color-border)", background: "var(--color-surface-1)", padding: 3, borderRadius: 12 }}>
             {[1,2,3,4,5,6,7].map(pos => {
@@ -339,11 +342,11 @@ export default function ScoutScreen({
         {/* ── Stats + actions ── */}
         <div style={{ marginTop: 8, display: "flex", flexDirection: "column", gap: 12, alignItems: "center" }}>
           <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
-            <span style={{ fontSize: 13, color: "var(--color-text-2)" }}>
+            <span style={{ fontSize: 14, color: "var(--color-text-2)" }}>
               {flat.length} trait{flat.length !== 1 ? "s" : ""} selected
             </span>
             {myBook !== "All" && (
-              <span style={{ fontSize: 12, color: "var(--color-gold-dim)", fontFamily: "var(--font-mono)" }}>
+              <span style={{ fontSize: 13, color: "var(--color-gold-dim)", fontFamily: "var(--font-mono)" }}>
                 {myBook} · {Object.values(FDB).filter(d => d.books.includes(myBook) || d.books.includes("All")).length} formations
               </span>
             )}
@@ -484,10 +487,10 @@ const smallBtn = {
 function SectionAnchor({ num, label }) {
   return (
     <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "10px 0 6px" }}>
-      <div style={{ width: 18, height: 18, borderRadius: "50%", background: "var(--color-gold)", color: "#07080f", fontSize: 9, fontWeight: "700", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, fontFamily: "var(--font-mono)" }}>
+      <div style={{ width: 20, height: 20, borderRadius: "50%", background: "var(--color-gold)", color: "#07080f", fontSize: 11, fontWeight: "700", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, fontFamily: "var(--font-mono)" }}>
         {num}
       </div>
-      <div style={{ fontSize: 9, fontWeight: "700", color: "var(--color-gold)", letterSpacing: "1.5px", textTransform: "uppercase", fontFamily: "var(--font-mono)" }}>
+      <div style={{ fontSize: 11, fontWeight: "700", color: "var(--color-gold)", letterSpacing: "1.5px", textTransform: "uppercase", fontFamily: "var(--font-mono)" }}>
         {label}
       </div>
       <div style={{ flex: 1, height: 1, background: "linear-gradient(to right, rgba(184,136,12,0.35), transparent)" }} />
