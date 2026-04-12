@@ -217,8 +217,11 @@ export default function ScoutScreen({
           );
         })()}
 
+        {/* ── ② Run / Pass Bias anchor ── */}
+        <SectionAnchor num="2" label="RUN / PASS BIAS" />
+
         {/* ── Run / Pass bias ── */}
-        <div style={{ marginTop: 24 }}>
+        <div style={{ marginTop: 8 }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
             <span style={{ fontSize: 11, fontWeight: "700", color: "var(--color-pass)", fontFamily: "var(--font-mono)", letterSpacing: "1px" }}>PASS</span>
             <span style={{ fontSize: 12, fontWeight: "700", fontFamily: "var(--font-mono)", color: ["","#3a8fe8","#4a9ed4","#4aa890","#5a9860","#b89040","#d07028","#d84810"][runPass] }}>
@@ -252,8 +255,11 @@ export default function ScoutScreen({
           </div>
         </div>
 
+        {/* ── ③ Build anchor ── */}
+        <SectionAnchor num="3" label="BUILD" />
+
         {/* ── Stats + actions ── */}
-        <div style={{ marginTop: 20, display: "flex", flexDirection: "column", gap: 12, alignItems: "center" }}>
+        <div style={{ marginTop: 8, display: "flex", flexDirection: "column", gap: 12, alignItems: "center" }}>
           <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
             <span style={{ fontSize: 13, color: "var(--color-text-2)" }}>
               {flat.length} trait{flat.length !== 1 ? "s" : ""} selected
