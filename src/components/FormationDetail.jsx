@@ -70,12 +70,6 @@ export default function FormationDetail({ fm, flat, situation = "base", runPass 
       {/* Header */}
       <div style={{ padding: "14px 16px", borderBottom: "1px solid #1e2a3a", background: "linear-gradient(135deg,#0a0f1c,#0e1420)" }}>
         <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 8 }}>
-          <div style={{ flex: 1 }}>
-            <div style={{ background: "#080c15", border: "1px solid #1a3050", borderRadius: 5, padding: "10px 13px" }}>
-              <div style={{ fontSize: "12px", color: "#6888a0", letterSpacing: 1, textTransform: "uppercase", marginBottom: 2, fontFamily: "'IBM Plex Mono', monospace" }}>DC Logic</div>
-              <div style={{ fontSize: 11, color: "#7898ae", lineHeight: 1.65 }}>{fm.dcNote}</div>
-            </div>
-          </div>
           <div style={{ background: "#080c15", border: "1px solid #c8960c", borderRadius: 7, padding: "6px 10px", textAlign: "center", flexShrink: 0 }}>
             <div style={{ fontSize: 11, fontWeight: "bold", color: "#b8880c" }}>{fm.sc}%</div>
             <div style={{ fontSize: "12px", color: "#b8880c", fontFamily: "'IBM Plex Mono', monospace" }}>MATCH</div>
@@ -84,7 +78,7 @@ export default function FormationDetail({ fm, flat, situation = "base", runPass 
       </div>
 
       {/* Blitz bar */}
-      <div style={{ padding: "16px 16px", borderBottom: showWhy ? "none" : "1px solid #1e2a3a", background: "#090f1a" }}>
+      <div style={{ padding: "16px 16px", borderBottom: "1px solid #1e2a3a", background: "#090f1a" }}>
         <BlitzBar pct={blitz} />
         {fm.blitzMods.filter(m => m.tags.some(t => flat.includes(t))).slice(0, 3).map((m, i) => (
           <div key={i} style={{ fontSize: "11px", color: "#7f9fb2", marginTop: 3, display: "flex", gap: 8 }}>
@@ -92,19 +86,28 @@ export default function FormationDetail({ fm, flat, situation = "base", runPass 
             <span>— {m.tags.filter(t => flat.includes(t)).map(t => TRAIT_LABELS[t] || t).join(", ")}</span>
           </div>
         ))}
+      </div>
+
+      {/* Why This Formation Was Selected — always visible */}
+      <div style={{ background: "#1a2030", borderBottom: "1px solid #2a3545", padding: "12px 16px" }}>
+        <WhySelected coreHits={fm.coreHits} suppHits={fm.suppHits} />
+
+        {/* DC Logic */}
+        <div style={{ marginTop: 12, background: "#080c15", border: "1px solid #1a3050", borderRadius: 5, padding: "10px 13px" }}>
+          <div style={{ fontSize: "12px", color: "#6888a0", letterSpacing: 1, textTransform: "uppercase", marginBottom: 2, fontFamily: "'IBM Plex Mono', monospace" }}>DC Logic</div>
+          <div style={{ fontSize: 11, color: "#7898ae", lineHeight: 1.65 }}>{fm.dcNote}</div>
+        </div>
+
+        {/* Collapsible Scoring Factors */}
         <button
           onClick={() => setShowWhy(v => !v)}
           style={{ marginTop: 10, background: "none", border: "none", padding: 0, cursor: "pointer", fontSize: 10, color: "#b8880c", fontFamily: "'IBM Plex Mono', monospace", letterSpacing: "0.5px" }}
         >
-          {showWhy ? "▼ Why this ranked here" : "▶ Why this ranked here"}
+          {showWhy ? "▼ Scoring factors" : "▶ Scoring factors"}
         </button>
-      </div>
 
-      {/* Collapsible Why section */}
-      {showWhy && (
-        <div style={{ background: "#1a2030", border: "1px solid #2a3545", borderRadius: 8, margin: "0 12px 0", padding: 10, borderTop: "none", borderTopLeftRadius: 0, borderTopRightRadius: 0 }}>
-          <WhySelected coreHits={fm.coreHits} suppHits={fm.suppHits} />
-          <div style={{ marginTop: 12, borderTop: "1px solid #2a3545", paddingTop: 10 }}>
+        {showWhy && (
+          <div style={{ marginTop: 8, borderTop: "1px solid #2a3545", paddingTop: 10 }}>
             <div style={{ fontSize: 10, color: "#6888a0", letterSpacing: "2px", textTransform: "uppercase", fontFamily: "'IBM Plex Mono', monospace", marginBottom: 8 }}>Scoring Factors</div>
             {/* Run/Pass Bias */}
             <div style={{ fontSize: 11, fontFamily: "'IBM Plex Mono', monospace", marginBottom: 5, display: "flex", gap: 8 }}>
@@ -142,8 +145,8 @@ export default function FormationDetail({ fm, flat, situation = "base", runPass 
               </div>
             )}
           </div>
-        </div>
-      )}
+        )}
+      </div>
       <div style={{ borderBottom: "1px solid #1e2a3a" }} />
 
       {/* Inner tabs */}
