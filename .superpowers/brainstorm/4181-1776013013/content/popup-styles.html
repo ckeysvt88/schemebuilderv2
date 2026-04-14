@@ -1,0 +1,133 @@
+<h2>First-Time User Popup — Style Options</h2>
+<p class="subtitle">Shows once on first visit. Teaches the workflow and the payoff.</p>
+
+<style>
+.popup-demo { background: #07080f; border-radius: 10px; padding: 12px; font-family: 'IBM Plex Mono', monospace; position: relative; min-height: 200px; }
+.overlay { background: rgba(0,0,0,0.82); border-radius: 8px; position: absolute; inset: 0; }
+.flow-step { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+.step-num { width: 20px; height: 20px; border-radius: 50%; background: #b8880c; color: #07080f; font-size: 10px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.step-txt { font-size: 11px; color: #b0c8dc; line-height: 1.3; }
+.step-arrow { color: #5a7a8a; font-size: 10px; margin: 0 4px; }
+.dismiss-btn { background: linear-gradient(135deg,#b8880c,#d4a020); border: none; border-radius: 8px; padding: 8px 20px; color: #07080f; font-weight: 700; font-size: 12px; cursor: pointer; font-family: 'IBM Plex Mono', monospace; width: 100%; }
+.ghost-btn { background: transparent; border: 1px solid #243548; border-radius: 8px; padding: 6px 16px; color: #7a9ab4; font-size: 11px; cursor: pointer; font-family: 'IBM Plex Mono', monospace; }
+.payoff-pill { display: inline-flex; align-items: center; gap: 5px; background: #0a1a0a; border: 1px solid #2a5020; border-radius: 20px; padding: 4px 10px; font-size: 10px; color: #5a9870; margin: 2px; }
+</style>
+
+<div class="options">
+
+  <!-- Option A: Minimal top banner -->
+  <div class="option" data-choice="a" onclick="toggleSelect(this)">
+    <div class="letter">A</div>
+    <div class="content">
+      <h3>Slim Welcome Banner</h3>
+      <p>A non-blocking banner slides in below the header — app stays visible behind it. Quick workflow summary + dismiss. Feels lightweight, never panic-inducing.</p>
+      <div class="popup-demo" style="min-height:auto">
+        <!-- Simulated header -->
+        <div style="background:#0c1220;border-bottom:2px solid #b8880c;padding:8px 10px;border-radius:6px 6px 0 0;margin:-12px -12px 0;font-size:11px;font-weight:700;color:#eaf2fa">Scheme Builders</div>
+        <!-- Banner -->
+        <div style="background:#0d1e10;border:1px solid #2a5020;border-radius:8px;padding:10px 12px;margin-top:8px">
+          <div style="font-size:10px;font-weight:700;color:#5a9870;letter-spacing:1px;margin-bottom:6px;text-transform:uppercase">👋 Welcome — here's how it works</div>
+          <div style="display:flex;align-items:center;gap:4px;flex-wrap:wrap;font-size:10px;color:#b0c8dc;margin-bottom:8px">
+            <span>🏃 Scout traits</span>
+            <span class="step-arrow">→</span>
+            <span>⚖️ Set bias</span>
+            <span class="step-arrow">→</span>
+            <span>🛡️ Build plan</span>
+            <span class="step-arrow">→</span>
+            <span style="color:#5a9870">Ranked formations + coverages</span>
+          </div>
+          <button class="ghost-btn" style="width:100%">Got it — let's go ✕</button>
+        </div>
+        <!-- Cards beneath (greyed) -->
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:4px;margin-top:8px;opacity:0.3">
+          <div style="background:#0d1622;border:1px solid #182030;border-radius:6px;height:40px"></div>
+          <div style="background:#0d1622;border:1px solid #182030;border-radius:6px;height:40px"></div>
+          <div style="background:#0d1622;border:1px solid #182030;border-radius:6px;height:40px"></div>
+          <div style="background:#0d1622;border:1px solid #182030;border-radius:6px;height:40px"></div>
+        </div>
+      </div>
+      <p style="font-size:11px;color:#5a7a8a;margin-top:8px"><strong>Feel:</strong> Lightweight, unobtrusive. User can see the app behind it immediately.</p>
+    </div>
+  </div>
+
+  <!-- Option B: Centered modal -->
+  <div class="option" data-choice="b" onclick="toggleSelect(this)">
+    <div class="letter">B</div>
+    <div class="content">
+      <h3>Centered Welcome Modal</h3>
+      <p>Full overlay with a focused card — app is dimmed behind it. Numbered steps + payoff pills. Most common pattern for onboarding, commands full attention.</p>
+      <div class="popup-demo">
+        <div class="overlay"></div>
+        <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;padding:12px">
+          <div style="background:#0d1622;border:1px solid #b8880c;border-radius:12px;padding:18px;width:100%;max-width:300px;position:relative;z-index:1">
+            <div style="font-size:18px;text-align:center;margin-bottom:4px">🛡️</div>
+            <div style="font-size:14px;font-weight:700;color:#eaf2fa;text-align:center;margin-bottom:2px">Scheme Builders</div>
+            <div style="font-size:10px;color:#7a9ab4;text-align:center;margin-bottom:14px">CFB Defensive Intelligence</div>
+            <!-- Steps -->
+            <div class="flow-step"><div class="step-num">1</div><div class="step-txt"><strong style="color:#eaf2fa">Scout</strong> — tag your opponent's offensive tendencies</div></div>
+            <div class="flow-step"><div class="step-num">2</div><div class="step-txt"><strong style="color:#eaf2fa">Bias</strong> — set their run/pass tendency slider</div></div>
+            <div class="flow-step"><div class="step-num">3</div><div class="step-txt"><strong style="color:#eaf2fa">Build</strong> — get your ranked defensive game plan</div></div>
+            <!-- Payoff -->
+            <div style="margin:12px 0 14px;padding:8px;background:#07080f;border-radius:8px;border:1px solid #182030">
+              <div style="font-size:9px;color:#5a7a8a;margin-bottom:6px;letter-spacing:1px;text-transform:uppercase">You'll get</div>
+              <div>
+                <span class="payoff-pill">✓ Ranked formations</span>
+                <span class="payoff-pill">✓ Coverage packages</span>
+                <span class="payoff-pill">✓ Blitz %</span>
+                <span class="payoff-pill">✓ Call sheets</span>
+              </div>
+            </div>
+            <button class="dismiss-btn">Let's Build a Game Plan →</button>
+          </div>
+        </div>
+      </div>
+      <p style="font-size:11px;color:#5a7a8a;margin-top:8px"><strong>Feel:</strong> Clear, authoritative. Forces user to read before starting.</p>
+    </div>
+  </div>
+
+  <!-- Option C: Bottom sheet -->
+  <div class="option" data-choice="c" onclick="toggleSelect(this)">
+    <div class="letter">C</div>
+    <div class="content">
+      <h3>Bottom Sheet Drawer</h3>
+      <p>Slides up from the bottom — very native mobile feel. App header and top of card grid are visible above it. User can see where they're headed before dismissing.</p>
+      <div class="popup-demo" style="min-height:240px">
+        <!-- App visible above -->
+        <div style="background:#0c1220;border-bottom:2px solid #b8880c;padding:8px 10px;border-radius:6px 6px 0 0;margin:-12px -12px 0;font-size:11px;font-weight:700;color:#eaf2fa">Scheme Builders</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:4px;margin:8px 0;opacity:0.5">
+          <div style="background:#0d1622;border:1px solid #182030;border-radius:6px;padding:8px;text-align:center;font-size:14px">🏃</div>
+          <div style="background:#0d1622;border:1px solid #182030;border-radius:6px;padding:8px;text-align:center;font-size:14px">🎯</div>
+          <div style="background:#0d1622;border:1px solid #182030;border-radius:6px;padding:8px;text-align:center;font-size:14px">📍</div>
+          <div style="background:#0d1622;border:1px solid #182030;border-radius:6px;padding:8px;text-align:center;font-size:14px">👥</div>
+        </div>
+        <!-- Bottom sheet -->
+        <div style="background:#0d1622;border:1px solid #b8880c44;border-radius:12px 12px 8px 8px;padding:14px 14px 10px;margin:-12px -12px -12px;border-top-color:#b8880c;">
+          <div style="width:32px;height:3px;background:#243548;border-radius:2px;margin:0 auto 12px"></div>
+          <div style="font-size:12px;font-weight:700;color:#eaf2fa;margin-bottom:10px">👋 First time? Here's how it works</div>
+          <div style="display:flex;gap:6px;margin-bottom:12px">
+            <div style="flex:1;background:#07080f;border-radius:8px;padding:8px;text-align:center">
+              <div style="font-size:14px;margin-bottom:3px">🔍</div>
+              <div style="font-size:9px;font-weight:700;color:#b8880c">SCOUT</div>
+              <div style="font-size:9px;color:#7a9ab4;margin-top:2px;line-height:1.3">Tag their offensive traits</div>
+            </div>
+            <div style="color:#5a7a8a;align-self:center;font-size:10px">→</div>
+            <div style="flex:1;background:#07080f;border-radius:8px;padding:8px;text-align:center">
+              <div style="font-size:14px;margin-bottom:3px">⚖️</div>
+              <div style="font-size:9px;font-weight:700;color:#b8880c">BIAS</div>
+              <div style="font-size:9px;color:#7a9ab4;margin-top:2px;line-height:1.3">Set run/pass lean</div>
+            </div>
+            <div style="color:#5a7a8a;align-self:center;font-size:10px">→</div>
+            <div style="flex:1;background:#07080f;border-radius:8px;padding:8px;text-align:center">
+              <div style="font-size:14px;margin-bottom:3px">🛡️</div>
+              <div style="font-size:9px;font-weight:700;color:#5a9870">BUILD</div>
+              <div style="font-size:9px;color:#7a9ab4;margin-top:2px;line-height:1.3">Get ranked formations</div>
+            </div>
+          </div>
+          <button class="dismiss-btn">Got it — Start Scouting</button>
+        </div>
+      </div>
+      <p style="font-size:11px;color:#5a7a8a;margin-top:8px"><strong>Feel:</strong> Native mobile, user sees the app immediately, contextual.</p>
+    </div>
+  </div>
+
+</div>

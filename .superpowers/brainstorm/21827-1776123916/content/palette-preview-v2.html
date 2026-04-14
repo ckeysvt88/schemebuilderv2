@@ -1,0 +1,198 @@
+<h2>Dark vs Light — gold dialed back</h2>
+<p class="subtitle">Gold is desaturated and darkened for light mode so it reads as an accent rather than shouting. Let me know if you want it pulled back further or eased up.</p>
+
+<style>
+  .split-preview {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-top: 12px;
+  }
+  .mode-label {
+    text-align: center;
+    font-size: 10px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    font-weight: 700;
+    margin-bottom: 6px;
+    color: #888;
+  }
+  .app-shell {
+    font-family: 'IBM Plex Mono', monospace;
+    border-radius: 12px;
+    overflow: hidden;
+    border: 1px solid;
+    font-size: 10px;
+  }
+
+  /* ── DARK (unchanged) ── */
+  .dark { background: #07080f; border-color: #243548; color: #eaf2fa; }
+  .dark .top-bar { background: linear-gradient(135deg, #07090f, #0c1220); border-bottom: 1px solid #182030; padding: 7px 10px; display: flex; align-items: center; justify-content: space-between; }
+  .dark .brand { color: #9a7828; font-size: 8px; letter-spacing: 2px; font-weight: 700; text-transform: uppercase; }
+  .dark .pb-btn { font-size: 8px; color: #9a7828; border: 1px solid #5a4010; border-radius: 4px; padding: 2px 7px; }
+  .dark .body { padding: 8px 10px; background: #07080f; }
+  .dark .section-label { font-size: 7px; color: #7a9ab4; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 5px; }
+  .dark .card { background: #0a0f18; border: 1px solid #243548; border-radius: 6px; padding: 7px 8px; margin-bottom: 5px; }
+  .dark .card-title { color: #eaf2fa; font-weight: 700; font-size: 9px; margin-bottom: 2px; }
+  .dark .card-sub { color: #7a9ab4; font-size: 8px; }
+  .dark .gold-tag { background: #191408; border: 1px solid #5a4010; border-radius: 3px; padding: 1px 5px; color: #b8880c; font-size: 7px; }
+  .dark .run-tag  { background: #1a0e08; border: 1px solid #5a3010; border-radius: 3px; padding: 1px 5px; color: #c07040; font-size: 7px; }
+  .dark .pass-tag { background: #081030; border: 1px solid #1a3868; border-radius: 3px; padding: 1px 5px; color: #3a80e0; font-size: 7px; }
+  .dark .score-bar-bg { background: #182030; border-radius: 3px; height: 4px; margin-top: 4px; }
+  .dark .score-bar { background: linear-gradient(to right, #b8880c, #d4a020); border-radius: 3px; height: 4px; }
+  .dark .btn-primary { background: linear-gradient(135deg,#b8880c,#d4a020,#b8880c); color: #07080f; border: none; border-radius: 6px; padding: 6px 0; font-weight: 700; font-size: 9px; text-align: center; margin-top: 6px; font-family: 'IBM Plex Mono', monospace; width: 100%; cursor: pointer; }
+  .dark .nav-bar { background: rgba(7,8,15,0.95); border-top: 1px solid rgba(184,136,12,0.18); padding: 5px 4px; display: grid; grid-template-columns: repeat(5,1fr); text-align: center; font-size: 7px; }
+  .dark .nav-bar span { padding: 3px 1px; color: #7a9ab4; }
+  .dark .nav-bar .active { color: #b8880c; font-weight: 700; }
+  .dark .toggle-icon { color: #b0c8dc; font-size: 11px; }
+  .dark .hero { position: relative; padding: 14px 10px 10px; overflow: hidden; border-bottom: 1px solid #b8880c; }
+  .dark .hero-xo { position: absolute; inset: 0; font-size: 8px; font-weight: 700; color: rgba(184,136,12,0.3); letter-spacing: 3px; line-height: 18px; padding: 4px 6px; white-space: pre; overflow: hidden; pointer-events: none; font-family: 'IBM Plex Mono', monospace; }
+  .dark .hero-text { position: relative; }
+  .dark .hero-title { font-size: 14px; font-weight: 700; color: #eaf2fa; letter-spacing: 1px; }
+  .dark .hero-sub { font-size: 8px; color: #7a9ab4; margin-top: 2px; }
+
+  /* ── LIGHT — muted gold ── */
+  /* Gold in light mode: #7a6018 (darker, less saturated) instead of full #b8880c */
+  .light { background: #f0f2f5; border-color: #b0bcc8; color: #1a2030; }
+  .light .top-bar { background: linear-gradient(135deg, #e8ecf2, #dfe5ee); border-bottom: 1px solid #c8d0da; padding: 7px 10px; display: flex; align-items: center; justify-content: space-between; }
+  .light .brand { color: #6a5418; font-size: 8px; letter-spacing: 2px; font-weight: 700; text-transform: uppercase; }
+  .light .pb-btn { font-size: 8px; color: #6a5418; border: 1px solid #a89050; border-radius: 4px; padding: 2px 7px; }
+  .light .body { padding: 8px 10px; background: #f0f2f5; }
+  .light .section-label { font-size: 7px; color: #5a6878; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 5px; }
+  .light .card { background: #e8ecf2; border: 1px solid #b0bcc8; border-radius: 6px; padding: 7px 8px; margin-bottom: 5px; }
+  .light .card-title { color: #1a2030; font-weight: 700; font-size: 9px; margin-bottom: 2px; }
+  .light .card-sub { color: #5a6878; font-size: 8px; }
+  .light .gold-tag { background: #eae5d8; border: 1px solid #a89050; border-radius: 3px; padding: 1px 5px; color: #6a5418; font-size: 7px; }
+  .light .run-tag  { background: #f0e8e0; border: 1px solid #c09870; border-radius: 3px; padding: 1px 5px; color: #a06030; font-size: 7px; }
+  .light .pass-tag { background: #e0e8f8; border: 1px solid #809ccc; border-radius: 3px; padding: 1px 5px; color: #2a58a8; font-size: 7px; }
+  .light .score-bar-bg { background: #c8d0da; border-radius: 3px; height: 4px; margin-top: 4px; }
+  .light .score-bar { background: linear-gradient(to right, #8a6820, #a88030); border-radius: 3px; height: 4px; }
+  .light .btn-primary { background: linear-gradient(135deg, #7a6018, #9a7828, #7a6018); color: #f5f0e8; border: none; border-radius: 6px; padding: 6px 0; font-weight: 700; font-size: 9px; text-align: center; margin-top: 6px; font-family: 'IBM Plex Mono', monospace; width: 100%; cursor: pointer; }
+  .light .nav-bar { background: rgba(240,242,245,0.95); border-top: 1px solid rgba(120,96,24,0.2); padding: 5px 4px; display: grid; grid-template-columns: repeat(5,1fr); text-align: center; font-size: 7px; }
+  .light .nav-bar span { padding: 3px 1px; color: #7a8898; }
+  .light .nav-bar .active { color: #7a6018; font-weight: 700; }
+  .light .toggle-icon { color: #3a4858; font-size: 11px; }
+  .light .hero { position: relative; padding: 14px 10px 10px; overflow: hidden; border-bottom: 1px solid #a89050; }
+  .light .hero-xo { position: absolute; inset: 0; font-size: 8px; font-weight: 700; color: rgba(120,96,24,0.15); letter-spacing: 3px; line-height: 18px; padding: 4px 6px; white-space: pre; overflow: hidden; pointer-events: none; font-family: 'IBM Plex Mono', monospace; }
+  .light .hero-text { position: relative; }
+  .light .hero-title { font-size: 14px; font-weight: 700; color: #1a2030; letter-spacing: 1px; }
+  .light .hero-sub { font-size: 8px; color: #5a6878; margin-top: 2px; }
+
+  @media (max-width: 520px) {
+    .split-preview { grid-template-columns: 1fr; }
+  }
+</style>
+
+<div class="split-preview">
+
+  <!-- DARK -->
+  <div>
+    <div class="mode-label">🌙 Dark</div>
+    <div class="app-shell dark">
+      <div class="top-bar">
+        <span class="brand">CFB · Defensive Intel</span>
+        <span class="pb-btn">All PBs</span>
+      </div>
+      <div class="hero">
+        <div class="hero-xo">X  O  X  O  X  O  X  O  X  O
+O  X  O  X  O  X  O  X  O  X
+X  O  X  O  X  O  X  O  X  O
+O  X  O  X  O  X  O  X  O  X</div>
+        <div class="hero-text">
+          <div class="hero-title">SCHEME BUILDERS</div>
+          <div class="hero-sub">CFB Defensive Intelligence</div>
+        </div>
+      </div>
+      <div class="body">
+        <div class="section-label">Top Formations</div>
+        <div class="card">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start">
+            <div class="card-title">3-3-5 Tite</div>
+            <span class="gold-tag">94%</span>
+          </div>
+          <div class="card-sub">Run-focused · Base Cover 1</div>
+          <div style="display:flex;gap:4px;margin-top:4px">
+            <span class="run-tag">Run ▲</span>
+            <span class="pass-tag">Cover 3</span>
+          </div>
+          <div class="score-bar-bg"><div class="score-bar" style="width:94%"></div></div>
+        </div>
+        <div class="card">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start">
+            <div class="card-title">4-3 Multiple</div>
+            <span class="gold-tag">87%</span>
+          </div>
+          <div class="card-sub">Balanced · Base Cover 4</div>
+          <div style="display:flex;gap:4px;margin-top:4px">
+            <span class="pass-tag">Pass ▲</span>
+            <span class="gold-tag">Hybrid</span>
+          </div>
+          <div class="score-bar-bg"><div class="score-bar" style="width:87%"></div></div>
+        </div>
+        <div class="btn-primary">Build Game Plan →</div>
+      </div>
+      <div class="nav-bar">
+        <span class="active">Scout</span><span>Teams</span><span>Plan</span><span>Cmp</span>
+        <span class="toggle-icon">☀️</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- LIGHT -->
+  <div>
+    <div class="mode-label">☀️ Light</div>
+    <div class="app-shell light">
+      <div class="top-bar">
+        <span class="brand">CFB · Defensive Intel</span>
+        <span class="pb-btn">All PBs</span>
+      </div>
+      <div class="hero">
+        <div class="hero-xo">X  O  X  O  X  O  X  O  X  O
+O  X  O  X  O  X  O  X  O  X
+X  O  X  O  X  O  X  O  X  O
+O  X  O  X  O  X  O  X  O  X</div>
+        <div class="hero-text">
+          <div class="hero-title">SCHEME BUILDERS</div>
+          <div class="hero-sub">CFB Defensive Intelligence</div>
+        </div>
+      </div>
+      <div class="body">
+        <div class="section-label">Top Formations</div>
+        <div class="card">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start">
+            <div class="card-title">3-3-5 Tite</div>
+            <span class="gold-tag">94%</span>
+          </div>
+          <div class="card-sub">Run-focused · Base Cover 1</div>
+          <div style="display:flex;gap:4px;margin-top:4px">
+            <span class="run-tag">Run ▲</span>
+            <span class="pass-tag">Cover 3</span>
+          </div>
+          <div class="score-bar-bg"><div class="score-bar" style="width:94%"></div></div>
+        </div>
+        <div class="card">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start">
+            <div class="card-title">4-3 Multiple</div>
+            <span class="gold-tag">87%</span>
+          </div>
+          <div class="card-sub">Balanced · Base Cover 4</div>
+          <div style="display:flex;gap:4px;margin-top:4px">
+            <span class="pass-tag">Pass ▲</span>
+            <span class="gold-tag">Hybrid</span>
+          </div>
+          <div class="score-bar-bg"><div class="score-bar" style="width:87%"></div></div>
+        </div>
+        <div class="btn-primary">Build Game Plan →</div>
+      </div>
+      <div class="nav-bar">
+        <span class="active">Scout</span><span>Teams</span><span>Plan</span><span>Cmp</span>
+        <span class="toggle-icon">🌙</span>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div style="margin-top:16px;padding:10px 12px;background:rgba(255,255,255,0.05);border-radius:8px;border:1px solid rgba(255,255,255,0.08);font-size:10px;color:#777;line-height:1.6">
+  Light mode gold shifted from <code style="color:#b8880c">#b8880c</code> → <code style="color:#9a8040">#7a6018</code> — darker and less saturated. The CTA button text flips to near-white so it stays legible on the darker button. XO pattern opacity also reduced.
+</div>

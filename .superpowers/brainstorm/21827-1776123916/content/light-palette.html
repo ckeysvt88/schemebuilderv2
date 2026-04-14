@@ -1,0 +1,176 @@
+<h2>Which light mode palette fits the app?</h2>
+<p class="subtitle">The current dark theme is deep navy + gold. Which light-mode direction feels right as its counterpart?</p>
+
+<style>
+  .palette-mock {
+    font-family: 'IBM Plex Mono', monospace;
+    border-radius: 12px;
+    overflow: hidden;
+    border: 1px solid;
+    font-size: 11px;
+    max-width: 240px;
+    margin: 10px auto 0;
+  }
+  .pm-top {
+    padding: 7px 12px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom-width: 1px;
+    border-bottom-style: solid;
+  }
+  .pm-brand { font-size: 9px; letter-spacing: 2px; text-transform: uppercase; font-weight: 700; }
+  .pm-body { padding: 10px 12px; min-height: 60px; font-size: 9px; line-height: 1.7; }
+  .pm-card {
+    border-radius: 6px;
+    padding: 7px 9px;
+    margin-bottom: 5px;
+    border-width: 1px;
+    border-style: solid;
+  }
+  .pm-card-title { font-weight: 700; font-size: 9px; margin-bottom: 2px; }
+  .pm-card-sub { font-size: 8px; }
+  .pm-bottom {
+    padding: 6px 4px;
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    text-align: center;
+    font-size: 8px;
+    border-top-width: 1px;
+    border-top-style: solid;
+  }
+  .pm-bottom span { padding: 4px 2px; }
+
+  /* Palette A: Warm Ivory / Parchment */
+  .pal-a { background: #f5f0e8; border-color: #d4c8b0; color: #2a1f0e; }
+  .pal-a .pm-top { background: linear-gradient(135deg, #f0e8d8, #e8dfc8); border-bottom-color: #d4c8b0; }
+  .pal-a .pm-brand { color: #9a6a0a; }
+  .pal-a .pm-body { color: #4a3820; background: #f5f0e8; }
+  .pal-a .pm-card { background: #ede4d0; border-color: #c8b890; }
+  .pal-a .pm-card-title { color: #2a1f0e; }
+  .pal-a .pm-card-sub { color: #6a5530; }
+  .pal-a .pm-bottom { background: rgba(245,240,232,0.95); border-top-color: rgba(184,136,12,0.2); }
+  .pal-a .pm-active { color: #b8880c; font-weight: 700; }
+  .pal-a .pm-inactive { color: #9a8060; }
+
+  /* Palette B: Cool Slate / Stone */
+  .pal-b { background: #f0f2f5; border-color: #c8d0da; color: #1a2030; }
+  .pal-b .pm-top { background: linear-gradient(135deg, #e8ecf2, #dfe5ee); border-bottom-color: #c8d0da; }
+  .pal-b .pm-brand { color: #8a6a00; }
+  .pal-b .pm-body { color: #3a4858; background: #f0f2f5; }
+  .pal-b .pm-card { background: #e4e8ef; border-color: #bcc8d8; }
+  .pal-b .pm-card-title { color: #1a2030; }
+  .pal-b .pm-card-sub { color: #5a6878; }
+  .pal-b .pm-bottom { background: rgba(240,242,245,0.95); border-top-color: rgba(184,136,12,0.2); }
+  .pal-b .pm-active { color: #b8880c; font-weight: 700; }
+  .pal-b .pm-inactive { color: #7a8898; }
+
+  /* Palette C: Clean White / Minimal */
+  .pal-c { background: #ffffff; border-color: #e0e4e8; color: #111820; }
+  .pal-c .pm-top { background: #f8f9fa; border-bottom-color: #e0e4e8; }
+  .pal-c .pm-brand { color: #8a6a00; }
+  .pal-c .pm-body { color: #2a3040; background: #ffffff; }
+  .pal-c .pm-card { background: #f4f5f7; border-color: #dde1e6; }
+  .pal-c .pm-card-title { color: #111820; }
+  .pal-c .pm-card-sub { color: #5a6070; }
+  .pal-c .pm-bottom { background: rgba(255,255,255,0.95); border-top-color: rgba(184,136,12,0.2); }
+  .pal-c .pm-active { color: #b8880c; font-weight: 700; }
+  .pal-c .pm-inactive { color: #8090a0; }
+</style>
+
+<div class="options">
+
+  <div class="option" data-choice="a" onclick="toggleSelect(this)">
+    <div class="letter">A</div>
+    <div class="content">
+      <h3>Warm Ivory / Parchment</h3>
+      <p>Warm off-white tones — feels like a game program or play-call sheet. Complements the gold accent naturally.</p>
+      <div class="palette-mock pal-a">
+        <div class="pm-top pal-a">
+          <span class="pm-brand">CFB · Defensive Intel</span>
+          <span style="font-size:9px;color:#9a6a0a;border:1px solid #c8a040;border-radius:4px;padding:2px 7px">All PBs</span>
+        </div>
+        <div class="pm-body pal-a">
+          <div class="pm-card pal-a">
+            <div class="pm-card-title">3-3-5 Tite</div>
+            <div class="pm-card-sub">94% match · Run-focused</div>
+          </div>
+          <div class="pm-card pal-a">
+            <div class="pm-card-title">4-3 Multiple</div>
+            <div class="pm-card-sub">87% match · Balanced</div>
+          </div>
+        </div>
+        <div class="pm-bottom pal-a">
+          <span class="pm-active">Scout</span>
+          <span class="pm-inactive">Teams</span>
+          <span class="pm-inactive">Plan</span>
+          <span class="pm-inactive">Cmp</span>
+          <span style="color:#b8880c">☀️</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="option" data-choice="b" onclick="toggleSelect(this)">
+    <div class="letter">B</div>
+    <div class="content">
+      <h3>Cool Slate / Stone</h3>
+      <p>Cool blue-gray backgrounds — clinical and sharp. Feels like a coaching whiteboard or analytics dashboard.</p>
+      <div class="palette-mock pal-b">
+        <div class="pm-top pal-b">
+          <span class="pm-brand">CFB · Defensive Intel</span>
+          <span style="font-size:9px;color:#8a6a00;border:1px solid #c0a030;border-radius:4px;padding:2px 7px">All PBs</span>
+        </div>
+        <div class="pm-body pal-b">
+          <div class="pm-card pal-b">
+            <div class="pm-card-title">3-3-5 Tite</div>
+            <div class="pm-card-sub">94% match · Run-focused</div>
+          </div>
+          <div class="pm-card pal-b">
+            <div class="pm-card-title">4-3 Multiple</div>
+            <div class="pm-card-sub">87% match · Balanced</div>
+          </div>
+        </div>
+        <div class="pm-bottom pal-b">
+          <span class="pm-active">Scout</span>
+          <span class="pm-inactive">Teams</span>
+          <span class="pm-inactive">Plan</span>
+          <span class="pm-inactive">Cmp</span>
+          <span style="color:#b8880c">☀️</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="option" data-choice="c" onclick="toggleSelect(this)">
+    <div class="letter">C</div>
+    <div class="content">
+      <h3>Clean White / Minimal</h3>
+      <p>Crisp white with light gray surfaces. Modern and high-contrast — gold pops the most here.</p>
+      <div class="palette-mock pal-c">
+        <div class="pm-top pal-c">
+          <span class="pm-brand">CFB · Defensive Intel</span>
+          <span style="font-size:9px;color:#8a6a00;border:1px solid #c0a030;border-radius:4px;padding:2px 7px">All PBs</span>
+        </div>
+        <div class="pm-body pal-c">
+          <div class="pm-card pal-c">
+            <div class="pm-card-title">3-3-5 Tite</div>
+            <div class="pm-card-sub">94% match · Run-focused</div>
+          </div>
+          <div class="pm-card pal-c">
+            <div class="pm-card-title">4-3 Multiple</div>
+            <div class="pm-card-sub">87% match · Balanced</div>
+          </div>
+        </div>
+        <div class="pm-bottom pal-c">
+          <span class="pm-active">Scout</span>
+          <span class="pm-inactive">Teams</span>
+          <span class="pm-inactive">Plan</span>
+          <span class="pm-inactive">Cmp</span>
+          <span style="color:#b8880c">☀️</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
