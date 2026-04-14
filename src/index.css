@@ -32,6 +32,37 @@
   --r-lg: 12px;
 }
 
+/* ── Light mode overrides ────────────────────────────────────────────────── */
+[data-theme="light"] {
+  --color-bg:             #f0f2f5;
+  --color-surface-1:      #e8ecf2;
+  --color-surface-2:      #dfe5ee;
+  --color-surface-3:      #d8dfe8;
+  --color-surface-danger: #f5e8e8;
+  --color-surface-success:#e8f2ea;
+  --color-border-subtle:  #c8d0da;
+  --color-border:         #b0bcc8;
+  --color-border-active:  #a89050;
+  --color-text-1:         #1a2030;
+  --color-text-2:         #3a4858;
+  --color-text-3:         #5a6878;
+  --color-gold:           #7a6018;
+  --color-gold-bright:    #9a7828;
+  --color-gold-dim:       #6a5418;
+  --color-gold-surface:   #eae5d8;
+  --color-gold-border:    #a89050;
+}
+
+/* ── XO pattern: lighter opacity in light mode ───────────────────────────── */
+[data-theme="light"] .xo-hero::before {
+  color: rgba(120, 96, 24, 0.15);
+}
+
+/* ── Smooth theme transition ─────────────────────────────────────────────── */
+*, *::before, *::after {
+  transition: background-color 200ms ease, color 200ms ease, border-color 200ms ease;
+}
+
 /* ── Reset ──────────────────────────────────────────────────────────────────── */
 *, *::before, *::after { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
