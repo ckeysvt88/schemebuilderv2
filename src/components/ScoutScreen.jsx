@@ -79,7 +79,7 @@ export default function ScoutScreen({
               { n: 3, title: "Build Your Plan", desc: "Get a ranked list of defensive formations built for this opponent" },
             ].map(({ n, title, desc }) => (
               <div key={n} style={{ display: "flex", alignItems: "flex-start", gap: 9, marginBottom: 10 }}>
-                <div style={{ width: 20, height: 20, borderRadius: "50%", background: "var(--color-gold)", color: "#07080f", fontSize: 10, fontWeight: "700", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, marginTop: 1, fontFamily: "var(--font-mono)" }}>
+                <div style={{ width: 20, height: 20, borderRadius: "50%", background: "var(--color-gold)", color: "var(--color-bg)", fontSize: 10, fontWeight: "700", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, marginTop: 1, fontFamily: "var(--font-mono)" }}>
                   {n}
                 </div>
                 <div>
@@ -104,7 +104,7 @@ export default function ScoutScreen({
 
             <button
               onClick={dismissOnboarding}
-              style={{ width: "100%", height: 44, background: "linear-gradient(135deg,#b8880c,#d4a020,#b8880c)", border: "none", borderRadius: "var(--r-md)", color: "#07080f", fontWeight: "700", fontSize: 12, cursor: "pointer", fontFamily: "var(--font-mono)" }}
+              style={{ width: "100%", height: 44, background: "linear-gradient(135deg,#b8880c,#d4a020,#b8880c)", border: "none", borderRadius: "var(--r-md)", color: "var(--color-bg)", fontWeight: "700", fontSize: 12, cursor: "pointer", fontFamily: "var(--font-mono)" }}
             >
               Let's Build a Game Plan →
             </button>
@@ -382,7 +382,7 @@ export default function ScoutScreen({
                 : "var(--color-surface-2)",
               border: "none",
               borderRadius: "var(--r-lg)",
-              color: flat.length >= 2 ? "#07080f" : "var(--color-text-3)",
+              color: flat.length >= 2 ? "var(--color-bg)" : "var(--color-text-3)",
               fontSize: 15,
               fontWeight: "700",
               cursor: flat.length >= 2 ? "pointer" : "not-allowed",
@@ -416,7 +416,7 @@ export default function ScoutScreen({
             <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
               <button
                 onClick={() => { setSel(profiles[profileAction]); setScored([]); setProfileAction(null); }}
-                style={{ minHeight: 46, background: "var(--color-gold)", border: "none", borderRadius: "var(--r-md)", color: "#07080f", fontWeight: "700", fontSize: 14, cursor: "pointer", fontFamily: "var(--font-mono)" }}
+                style={{ minHeight: 46, background: "var(--color-gold)", border: "none", borderRadius: "var(--r-md)", color: "var(--color-bg)", fontWeight: "700", fontSize: 14, cursor: "pointer", fontFamily: "var(--font-mono)" }}
               >
                 Load Offensive Profile
               </button>
@@ -461,7 +461,7 @@ export default function ScoutScreen({
               <button
                 onClick={() => { if (saveName.trim()) saveProfiles(p => ({ ...p, [saveName.trim()]: sel })); setModal(false); setSaveName(""); }}
                 disabled={!saveName.trim()}
-                style={{ flex: 1, minHeight: 46, background: "var(--color-gold)", border: "none", borderRadius: "var(--r-md)", color: "#07080f", fontWeight: "700", fontSize: 14, cursor: "pointer" }}
+                style={{ flex: 1, minHeight: 46, background: "var(--color-gold)", border: "none", borderRadius: "var(--r-md)", color: "var(--color-bg)", fontWeight: "700", fontSize: 14, cursor: "pointer" }}
               >
                 Save
               </button>
@@ -492,7 +492,7 @@ const smallBtn = {
 function SectionAnchor({ num, label }) {
   return (
     <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "10px 0 6px" }}>
-      <div style={{ width: 20, height: 20, borderRadius: "50%", background: "var(--color-gold)", color: "#07080f", fontSize: 11, fontWeight: "700", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, fontFamily: "var(--font-mono)" }}>
+      <div style={{ width: 20, height: 20, borderRadius: "50%", background: "var(--color-gold)", color: "var(--color-bg)", fontSize: 11, fontWeight: "700", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, fontFamily: "var(--font-mono)" }}>
         {num}
       </div>
       <div style={{ fontSize: 11, fontWeight: "700", color: "var(--color-gold)", letterSpacing: "1.5px", textTransform: "uppercase", fontFamily: "var(--font-mono)" }}>
