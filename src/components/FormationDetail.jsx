@@ -66,9 +66,9 @@ export default function FormationDetail({ fm, flat, situation = "base", runPass 
   const situAdj = fm._situationAdj || 0;
 
   return (
-    <div style={{ background: "var(--color-surface-1)", border: "1px solid var(--color-gold)", borderTop: "none", borderLeft: "3px solid var(--color-gold)", borderRadius: "0 0 9px 9px", overflow: "hidden", marginBottom: 18 }}>
+    <div style={{ background: "var(--color-bg)", border: "1px solid var(--color-gold)", borderTop: "none", borderLeft: "3px solid var(--color-gold)", borderRadius: "0 0 9px 9px", overflow: "hidden", marginBottom: 18 }}>
       {/* Blitz bar */}
-      <div style={{ padding: "16px 16px", borderBottom: "1px solid var(--color-border-subtle)", background: "var(--color-surface-1)" }}>
+      <div style={{ padding: "16px 16px", borderBottom: "1px solid var(--color-border-subtle)", background: "var(--color-bg)" }}>
         <BlitzBar pct={blitz} />
         {fm.blitzMods.filter(m => m.tags.some(t => flat.includes(t))).slice(0, 3).map((m, i) => (
           <div key={i} style={{ fontSize: "11px", color: "var(--color-text-3)", marginTop: 3, display: "flex", gap: 8 }}>
@@ -79,7 +79,7 @@ export default function FormationDetail({ fm, flat, situation = "base", runPass 
       </div>
 
       {/* Why This Formation Was Selected — collapsible */}
-      <div style={{ borderBottom: "1px solid var(--color-border-subtle)", background: "var(--color-surface-1)" }}>
+      <div style={{ borderBottom: "1px solid var(--color-border-subtle)", background: "var(--color-bg)" }}>
         <button
           onClick={() => setShowWhy(v => !v)}
           style={{ width: "100%", display: "flex", alignItems: "center", justifyContent: "space-between", background: "none", border: "none", padding: "10px 16px", cursor: "pointer", textAlign: "left" }}
@@ -93,7 +93,7 @@ export default function FormationDetail({ fm, flat, situation = "base", runPass 
         </button>
 
         {showWhy && (
-          <div style={{ padding: "12px 16px 12px", background: "linear-gradient(to bottom, var(--color-surface-1) 0%, var(--color-surface-2) 25%)", borderTop: "1px solid var(--color-border-subtle)" }}>
+          <div style={{ padding: "12px 16px 12px", background: "var(--color-bg)", borderTop: "1px solid var(--color-border-subtle)" }}>
             <WhySelected coreHits={fm.coreHits} suppHits={fm.suppHits} />
 
             {/* DC Logic */}
@@ -155,7 +155,7 @@ export default function FormationDetail({ fm, flat, situation = "base", runPass 
       </div>
 
       {/* Inner tabs */}
-      <div style={{ display: "flex", borderBottom: "1px solid var(--color-border-subtle)", background: "var(--color-surface-1)" }}>
+      <div style={{ display: "flex", borderBottom: "1px solid var(--color-border-subtle)", background: "var(--color-bg)" }}>
         {[
           { id: "coverages", l: "📡 Coverages" },
           { id: "preSnap",   l: "🎮 Pre-Snap" },
