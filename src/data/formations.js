@@ -873,7 +873,7 @@ export const FDB = {
     callsheet:[{down:"3rd & Long (10p)",call:"Penny · Cover 4 Quarters",note:"Every receiver has a DB"},{down:"Empty",call:"Penny · Cover 2 Man",note:"Coverage athletes on every slot"}],
   },
 
-  "Odd Ghost": {
+  "3-3-5 Odd Ghost": {
     books:["3-3-5","3-2-6"], priority:"pass", personnel:"Nickel",
     desc:"Odd Ghost deploys DEs in an apparent 5-tech edge alignment pre-snap, then slants both inside to the 4i (inside shoulder of the OT) at the snap — ghosting the B-gap. Two 4i DEs seal three interior gaps, leaving only one for a linebacker. Because OGs can't reach a 4i DE and OTs can't release to block scraping LBs, all linebackers are freed for pure coverage drops. The Viper sub-package upgrades to six DBs (3 safeties, 1 slot CB, 2 corners) against spread personnel. Offense game-plans for outside edge rushers but encounters interior B-gap attack at the snap, breaking all blocking assignments.",
     dcNote:"Ghost DEs don't rush the edge — they play 4i. Every interior blocker is assigned the wrong gap. Shift the line away from the ghost backer, walk him up like a DE pre-snap, and the offense has no read on where pressure originates.",
@@ -901,11 +901,11 @@ export const FDB = {
     preSnap:["Shift DL away from ghost backer — walk ghost backer up like a DE to disguise launch point","Check TE alignment: activate Viper sub (6 DBs) if no attached TE","Ghost DEs align at 5-tech edge pre-snap, slant inside to 4i at snap — do NOT rush outside","Cover 3 Match: carry all vertical stems; do not abandon zone to follow crossing routes"],
     coaching:[{label:"Usage",value:"Spread / RPO / Mobile QB"},{label:"Role",value:"Pressure + Coverage"},{label:"Ghost DEs",value:"4i post-snap — B-gap, not edge"},{label:"Sub-Package",value:"Viper (6 DB) vs 10p / spread"}],
     callsheet:[
-      {down:"Base Defense",call:"Odd Ghost · Cover 3 Match",note:"Freed LBs drop pure zones while 4i DEs seal interior"},
-      {down:"Trips / 3x1",call:"Odd Ghost · Cover 6",note:"Quarters to trips side, half to boundary"},
-      {down:"Seam TE / 2x2",call:"Odd Ghost · Cover 2 Tampa Drop",note:"MLB drops clean seam — no blocker can threaten zone"},
-      {down:"3rd & Long Pressure",call:"Odd Ghost · Tampa Sim Pressure",note:"Sim pressure off Tampa shell — LBs get clean blitz lanes"},
-      {down:"Scrambling QB",call:"Odd Ghost · Saw Blitz",note:"Edge contain + 4i hold — no QB escape route"},
+      {down:"Base Defense",call:"3-3-5 Odd Ghost · Cover 3 Match",note:"Freed LBs drop pure zones while 4i DEs seal interior"},
+      {down:"Trips / 3x1",call:"3-3-5 Odd Ghost · Cover 6",note:"Quarters to trips side, half to boundary"},
+      {down:"Seam TE / 2x2",call:"3-3-5 Odd Ghost · Cover 2 Tampa Drop",note:"MLB drops clean seam — no blocker can threaten zone"},
+      {down:"3rd & Long Pressure",call:"3-3-5 Odd Ghost · Tampa Sim Pressure",note:"Sim pressure off Tampa shell — LBs get clean blitz lanes"},
+      {down:"Scrambling QB",call:"3-3-5 Odd Ghost · Saw Blitz",note:"Edge contain + 4i hold — no QB escape route"},
     ],
   },
 
