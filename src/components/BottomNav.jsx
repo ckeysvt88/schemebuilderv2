@@ -47,7 +47,7 @@ const TABS = [
   },
 ];
 
-export default function BottomNav({ step, setStep, hasPlan }) {
+export default function BottomNav({ step, setStep, hasPlan, isDark, onToggle }) {
   return (
     <div style={{
       position: "fixed",
@@ -62,7 +62,7 @@ export default function BottomNav({ step, setStep, hasPlan }) {
     }}>
       <div style={{
         maxWidth: 720, margin: "0 auto",
-        display: "grid", gridTemplateColumns: "repeat(4, 1fr)",
+        display: "grid", gridTemplateColumns: "repeat(5, 1fr)",
         height: "var(--nav-h)",
       }}>
         {TABS.map(tab => {
@@ -116,6 +116,48 @@ export default function BottomNav({ step, setStep, hasPlan }) {
             </button>
           );
         })}
+        {/* Theme toggle slot */}
+        <button
+          onClick={onToggle}
+          aria-label={isDark ? "Switch to light mode" : "Switch to dark mode"}
+          style={{
+            display: "flex", flexDirection: "column",
+            alignItems: "center", justifyContent: "center",
+            gap: 3,
+            background: "transparent", border: "none",
+            cursor: "pointer",
+            color: "var(--color-text-3)",
+            padding: "6px 4px",
+            minHeight: 44,
+            transition: "color 150ms ease",
+            fontFamily: "var(--font-mono)",
+          }}
+        >
+          <div style={{ lineHeight: 1 }}>
+            {isDark ? (
+              /* Sun icon — click to go light */
+              <svg width="22" height="22" viewBox="0 0 22 22" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round">
+                <circle cx="11" cy="11" r="3.8"/>
+                <line x1="11" y1="2"  x2="11" y2="5"/>
+                <line x1="11" y1="17" x2="11" y2="20"/>
+                <line x1="2"  y1="11" x2="5"  y2="11"/>
+                <line x1="17" y1="11" x2="20" y2="11"/>
+                <line x1="4.5"  y1="4.5"  x2="6.5"  y2="6.5"/>
+                <line x1="15.5" y1="15.5" x2="17.5" y2="17.5"/>
+                <line x1="17.5" y1="4.5"  x2="15.5" y2="6.5"/>
+                <line x1="6.5"  y1="15.5" x2="4.5"  y2="17.5"/>
+              </svg>
+            ) : (
+              /* Moon icon — click to go dark */
+              <svg width="22" height="22" viewBox="0 0 22 22" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round">
+                <path d="M18 13.5A8 8 0 0 1 10 5.5a7.5 7.5 0 0 0-1 0 8 8 0 1 0 9 9 7.5 7.5 0 0 1 0-1z"/>
+              </svg>
+            )}
+          </div>
+          <span style={{ fontSize: 10, fontWeight: "500", letterSpacing: "0.3px", lineHeight: 1 }}>
+            {isDark ? "Light" : "Dark"}
+          </span>
+        </button>
       </div>
     </div>
   );
