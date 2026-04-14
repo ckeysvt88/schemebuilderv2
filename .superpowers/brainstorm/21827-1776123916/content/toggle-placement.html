@@ -1,0 +1,148 @@
+<h2>Where should the day/night toggle live?</h2>
+<p class="subtitle">The app has a sticky top bar on each screen and a fixed bottom nav. Pick the placement that feels most natural.</p>
+
+<style>
+  .app-mock {
+    font-family: 'IBM Plex Mono', monospace;
+    border-radius: 12px;
+    overflow: hidden;
+    border: 1px solid #333;
+    background: #07080f;
+    color: #eaf2fa;
+    font-size: 11px;
+    max-width: 260px;
+    margin: 0 auto;
+  }
+  .app-top {
+    background: linear-gradient(135deg, #07090f, #0c1220);
+    border-bottom: 1px solid #182030;
+    padding: 7px 12px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .app-brand { color: #9a7828; font-size: 9px; letter-spacing: 2px; text-transform: uppercase; font-weight: 700; }
+  .app-body { padding: 10px 12px; min-height: 60px; color: #7a9ab4; font-size: 9px; line-height: 1.6; }
+  .app-bottom {
+    background: rgba(7,8,15,0.95);
+    border-top: 1px solid rgba(184,136,12,0.18);
+    padding: 6px 4px;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    text-align: center;
+    font-size: 8px;
+    color: #7a9ab4;
+  }
+  .app-bottom span { padding: 4px 2px; }
+  .app-bottom span.active { color: #b8880c; font-weight: 700; }
+  .toggle-btn {
+    width: 28px; height: 28px;
+    border: 1px solid #243548;
+    border-radius: 6px;
+    display: flex; align-items: center; justify-content: center;
+    background: transparent;
+    color: #b0c8dc;
+    font-size: 12px;
+    cursor: pointer;
+  }
+  .toggle-btn-gold {
+    border-color: #b8880c;
+    color: #b8880c;
+  }
+  .floating-toggle {
+    position: absolute;
+    bottom: 72px;
+    right: 12px;
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    background: #0a0f18;
+    border: 1px solid #243548;
+    display: flex; align-items: center; justify-content: center;
+    color: #b0c8dc;
+    font-size: 14px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.5);
+  }
+  .app-mock-wrap { position: relative; }
+  .badge {
+    display: inline-block;
+    background: #b8880c22;
+    color: #b8880c;
+    border: 1px solid #b8880c55;
+    border-radius: 4px;
+    font-size: 9px;
+    padding: 2px 6px;
+    margin-bottom: 4px;
+    font-family: 'IBM Plex Mono', monospace;
+    letter-spacing: 0.5px;
+  }
+</style>
+
+<div class="options">
+
+  <!-- Option A: Top bar -->
+  <div class="option" data-choice="a" onclick="toggleSelect(this)">
+    <div class="letter">A</div>
+    <div class="content">
+      <h3>Top bar (each screen)</h3>
+      <p>The toggle sits in the sticky header — right side next to the playbook selector. Always visible, consistent across all screens.</p>
+      <div class="app-mock" style="margin-top:10px">
+        <div class="app-top">
+          <span class="app-brand">CFB · Defensive Intel</span>
+          <div style="display:flex;gap:5px;align-items:center">
+            <span style="font-size:9px;color:#9a7828;border:1px solid #5a4010;border-radius:4px;padding:2px 7px">All PBs</span>
+            <div class="toggle-btn">☀️</div>
+          </div>
+        </div>
+        <div class="app-body">Scout traits, set bias…</div>
+        <div class="app-bottom">
+          <span class="active">Scout</span><span>Teams</span><span>Plan</span><span>Compare</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Option B: Floating pill -->
+  <div class="option" data-choice="b" onclick="toggleSelect(this)">
+    <div class="letter">B</div>
+    <div class="content">
+      <h3>Floating button</h3>
+      <p>A small circular button fixed above the bottom nav — always accessible without cluttering the header. Floats at a fixed position.</p>
+      <div class="app-mock-wrap" style="margin-top:10px">
+        <div class="app-mock">
+          <div class="app-top">
+            <span class="app-brand">CFB · Defensive Intel</span>
+            <span style="font-size:9px;color:#9a7828;border:1px solid #5a4010;border-radius:4px;padding:2px 7px">All PBs</span>
+          </div>
+          <div class="app-body" style="position:relative">
+            Scout traits, set bias…
+            <div class="floating-toggle">☀️</div>
+          </div>
+          <div class="app-bottom">
+            <span class="active">Scout</span><span>Teams</span><span>Plan</span><span>Compare</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Option C: Bottom nav extra slot -->
+  <div class="option" data-choice="c" onclick="toggleSelect(this)">
+    <div class="letter">C</div>
+    <div class="content">
+      <h3>Bottom nav 5th slot</h3>
+      <p>A 5th icon in the bottom nav bar — a sun/moon that toggles mode. Keeps header clean. Slight trade-off: nav becomes 5 items wide.</p>
+      <div class="app-mock" style="margin-top:10px">
+        <div class="app-top">
+          <span class="app-brand">CFB · Defensive Intel</span>
+          <span style="font-size:9px;color:#9a7828;border:1px solid #5a4010;border-radius:4px;padding:2px 7px">All PBs</span>
+        </div>
+        <div class="app-body">Scout traits, set bias…</div>
+        <div class="app-bottom" style="grid-template-columns: repeat(5, 1fr)">
+          <span class="active">Scout</span><span>Teams</span><span>Plan</span><span>Compare</span>
+          <span style="color:#b8880c">☀️</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>

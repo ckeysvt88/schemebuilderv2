@@ -1,0 +1,142 @@
+/* ── Design Tokens ──────────────────────────────────────────────────────────── */
+:root {
+  --color-bg:            #07080f;
+  --color-surface-1:     #0a0f18;
+  --color-surface-2:     #0d1622;
+  --color-surface-3:     #111927;
+  --color-surface-danger:#140708;
+  --color-surface-success:#071408;
+  --color-border-subtle: #182030;
+  --color-border:        #243548;
+  --color-border-active: #b8880c;
+  --color-text-1:        #eaf2fa;
+  --color-text-2:        #b0c8dc;
+  --color-text-3:        #7a9ab4;
+  --color-gold:          #b8880c;
+  --color-gold-bright:   #d4a020;
+  --color-gold-dim:      #9a7828;
+  --color-gold-surface:  #191408;
+  --color-gold-border:   #5a4010;
+  --color-run:           #c07040;
+  --color-pass:          #3a80e0;
+  --color-hybrid:        #7858a0;
+  --color-pressure:      #bb5050;
+  --color-success:       #5a9870;
+  --color-danger:        #b05050;
+  --font-mono: 'IBM Plex Mono', 'SF Mono', monospace;
+  --font-sans: 'IBM Plex Sans', 'SF Pro Text', system-ui, sans-serif;
+  --nav-h:     56px;
+  --nav-total: calc(56px + env(safe-area-inset-bottom));
+  --r-sm: 6px;
+  --r-md: 8px;
+  --r-lg: 12px;
+}
+
+/* ── Reset ──────────────────────────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+html, body {
+  margin: 0; padding: 0;
+  background: var(--color-bg);
+  height: 100%; width: 100%;
+  overflow: hidden;
+  font-family: var(--font-sans);
+  font-size: 16px;
+  -webkit-font-smoothing: antialiased;
+  -webkit-text-size-adjust: 100%;
+  color: var(--color-text-1);
+}
+
+#root {
+  height: 100dvh;
+  width: 100%;
+  overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+  padding-bottom: var(--nav-total);
+}
+#root::-webkit-scrollbar { display: none; }
+
+.safe-top    { padding-top: env(safe-area-inset-top); }
+.safe-bottom { padding-bottom: env(safe-area-inset-bottom); }
+
+button { touch-action: manipulation; -webkit-appearance: none; }
+input, textarea { -webkit-appearance: none; border-radius: 0; }
+button, label { user-select: none; -webkit-user-select: none; }
+
+@keyframes screenEnter {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.screen-enter { animation: screenEnter 220ms ease forwards; }
+
+/* ── XO Hero ─────────────────────────────────────────────────────────────── */
+.xo-hero {
+  position: relative;
+  background: var(--color-bg);
+  border-bottom: 2px solid var(--color-gold);
+  overflow: hidden;
+}
+
+.xo-hero::before {
+  /* Each row is wide enough to fill the 720px max container at any font size */
+  content: 'X  O  X  O  X  O  X  O  X  O  X  O  X  O  X  O  X  O  X  O  X  O  X  O\AO  X  O  X  O  X  O  X  O  X  O  X  O  X  O  X  O  X  O  X  O  X  O  X  O  X\AX  O  X  O  X  O  X  O  X  O  X  O  X  O  X  O  X  O  X  O  X  O  X  O\AO  X  O  X  O  X  O  X  O  X  O  X  O  X  O  X  O  X  O  X  O  X  O  X  O  X\AX  O  X  O  X  O  X  O  X  O  X  O  X  O  X  O  X  O  X  O  X  O  X  O\AO  X  O  X  O  X  O  X  O  X  O  X  O  X  O  X  O  X  O  X  O  X  O  X  O  X\AX  O  X  O  X  O  X  O  X  O  X  O  X  O  X  O  X  O  X  O  X  O  X  O\AO  X  O  X  O  X  O  X  O  X  O  X  O  X  O  X  O  X  O  X  O  X  O  X  O  X';
+  white-space: pre;
+  position: absolute;
+  inset: 0;
+  font-size: 12px;
+  font-weight: 700;
+  color: rgba(184, 136, 12, 0.35); /* matches --color-gold (#b8880c) at 35% opacity */
+  letter-spacing: 4px;
+  line-height: 28px;
+  padding: 6px 10px;
+  pointer-events: none;
+  font-family: var(--font-mono);
+  overflow: hidden;
+}
+
+.xo-fades {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(to right,  var(--color-bg) 0%, rgba(7,8,15,0.85) 35%, transparent 55%),
+    linear-gradient(to left,   var(--color-bg) 0%, transparent 20%),
+    linear-gradient(to bottom, var(--color-bg) 0%, transparent 30%),
+    linear-gradient(to top,    var(--color-bg) 0%, transparent 40%); /* deeper — hero content sits near bottom */
+}
+
+/* ── Footer XO echo ──────────────────────────────────────────────────────── */
+.xo-hero--footer {
+  height: 80px;
+  border-bottom: none !important;
+}
+
+.xo-hero--footer::before {
+  opacity: 0.45; /* pattern itself further faded vs hero */
+}
+
+.xo-fades--footer {
+  background:
+    linear-gradient(to right,  var(--color-bg) 0%, transparent 20%),
+    linear-gradient(to left,   var(--color-bg) 0%, transparent 20%),
+    linear-gradient(to bottom, var(--color-bg) 0%, transparent 15%),
+    linear-gradient(to top,    var(--color-bg) 0%, transparent 20%);
+}
+
+/* ── Trait card grid ──────────────────────────────────────────────────────── */
+/* 12-column base: top 4 cards span 3 cols each (=12), bottom 3 span 4 cols each (=12) */
+.trait-card-grid {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: 6px;
+}
+
+@media (min-width: 768px) {
+  .trait-card-grid {
+    grid-template-columns: repeat(7, 1fr);
+  }
+  .trait-card-grid > * {
+    grid-column: span 1 !important;
+  }
+}

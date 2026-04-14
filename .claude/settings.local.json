@@ -17,7 +17,25 @@
       "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:5173/)",
       "Bash(curl -s http://localhost:5173)",
       "Bash(curl -s http://localhost:5181)",
-      "Bash(npx eslint:*)"
+      "Bash(npx eslint:*)",
+      "Bash(git -C \"C:\\\\Users\\\\ckeys\\\\OneDrive\\\\Desktop\\\\schemebuilders-v2\" log --oneline main)",
+      "Bash(where wkhtmltopdf:*)",
+      "Bash(where chromium:*)",
+      "Bash(where chrome:*)",
+      "Bash(python3 -c \"import weasyprint\")",
+      "Bash(node -e \"require\\('puppeteer'\\)\")",
+      "Read(//c/Program Files/Google/Chrome/Application/**)",
+      "Read(//c/Program Files \\(x86\\)/Microsoft/Edge/Application/**)",
+      "Bash(\"C:\\\\Program Files\\\\Google\\\\Chrome\\\\Application\\\\chrome.exe\" --headless --disable-gpu --print-to-pdf=\"C:\\\\Users\\\\ckeys\\\\OneDrive\\\\Desktop\\\\newupdates\\\\release-notes-v5.pdf\" --print-to-pdf-no-header \"C:\\\\Users\\\\ckeys\\\\OneDrive\\\\Desktop\\\\newupdates\\\\release-notes-v5.html\")",
+      "Bash(echo \"exit: $?\")",
+      "Bash(C:\\\\Users\\\\ckeys\\\\.claude\\\\plugins\\\\cache\\\\claude-plugins-official\\\\superpowers\\\\5.0.7\\\\scripts\\\\start-server.sh:*)",
+      "Bash(ls -d .worktrees)",
+      "Bash(ls -d worktrees)",
+      "Bash(python3:*)",
+      "Bash(node:*)",
+      "Bash(awk '/^C:.*App.jsx$/{flag=1} flag && /^C:/ && !/App.jsx/{flag=0} flag')",
+      "Bash(awk '/src.*App.jsx$/{flag=1} flag && /^C:.*\\\\.jsx$/ && !/App.jsx/{flag=0} flag')",
+      "Bash(npm test:*)"
     ]
   }
 }

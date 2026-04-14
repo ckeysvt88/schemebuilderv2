@@ -84,11 +84,10 @@ The `.xo-hero::before` pseudo-element uses a hardcoded `rgba(184, 136, 12, 0.35)
 
 ### Transition
 
-Add a smooth mode-switch transition to `*, *::before, *::after`:
+Add a smooth mode-switch transition unconditionally so any theme switch is smooth:
 
 ```css
-[data-theme="light"] *, [data-theme="light"] *::before, [data-theme="light"] *::after,
-[data-theme="dark"] *, [data-theme="dark"] *::before, [data-theme="dark"] *::after {
+*, *::before, *::after {
   transition: background-color 200ms ease, color 200ms ease, border-color 200ms ease;
 }
 ```
@@ -105,9 +104,7 @@ Add a smooth mode-switch transition to `*, *::before, *::after`:
 - The active gold top-bar indicator only renders for the 4 navigation tabs, not the toggle slot
 - Import `ThemeToggle` at the top of the file
 
-In the toggle slot, render `ThemeToggle` without its border (pass a `noBorder` prop or apply `border: none` inline) so it visually matches the other icon-style nav items rather than looking like a button.
-
-**Update `ThemeToggle.jsx`** to accept an optional `noBorder` prop: when true, removes the `border` from its inline styles.
+In the toggle slot, render `ThemeToggle` with `style={{ border: "none" }}` passed inline so it visually matches the other icon-style nav items rather than looking like a floating button. No changes to `ThemeToggle.jsx` are needed.
 
 ---
 
@@ -128,7 +125,7 @@ In the toggle slot, render `ThemeToggle` without its border (pass a `noBorder` p
 | `src/App.jsx` | Add `isDark` state, `onToggle`, `useEffect`, pass to `BottomNav` |
 | `src/index.css` | Add `[data-theme="light"]` token block + XO override + transition rule |
 | `src/components/BottomNav.jsx` | 5-column grid, 5th toggle slot, import `ThemeToggle` |
-| `src/components/ThemeToggle.jsx` | Accept optional `noBorder` prop |
+| `src/components/ThemeToggle.jsx` | No changes needed |
 | `src/components/ScoutScreen.jsx` | Replace hardcoded header gradient |
 
 ---
