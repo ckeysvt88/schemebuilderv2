@@ -28,6 +28,7 @@ export const FDB = {
     coverages:[
       {name:"Cover 1",rating:5,tag:"Base",detail:"5 DL vs 5 OL — one-on-one matchups everywhere. LBs flow free to the ball. The run cannot gain yards when all gaps are filled."},
       {name:"Cover 2",rating:3,tag:"PA Insurance",detail:"Two safeties over top. Run dominance from 5 DL stays intact while Cover 2 protects against play-action fakes — safeties prevent the over-the-top shot on 2nd & short PA."},
+      {name:"Cover 3",rating:3,tag:"Balanced PA / Deep",detail:"Three-deep zone behind the 5-DL wall. Run dominance maintained while Cover 3 provides deeper PA protection than Cover 2. Use when he's mixing deep PA shots into run-heavy formations."},
       {name:"Engage Eight",rating:4,tag:"Must-Stop / All-In",detail:"All-in engagement — confirmed in-game play name. Eight defenders engaged near LOS with no safety help. ONLY on 4th & 1 or GL when you are certain it's a run. Same 5 DL remain plus LBs committed to gaps — zero coverage behind."},
     ],
     preSnap:["All 5 DL: two-gap — never penetrate blindly","LBs: wait for DL engagement before pursuing — they're free runners","Sub OUT on any spread audible immediately","Never run 5-2 on passing downs under any circumstances"],
