@@ -158,7 +158,7 @@ export default function GamePlanScreen({
       "Option":          {"3-4 Multiple":1.35,"4-3 Multiple":1.25,"4-3":1.25,"3-4":1.3,"4-2-5":0.7,"3-3-5 Tite":0.6,"3-3-5":0.55,"3-2-6":0.25},
     };
     const boosts = BOOST[schemeType] || BOOST["Multiple Offense"];
-    const N = 8;
+    const N = 10;
     const raw = {}; const cnt = {};
     BOOKS.forEach(pb => { raw[pb] = []; cnt[pb] = 0; });
     allScored.forEach(fm => {
@@ -339,7 +339,7 @@ export default function GamePlanScreen({
                 (myBook && myBook !== "All"
                   ? persMatchesRaw.filter(f => f.books && (f.books.includes(myBook) || f.books.includes("All")))
                   : persMatchesRaw
-                ).slice(0, 8),
+                ).slice(0, 10),
                 situation
               );
 
