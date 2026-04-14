@@ -41,8 +41,8 @@ export const FDB = {
     dcNote:"5-3 is superior to 6-2 when the offense mixes PA or fades into their GL package. 5 DL handle all gaps while the extra LB (vs 6-2's extra DL) gives you a coverage athlete who can carry a TE or HB.",
     blitzBase:25, blitzMods:[{tags:["short_yardage_run","four_down_go"],d:+10},{tags:["redzone_spec"],d:+8},{tags:["play_action","back_shoulder"],d:-8}],
     avoidTags:["p00","p01","p02","p10","empty","no_huddle","hurry_up","elite_wr","four_wide"],
-    coreTags:["inside_run","short_yardage_run","p13","p23","strong_oline","fb_lead","four_down_go","redzone_spec"],
-    suppTags:["counter_trap","outside_run","hb_stretch","p12","p21","p22","play_action"],
+    coreTags:["inside_run","short_yardage_run","strong_oline","fb_lead","four_down_go","redzone_spec"],
+    suppTags:["counter_trap","outside_run","hb_stretch","p12","p13","p21","p22","p23","play_action"],
     coverages:[
       {name:"Cover 1",rating:5,tag:"Base",detail:"5 DL fill all gaps. 3 LBs have man assignments including TE/HB. Better pursuit angles than 6-2."},
       {name:"Cover 2",rating:4,tag:"PA Counter",detail:"Two safeties over top for PA protection. Use when he mixes red zone PA to the corner or back of end zone."},
@@ -58,8 +58,8 @@ export const FDB = {
     dcNote:"Six DL means the center and guards face impossible 1-on-2 assignments. LBs have clean sight lines. Sub immediately if he goes spread — there is literally no pass coverage in 6-2.",
     blitzBase:30, blitzMods:[{tags:["short_yardage_run","four_down_go"],d:+15},{tags:["redzone_spec"],d:+10},{tags:["rpo","quick_game","play_action","p10","p11","empty"],d:-35}],
     avoidTags:["p00","p01","p02","p10","p11","empty","no_huddle","hurry_up","rpo","elite_wr","trips","four_wide"],
-    coreTags:["inside_run","short_yardage_run","p13","p23","strong_oline","fb_lead","four_down_go","redzone_spec","run_heavy_1st"],
-    suppTags:["counter_trap","hb_stretch","outside_run","p12","p21","p22"],
+    coreTags:["inside_run","short_yardage_run","strong_oline","fb_lead","four_down_go","redzone_spec","run_heavy_1st"],
+    suppTags:["counter_trap","hb_stretch","outside_run","p12","p13","p21","p22","p23"],
     coverages:[
       {name:"Cover 1",rating:5,tag:"Base",detail:"6 DL vs 5 OL — someone always free. Two LBs flow unrestricted. Single safety over top. The offense cannot block this front."},
       {name:"Cover 0",rating:5,tag:"Must-Stop",detail:"All-in on 4th & 1. No safety. Maximum physical pressure. QB must be perfect in under 1 second."},
