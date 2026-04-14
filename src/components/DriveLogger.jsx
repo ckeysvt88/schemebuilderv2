@@ -78,23 +78,23 @@ export default function DriveLogger({ onClose }) {
       <div style={{ background: 'linear-gradient(135deg, var(--color-surface-1), var(--color-surface-2))', borderBottom: '2px solid var(--color-gold)', padding: '12px 15px', paddingTop: 'calc(env(safe-area-inset-top) + 12px)', flexShrink: 0 }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <div>
-            <div style={{ fontSize: 10, color: '#a07830', letterSpacing: '2px', textTransform: 'uppercase', fontFamily: "'IBM Plex Mono', monospace" }}>CFB26 · Game Day</div>
-            <div style={{ fontSize: 17, fontWeight: 700, color: '#c5d0dc', fontFamily: "'IBM Plex Mono', monospace" }}>Drive Logger</div>
+            <div style={{ fontSize: 10, color: 'var(--color-gold-dim)', letterSpacing: '2px', textTransform: 'uppercase', fontFamily: "'IBM Plex Mono', monospace" }}>CFB26 · Game Day</div>
+            <div style={{ fontSize: 17, fontWeight: 700, color: 'var(--color-text-1)', fontFamily: "'IBM Plex Mono', monospace" }}>Drive Logger</div>
           </div>
           <div style={{ display: 'flex', gap: 6 }}>
             {entries.length > 0 && (
               <>
-                <button onClick={exportLog} style={btnStyle('#2a5020','#508840','#90e070')}>⬆ Export</button>
-                <button onClick={clearAll} style={btnStyle('#3a1010','#7a2020','#cc6060')}>Clear</button>
+                <button onClick={exportLog} style={btnStyle('var(--color-surface-success)','var(--color-success)','var(--color-success)')}>⬆ Export</button>
+                <button onClick={clearAll} style={btnStyle('var(--color-surface-danger)','var(--color-danger)','var(--color-danger)')}>Clear</button>
               </>
             )}
-            <button onClick={onClose} style={btnStyle('#1a2030','#2a3d52','#7898ae')}>✕ Close</button>
+            <button onClick={onClose} style={btnStyle('var(--color-surface-1)','var(--color-border)','var(--color-text-2)')}>✕ Close</button>
           </div>
         </div>
       </div>
 
       {/* Add play button */}
-      <div style={{ padding: '10px 14px', flexShrink: 0, borderBottom: '1px solid #1e2a3a' }}>
+      <div style={{ padding: '10px 14px', flexShrink: 0, borderBottom: '1px solid var(--color-border-subtle)' }}>
         <button
           onClick={() => setShowForm(v => !v)}
           style={{ width: '100%', padding: '10px', background: showForm ? '#1a1408' : 'linear-gradient(135deg,#3a2c08,#6a5010,#3a2c08)', border: `2px solid ${showForm ? '#6a5010' : '#b8880c'}`, borderRadius: 9, color: showForm ? '#b8880c' : '#0a0e16', fontWeight: 'bold', fontSize: 12, cursor: 'pointer', fontFamily: "'IBM Plex Mono', monospace", letterSpacing: '1px' }}
@@ -105,7 +105,7 @@ export default function DriveLogger({ onClose }) {
 
       {/* Add form */}
       {showForm && (
-        <div style={{ padding: '12px 14px 8px', background: '#080c12', borderBottom: '1px solid #2a3d52', flexShrink: 0 }}>
+        <div style={{ padding: '12px 14px 8px', background: 'var(--color-surface-1)', borderBottom: '1px solid var(--color-border)', flexShrink: 0 }}>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginBottom: 8 }}>
             <div>
               <label style={labelStyle}>Down</label>
@@ -143,8 +143,8 @@ export default function DriveLogger({ onClose }) {
               onChange={e => setForm(p => ({ ...p, notes: e.target.value }))} style={inputStyle} />
           </div>
           <button onClick={addEntry} disabled={!form.result} style={{
-            width: '100%', padding: 10, background: form.result ? '#b8880c' : '#2a2a2a',
-            border: 'none', borderRadius: 7, color: form.result ? '#0a0e16' : '#555',
+            width: '100%', padding: 10, background: form.result ? 'var(--color-gold)' : 'var(--color-surface-3)',
+            border: 'none', borderRadius: 7, color: form.result ? 'var(--color-bg)' : 'var(--color-text-3)',
             fontWeight: 'bold', fontSize: 12, cursor: form.result ? 'pointer' : 'not-allowed',
             fontFamily: "'IBM Plex Mono', monospace",
           }}>
@@ -161,12 +161,12 @@ export default function DriveLogger({ onClose }) {
           </div>
         )}
         {entries.map((e, i) => (
-          <div key={e.id} style={{ background: '#0d1622', border: '1px solid #1e2a3a', borderLeft: `3px solid ${resultColor(e.result)}`, borderRadius: 7, padding: '10px 13px', marginBottom: 10 }}>
+          <div key={e.id} style={{ background: 'var(--color-surface-2)', border: '1px solid var(--color-border-subtle)', borderLeft: `3px solid ${resultColor(e.result)}`, borderRadius: 7, padding: '10px 13px', marginBottom: 10 }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 5 }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                <span style={{ fontSize: 10, color: '#6888a0', fontFamily: "'IBM Plex Mono', monospace" }}>#{entries.length - i} · {e.ts}</span>
+                <span style={{ fontSize: 10, color: 'var(--color-text-3)', fontFamily: "'IBM Plex Mono', monospace" }}>#{entries.length - i} · {e.ts}</span>
                 {e.down && e.distance && (
-                  <span style={{ fontSize: 10, color: '#a07830', fontFamily: "'IBM Plex Mono', monospace" }}>{e.down} & {e.distance}</span>
+                  <span style={{ fontSize: 10, color: 'var(--color-gold-dim)', fontFamily: "'IBM Plex Mono', monospace" }}>{e.down} & {e.distance}</span>
                 )}
               </div>
               <button onClick={() => deleteEntry(e.id)} style={{ background: 'transparent', border: 'none', color: '#4a5a6a', fontSize: 14, cursor: 'pointer', padding: '0 2px' }}>✕</button>
@@ -198,10 +198,10 @@ const btnStyle = (bg, border, color) => ({
   fontFamily: "'IBM Plex Mono', monospace", whiteSpace: 'nowrap',
 });
 
-const labelStyle = { display: 'block', fontSize: 10, color: '#6888a0', fontFamily: "'IBM Plex Mono', monospace", letterSpacing: '1px', textTransform: 'uppercase', marginBottom: 4 };
+const labelStyle = { display: 'block', fontSize: 10, color: 'var(--color-text-3)', fontFamily: "'IBM Plex Mono', monospace", letterSpacing: '1px', textTransform: 'uppercase', marginBottom: 4 };
 
 const inputStyle = {
-  width: '100%', padding: '8px 10px', background: '#080c12', border: '1px solid #2a3a50',
-  borderRadius: 6, color: '#c5d0dc', fontSize: 12, boxSizing: 'border-box',
+  width: '100%', padding: '8px 10px', background: 'var(--color-surface-1)', border: '1px solid var(--color-border-subtle)',
+  borderRadius: 6, color: 'var(--color-text-1)', fontSize: 12, boxSizing: 'border-box',
   fontFamily: "'IBM Plex Mono', monospace", outline: 'none',
 };

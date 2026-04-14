@@ -12,8 +12,8 @@ export default function FormationCard({ fm, onSelect, isSelected }) {
       onClick={() => onSelect(fm)}
       style={{
         background: isSelected
-          ? "linear-gradient(to bottom, #1c1300 0%, #271a00 45%, #0a0f1a 100%)"
-          : "linear-gradient(135deg, #0e1420, #0a0f1a)",
+          ? "linear-gradient(to bottom, var(--color-gold-surface) 0%, var(--color-surface-2) 100%)"
+          : "linear-gradient(135deg, var(--color-surface-1), var(--color-surface-2))",
         borderTop: `1px solid ${isSelected ? "var(--color-gold)" : "var(--color-border)"}`,
         borderRight: `1px solid ${isSelected ? "var(--color-gold)" : "var(--color-border)"}`,
         borderBottom: isSelected ? "none" : `1px solid var(--color-border)`,

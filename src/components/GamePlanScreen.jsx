@@ -213,8 +213,8 @@ export default function GamePlanScreen({
                 style={{
                   ...hdrBtn,
                   color: myBook === recBook.book ? "#90d070" : "#6aaa78",
-                  borderColor: myBook === recBook.book ? "#3a7035" : "#2a4030",
-                  background: myBook === recBook.book ? "#0d2a12" : "transparent",
+                  borderColor: myBook === recBook.book ? "var(--color-success)" : "var(--color-border)",
+                  background: myBook === recBook.book ? "var(--color-surface-success)" : "transparent",
                 }}
                 aria-label="Recommended playbook"
               >
@@ -242,9 +242,9 @@ export default function GamePlanScreen({
                 style={{
                   flex: 1, minHeight: 26, padding: "0 4px",
                   borderRadius: 13,
-                  border: `1px solid ${situDown === btn.id ? "#3a7035" : "#1e3828"}`,
-                  background: situDown === btn.id ? "#0d2a12" : "transparent",
-                  color: situDown === btn.id ? "#90d070" : "#4a8858",
+                  border: `1px solid ${situDown === btn.id ? "var(--color-success)" : "var(--color-border)"}`,
+                  background: situDown === btn.id ? "var(--color-surface-success)" : "transparent",
+                  color: situDown === btn.id ? "var(--color-success)" : "var(--color-text-3)",
                   fontSize: 11, cursor: "pointer",
                   fontFamily: "var(--font-mono)", fontWeight: situDown === btn.id ? "700" : "400",
                   transition: "all 100ms ease",
@@ -270,9 +270,9 @@ export default function GamePlanScreen({
                   style={{
                     flex: 1, minHeight: 26, padding: "0 4px",
                     borderRadius: 13,
-                    border: `1px solid ${active ? "#3a7035" : "#1e3828"}`,
-                    background: active ? "#0d2a12" : "transparent",
-                    color: disabled ? "#1e3828" : active ? "#90d070" : "#4a8858",
+                    border: `1px solid ${active ? "var(--color-success)" : "var(--color-border)"}`,
+                    background: active ? "var(--color-surface-success)" : "transparent",
+                    color: disabled ? "var(--color-border)" : active ? "var(--color-success)" : "var(--color-text-3)",
                     fontSize: 11, cursor: disabled ? "default" : "pointer",
                     fontFamily: "var(--font-mono)", fontWeight: active ? "700" : "400",
                     opacity: disabled ? 0.4 : 1,
@@ -288,7 +288,7 @@ export default function GamePlanScreen({
 
         {/* ── Tempo warning ── */}
         {(flat.includes("hurry_up") || flat.includes("tempo_shift")) && (
-          <div style={{ background: "#0d1408", border: "1px solid var(--color-gold)", borderLeft: "4px solid #b8880c", borderRadius: "var(--r-md)", padding: "12px 14px", marginBottom: 16 }}>
+          <div style={{ background: "var(--color-gold-surface)", border: "1px solid var(--color-gold-border)", borderLeft: "4px solid var(--color-gold)", borderRadius: "var(--r-md)", padding: "12px 14px", marginBottom: 16 }}>
             <div style={{ fontSize: 12, color: "#b8880c", fontFamily: "var(--font-mono)", fontWeight: "700", marginBottom: 4 }}>⚡ TEMPO OFFENSE — One-Package Strategy Required</div>
             <div style={{ fontSize: 12, color: "#c8a060", lineHeight: 1.6 }}>
               You cannot substitute freely vs this team. Your base personnel must handle 11p through 12p without subbing. Prioritize formations that work across multiple personnel sets.
@@ -387,11 +387,11 @@ export default function GamePlanScreen({
                           <div style={{ fontSize: 10, color: "var(--color-gold-dim)", letterSpacing: "2px", textTransform: "uppercase", marginBottom: 3, fontFamily: "var(--font-mono)" }}>DC Priority</div>
                           <div style={{ fontSize: 13, color: "var(--color-text-1)", lineHeight: 1.6, marginBottom: 14 }}>{pd.priority}</div>
                           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
-                            <div style={{ background: "#140708", border: "1px solid #4a1818", borderRadius: "var(--r-sm)", padding: "8px 10px" }}>
+                            <div style={{ background: "var(--color-surface-danger)", border: "1px solid var(--color-border)", borderRadius: "var(--r-sm)", padding: "8px 10px" }}>
                               <div style={{ fontSize: 10, color: "var(--color-danger)", letterSpacing: "1px", textTransform: "uppercase", marginBottom: 3, fontFamily: "var(--font-mono)" }}>Avoid</div>
                               <div style={{ fontSize: 12, color: "#b07070", lineHeight: 1.6 }}>{pd.avoid}</div>
                             </div>
-                            <div style={{ background: "#071408", border: "1px solid #184a18", borderRadius: "var(--r-sm)", padding: "8px 10px" }}>
+                            <div style={{ background: "var(--color-surface-success)", border: "1px solid var(--color-border)", borderRadius: "var(--r-sm)", padding: "8px 10px" }}>
                               <div style={{ fontSize: 10, color: "var(--color-success)", letterSpacing: "1px", textTransform: "uppercase", marginBottom: 3, fontFamily: "var(--font-mono)" }}>Blitz Guide</div>
                               <div style={{ fontSize: 12, color: "#70a080", lineHeight: 1.6 }}>{pd.blitzNote}</div>
                             </div>

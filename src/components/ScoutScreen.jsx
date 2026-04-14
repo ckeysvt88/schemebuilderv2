@@ -95,7 +95,7 @@ export default function ScoutScreen({
               </div>
               <div style={{ display: "flex", flexWrap: "wrap", gap: 4 }}>
                 {["✓ Ranked formations", "✓ Coverage packages", "✓ Blitz %", "✓ Call sheets"].map(p => (
-                  <span key={p} style={{ background: "#0a1a0a", border: "1px solid #1e4020", borderRadius: 16, padding: "3px 9px", fontSize: 9, color: "var(--color-success)" }}>
+                  <span key={p} style={{ background: "var(--color-surface-success)", border: "1px solid var(--color-border)", borderRadius: 16, padding: "3px 9px", fontSize: 9, color: "var(--color-success)" }}>
                     {p}
                   </span>
                 ))}
@@ -218,7 +218,7 @@ export default function ScoutScreen({
 
         {/* ── Status banner ── */}
         {scored.length > 0 ? (
-          <div style={{ background: "#0a140a", border: "1px solid #2a4020", borderLeft: "3px solid var(--color-success)", borderRadius: "var(--r-md)", padding: "10px 14px", marginBottom: 16, fontSize: 13, color: "#88bb60", lineHeight: 1.5, display: "flex", justifyContent: "space-between", alignItems: "center", gap: 10 }}>
+          <div style={{ background: "var(--color-surface-success)", border: "1px solid var(--color-border)", borderLeft: "3px solid var(--color-success)", borderRadius: "var(--r-md)", padding: "10px 14px", marginBottom: 16, fontSize: 13, color: "var(--color-success)", lineHeight: 1.5, display: "flex", justifyContent: "space-between", alignItems: "center", gap: 10 }}>
             <span>Editing active game plan — update traits then rebuild.</span>
             <button onClick={() => { setSel({}); setScored([]); setSelFm(null); setActiveP(null); }} style={{ ...smallBtn, color: "#70aa50", borderColor: "#2a4a1e", whiteSpace: "nowrap", flexShrink: 0 }}>Clear All</button>
           </div>
@@ -314,7 +314,10 @@ export default function ScoutScreen({
             {[1,2,3,4,5,6,7].map(pos => {
               const isActive = runPass === pos;
               const COLORS  = { 1:"#3a8fe8",2:"#4a9ed4",3:"#4aa890",4:"#5a9860",5:"#b89040",6:"#d07028",7:"#d84810" };
-              const BGS     = { 1:"#0a1e40",2:"#0a2038",3:"#0a2030",4:"#0e2018",5:"#281c08",6:"#301808",7:"#381005" };
+              const isLight = document.documentElement.getAttribute('data-theme') === 'light';
+              const BGS     = isLight
+                ? { 1:"#dde8f8",2:"#ddeaf4",3:"#dcf0ec",4:"#dff0e4",5:"#f5eed4",6:"#f8e8d8",7:"#f8e0d8" }
+                : { 1:"#0a1e40",2:"#0a2038",3:"#0a2030",4:"#0e2018",5:"#281c08",6:"#301808",7:"#381005" };
               const BORDERS = { 1:"#2a6ecc",2:"#3a80b8",3:"#3a8870",4:"#3a7048",5:"#907830",6:"#b05820",7:"#c03810" };
               return (
                 <button

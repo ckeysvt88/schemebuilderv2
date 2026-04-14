@@ -11,7 +11,7 @@ export default function WhySelected({ coreHits, suppHits }) {
           </span>
         ))}
         {suppHits.map(t => (
-          <span key={t} style={{ fontSize: 11, padding: "3px 8px", borderRadius: 12, background: "#0d1622", border: "1px solid #2a4a6a", color: "#5a7a96" }}>
+          <span key={t} style={{ fontSize: 11, padding: "3px 8px", borderRadius: 12, background: "var(--color-surface-2)", border: "1px solid var(--color-border)", color: "var(--color-text-3)" }}>
             + {TRAIT_LABELS[t] || t}
           </span>
         ))}
