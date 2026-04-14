@@ -862,6 +862,42 @@ export const FDB = {
     callsheet:[{down:"3rd & Long (10p)",call:"Penny · Cover 4 Quarters",note:"Every receiver has a DB"},{down:"Empty",call:"Penny · Cover 2 Man",note:"Coverage athletes on every slot"}],
   },
 
+  "Odd Ghost": {
+    books:["3-3-5","3-2-6"], priority:"pass", personnel:"Nickel",
+    desc:"Odd Ghost deploys DEs in an apparent 5-tech edge alignment pre-snap, then slants both inside to the 4i (inside shoulder of the OT) at the snap — ghosting the B-gap. Two 4i DEs seal three interior gaps, leaving only one for a linebacker. Because OGs can't reach a 4i DE and OTs can't release to block scraping LBs, all linebackers are freed for pure coverage drops. The Viper sub-package upgrades to six DBs (3 safeties, 1 slot CB, 2 corners) against spread personnel. Offense game-plans for outside edge rushers but encounters interior B-gap attack at the snap, breaking all blocking assignments.",
+    dcNote:"Ghost DEs don't rush the edge — they play 4i. Every interior blocker is assigned the wrong gap. Shift the line away from the ghost backer, walk him up like a DE pre-snap, and the offense has no read on where pressure originates.",
+    blitzBase:28, blitzMods:[{tags:["p10","empty"],d:+10},{tags:["qb_scramble","mobile_qb"],d:+8},{tags:["rpo","quick_game"],d:-6},{tags:["inside_run","strong_oline"],d:-10}],
+    avoidTags:["p21","p22","p23","strong_oline","power_run","tight_end_heavy"],
+    coreTags:["p10","p11","empty","no_run","spread","rpo","slot_threat","trips","hurry_up","two_minute_pass","qb_scramble","mobile_qb"],
+    suppTags:["crossers","seam_routes","motion_heavy","boundary_hash","west_coast","bubble_screen"],
+    coverages:[
+      {name:"Cover 3 Match",rating:5,tag:"Base Coverage",detail:"Zone-to-man conversion on verticals. CBs carry deep, LBs drop pure zones while 4i DEs hold interior gaps. Kills 4-verticals and the RPO glance window — both rely on LB hesitation that doesn't happen here."},
+      {name:"Cover 6",rating:5,tag:"Trips Stopper",detail:"Quarters strong / Cover 2 weak. Safety rotates to trips side, CB takes the boundary half. Best answer when offense sets 3x1 to declare a coverage advantage."},
+      {name:"Cover 2 Tampa Drop",rating:5,tag:"Seam Stopper",detail:"Drop variant of Tampa 2 — MLB sinks deeper into the seam, eliminating TE and slot routes over the middle. With freed LBs the drop is clean; no blocker can threaten the zone."},
+      {name:"Cover 2 Tampa",rating:4,tag:"Base Zone",detail:"Two-deep Tampa shell. MLB carries the seam while CBs sink into curl/flat zones. Standard check vs pro personnel — forces horizontal throws short and underneath."},
+      {name:"Tampa Sim Pressure",rating:4,tag:"3rd & Long Pressure",detail:"Simulated pressure off Tampa 2 shell. QB reads two-deep zone and expects standard rush — LBs stunt from unexpected gap. With 4i DEs holding interior, LBs get clean blitz lanes."},
+      {name:"Saw Blitz",rating:4,tag:"Scramble Stopper",detail:"Designed QB contain blitz. Saw pattern forces edge contain while interior 4i DEs hold B-gaps. Effective against scrambling QBs — no edge escape route available."},
+      {name:"Cover 1 Double Hook",rating:4,tag:"Man + Hook Zones",detail:"Cover 1 with two hook/curl defenders sitting in QB throwing windows. Man behind with a safety deep. Prevents quick outlets that beat standard Cover 1 against mesh and crosser concepts."},
+      {name:"Mid Blitz 1",rating:4,tag:"A-Gap Pressure",detail:"A-gap blitz with one safety deep. LBs freed from run-fit responsibility by 4i DEs attack A-gaps cleanly. Single safety over top provides a release valve — more sustainable than zero coverage."},
+      {name:"Cover 3 Sky",rating:4,tag:"Run Support Zone",detail:"Safety rotates to curl-flat zone for run support. Three-deep shell with safety providing flat coverage. Best Cover 3 variant against play-action off outside run fake."},
+      {name:"Cover 2 Man",rating:3,tag:"Press Man",detail:"Man coverage with two safeties deep. Freed LBs take pure man assignments with no run-fit conflict. Vulnerable to rub and mesh routes that can release receivers from man."},
+      {name:"Cover 2 Invert",rating:3,tag:"Robber Zone",detail:"Safeties invert pre-snap — one deep half, one rotates to robber over the middle. Disguises coverage responsibility. Use as an occasional change-up to prevent QB from reading the Tampa shell."},
+      {name:"Cover 3 Drop",rating:3,tag:"Deep Zone",detail:"All three zones play deep. Short routes available underneath. Best used against deep shot teams who will force the issue after seeing three-deep repeatedly."},
+      {name:"Hot Blitz",rating:3,tag:"Quick Pressure",detail:"Fast-developing A/B gap blitz. Lower coverage commitment — best on short down-and-distance when offense likely runs quick game."},
+      {name:"LB Blitz",rating:3,tag:"Zone Blitz",detail:"Linebacker blitz with zone coverage behind. DL pinches while LB attacks gap. With 4i DEs already occupying interior blockers, the LB blitz lane is cleaner than in standard 3-3-5."},
+      {name:"Mike Will 3",rating:3,tag:"Double A-Gap Blitz",detail:"Mike and Will blitz simultaneously with Cover 3 behind. Both A-gaps attacked at once — OC cannot help both sides. 4i DEs seal B-gaps, preventing guards from sliding to pick up the blitzing LBs."},
+    ],
+    preSnap:["Shift DL away from ghost backer — walk ghost backer up like a DE to disguise launch point","Check TE alignment: activate Viper sub (6 DBs) if no attached TE","Ghost DEs align at 5-tech edge pre-snap, slant inside to 4i at snap — do NOT rush outside","Cover 3 Match: carry all vertical stems; do not abandon zone to follow crossing routes"],
+    coaching:[{label:"Usage",value:"Spread / RPO / Mobile QB"},{label:"Role",value:"Pressure + Coverage"},{label:"Ghost DEs",value:"4i post-snap — B-gap, not edge"},{label:"Sub-Package",value:"Viper (6 DB) vs 10p / spread"}],
+    callsheet:[
+      {down:"Base Defense",call:"Odd Ghost · Cover 3 Match",note:"Freed LBs drop pure zones while 4i DEs seal interior"},
+      {down:"Trips / 3x1",call:"Odd Ghost · Cover 6",note:"Quarters to trips side, half to boundary"},
+      {down:"Seam TE / 2x2",call:"Odd Ghost · Cover 2 Tampa Drop",note:"MLB drops clean seam — no blocker can threaten zone"},
+      {down:"3rd & Long Pressure",call:"Odd Ghost · Tampa Sim Pressure",note:"Sim pressure off Tampa shell — LBs get clean blitz lanes"},
+      {down:"Scrambling QB",call:"Odd Ghost · Saw Blitz",note:"Edge contain + 4i hold — no QB escape route"},
+    ],
+  },
+
   // ── 4-2-5 FAMILY
   "4-2-5 Over G": {
     books:["4-2-5"], priority:"pass", personnel:"Nickel",
