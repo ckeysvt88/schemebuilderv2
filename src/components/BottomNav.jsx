@@ -47,7 +47,7 @@ const TABS = [
   },
 ];
 
-export default function BottomNav({ step, setStep, hasPlan, isDark, onToggle }) {
+export default function BottomNav({ step, setStep, hasPlan, isDark = true, onToggle = () => {} }) {
   return (
     <div style={{
       position: "fixed",
@@ -120,6 +120,7 @@ export default function BottomNav({ step, setStep, hasPlan, isDark, onToggle }) 
         <button
           onClick={onToggle}
           aria-label={isDark ? "Switch to light mode" : "Switch to dark mode"}
+          aria-pressed={!isDark}
           style={{
             display: "flex", flexDirection: "column",
             alignItems: "center", justifyContent: "center",
