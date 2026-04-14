@@ -84,7 +84,7 @@ export const FDB = {
     ],
     preSnap:["NEVER press — deep routes must be tracked with cushion","Allow the short throw — make the tackle","Three deep: communicate zone boundaries clearly","Do NOT use Prevent unless protecting a lead"],
     coaching:[{label:"Usage",value:"Protect Lead / 2-Min ONLY"},{label:"Safety Depth",value:"15+ yards"},{label:"CB Tech",value:"Off — NEVER press"}],
-    callsheet:[{down:"2-Min Defense (leading)",call:"Prevent · Cover 3",note:"Allow underneath — protect the explosive"},{down:"2-Score Lead Late",call:"Prevent · Cover 4",note:"Zero big plays"}],
+    callsheet:[{down:"2-Min Defense (leading)",call:"Prevent · Cover 3",note:"Allow underneath — protect the explosive"},{down:"2-Score Lead Late",call:"Prevent · Cover 4 Quarters",note:"Zero big plays"}],
   },
 
   // ── 4-3 BASE FAMILY
@@ -104,7 +104,7 @@ export const FDB = {
       {name:"Cover 1",rating:3,tag:"Run Support",detail:"Man coverage frees box defenders. Forces TEs/FBs to declare. Good when confident run is coming."},
     ],
     coaching:[{label:"Run Aggr.",value:"Aggressive"},{label:"DL Tech",value:"3-tech over guard (Over shade)"},{label:"Safety Depth",value:"10–12 yards"},{label:"LB Fits",value:"MIKE: B-gap, WILL: C-gap"},{label:"CB Align",value:"Off-Man 7 yds"}],
-    callsheet:[{down:"1st & 10",call:"4-3 Over · Cover 3 Sky",note:"Sound base — run and PA covered"},{down:"2nd & Medium",call:"4-3 Over · Cover 2",note:"Squeeze hash routes"},{down:"3rd & Long",call:"4-3 Over · Cover 1 Man",note:"Man frees all 4 rushers"},{down:"Red Zone",call:"4-3 Over · Cover 2",note:"Flatten field"}],
+    callsheet:[{down:"1st & 10",call:"4-3 Over · Cover 3 Sky",note:"Sound base — run and PA covered"},{down:"2nd & Medium",call:"4-3 Over · Cover 2",note:"Squeeze hash routes"},{down:"3rd & Long",call:"4-3 Over · Cover 1",note:"Man frees all 4 rushers"},{down:"Red Zone",call:"4-3 Over · Cover 2",note:"Flatten field"}],
   },
   "4-3 Over Solid": {
     books:["Multiple"], priority:"run", personnel:"Base",
@@ -120,7 +120,7 @@ export const FDB = {
     ],
     preSnap:["Solid DL: A and B gaps both occupied pre-snap","OLBs compensate for reduced edge width — extra edge responsibility","Best vs inside zone/iso/power — switch to standard Over vs outside run"],
     coaching:[{label:"DL Tech",value:"Solid / Compressed Interior"},{label:"OLB Role",value:"Extra Edge Responsibility"}],
-    callsheet:[{down:"1st & 10 (22p power)",call:"4-3 Over Solid · Cover 3",note:"Interior dominance"},{down:"2nd & Short (iso)",call:"4-3 Over Solid · Cover 2",note:"Interior wall + PA safety"}],
+    callsheet:[{down:"1st & 10 (22p power)",call:"4-3 Over Solid · Cover 3 Sky",note:"Interior dominance"},{down:"2nd & Short (iso)",call:"4-3 Over Solid · Cover 2",note:"Interior wall + PA safety"}],
   },
   "4-3 Over Walk": {
     books:["4-3"], priority:"hybrid", personnel:"Base",
@@ -137,7 +137,7 @@ export const FDB = {
       {name:"Cover 2 Invert",rating:4,tag:"Disguise",detail:"Corner bails to deep half; safety rolls down to flat. Looks like Cover 3, flips at the snap. Traps flat routes and confuses QB reads vs run-heavy teams."}],
     preSnap:["Walked-up LB: decide blitz/spy/drop PRE-SNAP — no hesitation at ball","Motion: walked-up LB mirrors the motion man","DE on walked-up side: still responsible for edge contain","Value is deception — never tip the call early"],
     coaching:[{label:"Walked-Up LB",value:"Spy vs scrambler / Blitz vs pocket QB"},{label:"Blitz Disguise",value:"Move at snap — never early"}],
-    callsheet:[{down:"1st & 10 (motion)",call:"4-3 Over Walk · Cover 3 Sky",note:"LB follows motion, assigns himself"},{down:"3rd & Medium",call:"4-3 Over Walk · Cover 2 Show",note:"Force audible into your coverage"}],
+    callsheet:[{down:"1st & 10 (motion)",call:"4-3 Over Walk · Cover 3 Sky",note:"LB follows motion, assigns himself"},{down:"3rd & Medium",call:"4-3 Over Walk · Cover 2",note:"Force audible into your coverage"}],
   },
   "4-3 Under": {
     books:["4-3","Multiple"], priority:"run", personnel:"Base",
@@ -155,7 +155,7 @@ export const FDB = {
     ],
     preSnap:["Strong DE: 5-tech contain — NEVER crash inside on outside runs","OLB: hard edge — he's your 4th lineman here","MLB: B-gap read, cutback responsibility","SS: force — attack outside arm of first blocker","Against 12p: MLB communicates TE seam assignment pre-snap"],
     coaching:[{label:"Run Aggr.",value:"Aggressive"},{label:"DL Tech",value:"Inside shade, backside DE crashes"},{label:"Safety Depth",value:"8–10 yds vs run personnel"},{label:"CB Align",value:"Press on TE side"},{label:"LB Fits",value:"WILL=Spill, MIKE=Box, OLB=Force"}],
-    callsheet:[{down:"1st & 10 (outside run)",call:"4-3 Under · Cover 3 Sky",note:"Run and PA covered"},{down:"2nd & Short",call:"4-3 Under · Cover 1 Man",note:"Box stack"},{down:"1st & 10 (12p)",call:"4-3 Under · Tampa 2",note:"MLB walls the TE seam"}],
+    callsheet:[{down:"1st & 10 (outside run)",call:"4-3 Under · Cover 3 Sky",note:"Run and PA covered"},{down:"2nd & Short",call:"4-3 Under · Cover 1",note:"Box stack"},{down:"1st & 10 (12p)",call:"4-3 Under · Tampa 2",note:"MLB walls the TE seam"}],
   },
   "4-3 Even 6-1": {
     books:["4-3 Multiple"], priority:"run", personnel:"Base",
@@ -287,7 +287,7 @@ export const FDB = {
     ],
     preSnap:["Loop blitz: OLB arcs, DE loops — timing is everything","Max 2 loop blitzes per game — he'll hot-route around the pattern","Three Mint LBs: sink to 8–10 yards in all coverage calls"],
     coaching:[{label:"Loop Blitz",value:"OLB out, DE loops inside (2x max)"},{label:"Zone Drops",value:"All LBs: 8–10 yards"}],
-    callsheet:[{down:"2nd & Medium",call:"3-3 Mint · Cover 3 Loop",note:"Blind side — QB never sees the DE"},{down:"3rd & Medium",call:"3-3 Mint · Cover 2",note:"Middle sealed — watch TE seam void between safeties"},{down:"Trips",call:"3-3 Mint · Cover 6",note:"Field=Quarters, Boundary=Cover 2 — Mint rotation handles 3x1 mathematically"}],
+    callsheet:[{down:"2nd & Medium",call:"3-3 Mint · Cover 3",note:"Blind side — QB never sees the DE"},{down:"3rd & Medium",call:"3-3 Mint · Tampa 2",note:"Middle sealed — watch TE seam void between safeties"},{down:"Trips",call:"3-3 Mint · Cover 6",note:"Field=Quarters, Boundary=Cover 2 — Mint rotation handles 3x1 mathematically"}],
   },
   "Nickel 3-3 Dbl Mug": {
     books:["3-3-5","3-3-5 Tite","3-2-6","Multiple"], priority:"pressure", personnel:"Nickel",
@@ -299,12 +299,14 @@ export const FDB = {
     suppTags:["west_coast","middle_heavy","crossers","no_deep","two_minute_pass","four_wide"],
     coverages:[
       {name:"Tampa 2",rating:5,tag:"Base Pressure",detail:"One ILB drops to flat. Other blitzes A-gap. Zone behind — quick throws hit covered zones. Center cannot handle both simultaneously."},
-      {name:"Cover 1",rating:4,tag:"Max Pressure",detail:"Both ILBs blitz. Man behind. Best on 3rd & long vs pocket QB — ball must come out in 1.5 seconds."},
+      {name:"Mid Blitz 0",rating:4,tag:"Max Pressure",detail:"Confirmed in-game play name (cfb.fan/26 Nickel 3-3 Dbl Mug play list). Both ILBs blitz A-gaps with zero coverage safety help. ONLY on 3rd & long vs pure pocket QB — ball must come out in 1.5 seconds or it's a sack. Man behind with no deep help."},
       {name:"Cover 3",rating:3,tag:"Pre-Snap Counter",detail:"Show both mugging. Drop both to Cover 3. Forces audible into your coverage."},
-      {name:"Fire Zone",rating:4,tag:"Safe Pressure",detail:"Rush 5, drop 3 deep and 3 under. Dropping DL clogs hot lanes. Safe pressure — still 3 deep defenders. Forces negative plays on standard downs."}],
+      {name:"LB Blitz 3",rating:4,tag:"Zone Blitz",detail:"Confirmed in-game play name (cfb.fan/26 Nickel 3-3 Dbl Mug play list). LB blitz with Cover 3 shell behind — adds pressure off the mug disguise while maintaining three-deep zone to eliminate explosive plays."},
+      {name:"Cover 3 Match",rating:4,tag:"Zone + Match",detail:"Confirmed in-game play (cfblabs.com Multiple Nickel 3-3 Dbl Mug). Zone converts to man when receivers go vertical behind the mug pressure. Interior pressure + coverage that adjusts to route combinations."},
+    ],
     preSnap:["NEVER telegraph which ILB is blitzing — commit at the snap","DEs maintain contain — if both A-gaps go, edges must hold","ALWAYS zone behind mug — man + mug = automatic hot route","Mix 50/50 blitz/drop — predictability destroys value"],
     coaching:[{label:"Interior",value:"Pinch DL, then ILB A-gap"},{label:"Coverage",value:"Zone ALWAYS (never man + mug)"},{label:"CB Align",value:"Off — never press + mug"},{label:"Safety",value:"Single high middle"},{label:"Usage",value:"Max 3x consecutive"}],
-    callsheet:[{down:"3rd & Medium",call:"3-3 Dbl Mug · Tampa 2",note:"Interior — center can't handle both"},{down:"3rd & Long",call:"3-3 Dbl Mug · Cover 1 A-Gap",note:"Max pressure — 1.5 sec to throw"},{down:"Empty",call:"3-3 Dbl Mug · Tampa 2",note:"No RB protection"}],
+    callsheet:[{down:"3rd & Medium",call:"3-3 Dbl Mug · Tampa 2",note:"Interior — center can't handle both"},{down:"3rd & Long",call:"3-3 Dbl Mug · Mid Blitz 0",note:"Max pressure — 1.5 sec to throw"},{down:"Empty",call:"3-3 Dbl Mug · Tampa 2",note:"No RB protection"},{down:"Pressure w/ safety net",call:"3-3 Dbl Mug · LB Blitz 3",note:"Zone behind — no explosive play even if pressure picked up"}],
   },
   "Nickel 3-3 Odd": {
     books:["3-3-5","3-2-6","3-4"], priority:"pass", personnel:"Nickel",
@@ -340,10 +342,11 @@ export const FDB = {
     coverages:[
       {name:"Tampa 2",rating:5,tag:"Base",detail:"One LB drops to flat. Other blitzes A-gap. Zone eliminates hot route. Center can't assign both threats."},
       {name:"Cover 3",rating:4,tag:"Counter",detail:"Show both mugging. Drop both to Cover 3. Forces audible into correct coverage."},
-      {name:"Fire Zone",rating:4,tag:"Safe Pressure",detail:"Rush 5, drop 3 deep and 3 under. Dropping DL clogs hot lanes. Safe pressure — still 3 deep defenders. Forces negative plays on standard downs."}],
+      {name:"Mid Blitz 0",rating:4,tag:"Max Pressure",detail:"Confirmed in-game play name (cfb.fan/26/playbooks/4-3-def/nickel-double-mug/mid-blitz-0/). All LBs blitz A-gaps with zero safety help. ONLY on 3rd & long vs pure pocket QB — ball must be out in 1.5 seconds."},
+    ],
     preSnap:["Never tip which LB is blitzing","DEs hold edge","Always zone behind — man + double mug = flat completion","50/50 blitz vs drop"],
     coaching:[{label:"Coverage",value:"Zone always"},{label:"CB",value:"Off-Man when using mug blitz"}],
-    callsheet:[{down:"3rd & Medium",call:"Nickel Dbl Mug · Cover 2",note:"Interior collapse"},{down:"2nd & Long",call:"Nickel Dbl Mug · Cover 3 Show",note:"Force audible"}],
+    callsheet:[{down:"3rd & Medium",call:"Nickel Dbl Mug · Tampa 2",note:"A-gap threat — center can't assign both"},{down:"2nd & Long",call:"Nickel Dbl Mug · Cover 3",note:"Show double mug, drop both LBs — force audible into your coverage"},{down:"3rd & Long",call:"Nickel Dbl Mug · Mid Blitz 0",note:"All LBs blitz — 1.5 sec to throw"}],
   },
   "Nickel Load": {
     books:["4-3","4-2-5","Multiple"], priority:"hybrid", personnel:"Nickel",
@@ -413,7 +416,7 @@ export const FDB = {
       {name:"Cover 9",rating:4,tag:"Boundary Trap",detail:"Half-Quarter-Quarter. Field side plays Cover 2 triangle; boundary side plays Quarters. Clouds the star WR on the wide side. Matchup-specific — use when elite WR aligns to the field."}],
     preSnap:["Rotate safety to trips side pre-snap","Wide alignment: CBs can press boundary routes more effectively","Against 10p empty: CBs press — no run threat"],
     coaching:[{label:"DB Align",value:"Match WR Splits (Wide)"},{label:"Safety",value:"To Trips/Bunch Side"}],
-    callsheet:[{down:"1st & 10 (10p)",call:"Nickel Wide · Cover 4",note:"Match wide splits"},{down:"Trips",call:"Nickel Wide · Cover 4",note:"Rotate safety — handle overload"}],
+    callsheet:[{down:"1st & 10 (10p)",call:"Nickel Wide · Cover 4 Drop",note:"Match wide splits"},{down:"Trips",call:"Nickel Wide · Cover 6",note:"Field=Quarters, Boundary=Cover 2 — handle overload with pre-positioned apex"}],
   },
 
   // ── DIME FAMILY
@@ -432,7 +435,7 @@ export const FDB = {
     ],
     preSnap:["Sub Dime in ONLY on 3rd & 7+ — not a base","DEs: contain even in Dime — scramble = automatic first down","6th DB: assign to TE or slot","Rotate safety to his preferred deep target side"],
     coaching:[{label:"Usage",value:"3rd & 7+ ONLY"},{label:"Safety Depth",value:"12–14 yds vs deep shots"},{label:"6th DB",value:"Cover TE or Slot"}],
-    callsheet:[{down:"3rd & Long",call:"Dime Normal · Cover 2 Man",note:"Max coverage + pressure"},{down:"Deep Shot Down",call:"Dime Normal · Cover 4",note:"Every deep window covered"},{down:"2-Minute",call:"Dime Normal · Cover 3",note:"Prevent the explosive"}],
+    callsheet:[{down:"3rd & Long",call:"Dime Normal · Cover 2 Man",note:"Max coverage + pressure"},{down:"Deep Shot Down",call:"Dime Normal · Cover 4 Drop",note:"Every deep window covered"},{down:"2-Minute",call:"Dime Normal · Cover 3 Sky",note:"Prevent the explosive"}],
   },
   "Dime Rush": {
     books:["4-3","3-4","4-2-5","3-3-5","3-3-5 Tite","3-2-6","Multiple"], priority:"pressure", personnel:"Dime",
@@ -450,7 +453,7 @@ export const FDB = {
     ],
     preSnap:["ONLY on 3rd & 8+ or 4th down obvious pass","NEVER vs mobile/scrambling QB","Extra rusher ALWAYS from the edge — never interior from Dime","Mix with Dime Normal to prevent identification"],
     coaching:[{label:"Usage",value:"3rd & 8+ / 4th Down Pass ONLY"},{label:"Extra Rusher",value:"Edge ONLY (never interior)"}],
-    callsheet:[{down:"3rd & Long",call:"Dime Rush · Cover 1 Man",note:"5-man rush — someone free"},{down:"4th & Long",call:"Dime Rush · Cover 2",note:"Max pressure + zone kills hot route"},{down:"Empty & Long",call:"Dime Rush · DB Blitz",note:"Unexpected pressure angle from coverage position"}],
+    callsheet:[{down:"3rd & Long",call:"Dime Rush · Cover 1",note:"5-man rush — someone free"},{down:"4th & Long",call:"Dime Rush · Cover 2",note:"Max pressure + zone kills hot route"},{down:"Empty & Long",call:"Dime Rush · DB Blitz",note:"Unexpected pressure angle from coverage position"}],
   },
   "Dime 2-3 Odd": {
     books:["4-3 Multiple","3-4","3-4 Multiple","3-3-5","3-3-5 Tite"], priority:"pass", personnel:"Dime",
@@ -466,7 +469,7 @@ export const FDB = {
       {name:"Cover 4 Palms",rating:4,tag:"Bubble Stopper",detail:"Safety/Corner read #2 — if he goes out, jump him. Kills bubble screens and quick outs. Aggressive flat coverage vs quick-game teams."}],
     preSnap:["Odd DL: gap disruption — deter the run audible","Same coverage rules as Dime Normal","Use when he's audibled to run against your Dime package"],
     coaching:[{label:"DL Tech",value:"Odd — Gap Disruption"},{label:"Usage",value:"When he audiibles to run vs Dime"}],
-    callsheet:[{down:"3rd & Medium (run audible risk)",call:"Dime 2-3 Odd · Cover 4",note:"Coverage + run resistance"},{down:"2nd & Long",call:"Dime 2-3 Odd · Cover 2",note:"Flatten field"}],
+    callsheet:[{down:"3rd & Medium (run audible risk)",call:"Dime 2-3 Odd · Cover 4 Drop",note:"Coverage + run resistance"},{down:"2nd & Long",call:"Dime 2-3 Odd · Cover 2",note:"Flatten field"}],
   },
   "Dime Load Weak": {
     books:["4-3 Multiple","3-4 Multiple","3-2-6","Multiple"], priority:"pass", personnel:"Dime",
@@ -485,7 +488,7 @@ export const FDB = {
     ],
     preSnap:["Identify which hash/flat he attacks most — load THAT side","Against trips: load toward trips side","ONLY use when you've confirmed his weak-side tendency — don't guess"],
     coaching:[{label:"Load Direction",value:"Toward his hot hash/flat"}],
-    callsheet:[{down:"3rd & Any (weak hash)",call:"Dime Load Weak · Cover 4",note:"Pre-positioned on his hot side"},{down:"2-Minute",call:"Dime Load Weak · Cover 2 Drop",note:"Flat + deep covered — no outlet"},{down:"Pressure call",call:"Dime Load Weak · DB Blitz 3",note:"Unexpected angle from load position"}],
+    callsheet:[{down:"3rd & Any (weak hash)",call:"Dime Load Weak · Cover 4 Quarters",note:"Pre-positioned on his hot side"},{down:"2-Minute",call:"Dime Load Weak · Cover 2 Drop",note:"Flat + deep covered — no outlet"},{down:"Pressure call",call:"Dime Load Weak · DB Blitz 3",note:"Unexpected angle from load position"}],
   },
 
   // ── 3-4 FAMILY
@@ -524,7 +527,7 @@ export const FDB = {
     ],
     preSnap:["Pre-snap: OLBs show blitz, DROP at snap vs PA teams","MLB in Tampa 2: MOST ATHLETIC LB — he runs with the TE","Against deep shots: safeties at 13+ yards","ILBs communicate ALL crossing TE routes"],
     coaching:[{label:"Shell",value:"Show 2-high, play Tampa 2"},{label:"Safety Depth",value:"12–14 yds vs deep shots"},{label:"MLB Req.",value:"Athletic MLB for Tampa 2 ONLY"}],
-    callsheet:[{down:"1st & 10 (12p)",call:"3-4 Odd · Cover 3",note:"Sound base"},{down:"2nd & Medium",call:"3-4 Odd · Tampa 2",note:"TE seam walled"},{down:"3rd & Long",call:"3-4 Odd · Cover 4",note:"Every deep window covered"}],
+    callsheet:[{down:"1st & 10 (12p)",call:"3-4 Odd · Cover 3 Sky",note:"Sound base"},{down:"2nd & Medium",call:"3-4 Odd · Tampa 2",note:"TE seam walled"},{down:"3rd & Long",call:"3-4 Odd · Cover 4 Drop",note:"Every deep window covered"}],
   },
   "3-4 Over": {
     books:["3-4"], priority:"hybrid", personnel:"Base",
@@ -560,7 +563,7 @@ export const FDB = {
     ],
     preSnap:["OLB spy: MANDATORY vs dual-threat QB — no exceptions","ILBs communicate TE crossing routes every snap","Show blitz with one OLB, drop to zone at snap — maintain surprise","NEVER open scramble lanes with upfield penetration on early downs"],
     coaching:[{label:"OLB Spy",value:"ALWAYS assign vs Mobile/Dual-Threat"},{label:"Pre-snap",value:"Show Cover 2 — play Cover 3"},{label:"Pass Rush",value:"Run Stop Priority on 1st/2nd down"}],
-    callsheet:[{down:"1st & 10 (mobile QB)",call:"3-4 Under · Cover 3 + Spy",note:"Contain + 7 in coverage — 8 in box vs run"},{down:"2nd & Medium",call:"3-4 Under · Cover 2 Robber",note:"Seam window closed — switch to Cover 3 vs flat/screen teams"},{down:"Trips",call:"3-4 Under · Cover 6",note:"Field=Quarters, Boundary=Cover 2 — OLB spy still accounts for mobile QB"}],
+    callsheet:[{down:"1st & 10 (mobile QB)",call:"3-4 Under · Cover 3",note:"OLB spy + 7-man coverage — contain without sacrificing a DB"},{down:"2nd & Medium",call:"3-4 Under · Cover 2 Man",note:"Seam window closed — switch to Cover 3 vs flat/screen teams"},{down:"Trips",call:"3-4 Under · Cover 6",note:"Field=Quarters, Boundary=Cover 2 — OLB spy still accounts for mobile QB"}],
   },
   "3-4 Even": {
     books:["3-4 Multiple"], priority:"hybrid", personnel:"Base",
@@ -576,7 +579,7 @@ export const FDB = {
       {name:"Cover 2 Invert",rating:4,tag:"Disguise",detail:"Corner bails to deep half; safety rolls down to flat. Looks like Cover 3, flips at the snap. Traps flat routes and confuses QB reads vs run-heavy teams."}],
     preSnap:["Both OLBs: symmetric — NEVER telegraph the edge side","Blitz-side decision hidden until last possible moment"],
     coaching:[{label:"Alignment",value:"Symmetric — Never Telegraph Side"}],
-    callsheet:[{down:"1st & 10",call:"3-4 Even · Cover 3",note:"Symmetric confusion + sound zone"}],
+    callsheet:[{down:"1st & 10",call:"3-4 Even · Cover 3 Sky",note:"Symmetric confusion + sound zone"}],
   },
   "3-4 Over Stack": {
     books:["3-4 Multiple"], priority:"hybrid", personnel:"Base",
@@ -593,7 +596,7 @@ export const FDB = {
       {name:"Sim Pressure",rating:4,tag:"3rd Down",detail:"Show blitz, rush only 4. Creates free rushers via confusion, not numbers. Maintains 7 in coverage. Forces protection check errors on passing downs."}],
     preSnap:["Stacked ILBs: one blitzes, one drops — NEVER telegraph which","OLBs maintain edge when ILBs blitz","Max 2x consecutively"],
     coaching:[{label:"Stack",value:"One blitz / One drop (50/50)"},{label:"Coverage",value:"Zone always behind stack blitz"}],
-    callsheet:[{down:"3rd & Medium",call:"Over Stack · ILB Blitz",note:"Interior — center can't ID both"},{down:"2nd & Long",call:"Over Stack · Cover 3 Show",note:"Force audible"}],
+    callsheet:[{down:"3rd & Medium",call:"Over Stack · Tampa 2",note:"One ILB blitzes A-gap — center can't ID both stacked threats"},{down:"2nd & Long",call:"Over Stack · Cover 3 Sky",note:"Show stack, both drop — forces audible into correct coverage"}],
   },
   "3-4 Tite": {
     books:["3-4 Multiple","3-3-5 Tite","Multiple"], priority:"pass", personnel:"Base",
@@ -630,7 +633,7 @@ export const FDB = {
     ],
     preSnap:["Sub OUT immediately if he audiibles to spread","Both OLBs: hard edge — NEVER fold inside","NEVER use 4-4 against pass-first teams"],
     coaching:[{label:"Usage",value:"Run Downs / Short Yardage ONLY"},{label:"OLB",value:"Hard Edge Both Sides"}],
-    callsheet:[{down:"1st & 10 (13/23p)",call:"4-4 Split · Cover 1",note:"8 near LOS — no running lane exists"},{down:"3rd & 1 (21p)",call:"4-4 Split · Cover 1 Man",note:"Physical gap-filling"},{down:"Goal Line",call:"4-4 Split · Engage Eight",note:"All-in physical stop"}],
+    callsheet:[{down:"1st & 10 (13/23p)",call:"4-4 Split · Cover 1",note:"8 near LOS — no running lane exists"},{down:"3rd & 1 (21p)",call:"4-4 Split · Cover 1",note:"Physical gap-filling"},{down:"Goal Line",call:"4-4 Split · Engage Eight",note:"All-in physical stop"}],
   },
 
   // ── NICKEL 2-4 FAMILY
@@ -665,11 +668,13 @@ export const FDB = {
     suppTags:["west_coast","middle_heavy","crossers","trips","hurry_up"],
     coverages:[
       {name:"Tampa 2",rating:5,tag:"Base Pressure",detail:"One OLB drops to flat. Other blitzes A-gap from stand-up. Zone behind. Center has never seen a stand-up OLB threatening A-gap — unprecedented."},
-      {name:"Cover 0",rating:4,tag:"Max Pressure",detail:"All OLBs blitz. Man behind with no safety help. ONLY on 3rd & long vs pure pocket QB — ball out in under 1 second or it's a sack."},
-      {name:"Fire Zone",rating:4,tag:"Safe Pressure",detail:"Rush 5, drop 3 deep and 3 under. Dropping DL clogs hot lanes. Safe pressure — still 3 deep defenders. Forces negative plays on standard downs."}],
+      {name:"Mid Blitz 0",rating:4,tag:"Max Pressure",detail:"Confirmed in-game play name (cfb.fan/26 Nickel Double Mug, maddenguides CFB 26 Nickel 2-4 article). All OLBs blitz from A-gaps. Man behind with no safety help. ONLY on 3rd & long vs pure pocket QB — ball out in under 1 second or it's a sack. NOT the same as Engage Eight — this is a man blitz, not a run all-in."},
+      {name:"Cover 3 Match",rating:4,tag:"Zone + Pressure",detail:"Confirmed in Dbl Mug family (cfblabs.com Multiple Nickel 3-3 Dbl Mug). Zone converts to man on vertical routes behind the stand-up mug pressure. Rush 4, three-deep match shell absorbs crossing routes and seam routes that exploit blitz."},
+      {name:"Nickel Dog 3 Buzz",rating:4,tag:"Zone Blitz",detail:"Confirmed in-game play for Nickel 2-4 Dbl Mug (maddenguides CFB 26 Nickel 2-4 Dbl Mug specific article). Zone blitz with safety Buzz read — LB dog technique from the stand-up mug adds a disguised pressure angle while Buzz safety robs the intermediate middle."},
+    ],
     preSnap:["Never show which stand-up is blitzing vs dropping","Remaining 2 DL: contain edges","Zone ALWAYS behind 2-4 Dbl Mug"],
     coaching:[{label:"Pressure",value:"Pinch 2 DL + 2-4 Stand-Up Mug"},{label:"Coverage",value:"Zone ALWAYS"}],
-    callsheet:[{down:"3rd & Medium",call:"2-4 Dbl Mug · Tampa 2",note:"Stand-up A-gap — unprecedented"},{down:"3rd & Long",call:"2-4 Dbl Mug · Cover 0",note:"0.8 seconds to throw"}],
+    callsheet:[{down:"3rd & Medium",call:"2-4 Dbl Mug · Tampa 2",note:"Stand-up A-gap — unprecedented"},{down:"3rd & Long",call:"2-4 Dbl Mug · Mid Blitz 0",note:"All OLBs crash — 0.8 seconds to throw"},{down:"Crossers / Mesh",call:"2-4 Dbl Mug · Nickel Dog 3 Buzz",note:"Dog + Buzz robs intermediate middle"}],
   },
   "Nickel 2-4 Load": {
     books:["3-4","3-4 Multiple","3-3-5","3-3-5 Tite"], priority:"hybrid", personnel:"Nickel",
@@ -703,7 +708,7 @@ export const FDB = {
     ],
     preSnap:["Decide pre-snap which LB blitzes — ZERO hesitation","ALWAYS zone behind — never man","DEs maintain edge when interior LBs blitz"],
     coaching:[{label:"Assignment",value:"Pre-snap decision — no hesitation"},{label:"Coverage",value:"Zone always"}],
-    callsheet:[{down:"3rd & Medium",call:"2-4 Load Mug · Tampa 2",note:"Two threats — one executes"},{down:"Empty",call:"2-4 Load Mug · Tampa 2",note:"No RB help"}],
+    callsheet:[{down:"3rd & Medium",call:"2-4 Load Mug · Nickel Blitz 3",note:"A-gap crash + match shell — confirmed best call"},{down:"3rd & Long (empty)",call:"2-4 Load Mug · Nickel Blitz 3",note:"No RB help — interior pressure"},{down:"Play Action",call:"2-4 Load Mug · Tampa 2",note:"Zone behind Load mug sells run threat"}],
   },
   "Nickel 2-4 Single Mug": {
     books:["4-3 Multiple","3-4","3-4 Multiple","3-3-5 Tite","3-2-6"], priority:"hybrid", personnel:"Nickel",
@@ -741,7 +746,7 @@ export const FDB = {
       {name:"Cover 6",rating:4,tag:"Trips / 3x1",detail:"Cover 4 to trips side, Cover 2 to boundary. Three LBs distribute naturally to both sides of the rotation. Field=Quarters accounts for all 3 trips receivers; Boundary=Cover 2 with safety. Handles 3x1 overload from 3-3-5 structure."}],
     preSnap:["ONE LB assigned as QB spy vs dual-threat — EVERY snap","Slot DB: inside shade — funnel crossers to LB help","ILB shades to middle zone vs consistent interior attacks"],
     coaching:[{label:"CB Tech",value:"Off 5 yds, slot inside shade"},{label:"Safety Depth",value:"10–12 yds"},{label:"LB Spy",value:"Mandatory vs Dual-Threat QB"}],
-    callsheet:[{down:"1st & 10 (spread)",call:"3-3-5 Stack · Cover 3 Sky",note:"Best all-purpose spread call — 8 in box vs run"},{down:"2nd & Long",call:"3-3-5 Stack · Cover 4",note:"Every zone covered"},{down:"Trips",call:"3-3-5 Stack · Cover 6",note:"Field=Quarters, Boundary=Cover 2 — 3x1 solved"},{down:"3rd & Medium",call:"3-3-5 Stack · Cover 1 Robber",note:"Destroy crosser/mesh"}],
+    callsheet:[{down:"1st & 10 (spread)",call:"3-3-5 Stack · Cover 3 Sky",note:"Best all-purpose spread call — 8 in box vs run"},{down:"2nd & Long",call:"3-3-5 Stack · Cover 4 Drop",note:"Every zone covered"},{down:"Trips",call:"3-3-5 Stack · Cover 6",note:"Field=Quarters, Boundary=Cover 2 — 3x1 solved"},{down:"3rd & Medium",call:"3-3-5 Stack · Cover 1 Robber",note:"Destroy crosser/mesh"}],
   },
   "3-3-5 3 High": {
     books:["3-3-5"], priority:"pass", personnel:"Nickel",
@@ -758,7 +763,7 @@ export const FDB = {
     ],
     preSnap:["NEVER press — all deep routes tracked with cushion","Allow the short throw — tackle immediately","Do NOT use unless protecting a lead"],
     coaching:[{label:"Usage",value:"Protect Lead / 2-Min ONLY"},{label:"Safety Depth",value:"15+ yards"},{label:"CB",value:"Off — NEVER press"}],
-    callsheet:[{down:"2-Min (leading)",call:"3-3-5 3-High · Cover 3",note:"Allow underneath — eliminate explosive"},{down:"2-Score Lead",call:"3-3-5 3-High · Cover 4",note:"Zero big plays"},{down:"Seam threat",call:"3-3-5 3-High · Tampa 2",note:"Safety robs seam mid-read — same three-high look"}],
+    callsheet:[{down:"2-Min (leading)",call:"3-3-5 3-High · Cover 3",note:"Allow underneath — eliminate explosive"},{down:"2-Score Lead",call:"3-3-5 3-High · Cover 4 Quarters",note:"Zero big plays"},{down:"Seam threat",call:"3-3-5 3-High · Tampa 2",note:"Safety robs seam mid-read — same three-high look"}],
   },
   "3-3-5 3 High Odd": {
     books:["3-3-5","3-2-6"], priority:"pass", personnel:"Nickel",
@@ -820,7 +825,7 @@ export const FDB = {
       {name:"Cover 9",rating:4,tag:"Boundary Trap",detail:"Half-Quarter-Quarter. Field side plays Cover 2 triangle; boundary side plays Quarters. Clouds the star WR on the wide side. Matchup-specific — use when elite WR aligns to the field."}],
     preSnap:["Rotate safety to trips at the VERY LAST second — never pre-snap","NEVER telegraph which side from Split"],
     coaching:[{label:"Alignment",value:"Symmetric — Never Tip Side"},{label:"Rotation",value:"At snap only — never pre-snap"}],
-    callsheet:[{down:"1st & 10 (trips)",call:"3-3-5 Split · Cover 4",note:"Symmetric — no flooding advantage"},{down:"2nd & Long",call:"3-3-5 Split · Cover 2",note:"Both hashes without tipping"}],
+    callsheet:[{down:"1st & 10 (trips)",call:"3-3-5 Split · Cover 4 Drop",note:"Symmetric — no flooding advantage"},{down:"2nd & Long",call:"3-3-5 Split · Cover 2",note:"Both hashes without tipping"}],
   },
   "3-3-5 Mint": {
     books:["3-3-5 Tite"], priority:"pass", personnel:"Nickel",
@@ -837,7 +842,7 @@ export const FDB = {
     ],
     preSnap:["Loop blitz: max 2x per game — he'll hot-route around the pattern","Tite DL: compressed interior — OLBs are coverage players here"],
     coaching:[{label:"Loop Blitz",value:"2x max per game"},{label:"LBs",value:"Middle-loaded 8–10 yards"}],
-    callsheet:[{down:"2nd & Medium",call:"3-3-5 Mint · Cover 3 Loop",note:"Blind side pressure"},{down:"3rd & Medium",call:"3-3-5 Mint · Cover 2",note:"Seam sealed — watch TE seam void between safeties"},{down:"Trips",call:"3-3-5 Mint · Cover 6",note:"Field=Quarters, Boundary=Cover 2 — Mint rotation handles 3x1"}],
+    callsheet:[{down:"2nd & Medium",call:"3-3-5 Mint · Cover 3",note:"Blind side pressure"},{down:"3rd & Medium",call:"3-3-5 Mint · Cover 2",note:"Seam sealed — watch TE seam void between safeties"},{down:"Trips",call:"3-3-5 Mint · Cover 6",note:"Field=Quarters, Boundary=Cover 2 — Mint rotation handles 3x1"}],
   },
   "3-3-5 Penny": {
     books:["3-3-5 Tite","4-2-5"], priority:"pass", personnel:"Nickel",
@@ -854,7 +859,7 @@ export const FDB = {
       {name:"Cover 3 Match",rating:5,tag:"Spread Stopper",detail:"Zone converts to man when receivers go vertical. Kills 4-verticals — the primary weakness of standard Cover 3. Modern standard defense vs spread offense."}],
     preSnap:["Penny DBs: coverage first — run support second","Only sub vs 10p or obvious spread passing down"],
     coaching:[{label:"Usage",value:"10p / Empty / Spread Pass Only"},{label:"Role",value:"Coverage Primary"}],
-    callsheet:[{down:"3rd & Long (10p)",call:"Penny · Cover 4",note:"Every receiver has a DB"},{down:"Empty",call:"Penny · Cover 2 Man",note:"Coverage athletes on every slot"}],
+    callsheet:[{down:"3rd & Long (10p)",call:"Penny · Cover 4 Quarters",note:"Every receiver has a DB"},{down:"Empty",call:"Penny · Cover 2 Man",note:"Coverage athletes on every slot"}],
   },
 
   // ── 4-2-5 FAMILY
@@ -873,7 +878,7 @@ export const FDB = {
     ],
     preSnap:["Safety over TE every snap","Press CBs on elite WRs — contest release at LOS","4-man rush: contain both edges","Rotate safety to his preferred deep hash pre-snap"],
     coaching:[{label:"CB Press",value:"Aggressive vs Elite WR"},{label:"Safety Depth",value:"12–14 yds"},{label:"Rush",value:"G-shade 3-tech — 4-man only"}],
-    callsheet:[{down:"1st & 10 (11p)",call:"4-2-5 Over G · Cover 3 Match",note:"4-man rush + zone match"},{down:"2nd & Long",call:"4-2-5 Over G · Cover 2 Man",note:"G-shade + complete coverage"},{down:"3rd & Long",call:"4-2-5 Over G · Cover 4",note:"Every deep window"}],
+    callsheet:[{down:"1st & 10 (11p)",call:"4-2-5 Over G · Cover 3 Match",note:"4-man rush + zone match"},{down:"2nd & Long",call:"4-2-5 Over G · Cover 2 Man",note:"G-shade + complete coverage"},{down:"3rd & Long",call:"4-2-5 Over G · Cover 4 Drop",note:"Every deep window"}],
   },
   "4-2-5 Under": {
     books:["4-2-5"], priority:"pass", personnel:"Nickel",
@@ -890,7 +895,7 @@ export const FDB = {
     ],
     preSnap:["Safety over TE every snap","Press CBs on elite WRs","LBs spy TE motions — communicate pre-snap","4-man rush: contain both edges","Rotate safety to his preferred deep hash pre-snap"],
     coaching:[{label:"CB Press",value:"Aggressive vs Elite WR"},{label:"Safety Depth",value:"12–14 yds"},{label:"Rush",value:"4-Man ONLY — No LB Blitz"}],
-    callsheet:[{down:"1st & 10 (11p)",call:"4-2-5 Under · Cover 3 Match",note:"4-man rush + zone match"},{down:"2nd & Long",call:"4-2-5 Under · Cover 2 Man",note:"Max coverage + pressure"},{down:"3rd & Long",call:"4-2-5 Under · Cover 4",note:"Every deep window covered"}],
+    callsheet:[{down:"1st & 10 (11p)",call:"4-2-5 Under · Cover 3 Match",note:"4-man rush + zone match"},{down:"2nd & Long",call:"4-2-5 Under · Cover 2 Man",note:"Max coverage + pressure"},{down:"3rd & Long",call:"4-2-5 Under · Cover 4 Drop",note:"Every deep window covered"}],
   },
 
   // ── 3-2-6 FAMILY
@@ -909,7 +914,7 @@ export const FDB = {
     ],
     preSnap:["Only on obvious passing downs — save surprise value","DL: contain even with 3 linemen — scramble = automatic big play","Show Cover 2 pre-snap, morph to Quarters at snap","Hybrid LBs: slot coverage — they're DBs here","vs Elite WR: use double bracket from this package"],
     coaching:[{label:"Zones",value:"Flatten ALL: 6–8 yards"},{label:"Safety Depth",value:"8–10 yds (6 DBs)"},{label:"CB",value:"Off-Man / No Press"},{label:"Double Bracket",value:"Use vs Elite WR"}],
-    callsheet:[{down:"3rd & Any",call:"3-2-6 Mug · Cover 4",note:"Every window covered"},{down:"2-Minute",call:"3-2-6 Mug · Cover 2",note:"Flatten field"},{down:"Empty",call:"3-2-6 Mug · Cover 4",note:"6 DBs vs 5 WRs"},{down:"vs Elite WR",call:"3-2-6 Mug · Double Bracket",note:"Take him out of the game"}],
+    callsheet:[{down:"3rd & Any",call:"3-2-6 Mug · Cover 4 Drop",note:"Every window covered"},{down:"2-Minute",call:"3-2-6 Mug · Cover 2",note:"Flatten field"},{down:"Empty",call:"3-2-6 Mug · Cover 4 Drop",note:"6 DBs vs 5 WRs"},{down:"vs Elite WR",call:"3-2-6 Mug · Cover 1 Robber",note:"Man + FS robber on elite WR — take him out of the game"}],
   },
   "3-2-6 Odd": {
     books:["3-2-6"], priority:"pass", personnel:"Dime",
