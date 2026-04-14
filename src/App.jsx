@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { TRAIT_LABELS } from './data/traits.js';
 import { scoreAll } from './engine/scoring.js';
 import { getAvailableFamilies } from './data/personnel.js';
@@ -13,6 +13,23 @@ import BottomNav from './components/BottomNav.jsx';
 export default function App() {
   // ── Navigation ──────────────────────────────────────────────────────────────
   const [step, setStep] = useState("scout");
+
+  // ── Theme ────────────────────────────────────────────────────────────────────
+  const [isDark, setIsDark] = useState(() => {
+    try { return localStorage.getItem('sb_theme') !== 'light'; } catch { return true; }
+  });
+
+  const onToggle = useCallback(() => {
+    setIsDark(prev => {
+      const next = !prev;
+      try { localStorage.setItem('sb_theme', next ? 'dark' : 'light'); } catch {}
+      return next;
+    });
+  }, []);
+
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', isDark ? 'dark' : 'light');
+  }, [isDark]);
 
   // ── Scout state ─────────────────────────────────────────────────────────────
   const [sel, setSel]         = useState({});
@@ -192,7 +209,7 @@ export default function App() {
       {step === "compare" && <CompareScreen  key="compare" compareA={compareA} setCompareA={setCompareA} compareB={compareB} setCompareB={setCompareB} setStep={navigate} />}
       {step === "notes"   && <NotesScreen    key={"notes" + (notesInitProfile || "")}   profiles={profiles} setStep={navigate} initProfile={notesInitProfile} handleShare={handleShare} shareToast={shareToast} />}
 
-      <BottomNav step={step} setStep={navigate} hasPlan={scored.length > 0} />
+      <BottomNav step={step} setStep={navigate} hasPlan={scored.length > 0} isDark={isDark} onToggle={onToggle} />
     </>
   );
 }
