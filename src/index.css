@@ -51,6 +51,12 @@
   --color-gold-dim:       #6a5418;
   --color-gold-surface:   #eae5d8;
   --color-gold-border:    #a89050;
+  --color-run:            #904820;
+  --color-pass:           #1a5abf;
+  --color-hybrid:         #5034a0;
+  --color-pressure:       #8a2828;
+  --color-success:        #2a7040;
+  --color-danger:         #903030;
 }
 
 /* ── XO pattern: lighter opacity in light mode ───────────────────────────── */
@@ -58,13 +64,12 @@
   color: rgba(120, 96, 24, 0.15);
 }
 
-/* ── Smooth theme transition ─────────────────────────────────────────────── */
+/* ── Reset ──────────────────────────────────────────────────────────────────── */
 *, *::before, *::after {
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
   transition: background-color 200ms ease, color 200ms ease, border-color 200ms ease;
 }
-
-/* ── Reset ──────────────────────────────────────────────────────────────────── */
-*, *::before, *::after { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
 html, body {
   margin: 0; padding: 0;
