@@ -50,8 +50,14 @@ export function scoreAll(flat, book, runPass) {
       if (isRun  && runBias < 0) sc = Math.max(0, sc + Math.round(runBias * 10));
       if (isPass && runBias > 0) sc = Math.max(0, sc + Math.round(-runBias * 10));
     }
-    // Penalize formations tagged as poor matchups for this opponent
-    if (d.avoidTags && d.avoidTags.some(t => flat.includes(t))) sc = Math.max(0, sc - 25);
+    // Penalize formations tagged as poor matchups for this opponent.
+    // Scaled by hit count: 1 hit = -15, 2 = -23, 3 = -31, 4+ = -39/40.
+    // Proportional suppression — severe multi-tag mismatches are penalized harder
+    // than the old flat -25 allowed, while single-tag edge cases stay visible.
+    if (d.avoidTags) {
+      const avoidHits = d.avoidTags.filter(t => flat.includes(t)).length;
+      if (avoidHits > 0) sc = Math.max(0, sc - Math.min(40, 15 + (avoidHits - 1) * 8));
+    }
     if (sc === 0) return null;
     return { name, sc, coreHits, suppHits, blitz: getBlitz(d, flat), ...d };
   }).filter(Boolean).filter(f => f.sc > 0).sort((a, b) => b.sc - a.sc);
@@ -91,7 +97,13 @@ export function scoreForPersonnel(personnelTag, allTraits) {
       ? ctx.filter(t => d.coreTags.includes(t)).length * 3
         + ctx.filter(t => d.suppTags.includes(t)).length * 1
       : 0;
-    const sc = Math.round(baseNorm + personnelBonus);
+    let sc = Math.round(baseNorm + personnelBonus);
+    // Apply the same scaled avoid-tag penalty as scoreAll() so mismatched
+    // formations don't surface in the personnel browser.
+    if (d.avoidTags) {
+      const avoidHits = d.avoidTags.filter(t => allTraits.includes(t)).length;
+      if (avoidHits > 0) sc = Math.max(0, sc - Math.min(40, 15 + (avoidHits - 1) * 8));
+    }
     if (sc === 0) return null;
     return { name, sc, coreHits, suppHits, blitz: getBlitz(d, allTraits), ...d };
   }).filter(Boolean).sort((a, b) => b.sc - a.sc);

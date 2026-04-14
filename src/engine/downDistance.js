@@ -26,16 +26,16 @@ const DOWN_DIST_MODS = {
 
   // 2nd down — context-driven
   '2_short':  { run: +12, pass: -10, pressure: -5,  hybrid: +5  },
-  '2_medium': { run: +5,  pass: +3,  pressure: +5,  hybrid: +5  },
+  '2_medium': { run: +3,  pass: +3,  pressure: +5,  hybrid: +8  },
   '2_long':   { run: -5,  pass: +10, pressure: +8,  hybrid: +3  },
 
   // 3rd down — pressure must clearly dominate pass-coverage on all 3rd downs
   '3_short':  { run: +3,  pass: +2,  pressure: +15, hybrid: +8  },
   '3_medium': { run: -10, pass: +8,  pressure: +18, hybrid: +5  },
-  '3_long':   { run: -15, pass: +12, pressure: +22, hybrid: 0   },
+  '3_long':   { run: -15, pass: +15, pressure: +20, hybrid: 0   },
 
   // 4th down — all-in
-  '4_short':  { run: +15, pass: 0,   pressure: +15, hybrid: +8  },
+  '4_short':  { run: +15, pass: 0,   pressure: +15, hybrid: +12 },
   '4_medium': { run: -5,  pass: +10, pressure: +20, hybrid: +5  },
   '4_long':   { run: -15, pass: +15, pressure: +25, hybrid: 0   },
 };
@@ -127,9 +127,10 @@ export function applyDownDistance(scored, down, distance) {
         ? (personnelMods[fm.personnel] || 0)
         : 0;
       const total = priorityDelta + personnelDelta;
-      return { ...fm, sc: Math.max(0, Math.min(100, fm.sc + total)), ddDelta: total };
+      const rawSc = Math.max(0, fm.sc + total);
+      return { ...fm, sc: Math.min(100, rawSc), rawSc, ddDelta: total };
     })
-    .sort((a, b) => b.sc - a.sc);
+    .sort((a, b) => b.rawSc - a.rawSc);
 }
 
 /**
