@@ -53,12 +53,12 @@ export default function BottomNav({ step, setStep, hasPlan, isDark = true, onTog
       position: "fixed",
       bottom: 0, left: 0, right: 0,
       zIndex: 90,
-      background: "rgba(var(--nav-bg, 7, 8, 15), 0.95)",
+      background: "var(--nav-bg-color)",
       backdropFilter: "blur(20px) saturate(180%)",
       WebkitBackdropFilter: "blur(20px) saturate(180%)",
       borderTop: "1px solid rgba(184, 136, 12, 0.18)",
       paddingBottom: "env(safe-area-inset-bottom)",
-      backgroundColor: "color-mix(in srgb, var(--color-bg) 95%, transparent)",
+      backgroundColor: "var(--nav-bg-color)",
     }}>
       <div style={{
         maxWidth: 720, margin: "0 auto",

@@ -215,9 +215,9 @@ export default function NotesScreen({ profiles, setStep, initProfile, handleShar
                 disabled={!noteText.trim()}
                 style={{
                   width: "100%", minHeight: 46, marginTop: 8,
-                  background: noteText.trim() ? "var(--color-gold)" : "var(--color-surface-1)",
+                  background: noteText.trim() ? "var(--color-cta-bg)" : "var(--color-surface-1)",
                   border: "none", borderRadius: "var(--r-md)",
-                  color: noteText.trim() ? "var(--color-bg)" : "var(--color-text-3)",
+                  color: noteText.trim() ? "var(--color-cta-text)" : "var(--color-text-3)",
                   fontSize: 14, fontWeight: "700",
                   cursor: noteText.trim() ? "pointer" : "not-allowed",
                   fontFamily: "var(--font-mono)",
@@ -342,9 +342,9 @@ export default function NotesScreen({ profiles, setStep, initProfile, handleShar
                 disabled={!dlDown || !dlResult}
                 style={{
                   width: "100%", minHeight: 46,
-                  background: (dlDown && dlResult) ? "var(--color-gold)" : "var(--color-surface-1)",
+                  background: (dlDown && dlResult) ? "var(--color-cta-bg)" : "var(--color-surface-1)",
                   border: "none", borderRadius: "var(--r-md)",
-                  color: (dlDown && dlResult) ? "var(--color-bg)" : "var(--color-text-3)",
+                  color: (dlDown && dlResult) ? "var(--color-cta-text)" : "var(--color-text-3)",
                   fontSize: 14, fontWeight: "700",
                   cursor: (dlDown && dlResult) ? "pointer" : "not-allowed",
                   fontFamily: "var(--font-mono)",

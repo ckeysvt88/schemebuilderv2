@@ -104,7 +104,7 @@ export default function ScoutScreen({
 
             <button
               onClick={dismissOnboarding}
-              style={{ width: "100%", height: 44, background: "linear-gradient(135deg,#b8880c,#d4a020,#b8880c)", border: "none", borderRadius: "var(--r-md)", color: "var(--color-bg)", fontWeight: "700", fontSize: 12, cursor: "pointer", fontFamily: "var(--font-mono)" }}
+              style={{ width: "100%", height: 44, background: "var(--color-cta-bg)", border: "none", borderRadius: "var(--r-md)", color: "var(--color-cta-text)", fontWeight: "700", fontSize: 12, cursor: "pointer", fontFamily: "var(--font-mono)" }}
             >
               Let's Build a Game Plan →
             </button>
@@ -380,12 +380,10 @@ export default function ScoutScreen({
               width: "100%",
               minHeight: 52,
               padding: "0 24px",
-              background: flat.length >= 2
-                ? "linear-gradient(135deg, #b8880c, #d4a020, #b8880c)"
-                : "var(--color-surface-2)",
-              border: "none",
+              background: flat.length >= 2 ? "var(--color-surface-1)" : "var(--color-surface-2)",
+              border: flat.length >= 2 ? "1px solid var(--color-border)" : "1px solid transparent",
               borderRadius: "var(--r-lg)",
-              color: flat.length >= 2 ? "var(--color-bg)" : "var(--color-text-3)",
+              color: flat.length >= 2 ? "var(--color-text-1)" : "var(--color-text-3)",
               fontSize: 15,
               fontWeight: "700",
               cursor: flat.length >= 2 ? "pointer" : "not-allowed",
@@ -419,7 +417,7 @@ export default function ScoutScreen({
             <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
               <button
                 onClick={() => { setSel(profiles[profileAction]); setScored([]); setProfileAction(null); }}
-                style={{ minHeight: 46, background: "var(--color-gold)", border: "none", borderRadius: "var(--r-md)", color: "var(--color-bg)", fontWeight: "700", fontSize: 14, cursor: "pointer", fontFamily: "var(--font-mono)" }}
+                style={{ minHeight: 46, background: "var(--color-cta-bg)", border: "none", borderRadius: "var(--r-md)", color: "var(--color-cta-text)", fontWeight: "700", fontSize: 14, cursor: "pointer", fontFamily: "var(--font-mono)" }}
               >
                 Load Offensive Profile
               </button>
@@ -464,7 +462,7 @@ export default function ScoutScreen({
               <button
                 onClick={() => { if (saveName.trim()) saveProfiles(p => ({ ...p, [saveName.trim()]: sel })); setModal(false); setSaveName(""); }}
                 disabled={!saveName.trim()}
-                style={{ flex: 1, minHeight: 46, background: "var(--color-gold)", border: "none", borderRadius: "var(--r-md)", color: "var(--color-bg)", fontWeight: "700", fontSize: 14, cursor: "pointer" }}
+                style={{ flex: 1, minHeight: 46, background: "var(--color-cta-bg)", border: "none", borderRadius: "var(--r-md)", color: "var(--color-cta-text)", fontWeight: "700", fontSize: 14, cursor: "pointer" }}
               >
                 Save
               </button>

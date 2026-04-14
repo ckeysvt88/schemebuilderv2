@@ -24,6 +24,11 @@
   --color-success:       #5a9870;
   --color-danger:        #b05050;
   --color-bg-fade:       rgba(7, 8, 15, 0.85);
+  --color-hero-bg:       var(--color-bg);
+  --color-hero-bg-fade:  rgba(7, 8, 15, 0.85);
+  --nav-bg-color:        rgba(7, 8, 15, 0.95);
+  --color-cta-bg:        linear-gradient(135deg, #b8880c, #d4a020, #b8880c);
+  --color-cta-text:      #07080f;
   --font-mono: 'IBM Plex Mono', 'SF Mono', monospace;
   --font-sans: 'IBM Plex Sans', 'SF Pro Text', system-ui, sans-serif;
   --nav-h:     56px;
@@ -35,36 +40,42 @@
 
 /* ── Light mode overrides ────────────────────────────────────────────────── */
 [data-theme="light"] {
-  --color-bg:             #f0f2f5;
-  --color-surface-1:      #e8ecf2;
-  --color-surface-2:      #dfe5ee;
-  --color-surface-3:      #d8dfe8;
+  --color-bg:             #edf1f8;
+  --color-surface-1:      #e3eaf5;
+  --color-surface-2:      #d8e2ef;
+  --color-surface-3:      #cfd9e8;
   --color-surface-danger: #f5e8e8;
   --color-surface-success:#e8f2ea;
-  --color-border-subtle:  #c8d0da;
-  --color-border:         #b0bcc8;
+  --color-border-subtle:  #c4cedd;
+  --color-border:         #aabace;
   --color-border-active:  #a89050;
-  --color-text-1:         #1a2030;
-  --color-text-2:         #3a4858;
-  --color-text-3:         #5a6878;
-  --color-gold:           #7a6018;
-  --color-gold-bright:    #9a7828;
-  --color-gold-dim:       #6a5418;
-  --color-gold-surface:   #eae5d8;
+  --color-text-1:         #0c1520;
+  --color-text-2:         #253040;
+  --color-text-3:         #475868;
+  --color-gold:           #6a5014;
+  --color-gold-bright:    #a87e28;
+  --color-gold-dim:       #705414;
+  --color-gold-surface:   #e8e0cc;
   --color-gold-border:    #a89050;
-  --color-bg-fade:        rgba(240, 242, 245, 0.85);
+  --color-bg-fade:        rgba(237, 241, 248, 0.85);
   --color-run:            #904820;
   --color-pass:           #1a5abf;
   --color-hybrid:         #5034a0;
   --color-pressure:       #8a2828;
   --color-success:        #2a7040;
   --color-danger:         #903030;
+  --color-cta-bg:         #1a1a1a;
+  --color-cta-text:       #f0f5ff;
+  --color-hero-bg:        var(--color-bg);
+  --color-hero-bg-fade:   rgba(237, 241, 248, 0.85);
+  --nav-bg-color:         rgba(28, 32, 42, 0.97);
 }
 
-/* ── XO pattern: lighter opacity in light mode ───────────────────────────── */
+/* ── XO pattern: lighter opacity on light hero bg ───────────────────────── */
 [data-theme="light"] .xo-hero::before {
   color: rgba(120, 96, 24, 0.15);
 }
+
 
 /* ── Reset ──────────────────────────────────────────────────────────────────── */
 *, *::before, *::after {
@@ -111,7 +122,7 @@ button, label { user-select: none; -webkit-user-select: none; }
 /* ── XO Hero ─────────────────────────────────────────────────────────────── */
 .xo-hero {
   position: relative;
-  background: var(--color-bg);
+  background: var(--color-hero-bg);
   border-bottom: 2px solid var(--color-gold);
   overflow: hidden;
 }
@@ -138,10 +149,10 @@ button, label { user-select: none; -webkit-user-select: none; }
   inset: 0;
   pointer-events: none;
   background:
-    linear-gradient(to right,  var(--color-bg) 0%, var(--color-bg-fade) 35%, transparent 55%),
-    linear-gradient(to left,   var(--color-bg) 0%, transparent 20%),
-    linear-gradient(to bottom, var(--color-bg) 0%, transparent 30%),
-    linear-gradient(to top,    var(--color-bg) 0%, transparent 40%); /* deeper — hero content sits near bottom */
+    linear-gradient(to right,  var(--color-hero-bg) 0%, var(--color-hero-bg-fade) 35%, transparent 55%),
+    linear-gradient(to left,   var(--color-hero-bg) 0%, transparent 20%),
+    linear-gradient(to bottom, var(--color-hero-bg) 0%, transparent 30%),
+    linear-gradient(to top,    var(--color-hero-bg) 0%, transparent 40%);
 }
 
 /* ── Footer XO echo ──────────────────────────────────────────────────────── */
