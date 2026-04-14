@@ -28,10 +28,11 @@ export const FDB = {
     coverages:[
       {name:"Cover 1",rating:5,tag:"Base",detail:"5 DL vs 5 OL — one-on-one matchups everywhere. LBs flow free to the ball. The run cannot gain yards when all gaps are filled."},
       {name:"Cover 2",rating:3,tag:"PA Insurance",detail:"Two safeties over top. Run dominance from 5 DL stays intact while Cover 2 protects against play-action fakes — safeties prevent the over-the-top shot on 2nd & short PA."},
+      {name:"Engage Eight",rating:4,tag:"Must-Stop / All-In",detail:"All-in engagement — confirmed in-game play name. Eight defenders engaged near LOS with no safety help. ONLY on 4th & 1 or GL when you are certain it's a run. Same 5 DL remain plus LBs committed to gaps — zero coverage behind."},
     ],
     preSnap:["All 5 DL: two-gap — never penetrate blindly","LBs: wait for DL engagement before pursuing — they're free runners","Sub OUT on any spread audible immediately","Never run 5-2 on passing downs under any circumstances"],
     coaching:[{label:"DL Tech",value:"Two-Gap / Occupy"},{label:"Run Aggr.",value:"Maximum"},{label:"LBs",value:"Flow AFTER contact"},{label:"Usage",value:"Heavy Personnel ONLY"}],
-    callsheet:[{down:"1st & 10 (13/23p)",call:"5-2 Normal · Cover 1",note:"5 DL vs 5 OL — identify the pass-catching TE pre-snap"},{down:"1st & 10 (22p)",call:"5-2 Normal · Cover 1",note:"Individual matchups everywhere"},{down:"2nd & Short",call:"5-2 Normal · Cover 2",note:"Run dominance + PA insurance"}],
+    callsheet:[{down:"1st & 10 (13/23p)",call:"5-2 Normal · Cover 1",note:"5 DL vs 5 OL — identify the pass-catching TE pre-snap"},{down:"1st & 10 (22p)",call:"5-2 Normal · Cover 1",note:"Individual matchups everywhere"},{down:"2nd & Short",call:"5-2 Normal · Cover 2",note:"Run dominance + PA insurance"},{down:"4th & 1",call:"5-2 Normal · Engage Eight",note:"All-in — zero coverage behind"}],
   },
   "Goal Line 5-3": {
     books:["All"], priority:"run", personnel:"Goal Line",
@@ -709,10 +710,11 @@ export const FDB = {
     coverages:[
       {name:"Cover 3",rating:5,tag:"Protect Lead",detail:"Three safeties in deep thirds. No vertical beats the defense. Allow short throw — make the tackle."},
       {name:"Cover 4 Quarters",rating:4,tag:"2-Score Lead",detail:"Four-across deep. Zero big plays. Best protecting a 2-score lead."},
+      {name:"Tampa 2",rating:3,tag:"Seam Counter",detail:"Deep safety drops to mid-read instead of deep third — different three-high look, same coverage confusion. Use when offense has been finding the seam between safeties on standard Cover 3."},
     ],
     preSnap:["NEVER press — all deep routes tracked with cushion","Allow the short throw — tackle immediately","Do NOT use unless protecting a lead"],
     coaching:[{label:"Usage",value:"Protect Lead / 2-Min ONLY"},{label:"Safety Depth",value:"15+ yards"},{label:"CB",value:"Off — NEVER press"}],
-    callsheet:[{down:"2-Min (leading)",call:"3-3-5 3-High · Cover 3",note:"Allow underneath — eliminate explosive"},{down:"2-Score Lead",call:"3-3-5 3-High · Cover 4",note:"Zero big plays"}],
+    callsheet:[{down:"2-Min (leading)",call:"3-3-5 3-High · Cover 3",note:"Allow underneath — eliminate explosive"},{down:"2-Score Lead",call:"3-3-5 3-High · Cover 4",note:"Zero big plays"},{down:"Seam threat",call:"3-3-5 3-High · Tampa 2",note:"Safety robs seam mid-read — same three-high look"}],
   },
   "3-3-5 3 High Odd": {
     books:["3-3-5","3-2-6"], priority:"pass", personnel:"Nickel",
