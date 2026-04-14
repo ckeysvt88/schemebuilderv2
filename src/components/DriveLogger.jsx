@@ -97,7 +97,7 @@ export default function DriveLogger({ onClose }) {
       <div style={{ padding: '10px 14px', flexShrink: 0, borderBottom: '1px solid var(--color-border-subtle)' }}>
         <button
           onClick={() => setShowForm(v => !v)}
-          style={{ width: '100%', padding: '10px', background: showForm ? '#1a1408' : 'linear-gradient(135deg,#3a2c08,#6a5010,#3a2c08)', border: `2px solid ${showForm ? '#6a5010' : '#b8880c'}`, borderRadius: 9, color: showForm ? '#b8880c' : '#0a0e16', fontWeight: 'bold', fontSize: 12, cursor: 'pointer', fontFamily: "'IBM Plex Mono', monospace", letterSpacing: '1px' }}
+          style={{ width: '100%', padding: '10px', background: showForm ? 'var(--color-gold-surface)' : 'linear-gradient(135deg, var(--color-gold-surface), var(--color-gold-border), var(--color-gold-surface))', border: `2px solid ${showForm ? 'var(--color-gold-border)' : 'var(--color-gold)'}`, borderRadius: 9, color: showForm ? 'var(--color-gold)' : 'var(--color-bg)', fontWeight: 'bold', fontSize: 12, cursor: 'pointer', fontFamily: "'IBM Plex Mono', monospace", letterSpacing: '1px' }}
         >
           {showForm ? '▲ Cancel' : '+ Log Drive Result'}
         </button>
@@ -156,7 +156,7 @@ export default function DriveLogger({ onClose }) {
       {/* Log list */}
       <div style={{ flex: 1, overflowY: 'auto', padding: '10px 14px 30px' }}>
         {entries.length === 0 && (
-          <div style={{ textAlign: 'center', color: '#4a5a6a', padding: 40, fontSize: 12, fontStyle: 'italic' }}>
+          <div style={{ textAlign: 'center', color: 'var(--color-text-3)', padding: 40, fontSize: 12, fontStyle: 'italic' }}>
             No drives logged yet. Tap "Log Drive Result" to start tracking.
           </div>
         )}
@@ -169,21 +169,21 @@ export default function DriveLogger({ onClose }) {
                   <span style={{ fontSize: 10, color: 'var(--color-gold-dim)', fontFamily: "'IBM Plex Mono', monospace" }}>{e.down} & {e.distance}</span>
                 )}
               </div>
-              <button onClick={() => deleteEntry(e.id)} style={{ background: 'transparent', border: 'none', color: '#4a5a6a', fontSize: 14, cursor: 'pointer', padding: '0 2px' }}>✕</button>
+              <button onClick={() => deleteEntry(e.id)} style={{ background: 'transparent', border: 'none', color: 'var(--color-text-3)', fontSize: 14, cursor: 'pointer', padding: '0 2px' }}>✕</button>
             </div>
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginBottom: e.notes ? 6 : 0 }}>
               <span style={{ fontSize: 12, fontWeight: 'bold', color: resultColor(e.result), background: `${resultColor(e.result)}18`, border: `1px solid ${resultColor(e.result)}55`, padding: '2px 8px', borderRadius: 5, fontFamily: "'IBM Plex Mono', monospace" }}>
                 {e.result}
               </span>
               {e.formation && (
-                <span style={{ fontSize: 11, color: '#7898ae', fontFamily: "'IBM Plex Mono', monospace" }}>{e.formation}</span>
+                <span style={{ fontSize: 11, color: 'var(--color-text-2)', fontFamily: "'IBM Plex Mono', monospace" }}>{e.formation}</span>
               )}
               {e.call && (
-                <span style={{ fontSize: 11, color: '#90b0c4' }}>· {e.call}</span>
+                <span style={{ fontSize: 11, color: 'var(--color-text-2)' }}>· {e.call}</span>
               )}
             </div>
             {e.notes && (
-              <div style={{ fontSize: 11, color: '#7f9fb2', fontStyle: 'italic', marginTop: 4 }}>{e.notes}</div>
+              <div style={{ fontSize: 11, color: 'var(--color-text-3)', fontStyle: 'italic', marginTop: 4 }}>{e.notes}</div>
             )}
           </div>
         ))}

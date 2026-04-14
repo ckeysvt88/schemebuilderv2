@@ -231,10 +231,10 @@ export default function GamePlanScreen({
 
 
         {/* ── Down & Distance Situation ── */}
-        <div style={{ background: "#061009", border: "1px solid #1a3820", borderLeft: "3px solid #2a5030", borderRadius: "var(--r-md)", padding: "8px 10px", marginBottom: 12 }}>
+        <div style={{ background: "var(--color-surface-success)", border: "1px solid var(--color-border)", borderLeft: "3px solid var(--color-success)", borderRadius: "var(--r-md)", padding: "8px 10px", marginBottom: 12 }}>
           {/* Row 1: Down */}
           <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
-            <span style={{ fontSize: 9, color: "#4a7855", letterSpacing: "2px", textTransform: "uppercase", fontFamily: "var(--font-mono)", flexShrink: 0, width: 32 }}>Down</span>
+            <span style={{ fontSize: 9, color: "var(--color-text-3)", letterSpacing: "2px", textTransform: "uppercase", fontFamily: "var(--font-mono)", flexShrink: 0, width: 32 }}>Down</span>
             {DOWN_BTNS.map(btn => (
               <button
                 key={btn.id}
@@ -254,12 +254,12 @@ export default function GamePlanScreen({
               </button>
             ))}
             {situDown && (
-              <button onClick={() => { setSituDown(""); setSituDist(""); }} style={{ background: "transparent", border: "none", color: "#4a8858", fontSize: 14, cursor: "pointer", padding: "0 2px", lineHeight: 1, flexShrink: 0 }}>×</button>
+              <button onClick={() => { setSituDown(""); setSituDist(""); }} style={{ background: "transparent", border: "none", color: "var(--color-text-3)", fontSize: 14, cursor: "pointer", padding: "0 2px", lineHeight: 1, flexShrink: 0 }}>×</button>
             )}
           </div>
           {/* Row 2: Distance */}
           <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-            <span style={{ fontSize: 9, color: "#4a7855", letterSpacing: "2px", textTransform: "uppercase", fontFamily: "var(--font-mono)", flexShrink: 0, width: 32 }}>Dist</span>
+            <span style={{ fontSize: 9, color: "var(--color-text-3)", letterSpacing: "2px", textTransform: "uppercase", fontFamily: "var(--font-mono)", flexShrink: 0, width: 32 }}>Dist</span>
             {DIST_BTNS.map(btn => {
               const disabled = !situDown || situDown === "base" || situDown === "rz";
               const active = !disabled && situDist === btn.id;

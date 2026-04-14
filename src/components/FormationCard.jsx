@@ -88,8 +88,8 @@ export default function FormationCard({ fm, onSelect, isSelected }) {
       </div>
 
       {/* Score progress bar */}
-      <div style={{ height: 3, borderRadius: 2, background: "#1a2a3a", marginTop: 8, marginBottom: 6 }}>
-        <div style={{ height: "100%", width: `${Math.min(100, fm.sc)}%`, borderRadius: 2, background: "linear-gradient(90deg, #2a4060, #b8880c)" }} />
+      <div style={{ height: 3, borderRadius: 2, background: "var(--color-border-subtle)", marginTop: 8, marginBottom: 6 }}>
+        <div style={{ height: "100%", width: `${Math.min(100, fm.sc)}%`, borderRadius: 2, background: "linear-gradient(90deg, var(--color-border), var(--color-gold))" }} />
       </div>
 
       {isSelected && (

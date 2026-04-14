@@ -240,8 +240,8 @@ export default function ScoutScreen({
                 onClick={() => toggleCard(group.id)}
                 style={{
                   gridColumn: colSpan,
-                  background: cnt > 0 ? "#080e0a" : "var(--color-surface-2)",
-                  border: `1px solid ${isOpen ? "var(--color-gold)" : cnt > 0 ? "#2a5828" : "var(--color-border-subtle)"}`,
+                  background: cnt > 0 ? "var(--color-surface-success)" : "var(--color-surface-2)",
+                  border: `1px solid ${isOpen ? "var(--color-gold)" : cnt > 0 ? "var(--color-border)" : "var(--color-border-subtle)"}`,
                   borderRadius: "var(--r-md)",
                   padding: "10px 5px 8px",
                   textAlign: "center",
@@ -255,7 +255,7 @@ export default function ScoutScreen({
                   {group.label}
                 </div>
                 {cnt > 0
-                  ? <div style={{ marginTop: 4, background: "#1a3820", border: "1px solid #2a6828", borderRadius: 6, padding: "1px 0", fontSize: 9, color: "var(--color-success)", fontWeight: "700", fontFamily: "var(--font-mono)" }}>{cnt} ✓</div>
+                  ? <div style={{ marginTop: 4, background: "var(--color-surface-success)", border: "1px solid var(--color-border)", borderRadius: 6, padding: "1px 0", fontSize: 9, color: "var(--color-success)", fontWeight: "700", fontFamily: "var(--font-mono)" }}>{cnt} ✓</div>
                   : <div style={{ marginTop: 4, height: 14 }} />
                 }
               </button>
@@ -268,7 +268,7 @@ export default function ScoutScreen({
           const group = TRAITS.find(g => g.id === openCard);
           if (!group) return null;
           return (
-            <div style={{ marginBottom: 12, background: "var(--color-bg)", border: "1px solid #2a5828", borderRadius: "var(--r-md)", padding: "11px 12px" }}>
+            <div style={{ marginBottom: 12, background: "var(--color-bg)", border: "1px solid var(--color-border)", borderRadius: "var(--r-md)", padding: "11px 12px" }}>
               <div style={{ fontSize: 11, fontWeight: "700", color: "var(--color-success)", letterSpacing: "1px", textTransform: "uppercase", marginBottom: 8, fontFamily: "var(--font-mono)" }}>
                 {ICONS[group.id]} {group.label}
               </div>
