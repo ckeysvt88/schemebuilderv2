@@ -9,12 +9,13 @@ export const FDB = {
     coreTags:["inside_run","short_yardage_run","p22","p21","p13","p23","strong_oline","four_down_go","run_heavy_1st","redzone_spec","fb_lead"],
     suppTags:["outside_run","hb_stretch","counter_trap","p12"],
     coverages:[
-      {name:"Cover 1",rating:5,tag:"Base",detail:"Single safety. Every gap and receiver assigned. 8 defenders vs 5 blockers — physical dominance."},
-      {name:"Cover 0",rating:4,tag:"Must-Stop",detail:"No safety. ONLY on 4th & 1 or goal-to-go. He must be perfect in under 1 second."},
+      {name:"Cover 1",rating:5,tag:"Base",detail:"Single safety. Every gap and receiver assigned. 8 defenders vs 5 blockers — physical dominance. Primary call for all short-yardage and GL situations."},
+      {name:"Engage Eight",rating:4,tag:"Must-Stop / All-In",detail:"All 8 box defenders engaged — no safety. ONLY on 4th & 1 or goal-to-go. He must be perfect in under 1 second or he gains nothing. Do NOT use on any down where a completion = first down."},
+      {name:"Cover 3",rating:3,tag:"PA Counter",detail:"Three safeties over top to prevent the big play-action shot. When he's mixed PA fade from 22p or GL look, Cover 3 behind the 46 surface eliminates the free touchdown."},
     ],
     preSnap:["Both OLBs: hard perimeter — NEVER fold inside","DL: two-gap hold — occupy, don't penetrate","SS: box presence — 9th defender","CB: hard press — eliminate quick fade release","Sub OUT immediately vs spread audible"],
     coaching:[{label:"Run Aggr.",value:"Maximum"},{label:"DL Tech",value:"Two-Gap Hold"},{label:"Safety",value:"Box / 5 yds"},{label:"CB Press",value:"Hard Press at LOS"},{label:"Usage",value:"Short Yardage / GL ONLY"}],
-    callsheet:[{down:"3rd & 1 (21/22p)",call:"46 Bear · Cover 1",note:"Outnumber every blocker"},{down:"GL / 3rd & 1 (13/23p)",call:"46 Bear · Cover 1",note:"3 TEs cannot all block — MLB wall the seam TE"},{down:"4th & Short",call:"46 Bear · Cover 0",note:"All-in"},{down:"Goal Line",call:"46 Bear · Cover 1",note:"Max gap filling"}],
+    callsheet:[{down:"3rd & 1 (21/22p)",call:"46 Bear · Cover 1",note:"Outnumber every blocker"},{down:"GL / 3rd & 1 (13/23p)",call:"46 Bear · Cover 1",note:"3 TEs cannot all block — MLB wall the seam TE"},{down:"4th & Short",call:"46 Bear · Engage Eight",note:"All-in — no safety help"},{down:"22p PA-heavy",call:"46 Bear · Cover 3",note:"Eliminate the PA fade off GL look"}],
   },
   "5-2 Normal": {
     books:["Multiple"], priority:"run", personnel:"Heavy",
