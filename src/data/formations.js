@@ -875,7 +875,7 @@ export const FDB = {
 
   "3-3-5 Odd Ghost": {
     books:["3-3-5","3-2-6"], priority:"pass", personnel:"Nickel",
-    desc:"Odd Ghost deploys DEs in an apparent 5-tech edge alignment pre-snap, then slants both inside to the 4i (inside shoulder of the OT) at the snap — ghosting the B-gap. Two 4i DEs seal three interior gaps, leaving only one for a linebacker. Because OGs can't reach a 4i DE and OTs can't release to block scraping LBs, all linebackers are freed for pure coverage drops. The Viper sub-package upgrades to six DBs (3 safeties, 1 slot CB, 2 corners) against spread personnel. Offense game-plans for outside edge rushers but encounters interior B-gap attack at the snap, breaking all blocking assignments.",
+    desc:"The offense sees a standard 3-3-5 edge front pre-snap; at the snap, both DEs slant inside to 4i, sealing the interior and releasing all LBs into coverage. Pressure comes from where the offense least expects it.",
     dcNote:"Ghost DEs don't rush the edge — they play 4i. Every interior blocker is assigned the wrong gap. Shift the line away from the ghost backer, walk him up like a DE pre-snap, and the offense has no read on where pressure originates.",
     blitzBase:28, blitzMods:[{tags:["p10","empty"],d:+10},{tags:["qb_scramble","mobile_qb"],d:+8},{tags:["rpo","quick_game"],d:-6},{tags:["inside_run","strong_oline"],d:-10}],
     avoidTags:["p21","p22","p23","strong_oline","power_run","tight_end_heavy"],
