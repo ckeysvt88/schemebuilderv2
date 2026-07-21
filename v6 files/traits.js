@@ -13,7 +13,7 @@ export const TRAIT_LABELS = {
   p01:"01p (No RB, 1 TE, 4 WR)", p02:"02p (No RB, 2 TE, 3 WR)",
   p12:"12p (1 RB, 2 TE, 2 WR)", p13:"13p (1 RB, 3 TE, 1 WR)",
   p20:"20p (2 RB, 3 WR)", p21:"21p (2 RB, 1 TE, 2 WR)", p22:"22p (2 RB, 2 TE, 1 WR)", p23:"23p (2 RB, 3 TE — Jumbo)",
-  trips:"Trips (3x1)", bunch:"Bunch / Compressed", stack_align:"Stacked WRs", empty:"Empty Backfield", elite_wr:"Elite WR",
+  trips:"Trips / Bunch Sets", empty:"Empty Backfield", elite_wr:"Elite WR",
   elite_te:"Elite TE", elite_rb:"Elite HB", mobile_qb:"Mobile QB",
   strong_oline:"Dominant OL", slot_threat:"Dangerous Slot", dual_threat:"Dual-Threat QB",
   qb_checkdown:"Checkdown QB", qb_pocket:"Pocket QB", qb_scramble:"Scrambling QB",

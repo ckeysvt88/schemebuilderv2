@@ -9,6 +9,8 @@ import GamePlanScreen from './components/GamePlanScreen.jsx';
 import CompareScreen from './components/CompareScreen.jsx';
 import NotesScreen from './components/NotesScreen.jsx';
 import BottomNav from './components/BottomNav.jsx';
+import MacroBuilder from './components/MacroBuilder.jsx';
+import FormationInfo from './components/FormationInfo.jsx';
 
 export default function App() {
   // ── Navigation ──────────────────────────────────────────────────────────────
@@ -50,6 +52,10 @@ export default function App() {
   const [myBook, setMyBook] = useState(() => {
     try { return localStorage.getItem("cfb26_myBook") || "All"; } catch(e) { return "All"; }
   });
+  // The book the user deliberately picked (Scout dropdown / Team Picker), distinct from
+  // myBook — which the Plan-tab recommendation modal can temporarily override. This is
+  // what "go back to my playbook" restores, instead of hard-resetting to "All".
+  const [manualBook, setManualBook] = useState(myBook);
 
   // ── Opponent profiles ─────────────────────────────────────────────────────────
   const [profiles, setProfiles] = useState(() => {
@@ -64,9 +70,21 @@ export default function App() {
   const [compareA, setCompareA] = useState("3-3-5 Tite");
   const [compareB, setCompareB] = useState("4-3 Multiple");
 
+  // ── Selected team (Team Picker → Plan) ────────────────────────────────────────
+  const [selectedTeam, setSelectedTeam] = useState(null);
+
   // ── Derived ──────────────────────────────────────────────────────────────────
   const flat         = Object.values(sel).flat();
   const personnelSel = sel.personnel || [];
+
+  // Keep `scored` in sync with the live scout. Previously scored only recomputed
+  // on explicit Build/book-change, so changing tags then viewing Plan showed a
+  // STALE ranking (e.g. run fronts left over from a prior scout vs an empty set).
+  // Deriving it reactively makes stale recommendations structurally impossible.
+  useEffect(() => {
+    if (!flat.length) { setScored([]); return; }
+    setScored(scoreAll(flat, myBook || "All", runPass));
+  }, [JSON.stringify(flat), myBook, runPass]);
 
   const displayScored = (ddDown && ddDistance)
     ? applyDownDistance(scored, Number(ddDown), Number(ddDistance))
@@ -97,6 +115,21 @@ export default function App() {
     setSelFm(null);
   };
 
+  // Deliberate book picks (Scout dropdown, Team Picker) — updates the "home" book
+  // that the Plan-tab recommendation modal reverts to.
+  const changeBookManual = (book) => {
+    changeBook(book);
+    setManualBook(book);
+  };
+
+  const loadProfile = useCallback((profileTags) => {
+    setSel(profileTags);
+    setScored(scoreAll(Object.values(profileTags).flat(), myBook || "All", runPass));
+    setSelFm(null);
+    setActiveP(null);
+    setSelectedTeam(null);
+  }, [myBook, runPass]);
+
   const toggle = useCallback((g, t) =>
     setSel(p => { const c = p[g] || []; return { ...p, [g]: c.includes(t) ? c.filter(x => x !== t) : [...c, t] }; }), []);
 
@@ -109,12 +142,13 @@ export default function App() {
     setActiveP(fams[0] || (personnelSel.length ? personnelSel[0] : "p11"));
     setSelFm(null);
     setMainTab("personnel");
+    setSelectedTeam(null);
     navigate("plan");
     document.getElementById('root')?.scrollTo(0, 0);
   };
 
   const buildShareText = () => {
-    const lines = ['CFB26 DC SCHEME BUILDER — GAME PLAN', '═'.repeat(38), ''];
+    const lines = ['CFB 27 DC SCHEME BUILDER — GAME PLAN', '═'.repeat(38), ''];
     const allTraits = Object.entries(sel).flatMap(([, ids]) => ids.map(id => TRAIT_LABELS[id] || id));
     if (allTraits.length) { lines.push('SCOUTED TRAITS:'); allTraits.forEach(t => lines.push(`  · ${t}`)); lines.push(''); }
     lines.push('TOP MATCHED FORMATIONS:', '─'.repeat(30));
@@ -132,7 +166,7 @@ export default function App() {
   const handleShare = async () => {
     const text = buildShareText();
     try {
-      if (navigator.share) { await navigator.share({ title: 'CFB26 DC Game Plan', text }); setShareToast('shared'); }
+      if (navigator.share) { await navigator.share({ title: 'CFB 27 DC Game Plan', text }); setShareToast('shared'); }
       else { await navigator.clipboard.writeText(text); setShareToast('copied'); }
     } catch(e) {
       try { await navigator.clipboard.writeText(text); setShareToast('copied'); } catch(e2) {}
@@ -169,7 +203,7 @@ export default function App() {
   const sharedProps = {
     sel, setSel, flat, personnelSel,
     runPass, setRunPass,
-    myBook, changeBook,
+    myBook, changeBook, manualBook, changeBookManual,
     scored: displayScored, rawScored: scored, setScored,
     activeP, setActiveP,
     selFm, setSelFm,
@@ -179,7 +213,7 @@ export default function App() {
     shareToast, handleShare,
     modal, setModal,
     saveName, setSaveName,
-    profiles, saveProfiles,
+    profiles, saveProfiles, loadProfile,
     importMsg, exportProfiles, importProfiles,
     toggle, build,
     compareA, setCompareA,
@@ -188,6 +222,7 @@ export default function App() {
     ddDistance, setDdDistance,
     setStep: navigate,
     navigateToNotes: (profileName) => { setNotesInitProfile(profileName); navigate("notes"); },
+    selectedTeam,
   };
 
   return (
@@ -195,18 +230,23 @@ export default function App() {
       {step === "teams"   && <TeamsScreen   key="teams"   onBack={() => navigate("scout")} onBuildFromTeam={(team) => {
         const results = scoreAll(team.traits, "All");
         setMyBook("All");
+        setManualBook("All");
         try { localStorage.setItem("cfb26_myBook", "All"); } catch(e) {}
         setSel({ _team: team.traits });
         setScored(results);
         // Use getAvailableFamilies to pick the most contextually relevant starting family
         const teamFams = getAvailableFamilies(team.traits);
         setActiveP(teamFams[0] || "p11_gun");
-        setSelFm(null); setMainTab("personnel"); navigate("plan");
+        setSelFm(null); setMainTab("personnel");
+        setSelectedTeam(team);
+        navigate("plan");
         document.getElementById('root')?.scrollTo(0, 0);
       }} />}
       {step === "scout"   && <ScoutScreen   key="scout"   {...sharedProps} />}
       {step === "plan"    && <GamePlanScreen key="plan"    {...sharedProps} />}
       {step === "compare" && <CompareScreen  key="compare" compareA={compareA} setCompareA={setCompareA} compareB={compareB} setCompareB={setCompareB} setStep={navigate} />}
+      {step === "macros"  && <MacroBuilder key="macros" />}
+      {step === "info"    && <FormationInfo key="info" />}
       {step === "notes"   && <NotesScreen    key={"notes" + (notesInitProfile || "")}   profiles={profiles} setStep={navigate} initProfile={notesInitProfile} handleShare={handleShare} shareToast={shareToast} />}
 
       <BottomNav step={step} setStep={navigate} hasPlan={scored.length > 0} isDark={isDark} onToggle={onToggle} />

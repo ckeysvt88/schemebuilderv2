@@ -9,7 +9,7 @@ const pbColor = (book) =>
 
 const getFormations = (book) =>
   Object.entries(FDB)
-    .filter(([, d]) => book === "All" || d.books.includes(book) || d.books.includes("All"))
+    .filter(([, d]) => book === "All" || d.books.includes(book))
     .map(([name, d]) => ({ name, ...d }))
     .sort((a, b) => a.name.localeCompare(b.name));
 

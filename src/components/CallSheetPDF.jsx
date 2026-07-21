@@ -313,7 +313,7 @@ function CallSheetDocument({ data }) {
           <View>
             <Text style={S.hdrBrand}>SCHEME BUILDERS</Text>
             <Text style={S.hdrTitle}>DEFENSIVE CALL SHEET</Text>
-            <Text style={S.hdrSubtitle}>CFB26 Defensive Scheme Builder — Game Preparation</Text>
+            <Text style={S.hdrSubtitle}>CFB 27 Defensive Scheme Builder — Game Preparation</Text>
           </View>
           <View style={S.hdrRight}>
             <Text style={S.hdrMeta}>{date}</Text>
@@ -383,7 +383,7 @@ function CallSheetDocument({ data }) {
         </View>
 
         <View style={S.footer}>
-          <Text style={S.footerTxt}>Scheme Builders · CFB26 Defensive Scheme Builder · CONFIDENTIAL — GAME PREP</Text>
+          <Text style={S.footerTxt}>Scheme Builders · CFB 27 Defensive Scheme Builder · CONFIDENTIAL — GAME PREP</Text>
           <Text style={S.footerTxt}>Page 1 of 2</Text>
         </View>
       </Page>
@@ -407,7 +407,7 @@ function CallSheetDocument({ data }) {
         ))}
 
         <View style={S.footer}>
-          <Text style={S.footerTxt}>Scheme Builders · CFB26 Defensive Scheme Builder · CONFIDENTIAL — GAME PREP</Text>
+          <Text style={S.footerTxt}>Scheme Builders · CFB 27 Defensive Scheme Builder · CONFIDENTIAL — GAME PREP</Text>
           <Text style={S.footerTxt}>Page 2 of 2</Text>
         </View>
       </Page>
@@ -463,6 +463,10 @@ export const ExportPDFButton = memo(function ExportPDFButton({ rawScored, sel, m
           </button>
         ) : (
           // ── Compact header button ─────────────────────────────────────────
+          // Keep the static label/appearance regardless of PDFDownloadLink's
+          // loading state — that flips true→false on every fresh mount (e.g.
+          // navigating in from Team Picker), which otherwise flashes this
+          // button and only this button, since it's the only async one here.
           <button
             disabled={loading}
             style={{
@@ -471,16 +475,15 @@ export const ExportPDFButton = memo(function ExportPDFButton({ rawScored, sel, m
               background: 'transparent',
               border: '1px solid var(--color-border)',
               borderRadius: 'var(--r-sm)',
-              color: loading ? 'var(--color-text-3)' : 'var(--color-text-2)',
+              color: 'var(--color-text-2)',
               fontSize: 12,
               cursor: loading ? 'wait' : 'pointer',
               fontFamily: 'var(--font-mono)',
               whiteSpace: 'nowrap',
               transition: 'all 150ms ease',
-              opacity: loading ? 0.6 : 1,
             }}
           >
-            {loading ? '…' : (label || 'PDF')}
+            {label || 'PDF'}
           </button>
         )
       }

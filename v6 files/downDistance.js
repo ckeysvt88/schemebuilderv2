@@ -100,10 +100,10 @@ const SITUATION_TIPS = {
   '2_long':   'He must throw. Sub Nickel or Dime based on his personnel. Blitz rate can increase safely here.',
   '3_short':  'He may sneak or QB keeper. Pack the box with run-stop AND a pressure package ready. Cover 0 viable.',
   '3_medium': 'Pure passing down. He will spread you — sub Nickel minimum. Loop blitz or A-gap pressure now.',
-  '3_long':   'Max coverage territory. Dime or Dollar Sugar 3-2. Blitz rate 30%+. He MUST convert — apply maximum pressure.',
+  '3_long':   'Max coverage territory. Dime or 3-2-6 Mug. Blitz rate 30%+. He MUST convert — apply maximum pressure.',
   '4_short':  'Assignment defense. Every gap filled. Cover 0 is viable. He must get these inches.',
   '4_medium': 'He is going for it — maximum pressure. Dime Rush or aggressive Nickel blitz. Force the incompletion.',
-  '4_long':   'He is desperate. Blitz maximum. Dollar Sugar 3-2 or Dime Rush. Someone goes free — get the stop.',
+  '4_long':   'He is desperate. Blitz maximum. 3-2-6 Mug or Dime Rush. Someone goes free — get the stop.',
 };
 
 /**

@@ -35,7 +35,14 @@
       "Bash(node:*)",
       "Bash(awk '/^C:.*App.jsx$/{flag=1} flag && /^C:/ && !/App.jsx/{flag=0} flag')",
       "Bash(awk '/src.*App.jsx$/{flag=1} flag && /^C:.*\\\\.jsx$/ && !/App.jsx/{flag=0} flag')",
-      "Bash(npm test:*)"
+      "Bash(npm test:*)",
+      "Bash(git checkout *)",
+      "Bash(git pull *)",
+      "Bash(git tag *)",
+      "Bash(git push *)",
+      "Bash(git apply *)",
+      "Bash(echo \"EXIT_CODE:$?\")",
+      "Bash(echo \"EXIT:$?\")"
     ]
   }
 }

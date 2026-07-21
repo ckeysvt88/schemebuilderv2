@@ -180,6 +180,12 @@ button, label { user-select: none; -webkit-user-select: none; }
   grid-template-columns: repeat(12, 1fr);
   gap: 6px;
 }
+.macro-cat-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+}
+
 
 @media (min-width: 768px) {
   .trait-card-grid {

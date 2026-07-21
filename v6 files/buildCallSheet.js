@@ -28,8 +28,7 @@ const SITUATIONS = [
 ];
 
 // Select the most situationally correct coverage for this formation + down/distance.
-// Formations are expected to list coverages sorted by general rating (5 = best),
-// but we sort explicitly here so an out-of-order data entry can't silently win.
+// Formations always list coverages sorted by general rating (5 = best).
 // For 3rd/4th & long we need a deep-zone call (Cover 2/4/Quarters) — Cover 3 bleeds
 // the seam between safeties on must-convert distances.
 // For 3rd/4th & short / goal-line we want assignment man (Cover 0/1).
@@ -39,22 +38,20 @@ function selectCoverage(f, down, distance) {
   if (!covs || covs.length === 0) return '—';
   if (covs.length === 1) return covs[0].name;
 
-  const sorted = [...covs].sort((a, b) => (b.rating || 0) - (a.rating || 0));
-
   if ((down === 3 || down === 4) && distance >= 7) {
     // Prefer deep-zone coverage on must-convert long situations
-    const deepZone = sorted.find(c => /\bcover\s*[24]\b|quarters/i.test(c.name));
+    const deepZone = covs.find(c => /\bcover\s*[24]\b|quarters/i.test(c.name));
     if (deepZone) return deepZone.name;
   }
 
   if ((down === 3 || down === 4) && distance <= 3) {
     // Prefer man/zero on assignment short-yardage stops
-    const man = sorted.find(c => /cover\s*0\b|zero|cover\s*1[^3\s]|cover\s*1$/i.test(c.name));
+    const man = covs.find(c => /cover\s*0\b|zero|cover\s*1[^3\s]|cover\s*1$/i.test(c.name));
     if (man) return man.name;
   }
 
   // All other situations: top-rated coverage (index 0)
-  return sorted[0].name;
+  return covs[0].name;
 }
 
 function pluck(f, down, distance) {

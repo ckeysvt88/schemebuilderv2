@@ -14,15 +14,6 @@ const TABS = [
     ),
   },
   {
-    id: "teams",
-    label: "Teams",
-    icon: (
-      <svg width="22" height="22" viewBox="0 0 22 22" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M11 3L4 6.5v4.5c0 4.2 3.1 6.8 7 8 3.9-1.2 7-3.8 7-8V6.5L11 3z"/>
-      </svg>
-    ),
-  },
-  {
     id: "plan",
     label: "Plan",
     icon: (
@@ -35,6 +26,18 @@ const TABS = [
     ),
   },
   {
+    id: "teams",
+    label: "Teams",
+    icon: (
+      <svg width="22" height="22" viewBox="0 0 22 22" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+        <circle cx="8" cy="7" r="3"/>
+        <path d="M2.5 19c0-3.3 2.5-6 5.5-6s5.5 2.7 5.5 6"/>
+        <circle cx="16" cy="8" r="2.3"/>
+        <path d="M13.8 13.2c2.4 0.3 4.2 2.5 4.2 5.3"/>
+      </svg>
+    ),
+  },
+  {
     id: "compare",
     label: "Compare",
     icon: (
@@ -42,6 +45,28 @@ const TABS = [
         <line x1="11" y1="4" x2="11" y2="18"/>
         <rect x="3"  y="7" width="5" height="8" rx="1"/>
         <rect x="14" y="7" width="5" height="8" rx="1"/>
+      </svg>
+    ),
+  },
+  {
+    id: "macros",
+    label: "Macros",
+    icon: (
+      <svg width="22" height="22" viewBox="0 0 22 22" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round">
+        <line x1="4" y1="6" x2="18" y2="6"/><circle cx="8" cy="6" r="2"/>
+        <line x1="4" y1="11" x2="18" y2="11"/><circle cx="14" cy="11" r="2"/>
+        <line x1="4" y1="16" x2="18" y2="16"/><circle cx="7" cy="16" r="2"/>
+      </svg>
+    ),
+  },
+  {
+    id: "info",
+    label: "Formations",
+    icon: (
+      <svg width="22" height="22" viewBox="0 0 22 22" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+        <circle cx="11" cy="11" r="8.5"/>
+        <line x1="11" y1="10" x2="11" y2="15.5"/>
+        <circle cx="11" cy="6.9" r="0.9" fill="currentColor" stroke="none"/>
       </svg>
     ),
   },
@@ -62,7 +87,7 @@ export default function BottomNav({ step, setStep, hasPlan, isDark = true, onTog
     }}>
       <div style={{
         maxWidth: 720, margin: "0 auto",
-        display: "grid", gridTemplateColumns: "repeat(5, 1fr)",
+        display: "grid", gridTemplateColumns: "repeat(7, 1fr)",
         height: "var(--nav-h)",
       }}>
         {TABS.map(tab => {

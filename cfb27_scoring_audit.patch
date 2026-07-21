@@ -1,0 +1,91 @@
+diff --git a/src/App.jsx b/src/App.jsx
+index 37b04a0..08b5975 100644
+--- a/src/App.jsx
++++ b/src/App.jsx
+@@ -70,6 +70,15 @@ export default function App() {
+   const flat         = Object.values(sel).flat();
+   const personnelSel = sel.personnel || [];
+ 
++  // Keep `scored` in sync with the live scout. Previously scored only recomputed
++  // on explicit Build/book-change, so changing tags then viewing Plan showed a
++  // STALE ranking (e.g. run fronts left over from a prior scout vs an empty set).
++  // Deriving it reactively makes stale recommendations structurally impossible.
++  useEffect(() => {
++    if (!flat.length) { setScored([]); return; }
++    setScored(scoreAll(flat, myBook || "All", runPass));
++  }, [JSON.stringify(flat), myBook, runPass]);
++
+   const displayScored = (ddDown && ddDistance)
+     ? applyDownDistance(scored, Number(ddDown), Number(ddDistance))
+     : scored;
+@@ -99,6 +108,13 @@ export default function App() {
+     setSelFm(null);
+   };
+ 
++  const loadProfile = useCallback((profileTags) => {
++    setSel(profileTags);
++    setScored(scoreAll(Object.values(profileTags).flat(), myBook || "All", runPass));
++    setSelFm(null);
++    setActiveP(null);
++  }, [myBook, runPass]);
++
+   const toggle = useCallback((g, t) =>
+     setSel(p => { const c = p[g] || []; return { ...p, [g]: c.includes(t) ? c.filter(x => x !== t) : [...c, t] }; }), []);
+ 
+@@ -181,7 +197,7 @@ export default function App() {
+     shareToast, handleShare,
+     modal, setModal,
+     saveName, setSaveName,
+-    profiles, saveProfiles,
++    profiles, saveProfiles, loadProfile,
+     importMsg, exportProfiles, importProfiles,
+     toggle, build,
+     compareA, setCompareA,
+diff --git a/src/components/GamePlanScreen.jsx b/src/components/GamePlanScreen.jsx
+index fa6f64f..14ec35a 100644
+--- a/src/components/GamePlanScreen.jsx
++++ b/src/components/GamePlanScreen.jsx
+@@ -125,6 +125,12 @@ export default function GamePlanScreen({
+   const situationScored = applySituationSort(scored, situation);
+   const groupedPersonnel = groupByPersonnel(situationScored);
+ 
++  // Plan-tab list: hide Prevent and low-relevance noise (<20). If a thin scout
++  // leaves nothing above the floor, fall back to the top 5 so the tab never blanks.
++  const planPool = situationScored.filter(f => f.name !== "Prevent 3-Deep");
++  const aboveFloor = planPool.filter(f => f.sc >= 20);
++  const planList = aboveFloor.length > 0 ? aboveFloor : planPool.slice(0, 5);
++
+   // ── Recommended playbook ──────────────────────────────────────────────────────
+   const recBook = (() => {
+     const allScored = scoreAll(flat, "All");
+@@ -418,7 +424,7 @@ export default function GamePlanScreen({
+         {/* ── ALL FORMATIONS TAB ── */}
+         {mainTab === "all" && (
+           <div style={{ opacity: listOpacity, transition: "opacity 150ms ease" }}>
+-            {groupByPersonnel(myBook === "All" ? situationScored.filter(f => f.sc >= 20) : situationScored).map(group => (
++            {groupByPersonnel(planList).map(group => (
+               <div key={group.label} style={{ marginBottom: 28 }}>
+                 <div style={{ fontSize: 10, letterSpacing: "2px", color: "var(--color-gold)", textTransform: "uppercase", marginBottom: 12, fontWeight: "700", fontFamily: "var(--font-mono)", borderBottom: "1px solid var(--color-border-subtle)", paddingBottom: 7 }}>
+                   {group.label} <span style={{ color: "var(--color-text-3)", fontWeight: "400" }}>({group.formations.length})</span>
+diff --git a/src/components/ScoutScreen.jsx b/src/components/ScoutScreen.jsx
+index 26f590c..08b058c 100644
+--- a/src/components/ScoutScreen.jsx
++++ b/src/components/ScoutScreen.jsx
+@@ -22,7 +22,7 @@ export default function ScoutScreen({
+   setActiveP,
+   modal, setModal,
+   saveName, setSaveName,
+-  profiles, saveProfiles,
++  profiles, saveProfiles, loadProfile,
+   importMsg, exportProfiles, importProfiles,
+   toggle, build,
+   navigateToNotes,
+@@ -416,7 +416,7 @@ export default function ScoutScreen({
+             <div style={{ fontSize: 12, color: "var(--color-text-3)", marginBottom: 16 }}>What would you like to do?</div>
+             <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+               <button
+-                onClick={() => { setSel(profiles[profileAction]); setScored([]); setProfileAction(null); }}
++                onClick={() => { loadProfile(profiles[profileAction]); setProfileAction(null); }}
+                 style={{ minHeight: 46, background: "var(--color-cta-bg)", border: "none", borderRadius: "var(--r-md)", color: "var(--color-cta-text)", fontWeight: "700", fontSize: 14, cursor: "pointer", fontFamily: "var(--font-mono)" }}
+               >
+                 Load Offensive Profile

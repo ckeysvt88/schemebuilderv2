@@ -16,13 +16,13 @@ const ICONS = {
 
 export default function ScoutScreen({
   sel, setSel, flat, runPass, setRunPass,
-  myBook, changeBook,
+  myBook, changeBookManual,
   scored, setScored,
   setSelFm,
   setActiveP,
   modal, setModal,
   saveName, setSaveName,
-  profiles, saveProfiles,
+  profiles, saveProfiles, loadProfile,
   importMsg, exportProfiles, importProfiles,
   toggle, build,
   navigateToNotes,
@@ -151,7 +151,7 @@ export default function ScoutScreen({
           </div>
           <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
             {["All", ...Object.keys(PLAYBOOKS)].map(b => (
-              <button key={b} onClick={() => { changeBook(b); setShowPB(false); }} style={{
+              <button key={b} onClick={() => { changeBookManual(b); setShowPB(false); }} style={{
                 minHeight: 32, padding: "0 12px",
                 borderRadius: "var(--r-sm)", fontSize: 10,
                 background: myBook === b ? "var(--color-gold-surface)" : "transparent",
@@ -399,7 +399,8 @@ export default function ScoutScreen({
 
         {/* ── Footer ── */}
         <div style={{ marginTop: 32, paddingTop: 16, borderTop: "1px solid var(--color-border-subtle)", textAlign: "center", fontSize: 11, color: "var(--color-text-3)", fontFamily: "var(--font-mono)", letterSpacing: "0.5px" }}>
-          Designed by CK · Scheme Builders 2026
+          Scheme Builders 2026<br/>
+          © Root and Ink, LLC. All Rights Reserved.
         </div>
 
         {/* ── Footer XO echo — faded mirror of hero pattern for visual continuity ── */}
@@ -416,7 +417,7 @@ export default function ScoutScreen({
             <div style={{ fontSize: 12, color: "var(--color-text-3)", marginBottom: 16 }}>What would you like to do?</div>
             <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
               <button
-                onClick={() => { setSel(profiles[profileAction]); setScored([]); setProfileAction(null); }}
+                onClick={() => { loadProfile(profiles[profileAction]); setProfileAction(null); }}
                 style={{ minHeight: 46, background: "var(--color-cta-bg)", border: "none", borderRadius: "var(--r-md)", color: "var(--color-cta-text)", fontWeight: "700", fontSize: 14, cursor: "pointer", fontFamily: "var(--font-mono)" }}
               >
                 Load Offensive Profile

@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { PLAYBOOKS } from '../data/playbooks.js';
+import { CONFERENCES } from '../data/teams.js';
 import { FDB } from '../data/formations.js';
 import { TRAITS } from '../data/traits.js';
 import { PMAP, PERSONNEL_FAMILIES, FAMILY_ADJUSTMENTS } from '../data/personnel.js';
@@ -9,6 +10,28 @@ import FormationCard, { PC, PL } from './FormationCard.jsx';
 import FormationDetail from './FormationDetail.jsx';
 import { ExportPDFButton } from './CallSheetPDF.jsx';
 
+
+const STAR_PATH = "M12 2.5l2.95 6.4 6.85.6-5.2 4.6 1.6 6.9L12 17.1 5.8 20l1.6-6.9-5.2-4.6 6.85-.6z";
+
+function StarRating({ value = 0, max = 5 }) {
+  const stars = [];
+  for (let i = 1; i <= max; i++) {
+    const fillFrac = value >= i ? 1 : value >= i - 0.5 ? 0.5 : 0;
+    stars.push(
+      <span key={i} style={{ position: "relative", display: "inline-block", width: 15, height: 15 }}>
+        <svg width="15" height="15" viewBox="0 0 24 24" style={{ position: "absolute", top: 0, left: 0 }}>
+          <path d={STAR_PATH} fill="none" stroke="var(--color-gold)" strokeWidth="1.5"/>
+        </svg>
+        {fillFrac > 0 && (
+          <svg width="15" height="15" viewBox="0 0 24 24" style={{ position: "absolute", top: 0, left: 0, clipPath: fillFrac === 0.5 ? "inset(0 50% 0 0)" : "none" }}>
+            <path d={STAR_PATH} fill="var(--color-gold)"/>
+          </svg>
+        )}
+      </span>
+    );
+  }
+  return <span style={{ display: "inline-flex", gap: 2, verticalAlign: "middle" }}>{stars}</span>;
+}
 
 const PERS_COMP = {
   p00:"5WR", p01:"1TE, 4WR", p02:"2TE, 3WR",
@@ -78,7 +101,7 @@ function applySituationSort(fmList, sit) {
 
 export default function GamePlanScreen({
   sel, setSel, flat, personnelSel,
-  runPass, myBook, changeBook,
+  runPass, myBook, changeBook, manualBook,
   scored, rawScored, setScored,
   activeP, setActiveP,
   selFm, setSelFm,
@@ -90,12 +113,14 @@ export default function GamePlanScreen({
   compareA, setCompareA, compareB, setCompareB,
   ddDown, setDdDown, ddDistance, setDdDistance,
   setStep,
+  selectedTeam,
 }) {
   const [personnelSel2] = useState(personnelSel.length ? personnelSel : ["p11"]);
   const [situDown, setSituDown] = useState("");
   const [situDist, setSituDist] = useState("");
   const [listOpacity, setListOpacity] = useState(1);
   const [showAlignment, setShowAlignment] = useState(false);
+  const [showTeamInfo, setShowTeamInfo] = useState(false);
 
   useEffect(() => { setShowAlignment(false); }, [activeP]);
 
@@ -104,12 +129,14 @@ export default function GamePlanScreen({
     const t = setTimeout(() => {
       // Wait past the 150ms card transition before measuring position
       const el = document.querySelector(`[data-fm-name="${selFm.name.replace(/"/g, '\\"')}"]`);
-      if (!el) return;
+      const scroller = document.getElementById('root');
+      if (!el || !scroller) return;
       const headerEl = document.querySelector('[data-sticky-header]');
       const headerHeight = headerEl ? headerEl.getBoundingClientRect().height : 90;
       const rect = el.getBoundingClientRect();
-      const scrollTop = window.scrollY + rect.top - headerHeight - 8;
-      window.scrollTo({ top: scrollTop, behavior: 'smooth' });
+      const scrollerRect = scroller.getBoundingClientRect();
+      const scrollTop = scroller.scrollTop + (rect.top - scrollerRect.top) - headerHeight - 8;
+      scroller.scrollTo({ top: scrollTop, behavior: 'smooth' });
     }, 200);
     return () => clearTimeout(t);
   }, [selFm]);
@@ -124,6 +151,12 @@ export default function GamePlanScreen({
 
   const situationScored = applySituationSort(scored, situation);
   const groupedPersonnel = groupByPersonnel(situationScored);
+
+  // Plan-tab list: hide Prevent and low-relevance noise (<20). If a thin scout
+  // leaves nothing above the floor, fall back to the top 5 so the tab never blanks.
+  const planPool = situationScored.filter(f => f.name !== "Prevent 3-Deep");
+  const aboveFloor = planPool.filter(f => f.sc >= 20);
+  const planList = aboveFloor.length > 0 ? aboveFloor : planPool.slice(0, 5);
 
   // ── Recommended playbook ──────────────────────────────────────────────────────
   const recBook = (() => {
@@ -187,15 +220,23 @@ export default function GamePlanScreen({
       {/* ── Header ── */}
       <div data-sticky-header="" style={{ background: "linear-gradient(135deg, var(--color-surface-1), var(--color-surface-2))", borderBottom: "2px solid var(--color-gold)", padding: "12px 16px 10px", paddingTop: "calc(env(safe-area-inset-top) + 12px)", position: "sticky", top: 0, zIndex: 80 }}>
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 10 }}>
-          <div>
+          <div style={{ minWidth: 0 }}>
             <div style={{ fontSize: 10, letterSpacing: "2px", color: "var(--color-gold-dim)", textTransform: "uppercase", fontWeight: "700", fontFamily: "var(--font-mono)", marginBottom: 2 }}>
               Scheme Builders
             </div>
-            <div style={{ fontSize: 17, fontWeight: "700", color: "var(--color-text-1)", fontFamily: "var(--font-mono)", letterSpacing: "-0.2px" }}>
-              Defensive Gameplan — {scored.length} Formation{scored.length !== 1 ? "s" : ""}{myBook !== "All" ? " · " + myBook : ""}
+            <div style={{ fontSize: 17, fontWeight: "700", color: "var(--color-text-1)", fontFamily: "var(--font-mono)", letterSpacing: "-0.2px", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+              Defensive Gameplan
+            </div>
+            <div style={{ fontSize: 12, fontWeight: "600", color: "var(--color-text-3)", fontFamily: "var(--font-mono)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+              {scored.length} Formation{scored.length !== 1 ? "s" : ""}{myBook !== "All" ? " · " + myBook : ""}
             </div>
           </div>
           <div style={{ display: "flex", gap: 6, alignItems: "center", flexShrink: 0 }}>
+            {selectedTeam && (
+              <button onClick={() => setStep("teams")} style={hdrBtn} aria-label="Back to Team Picker">
+                ← Teams
+              </button>
+            )}
             <ExportPDFButton variant="compact" label="Call Sheet" rawScored={rawScored} sel={sel} myBook={myBook} runPass={runPass} />
             <button onClick={() => setStep("notes")} style={hdrBtn} aria-label="Notes">
               Notes
@@ -345,6 +386,58 @@ export default function GamePlanScreen({
 
               return (
                 <div>
+                  {/* ── Collapsible Team Info ── */}
+                  {selectedTeam && (<>
+                    <button
+                      onClick={() => setShowTeamInfo(v => !v)}
+                      style={{
+                        width: "100%", display: "flex", alignItems: "center", justifyContent: "space-between",
+                        background: "var(--color-surface-1)", border: "1px solid var(--color-border-subtle)",
+                        borderLeft: `4px solid ${selectedTeam.color || "#507890"}`,
+                        borderRadius: showTeamInfo ? "var(--r-md) var(--r-md) 0 0" : "var(--r-md)",
+                        padding: "9px 14px", marginBottom: showTeamInfo ? 0 : 12,
+                        cursor: "pointer", textAlign: "left",
+                      }}
+                    >
+                      <span style={{ fontSize: 16, color: "var(--color-gold-dim)", letterSpacing: "0.5px", fontFamily: "var(--font-mono)", fontWeight: "700" }}>
+                        Team Info — {selectedTeam.name}
+                      </span>
+                      <span style={{ fontSize: 11, color: "var(--color-text-3)", fontFamily: "var(--font-mono)", flexShrink: 0, marginLeft: 8 }}>
+                        {showTeamInfo ? "▲ Hide" : "▼ Show"}
+                      </span>
+                    </button>
+                    {showTeamInfo && (
+                      <div style={{ background: "var(--color-surface-1)", border: "1px solid var(--color-border-subtle)", borderLeft: `4px solid ${selectedTeam.color || "#507890"}`, borderTop: "none", borderRadius: "0 0 var(--r-md) var(--r-md)", padding: "12px 14px", marginBottom: 12 }}>
+                        {selectedTeam.notes && (
+                          <div style={{ marginBottom: 10, paddingBottom: 10, borderBottom: "1px solid var(--color-border-subtle)" }}>
+                            <div style={{ fontSize: 10, color: "var(--color-text-2)", letterSpacing: "2px", textTransform: "uppercase", marginBottom: 4, fontFamily: "var(--font-mono)" }}>Scouting Report</div>
+                            <div style={{ fontSize: 13, color: "var(--color-text-2)", lineHeight: 1.55 }}>{selectedTeam.notes}</div>
+                          </div>
+                        )}
+                        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+                          <div>
+                            <div style={{ fontSize: 10, color: "var(--color-gold-dim)", letterSpacing: "1px", textTransform: "uppercase", marginBottom: 3, fontFamily: "var(--font-mono)" }}>Offensive Style</div>
+                            <div style={{ fontSize: 13, color: "var(--color-text-1)" }}>{selectedTeam.scheme || "—"}</div>
+                          </div>
+                          <div>
+                            <div style={{ fontSize: 10, color: "var(--color-gold-dim)", letterSpacing: "1px", textTransform: "uppercase", marginBottom: 3, fontFamily: "var(--font-mono)" }}>Defensive Playbook</div>
+                            <div style={{ fontSize: 13, color: "var(--color-text-1)" }}>{selectedTeam.defPlaybook || "—"}</div>
+                          </div>
+                          <div>
+                            <div style={{ fontSize: 10, color: "var(--color-gold-dim)", letterSpacing: "1px", textTransform: "uppercase", marginBottom: 3, fontFamily: "var(--font-mono)" }}>Conference</div>
+                            <div style={{ fontSize: 13, color: "var(--color-text-1)" }}>{CONFERENCES.find(c => c.id === selectedTeam.conf)?.label || selectedTeam.conf}</div>
+                          </div>
+                          <div>
+                            <div style={{ fontSize: 10, color: "var(--color-gold-dim)", letterSpacing: "1px", textTransform: "uppercase", marginBottom: 3, fontFamily: "var(--font-mono)" }}>Rating</div>
+                            <div style={{ fontSize: 13, color: "var(--color-text-1)", display: "flex", alignItems: "center", gap: 6 }}>
+                              {typeof selectedTeam.rating === "number" ? (<><StarRating value={selectedTeam.rating} /><span>{selectedTeam.rating}/5</span></>) : "—"}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </>)}
+
                   {/* ── Collapsible DC Guidance ── */}
                   <button
                     onClick={() => setShowAlignment(v => !v)}
@@ -418,7 +511,7 @@ export default function GamePlanScreen({
         {/* ── ALL FORMATIONS TAB ── */}
         {mainTab === "all" && (
           <div style={{ opacity: listOpacity, transition: "opacity 150ms ease" }}>
-            {groupByPersonnel(myBook === "All" ? situationScored.filter(f => f.sc >= 20) : situationScored).map(group => (
+            {groupByPersonnel(planList).map(group => (
               <div key={group.label} style={{ marginBottom: 28 }}>
                 <div style={{ fontSize: 10, letterSpacing: "2px", color: "var(--color-gold)", textTransform: "uppercase", marginBottom: 12, fontWeight: "700", fontFamily: "var(--font-mono)", borderBottom: "1px solid var(--color-border-subtle)", paddingBottom: 7 }}>
                   {group.label} <span style={{ color: "var(--color-text-3)", fontWeight: "400" }}>({group.formations.length})</span>
@@ -526,17 +619,26 @@ export default function GamePlanScreen({
               {PLAYBOOKS[recBook.book] ? PLAYBOOKS[recBook.book].desc : ""}
             </div>
             <div style={{ display: "flex", gap: 10 }}>
+              {myBook === recBook.book ? (
+                <button
+                  onClick={() => { changeBook(manualBook); setShowRecModal(false); }}
+                  style={{ flex: 1, minHeight: 46, background: "#2a5020", border: "1px solid var(--color-success)", borderRadius: "var(--r-md)", color: "#90e070", fontWeight: "700", fontSize: 13, cursor: "pointer" }}
+                >
+                  Back to {manualBook === "All" ? "All Books" : manualBook}
+                </button>
+              ) : (
+                <button
+                  onClick={() => { changeBook(recBook.book); setShowRecModal(false); }}
+                  style={{ flex: 1, minHeight: 46, background: "#2a5020", border: "1px solid var(--color-success)", borderRadius: "var(--r-md)", color: "#90e070", fontWeight: "700", fontSize: 13, cursor: "pointer" }}
+                >
+                  Use {recBook.book}
+                </button>
+              )}
               <button
-                onClick={() => { changeBook(recBook.book); setShowRecModal(false); }}
-                style={{ flex: 1, minHeight: 46, background: "#2a5020", border: "1px solid var(--color-success)", borderRadius: "var(--r-md)", color: "#90e070", fontWeight: "700", fontSize: 13, cursor: "pointer" }}
-              >
-                Use {recBook.book}
-              </button>
-              <button
-                onClick={() => { changeBook("All"); setShowRecModal(false); }}
+                onClick={() => setShowRecModal(false)}
                 style={{ flex: 1, minHeight: 46, background: "transparent", border: "1px solid var(--color-border)", borderRadius: "var(--r-md)", color: "var(--color-text-2)", fontSize: 13, cursor: "pointer" }}
               >
-                Keep All
+                Keep {myBook === "All" ? "All" : myBook}
               </button>
             </div>
           </div>

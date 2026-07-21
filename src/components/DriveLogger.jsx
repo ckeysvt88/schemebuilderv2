@@ -44,7 +44,7 @@ export default function DriveLogger({ onClose }) {
   };
 
   const exportLog = () => {
-    const lines = ['CFB26 DRIVE LOG', '═'.repeat(36), ''];
+    const lines = ['CFB 27 DRIVE LOG', '═'.repeat(36), ''];
     entries.forEach((e, i) => {
       lines.push(`#${entries.length - i}  ${e.ts}`);
       if (e.down && e.distance) lines.push(`  Down: ${e.down} & ${e.distance}`);
@@ -78,7 +78,7 @@ export default function DriveLogger({ onClose }) {
       <div style={{ background: 'linear-gradient(135deg, var(--color-surface-1), var(--color-surface-2))', borderBottom: '2px solid var(--color-gold)', padding: '12px 15px', paddingTop: 'calc(env(safe-area-inset-top) + 12px)', flexShrink: 0 }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <div>
-            <div style={{ fontSize: 10, color: 'var(--color-gold-dim)', letterSpacing: '2px', textTransform: 'uppercase', fontFamily: "'IBM Plex Mono', monospace" }}>CFB26 · Game Day</div>
+            <div style={{ fontSize: 10, color: 'var(--color-gold-dim)', letterSpacing: '2px', textTransform: 'uppercase', fontFamily: "'IBM Plex Mono', monospace" }}>CFB 27 · Game Day</div>
             <div style={{ fontSize: 17, fontWeight: 700, color: 'var(--color-text-1)', fontFamily: "'IBM Plex Mono', monospace" }}>Drive Logger</div>
           </div>
           <div style={{ display: 'flex', gap: 6 }}>
