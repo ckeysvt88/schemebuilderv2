@@ -219,49 +219,51 @@ export default function GamePlanScreen({
 
       {/* ── Header ── */}
       <div data-sticky-header="" style={{ background: "linear-gradient(135deg, var(--color-surface-1), var(--color-surface-2))", borderBottom: "2px solid var(--color-gold)", padding: "12px 16px 10px", paddingTop: "calc(env(safe-area-inset-top) + 12px)", position: "sticky", top: 0, zIndex: 80 }}>
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 10 }}>
+        <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", marginBottom: 10, gap: 8 }}>
           <div style={{ minWidth: 0 }}>
             <div style={{ fontSize: 10, letterSpacing: "2px", color: "var(--color-gold-dim)", textTransform: "uppercase", fontWeight: "700", fontFamily: "var(--font-mono)", marginBottom: 2 }}>
               Scheme Builders
             </div>
-            <div style={{ fontSize: 17, fontWeight: "700", color: "var(--color-text-1)", fontFamily: "var(--font-mono)", letterSpacing: "-0.2px", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+            <div style={{ fontSize: 21, fontWeight: "700", color: "var(--color-text-1)", fontFamily: "var(--font-mono)", letterSpacing: "-0.2px", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
               Defensive Gameplan
             </div>
-            <div style={{ fontSize: 12, fontWeight: "600", color: "var(--color-text-3)", fontFamily: "var(--font-mono)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+            <div style={{ fontSize: 15, fontWeight: "600", color: "var(--color-text-3)", fontFamily: "var(--font-mono)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
               {scored.length} Formation{scored.length !== 1 ? "s" : ""}{myBook !== "All" ? " · " + myBook : ""}
             </div>
           </div>
-          <div style={{ display: "flex", gap: 6, alignItems: "center", flexShrink: 0 }}>
+          <div style={{ display: "flex", gap: 6, alignItems: "flex-start", flexShrink: 0 }}>
             {selectedTeam && (
-              <button onClick={() => setStep("teams")} style={hdrBtn} aria-label="Back to Team Picker">
-                ← Teams
+              <button onClick={() => setStep("teams")} style={{ ...hdrBtn, padding: "0 10px" }} aria-label="Back to Team Picker">
+                ←
               </button>
             )}
-            <ExportPDFButton variant="compact" label="Call Sheet" rawScored={rawScored} sel={sel} myBook={myBook} runPass={runPass} />
-            <button onClick={() => setStep("notes")} style={hdrBtn} aria-label="Notes">
-              Notes
-            </button>
-            <button
-              onClick={() => setQuickAdjOpen(v => !v)}
-              style={{ ...hdrBtn, ...(quickAdjOpen ? { background: "var(--color-gold-surface)", borderColor: "var(--color-gold)", color: "var(--color-gold)" } : {}) }}
-              aria-label="Quick Adjust"
-            >
-              Adjust
-            </button>
-            {recBook && (
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 6 }}>
+              <ExportPDFButton variant="compact" label="Call Sheet" rawScored={rawScored} sel={sel} myBook={myBook} runPass={runPass} />
+              <button onClick={() => setStep("notes")} style={hdrBtn} aria-label="Notes">
+                Notes
+              </button>
               <button
-                onClick={() => setShowRecModal(true)}
-                style={{
-                  ...hdrBtn,
-                  color: myBook === recBook.book ? "#90d070" : "#6aaa78",
-                  borderColor: myBook === recBook.book ? "var(--color-success)" : "var(--color-border)",
-                  background: myBook === recBook.book ? "var(--color-surface-success)" : "transparent",
-                }}
-                aria-label="Recommended playbook"
+                onClick={() => setQuickAdjOpen(v => !v)}
+                style={{ ...hdrBtn, ...(quickAdjOpen ? { background: "var(--color-gold-surface)", borderColor: "var(--color-gold)", color: "var(--color-gold)" } : {}) }}
+                aria-label="Quick Adjust"
               >
-                {recBook.book}
+                Adjust
               </button>
-            )}
+              {recBook && (
+                <button
+                  onClick={() => setShowRecModal(true)}
+                  style={{
+                    ...hdrBtn,
+                    color: myBook === recBook.book ? "#90d070" : "#6aaa78",
+                    borderColor: myBook === recBook.book ? "var(--color-success)" : "var(--color-border)",
+                    background: myBook === recBook.book ? "var(--color-surface-success)" : "transparent",
+                  }}
+                  aria-label="Recommended playbook"
+                >
+                  {recBook.book}
+                </button>
+              )}
+            </div>
           </div>
         </div>
 
@@ -649,12 +651,12 @@ export default function GamePlanScreen({
 }
 
 const hdrBtn = {
-  minHeight: 36, padding: "0 13px",
+  minHeight: 28, width: "100%", boxSizing: "border-box", padding: "0 10px",
   background: "transparent",
   border: "1px solid var(--color-border)",
   borderRadius: "var(--r-sm)",
   color: "var(--color-text-2)",
-  fontSize: 12, cursor: "pointer",
+  fontSize: 11, cursor: "pointer",
   fontFamily: "var(--font-mono)",
   whiteSpace: "nowrap",
   transition: "all 150ms ease",

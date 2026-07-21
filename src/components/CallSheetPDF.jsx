@@ -430,7 +430,7 @@ export const ExportPDFButton = memo(function ExportPDFButton({ rawScored, sel, m
     <PDFDownloadLink
       document={<CallSheetDocument data={data} />}
       fileName={fileName}
-      style={{ textDecoration: 'none', display: isFull ? 'block' : 'inline-block' }}
+      style={{ textDecoration: 'none', display: 'block', width: '100%' }}
     >
       {({ loading }) =>
         isFull ? (
@@ -470,13 +470,15 @@ export const ExportPDFButton = memo(function ExportPDFButton({ rawScored, sel, m
           <button
             disabled={loading}
             style={{
-              minHeight: 36,
-              padding: '0 13px',
+              minHeight: 28,
+              width: '100%',
+              boxSizing: 'border-box',
+              padding: '0 10px',
               background: 'transparent',
               border: '1px solid var(--color-border)',
               borderRadius: 'var(--r-sm)',
               color: 'var(--color-text-2)',
-              fontSize: 12,
+              fontSize: 11,
               cursor: loading ? 'wait' : 'pointer',
               fontFamily: 'var(--font-mono)',
               whiteSpace: 'nowrap',
