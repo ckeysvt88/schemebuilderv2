@@ -116,7 +116,7 @@ export default function GamePlanScreen({
   selectedTeam,
 }) {
   const [personnelSel2] = useState(personnelSel.length ? personnelSel : ["p11"]);
-  const [situDown, setSituDown] = useState("");
+  const [situDown, setSituDown] = useState("base");
   const [situDist, setSituDist] = useState("");
   const [listOpacity, setListOpacity] = useState(1);
   const [showAlignment, setShowAlignment] = useState(false);
@@ -278,24 +278,28 @@ export default function GamePlanScreen({
           {/* Row 1: Down */}
           <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
             <span style={{ fontSize: 9, color: "var(--color-text-3)", letterSpacing: "2px", textTransform: "uppercase", fontFamily: "var(--font-mono)", flexShrink: 0, width: 32 }}>Down</span>
-            {DOWN_BTNS.map(btn => (
-              <button
-                key={btn.id}
-                onClick={() => { setSituDown(situDown === btn.id ? "" : btn.id); if (btn.id === "base" || btn.id === "rz") setSituDist(""); }}
-                style={{
-                  flex: 1, minHeight: 26, padding: "0 4px",
-                  borderRadius: 13,
-                  border: `1px solid ${situDown === btn.id ? "var(--color-success)" : "var(--color-border)"}`,
-                  background: situDown === btn.id ? "var(--color-surface-success)" : "transparent",
-                  color: situDown === btn.id ? "var(--color-success)" : "var(--color-text-3)",
-                  fontSize: 11, cursor: "pointer",
-                  fontFamily: "var(--font-mono)", fontWeight: situDown === btn.id ? "700" : "400",
-                  transition: "all 100ms ease",
-                }}
-              >
-                {btn.label}
-              </button>
-            ))}
+            {DOWN_BTNS.map(btn => {
+              const isSelected = situDown === btn.id;
+              const isBase = btn.id === "base";
+              return (
+                <button
+                  key={btn.id}
+                  onClick={() => { setSituDown(situDown === btn.id ? "" : btn.id); if (btn.id === "base" || btn.id === "rz") setSituDist(""); }}
+                  style={{
+                    flex: 1, minHeight: 26, padding: "0 4px",
+                    borderRadius: 13,
+                    border: `1px solid ${isSelected ? (isBase ? "var(--color-border)" : "var(--color-situation-fill)") : "var(--color-border)"}`,
+                    background: isSelected ? (isBase ? "var(--color-surface-3)" : "var(--color-situation-fill)") : "transparent",
+                    color: isSelected ? (isBase ? "var(--color-text-1)" : "var(--color-situation-text)") : "var(--color-text-3)",
+                    fontSize: 11, cursor: "pointer",
+                    fontFamily: "var(--font-mono)", fontWeight: isSelected ? "700" : "400",
+                    transition: "all 100ms ease",
+                  }}
+                >
+                  {btn.label}
+                </button>
+              );
+            })}
             {situDown && (
               <button onClick={() => { setSituDown(""); setSituDist(""); }} style={{ background: "transparent", border: "none", color: "var(--color-text-3)", fontSize: 14, cursor: "pointer", padding: "0 2px", lineHeight: 1, flexShrink: 0 }}>×</button>
             )}
@@ -313,9 +317,9 @@ export default function GamePlanScreen({
                   style={{
                     flex: 1, minHeight: 26, padding: "0 4px",
                     borderRadius: 13,
-                    border: `1px solid ${active ? "var(--color-success)" : "var(--color-border)"}`,
-                    background: active ? "var(--color-surface-success)" : "transparent",
-                    color: disabled ? "var(--color-border)" : active ? "var(--color-success)" : "var(--color-text-3)",
+                    border: `1px solid ${active ? "var(--color-situation-fill)" : "var(--color-border)"}`,
+                    background: active ? "var(--color-situation-fill)" : "transparent",
+                    color: disabled ? "var(--color-border)" : active ? "var(--color-situation-text)" : "var(--color-text-3)",
                     fontSize: 11, cursor: disabled ? "default" : "pointer",
                     fontFamily: "var(--font-mono)", fontWeight: active ? "700" : "400",
                     opacity: disabled ? 0.4 : 1,
@@ -379,12 +383,11 @@ export default function GamePlanScreen({
               const adj = FAMILY_ADJUSTMENTS[activeP];
               const persMatchesRaw = fam ? scoreForFamily(activeP, flat) : scoreForPersonnel(activeP, flat);
               const persMatches = applySituationSort(
-                (myBook && myBook !== "All"
+                myBook && myBook !== "All"
                   ? persMatchesRaw.filter(f => f.books && (f.books.includes(myBook) || f.books.includes("All")))
-                  : persMatchesRaw
-                ).slice(0, 10),
+                  : persMatchesRaw,
                 situation
-              );
+              ).slice(0, 10);
 
               return (
                 <div>

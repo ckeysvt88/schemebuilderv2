@@ -33,7 +33,7 @@ export default function FormationCard({ fm, onSelect, isSelected }) {
             <span style={{ display: "inline-block", width: 8, height: 8, borderRadius: "50%", background: PC[fm.priority], flexShrink: 0 }} />
             <span style={{
               fontSize: 14, fontWeight: "700",
-              color: isSelected ? "var(--color-gold-bright)" : "var(--color-text-1)",
+              color: isSelected ? "var(--color-gold)" : "var(--color-text-1)",
               fontFamily: "var(--font-mono)",
             }}>
               {fm.name}
@@ -76,7 +76,7 @@ export default function FormationCard({ fm, onSelect, isSelected }) {
         <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 4, flexShrink: 0 }}>
           <span style={{
             fontSize: 17, fontWeight: "800", lineHeight: 1,
-            color: isSelected ? "var(--color-gold-bright)" : "var(--color-gold)",
+            color: "var(--color-gold)",
             fontFamily: "var(--font-mono)",
           }}>
             {fm.sc}%

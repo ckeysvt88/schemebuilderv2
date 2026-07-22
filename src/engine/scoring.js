@@ -149,6 +149,15 @@ export function scoreForFamily(familyId, allTraits) {
   };
   const inject = HEAVY_BASE[family.base] ?? RUN_FAMILY[familyId];
   if (inject) allTraits = [...new Set([...allTraits, ...inject])];
+  // Layer 1 — hard physical constraint: a back-less look cannot run, so a run-heavy
+  // team's tendency gets no vote here. Strip the run identity, assert no_run/empty.
+  const NO_RUN_FAMILY = new Set(["p11_empty","p10_empty","empty_gun","empty_trips",
+    "p00_gun","p00_trips","p00_motion","p01_gun","p01_trips","p02_gun","p02_trips"]);
+  if (NO_RUN_FAMILY.has(familyId)) {
+    allTraits = [...new Set([...allTraits, "no_run", "empty"])]
+      .filter(t => !["inside_run","short_yardage_run","run_heavy_1st","fb_lead",
+                     "outside_run","counter_trap","p22","p23"].includes(t));
+  }
   const adj = FAMILY_ADJUSTMENTS[familyId];
   const biasNames = adj ? adj.bias : [];
   const baseResults = scoreForPersonnel(family.base, allTraits);

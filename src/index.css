@@ -23,6 +23,8 @@
   --color-pressure:      #bb5050;
   --color-success:       #5a9870;
   --color-danger:        #b05050;
+  --color-situation-fill: #cfe3fb;
+  --color-situation-text: #0a1e2e;
   --color-bg-fade:       rgba(7, 8, 15, 0.85);
   --color-hero-bg:       var(--color-bg);
   --color-hero-bg-fade:  rgba(7, 8, 15, 0.85);
@@ -64,6 +66,8 @@
   --color-pressure:       #8a2828;
   --color-success:        #2a7040;
   --color-danger:         #903030;
+  --color-situation-fill: #1a4a7a;
+  --color-situation-text: #f0f5ff;
   --color-cta-bg:         #1a1a1a;
   --color-cta-text:       #f0f5ff;
   --color-hero-bg:        var(--color-bg);
