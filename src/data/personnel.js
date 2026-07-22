@@ -1,4 +1,5 @@
 // Personnel map — DC guidance for each offensive package
+import { FORMATION_MANIFEST } from "./formationManifest.js";
 export const PMAP = {
   p00:   { label: "00p (0 RB, 0 TE, 5 WR — Pure Spread)", priority: "Go DIME, not Dollar. Dime carries FOUR CORNERS to match 5 WRs, while the four safeties in Dollar end up chasing burners on the perimeter. No RB, no TE means zero run threat and zero protection help. 5 WRs spread cross the entire field. Your LBs cannot cover WRs — sub out the moment this package appears.", avoid: "Any base formation, Nickel with LBs on WRs, 4-3, 3-4, 5-2, 4-4 Split", blitzNote: "High (32–45%). No back in protection means any extra rusher is free. Their 5 WRs give them range to hot-route but no pick-up protection — overload them." },
   p01:   { label: "01p (0 RB, 1 TE, 4 WR — Near-Empty)", priority: "Go Dime immediately. Treat this almost identically to 00p — zero run threat, 4 WRs demand 5+ DBs, and the TE in the slot or on the seam is a mismatch problem for any LB left on the field. Identify the TE alignment pre-snap: if he's in the slot, put your best slot DB on him, not a linebacker.", avoid: "Base 4-3, 3-4, any formation keeping LBs in coverage (LBs vs. WRs and a receiving TE = automatic mismatches on every route)", blitzNote: "High (30–42%). No RB means the 5 OL are on their own. Any extra rusher is a free run at the QB. Blitz from the edge opposite the TE's alignment." },
@@ -38,6 +39,7 @@ export const PERSONNEL_FAMILIES = {
   p11_trips:  { label:"11p Trips / Bunch", desc:"Trips or bunch surface from spread — flooding threat", base:"trips" },
   p11_empty:  { label:"11p Empty",         desc:"RB leaves field — 5 eligible, no pick-up protection", base:"empty" },
   p11_motion: { label:"11p Motion Heavy",  desc:"Pre-snap motion from 11p — shifts coverage keys", base:"p11" },
+  p11_single: { label:"11p Singleback",    desc:"1 RB, 1 TE, 3 WR from singleback — balanced zone-run base", base:"p11" },
   // ── 12 Personnel ───────────────────────────────────────────────
   p12_gun:    { label:"12p Gun",           desc:"2 TEs from shotgun — TE seam routes off PA", base:"p12" },
   p12_pistol: { label:"12p Pistol",        desc:"2 TEs from pistol — run-heavy, both TEs blocking", base:"p12" },
@@ -91,6 +93,7 @@ export const FAMILY_ADJUSTMENTS = {
   p11_trips:  { extra:"Trips from 11p — Cover 6 to the trips side is the strongest answer. Cover 4 to the strength, Cover 2 to the boundary. Rotate the safety at the snap only. Cover 3 loses the math — 2 DBs vs 3 receivers on the same side.", bias:["3-3-5 Split","Nickel 3-3 Mint","3-3-5 Over Flex"] },
   p11_empty:  { extra:"11p empty removes the RB — no run threat and no protection. Sub into Dime or Dollar Sugar 3-2 immediately. Blitz freely — the 5 OL cannot account for extra rushers without a back.", bias:["Dollar Sugar 3-2","Dime Rush","Nickel 3-3 Dbl Mug"] },
   p11_motion: { extra:"11p with heavy pre-snap motion tries to shift coverage responsibilities before the snap. Show one coverage, rotate at the snap. The walked-up LB in 4-3 Over Walk naturally mirrors the motion man.", bias:["4-3 Over Walk","Nickel 3-3 Over Jack","3-3-5 Stack"] },
+  p11_single: { extra:"11p Singleback is the balanced base-down offense — inside/outside zone with play-action built off the run fake. Stay disciplined in run fits; the single back plus PA boot is the trap, not the read. SS reads run-pass and is the force player, don't over-commit the box. Base nickel handles it — no need to sub heavy.", bias:["4-3 Under","Nickel 3-3 Over Jack","4-3 Even 6-1"] },
   // ── 12 Personnel ─────────────────────────────────────────────────────────
   p12_gun:    { extra:"12p from Gun — the 2nd TE is likely leaking to the seam after faking a block on PA. MLB must wall the seam window immediately. Tampa 2 if your MLB can run with a TE. Don't leave the seam open.", bias:["3-4 Odd","4-3 Under","Nickel Load"] },
   p12_pistol: { extra:"12p from Pistol is run-heavy — both TEs are blocking. HB Stretch and inside zone are primary threats. Tite front compresses both gaps. OLBs contain the perimeter; DEs never crash inside.", bias:["3-4 Tite","4-3 Under","4-3 Even 6-1"] },
@@ -122,7 +125,39 @@ export const FAMILY_ADJUSTMENTS = {
   empty_trips:{ extra:"Empty with a trips surface — maximum coverage required. Dollar Sugar 3-2 gives you 6 DBs to cover 5 receivers plus an extra for the trips flood. Never drop below 6 DBs in this situation.", bias:["Dollar Sugar 3-2","Dime Normal","3-3-5 Split"] },
 };
 
-export function getAvailableFamilies(flat) {
+export function getAvailableFamilies(flat, teamId) {
+  const manifestKeys = teamId ? FORMATION_MANIFEST[teamId] : undefined;
+  const base = manifestKeys ? [...manifestKeys] : inferFamiliesFromTraits(flat);
+  return withPersonnelSupplement(base, flat);
+}
+
+// Option 2 personnel supplement — mirrors diff_families.mjs exactly.
+// Manifest = alignment evidence. Explicit personnel tags (CK Phase-8) = WR/TE/back
+// COUNT the scrape's family field can't see. Only p10/p12/p20 are supplemented;
+// p21/p22/p23 are backfield STRUCTURE the scrape sees directly, so no supplement.
+function withPersonnelSupplement(keys, traits) {
+  const out = new Set(keys);
+  const t = new Set(traits || []);
+  const runs = (k) => out.has(k);
+
+  if (t.has("p10")) {                                    // four-wide: only via 4WR/5WR names
+    out.add("p10_gun"); out.add("p10_trips"); out.add("p10_empty");
+  }
+  if (t.has("p12")) {                                    // two-TE: only via 2TE names
+    out.add("p12_gun");
+    if (runs("p11_pistol")) out.add("p12_pistol");
+    if (runs("p21_iForm") || runs("p11_single")) out.add("p12_under");
+    if (runs("p11_trips")) out.add("p12_trips");         // evidence-gated (CK refinement)
+  }
+  if (t.has("p20")) {                                    // two-back spread: scrape can't distinguish
+    out.add("p20_gun"); out.add("p20_trips");
+    if (runs("p11_pistol")) out.add("p20_pistol");
+  }
+  // p11_motion intentionally NOT supplemented — motion is a pre-snap tendency, lives in adjustments.
+  return [...out];
+}
+
+function inferFamiliesFromTraits(flat) {
   const has = (tag) => flat.includes(tag);
   const fams = [];
 

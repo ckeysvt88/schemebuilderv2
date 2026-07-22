@@ -235,7 +235,7 @@ export default function App() {
         setSel({ _team: team.traits });
         setScored(results);
         // Use getAvailableFamilies to pick the most contextually relevant starting family
-        const teamFams = getAvailableFamilies(team.traits);
+        const teamFams = getAvailableFamilies(team.traits, team.id);
         setActiveP(teamFams[0] || "p11_gun");
         setSelFm(null); setMainTab("personnel");
         setSelectedTeam(team);

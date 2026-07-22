@@ -348,7 +348,7 @@ export default function GamePlanScreen({
 
             {/* Personnel family tabs */}
             <div style={{ display: "flex", flexWrap: "wrap", gap: 7, marginBottom: 16 }}>
-              {getAvailableFamilies(flat).map(fid => {
+              {getAvailableFamilies(flat, selectedTeam?.id).map(fid => {
                 const fam = PERSONNEL_FAMILIES[fid];
                 return fam ? (
                   <button
