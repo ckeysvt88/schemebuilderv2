@@ -134,6 +134,21 @@ export function scoreForFamily(familyId, allTraits) {
   if (!family) return scoreForPersonnel("p11", allTraits);
   // Expand implied traits so family-specific scoring matches formation tags correctly
   allTraits = deriveImpliedTraits(allTraits);
+  // Run-first packages must assert their own run identity, or a pass-heavy offense
+  // surfaces Dime/Nickel on every run tab (jumbo, wildcat, I-Form). Injecting the run
+  // tags makes run fronts score and trips the avoid tags on pass fronts. Scoped: all
+  // p22/p23 are heavy; within p21 only the downhill looks inject — option is assignment
+  // defense and gun is balanced, so both are left as-is.
+  const HEAVY_BASE = {
+    p22: ["p22", "inside_run", "run_heavy_1st", "fb_lead"],
+    p23: ["p23", "inside_run", "short_yardage_run", "fb_lead"],
+  };
+  const RUN_FAMILY = {
+    p21_iForm:  ["p21", "inside_run", "fb_lead"],
+    p21_pistol: ["p21", "inside_run", "fb_lead"],
+  };
+  const inject = HEAVY_BASE[family.base] ?? RUN_FAMILY[familyId];
+  if (inject) allTraits = [...new Set([...allTraits, ...inject])];
   const adj = FAMILY_ADJUSTMENTS[familyId];
   const biasNames = adj ? adj.bias : [];
   const baseResults = scoreForPersonnel(family.base, allTraits);

@@ -63,7 +63,7 @@ export const PERSONNEL_FAMILIES = {
   p22_wildcat:{ label:"22p Wildcat",       desc:"Direct snap to RB or wildcat — unorthodox assignment rules", base:"p22" },
   // ── 23 Personnel ───────────────────────────────────────────────
   p23_jumbo:     { label:"23p Jumbo",       desc:"2 RBs + 3 TEs from I-Form — heaviest possible package, goal line and short yardage power", base:"p23" },
-  p23_goal_line: { label:"23p Goal Line",   desc:"Stacked goal line with all TEs and 2 RBs — every gap loaded, QB sneak or FB dive", base:"p23" },
+  p23_goal_line: { label:"23p Jumbo",        desc:"2 RBs + 3 TEs, every gap loaded — max short-yardage and goal-line power, QB sneak or FB dive", base:"p23" },
   // ── Trips / Empty standalone ───────────────────────────────────
   trips_gun:  { label:"Trips Gun",         desc:"Trips or bunch from shotgun — 3 receivers one side", base:"trips" },
   trips_motion:{ label:"Trips w/ Motion",  desc:"Trips with pre-snap motion — coverage disguise essential", base:"trips" },
