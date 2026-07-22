@@ -289,7 +289,7 @@ export default function GamePlanScreen({
                     flex: 1, minHeight: 26, padding: "0 4px",
                     borderRadius: 13,
                     border: `1px solid ${isSelected ? (isBase ? "var(--color-border)" : "var(--color-situation-fill)") : "var(--color-border)"}`,
-                    background: isSelected ? (isBase ? "var(--color-surface-3)" : "var(--color-situation-fill)") : "transparent",
+                    background: isSelected ? (isBase ? "var(--color-situation-base-fill)" : "var(--color-situation-fill)") : "transparent",
                     color: isSelected ? (isBase ? "var(--color-text-1)" : "var(--color-situation-text)") : "var(--color-text-3)",
                     fontSize: 11, cursor: "pointer",
                     fontFamily: "var(--font-mono)", fontWeight: isSelected ? "700" : "400",
@@ -301,7 +301,7 @@ export default function GamePlanScreen({
               );
             })}
             {situDown && (
-              <button onClick={() => { setSituDown(""); setSituDist(""); }} style={{ background: "transparent", border: "none", color: "var(--color-text-3)", fontSize: 14, cursor: "pointer", padding: "0 2px", lineHeight: 1, flexShrink: 0 }}>×</button>
+              <button onClick={() => { setSituDown("base"); setSituDist(""); }} style={{ background: "transparent", border: "none", color: "var(--color-text-3)", fontSize: 14, cursor: "pointer", padding: "0 2px", lineHeight: 1, flexShrink: 0 }}>×</button>
             )}
           </div>
           {/* Row 2: Distance */}
