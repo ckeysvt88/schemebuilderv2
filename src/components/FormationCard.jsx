@@ -21,23 +21,49 @@ function orderBooks(books, active) {
 // modal already uses this same createPortal escape for the same reason.
 function BooksSheet({ fm, books, active, onClose }) {
   const sheetRef = useRef(null);
-  const dragState = useRef({ startY: 0, dragging: false });
+  const dragState = useRef({ startY: 0, dragging: false, isTouch: false });
 
   const onHandleDown = (e) => {
-    dragState.current.startY = e.touches ? e.touches[0].clientY : e.clientY;
+    const isTouch = !!e.touches;
+    dragState.current.startY = isTouch ? e.touches[0].clientY : e.clientY;
     dragState.current.dragging = true;
+    dragState.current.isTouch = isTouch;
     if (sheetRef.current) sheetRef.current.style.transition = "none";
+
+    // For mouse events, attach window-level listeners to track drag across entire screen
+    if (!isTouch) {
+      window.addEventListener("mousemove", onWindowMouseMove);
+      window.addEventListener("mouseup", onWindowMouseUp);
+    }
   };
-  const onHandleMove = (e) => {
-    if (!dragState.current.dragging) return;
-    const y = e.touches ? e.touches[0].clientY : e.clientY;
+
+  const onWindowMouseMove = (e) => {
+    if (!dragState.current.dragging || dragState.current.isTouch) return;
+    const dy = Math.max(0, e.clientY - dragState.current.startY);
+    if (sheetRef.current) sheetRef.current.style.transform = `translateY(${dy}px)`;
+  };
+
+  const onWindowMouseUp = (e) => {
+    if (!dragState.current.dragging || dragState.current.isTouch) return;
+    dragState.current.dragging = false;
+    const dy = Math.max(0, e.clientY - dragState.current.startY);
+    if (sheetRef.current) sheetRef.current.style.transition = "transform 200ms ease";
+    if (dy > 80) { onClose(); } else if (sheetRef.current) sheetRef.current.style.transform = "translateY(0)";
+    window.removeEventListener("mousemove", onWindowMouseMove);
+    window.removeEventListener("mouseup", onWindowMouseUp);
+  };
+
+  const onTouchMove = (e) => {
+    if (!dragState.current.dragging || !dragState.current.isTouch) return;
+    const y = e.touches[0].clientY;
     const dy = Math.max(0, y - dragState.current.startY);
     if (sheetRef.current) sheetRef.current.style.transform = `translateY(${dy}px)`;
   };
-  const onHandleUp = (e) => {
-    if (!dragState.current.dragging) return;
+
+  const onTouchEnd = (e) => {
+    if (!dragState.current.dragging || !dragState.current.isTouch) return;
     dragState.current.dragging = false;
-    const y = e.changedTouches ? e.changedTouches[0].clientY : e.clientY;
+    const y = e.changedTouches[0].clientY;
     const dy = Math.max(0, y - dragState.current.startY);
     if (sheetRef.current) sheetRef.current.style.transition = "transform 200ms ease";
     if (dy > 80) { onClose(); return; }
@@ -57,8 +83,8 @@ function BooksSheet({ fm, books, active, onClose }) {
         }}
       >
         <div
-          onMouseDown={onHandleDown} onMouseMove={onHandleMove} onMouseUp={onHandleUp} onMouseLeave={onHandleUp}
-          onTouchStart={onHandleDown} onTouchMove={onHandleMove} onTouchEnd={onHandleUp}
+          onMouseDown={onHandleDown}
+          onTouchStart={onHandleDown} onTouchMove={onTouchMove} onTouchEnd={onTouchEnd}
           style={{ width: 36, height: 4, borderRadius: 2, background: "var(--color-border)", margin: "4px auto 12px", cursor: "grab" }}
         />
         <div style={{ fontSize: 15, fontWeight: "700", color: "var(--color-text-1)", fontFamily: "var(--font-mono)", marginBottom: 2 }}>
