@@ -16,7 +16,7 @@ const ICONS = {
 
 export default function ScoutScreen({
   sel, setSel, flat, runPass, setRunPass,
-  myBook, changeBookManual,
+  myBook, changeBook,
   scored, setScored,
   setSelFm,
   setActiveP,
@@ -151,7 +151,7 @@ export default function ScoutScreen({
           </div>
           <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
             {["All", ...Object.keys(PLAYBOOKS)].map(b => (
-              <button key={b} onClick={() => { changeBookManual(b); setShowPB(false); }} style={{
+              <button key={b} onClick={() => { changeBook(b); setShowPB(false); }} style={{
                 minHeight: 32, padding: "0 12px",
                 borderRadius: "var(--r-sm)", fontSize: 10,
                 background: myBook === b ? "var(--color-gold-surface)" : "transparent",

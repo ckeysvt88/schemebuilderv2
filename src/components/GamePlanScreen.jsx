@@ -107,7 +107,7 @@ export default function GamePlanScreen({
   selFm, setSelFm,
   mainTab, setMainTab,
   quickAdjOpen, setQuickAdjOpen,
-  changeBookManual,
+  changeBook,
   shareToast, handleShare,
   toggle,
   compareA, setCompareA, compareB, setCompareB,
@@ -238,7 +238,7 @@ export default function GamePlanScreen({
                 ←
               </button>
             )}
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 6 }}>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 6 }}>
               <ExportPDFButton variant="compact" label="Call Sheet" rawScored={rawScored} sel={sel} myBook={myBook} runPass={runPass} />
               <button onClick={() => setStep("notes")} style={hdrBtn} aria-label="Notes">
                 Notes
@@ -289,7 +289,7 @@ export default function GamePlanScreen({
               return (
                 <div
                   key={k}
-                  onClick={() => { changeBookManual(k); setPbOpen(false); }}
+                  onClick={() => { changeBook(k); setPbOpen(false); }}
                   style={{
                     display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8,
                     padding: "10px 13px", borderBottom: "1px solid var(--color-border-subtle)", cursor: "pointer",
