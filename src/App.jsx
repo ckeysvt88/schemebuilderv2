@@ -43,7 +43,6 @@ export default function App() {
   const [selFm, setSelFm]               = useState(null);
   const [mainTab, setMainTab]           = useState("personnel");
   const [quickAdjOpen, setQuickAdjOpen] = useState(false);
-  const [showRecModal, setShowRecModal] = useState(false);
   const [shareToast, setShareToast]     = useState(null);
   const [ddDown, setDdDown]             = useState("");
   const [ddDistance, setDdDistance]     = useState("");
@@ -209,7 +208,6 @@ export default function App() {
     selFm, setSelFm,
     mainTab, setMainTab,
     quickAdjOpen, setQuickAdjOpen,
-    showRecModal, setShowRecModal,
     shareToast, handleShare,
     modal, setModal,
     saveName, setSaveName,

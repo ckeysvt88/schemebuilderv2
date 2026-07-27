@@ -107,7 +107,7 @@ export default function GamePlanScreen({
   selFm, setSelFm,
   mainTab, setMainTab,
   quickAdjOpen, setQuickAdjOpen,
-  showRecModal, setShowRecModal,
+  changeBookManual,
   shareToast, handleShare,
   toggle,
   compareA, setCompareA, compareB, setCompareB,
@@ -121,6 +121,7 @@ export default function GamePlanScreen({
   const [listOpacity, setListOpacity] = useState(1);
   const [showAlignment, setShowAlignment] = useState(false);
   const [showTeamInfo, setShowTeamInfo] = useState(false);
+  const [pbOpen, setPbOpen] = useState(false);
 
   useEffect(() => { setShowAlignment(false); }, [activeP]);
 
@@ -249,20 +250,6 @@ export default function GamePlanScreen({
               >
                 Adjust
               </button>
-              {recBook && (
-                <button
-                  onClick={() => setShowRecModal(true)}
-                  style={{
-                    ...hdrBtn,
-                    color: myBook === recBook.book ? "#90d070" : "#6aaa78",
-                    borderColor: myBook === recBook.book ? "var(--color-success)" : "var(--color-border)",
-                    background: myBook === recBook.book ? "var(--color-surface-success)" : "transparent",
-                  }}
-                  aria-label="Recommended playbook"
-                >
-                  {recBook.book}
-                </button>
-              )}
             </div>
           </div>
         </div>
@@ -271,7 +258,55 @@ export default function GamePlanScreen({
       </div>
 
       <div style={{ padding: "14px 16px" }}>
-
+        {recBook && myBook !== recBook.book && (
+          <div style={{ fontSize: 11, color: "var(--color-text-3)", marginBottom: 6, lineHeight: 1.5 }}>
+            <span style={{ color: "var(--color-success)", fontWeight: "700" }}>Recommended for this opponent:</span>{" "}
+            {recBook.book} — {recBook.confidence.toLowerCase()} fit, {recBook.count}/{recBook.total} top formations
+          </div>
+        )}
+        <div
+          onClick={() => setPbOpen(v => !v)}
+          style={{
+            display: "flex", alignItems: "center", justifyContent: "space-between",
+            background: "var(--color-surface-1)", border: "1px solid var(--color-border-subtle)",
+            borderRadius: pbOpen ? "var(--r-md) var(--r-md) 0 0" : "var(--r-md)",
+            padding: "10px 13px", marginBottom: pbOpen ? 0 : 12, cursor: "pointer",
+          }}
+        >
+          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+            <span style={{ fontSize: 9, color: "var(--color-text-3)", letterSpacing: "1.5px", textTransform: "uppercase", fontFamily: "var(--font-mono)" }}>Playbook</span>
+            <span style={{ fontSize: 13, color: "var(--color-gold-bright)", fontWeight: "700", fontFamily: "var(--font-mono)" }}>
+              {myBook === "All" ? "All Books" : myBook}
+            </span>
+          </div>
+          <span style={{ color: "var(--color-gold)", fontSize: 13, transition: "transform 150ms ease", transform: pbOpen ? "rotate(180deg)" : "none", display: "inline-block" }}>▾</span>
+        </div>
+        {pbOpen && (
+          <div style={{ background: "var(--color-surface-2)", border: "1px solid var(--color-border-subtle)", borderTop: "none", borderRadius: "0 0 var(--r-md) var(--r-md)", maxHeight: 280, overflowY: "auto", marginBottom: 12 }}>
+            {["All", ...Object.keys(PLAYBOOKS)].map(k => {
+              const isCur = myBook === k;
+              const isRec = recBook && recBook.book === k;
+              return (
+                <div
+                  key={k}
+                  onClick={() => { changeBookManual(k); setPbOpen(false); }}
+                  style={{
+                    display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8,
+                    padding: "10px 13px", borderBottom: "1px solid var(--color-border-subtle)", cursor: "pointer",
+                  }}
+                >
+                  <span style={{ fontSize: 12.5, fontFamily: "var(--font-mono)", color: isCur ? "var(--color-gold-bright)" : "var(--color-text-1)", fontWeight: isCur ? "700" : "400" }}>
+                    {k === "All" ? "All Books" : k}
+                  </span>
+                  <span style={{ display: "flex", gap: 5 }}>
+                    {isRec && <span style={{ fontSize: 9, background: "var(--color-surface-success)", border: "1px solid var(--color-success)", color: "var(--color-success)", padding: "2px 7px", borderRadius: 9, fontFamily: "var(--font-mono)", fontWeight: "700" }}>Recommended</span>}
+                    {isCur && <span style={{ fontSize: 9, background: "var(--color-gold-surface)", border: "1px solid var(--color-gold)", color: "var(--color-gold)", padding: "2px 7px", borderRadius: 9, fontFamily: "var(--font-mono)", fontWeight: "700" }}>Current</span>}
+                  </span>
+                </div>
+              );
+            })}
+          </div>
+        )}
 
         {/* ── Down & Distance Situation ── */}
         <div style={{ background: "var(--color-surface-success)", border: "1px solid var(--color-border)", borderLeft: "3px solid var(--color-success)", borderRadius: "var(--r-md)", padding: "8px 10px", marginBottom: 12 }}>
@@ -601,54 +636,6 @@ export default function GamePlanScreen({
         </div>
       )}
 
-      {/* ── Recommended Playbook modal — outside screen-enter to avoid transform stacking context ── */}
-      {showRecModal && recBook && (
-        <div
-          onClick={() => setShowRecModal(false)}
-          style={{ position: "fixed", top: 0, left: 0, right: 0, bottom: 0, background: "rgba(0,0,0,0.85)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 500, padding: 20 }}
-        >
-          <div
-            onClick={e => e.stopPropagation()}
-            style={{ background: "var(--color-surface-2)", border: "1px solid var(--color-success)", borderRadius: "var(--r-lg)", padding: "22px 22px 20px", width: "100%", maxWidth: 340 }}
-          >
-            <div style={{ fontSize: 10, letterSpacing: "2px", textTransform: "uppercase", color: "var(--color-success)", fontFamily: "var(--font-mono)", marginBottom: 10 }}>
-              Recommended Playbook
-            </div>
-            <div style={{ fontSize: 26, fontWeight: "700", color: "var(--color-text-1)", fontFamily: "var(--font-mono)", marginBottom: 6 }}>
-              {recBook.book}
-            </div>
-            <div style={{ fontSize: 13, color: "var(--color-text-2)", lineHeight: 1.6, marginBottom: 12 }}>
-              {recBook.count} of {recBook.total} top formations are in this playbook — the strongest coverage for this opponent.
-            </div>
-            <div style={{ fontSize: 12, color: "var(--color-success)", lineHeight: 1.55, marginBottom: 20, paddingLeft: 10, borderLeft: "2px solid #2a5830" }}>
-              {PLAYBOOKS[recBook.book] ? PLAYBOOKS[recBook.book].desc : ""}
-            </div>
-            <div style={{ display: "flex", gap: 10 }}>
-              {myBook === recBook.book ? (
-                <button
-                  onClick={() => { changeBook(manualBook); setShowRecModal(false); }}
-                  style={{ flex: 1, minHeight: 46, background: "#2a5020", border: "1px solid var(--color-success)", borderRadius: "var(--r-md)", color: "#90e070", fontWeight: "700", fontSize: 13, cursor: "pointer" }}
-                >
-                  Back to {manualBook === "All" ? "All Books" : manualBook}
-                </button>
-              ) : (
-                <button
-                  onClick={() => { changeBook(recBook.book); setShowRecModal(false); }}
-                  style={{ flex: 1, minHeight: 46, background: "#2a5020", border: "1px solid var(--color-success)", borderRadius: "var(--r-md)", color: "#90e070", fontWeight: "700", fontSize: 13, cursor: "pointer" }}
-                >
-                  Use {recBook.book}
-                </button>
-              )}
-              <button
-                onClick={() => setShowRecModal(false)}
-                style={{ flex: 1, minHeight: 46, background: "transparent", border: "1px solid var(--color-border)", borderRadius: "var(--r-md)", color: "var(--color-text-2)", fontSize: 13, cursor: "pointer" }}
-              >
-                Keep {myBook === "All" ? "All" : myBook}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </>
   );
 }
