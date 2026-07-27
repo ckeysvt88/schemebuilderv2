@@ -101,7 +101,7 @@ function applySituationSort(fmList, sit) {
 
 export default function GamePlanScreen({
   sel, setSel, flat, personnelSel,
-  runPass, myBook, changeBook, manualBook,
+  runPass, myBook,
   scored, rawScored, setScored,
   activeP, setActiveP,
   selFm, setSelFm,
