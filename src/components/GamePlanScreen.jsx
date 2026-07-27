@@ -502,7 +502,7 @@ export default function GamePlanScreen({
                   <div style={{ opacity: listOpacity, transition: "opacity 150ms ease" }}>
                   {persMatches.map(fm => (
                     <div key={fm.name} data-fm-name={fm.name}>
-                      <FormationCard fm={fm} onSelect={f => setSelFm(selFm?.name === f.name ? null : f)} isSelected={selFm?.name === fm.name} />
+                      <FormationCard fm={fm} onSelect={f => setSelFm(selFm?.name === f.name ? null : f)} isSelected={selFm?.name === fm.name} myBook={myBook} />
                       {selFm?.name === fm.name && <FormationDetail fm={selFm} flat={flat} situation={situation} runPass={runPass} />}
                     </div>
                   ))}
@@ -523,7 +523,7 @@ export default function GamePlanScreen({
                 </div>
                 {group.formations.map(fm => (
                   <div key={fm.name} data-fm-name={fm.name}>
-                    <FormationCard fm={fm} onSelect={f => setSelFm(selFm?.name === f.name ? null : f)} isSelected={selFm?.name === fm.name} />
+                    <FormationCard fm={fm} onSelect={f => setSelFm(selFm?.name === f.name ? null : f)} isSelected={selFm?.name === fm.name} myBook={myBook} />
                     {selFm?.name === fm.name && <FormationDetail fm={selFm} flat={flat} situation={situation} runPass={runPass} />}
                   </div>
                 ))}

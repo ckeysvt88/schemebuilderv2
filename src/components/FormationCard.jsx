@@ -1,3 +1,5 @@
+import { useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { blitzInfo } from '../engine/scoring.js';
 
 const PC = { run: "#c07040", pass: "#3a80e0", hybrid: "#7858a0", pressure: "#bb5050" };
@@ -5,9 +7,100 @@ const PL = { run: "RUN STOP", pass: "PASS DEF", hybrid: "HYBRID", pressure: "PRE
 
 export { PC, PL };
 
-export default function FormationCard({ fm, onSelect, isSelected }) {
+// Active playbook always sorts first — replaces the old raw-data-order render.
+function orderBooks(books, active) {
+  if (!active || active === "All" || !books.includes(active)) return books;
+  return [active, ...books.filter(b => b !== active)];
+}
+
+// Bottom sheet listing the formation's full playbook set. Rendered via
+// createPortal to document.body so it escapes the `.screen-enter` wrapper's
+// transform (animation-fill-mode: forwards leaves every screen parked on
+// `transform: translateY(0)`, which makes it the containing block for any
+// position:fixed descendant — see the audit). ScoutScreen.jsx's onboarding
+// modal already uses this same createPortal escape for the same reason.
+function BooksSheet({ fm, books, active, onClose }) {
+  const sheetRef = useRef(null);
+  const dragState = useRef({ startY: 0, dragging: false });
+
+  const onHandleDown = (e) => {
+    dragState.current.startY = e.touches ? e.touches[0].clientY : e.clientY;
+    dragState.current.dragging = true;
+    if (sheetRef.current) sheetRef.current.style.transition = "none";
+  };
+  const onHandleMove = (e) => {
+    if (!dragState.current.dragging) return;
+    const y = e.touches ? e.touches[0].clientY : e.clientY;
+    const dy = Math.max(0, y - dragState.current.startY);
+    if (sheetRef.current) sheetRef.current.style.transform = `translateY(${dy}px)`;
+  };
+  const onHandleUp = (e) => {
+    if (!dragState.current.dragging) return;
+    dragState.current.dragging = false;
+    const y = e.changedTouches ? e.changedTouches[0].clientY : e.clientY;
+    const dy = Math.max(0, y - dragState.current.startY);
+    if (sheetRef.current) sheetRef.current.style.transition = "transform 200ms ease";
+    if (dy > 80) { onClose(); return; }
+    if (sheetRef.current) sheetRef.current.style.transform = "translateY(0)";
+  };
+
+  return createPortal(
+    <div style={{ position: "fixed", inset: 0, zIndex: 500 }}>
+      <div onClick={onClose} style={{ position: "absolute", inset: 0, background: "rgba(0,0,0,0.6)" }} />
+      <div
+        ref={sheetRef}
+        style={{
+          position: "absolute", left: 0, right: 0, bottom: 0, maxHeight: "70%",
+          background: "var(--color-surface-2)", borderTop: "1px solid var(--color-gold)",
+          borderRadius: "var(--r-lg) var(--r-lg) 0 0", padding: "8px 18px 24px",
+          overflowY: "auto", transition: "transform 200ms ease",
+        }}
+      >
+        <div
+          onMouseDown={onHandleDown} onMouseMove={onHandleMove} onMouseUp={onHandleUp} onMouseLeave={onHandleUp}
+          onTouchStart={onHandleDown} onTouchMove={onHandleMove} onTouchEnd={onHandleUp}
+          style={{ width: 36, height: 4, borderRadius: 2, background: "var(--color-border)", margin: "4px auto 12px", cursor: "grab" }}
+        />
+        <div style={{ fontSize: 15, fontWeight: "700", color: "var(--color-text-1)", fontFamily: "var(--font-mono)", marginBottom: 2 }}>
+          {fm.name}
+        </div>
+        <div style={{ fontSize: 11, color: "var(--color-text-3)", fontFamily: "var(--font-mono)", marginBottom: 12 }}>
+          {books.length} playbook{books.length !== 1 ? "s" : ""} carry this formation
+        </div>
+        {books.map(b => (
+          <div key={b} style={{
+            display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8,
+            padding: "10px 4px", borderBottom: "1px solid var(--color-border-subtle)",
+          }}>
+            <span style={{
+              fontSize: 13, fontFamily: "var(--font-mono)",
+              color: b === active ? "var(--color-gold-bright)" : "var(--color-text-1)",
+              fontWeight: b === active ? "700" : "400",
+            }}>
+              {b}
+            </span>
+            {b === active && (
+              <span style={{ fontSize: 9, background: "var(--color-gold-surface)", border: "1px solid var(--color-gold)", color: "var(--color-gold)", padding: "2px 7px", borderRadius: 10, fontFamily: "var(--font-mono)" }}>
+                Active
+              </span>
+            )}
+          </div>
+        ))}
+      </div>
+    </div>,
+    document.body
+  );
+}
+
+export default function FormationCard({ fm, onSelect, isSelected, myBook }) {
   const bi = blitzInfo(fm.blitz);
+  const [sheetOpen, setSheetOpen] = useState(false);
+  const ordered = orderBooks(fm.books, myBook);
+  const visible = ordered.slice(0, 3);
+  const hiddenCount = ordered.length - 3;
+
   return (
+    <>
     <div
       onClick={() => onSelect(fm)}
       style={{
@@ -67,8 +160,31 @@ export default function FormationCard({ fm, onSelect, isSelected }) {
               </span>
             )}
           </div>
-          <div style={{ fontSize: 11, color: "var(--color-text-3)", fontFamily: "var(--font-mono)", lineHeight: 1.3 }}>
-            {fm.books.slice(0, 3).join(" · ")}{fm.books.length > 3 ? ` +${fm.books.length - 3}` : ""}
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 5, marginTop: 2, alignItems: "center" }}>
+            {visible.map(b => (
+              <span key={b} style={{
+                fontSize: 10.5, fontWeight: b === myBook ? 700 : 600, fontFamily: "var(--font-mono)",
+                padding: "3px 8px", borderRadius: 4, whiteSpace: "nowrap",
+                background: b === myBook ? "var(--color-gold-surface)" : "var(--color-surface-1)",
+                border: `1px solid ${b === myBook ? "var(--color-gold)" : "var(--color-border-subtle)"}`,
+                color: b === myBook ? "var(--color-gold-bright)" : "var(--color-text-3)",
+              }}>
+                {b}
+              </span>
+            ))}
+            {hiddenCount > 0 && (
+              <button
+                onClick={(e) => { e.stopPropagation(); setSheetOpen(true); }}
+                style={{
+                  fontSize: 10.5, fontWeight: 600, fontFamily: "var(--font-mono)",
+                  padding: "3px 8px", borderRadius: 4, cursor: "pointer",
+                  background: "var(--color-surface-2)", border: "1px solid var(--color-border)",
+                  color: "var(--color-text-2)",
+                }}
+              >
+                +{hiddenCount}
+              </button>
+            )}
           </div>
         </div>
 
@@ -103,5 +219,9 @@ export default function FormationCard({ fm, onSelect, isSelected }) {
         </div>
       )}
     </div>
+    {sheetOpen && (
+      <BooksSheet fm={fm} books={ordered} active={myBook} onClose={() => setSheetOpen(false)} />
+    )}
+    </>
   );
 }
