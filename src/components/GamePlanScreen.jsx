@@ -238,18 +238,20 @@ export default function GamePlanScreen({
                 ←
               </button>
             )}
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 6 }}>
+            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
               <ExportPDFButton variant="compact" label="Call Sheet" rawScored={rawScored} sel={sel} myBook={myBook} runPass={runPass} />
-              <button onClick={() => setStep("notes")} style={hdrBtn} aria-label="Notes">
-                Notes
-              </button>
-              <button
-                onClick={() => setQuickAdjOpen(v => !v)}
-                style={{ ...hdrBtn, ...(quickAdjOpen ? { background: "var(--color-gold-surface)", borderColor: "var(--color-gold)", color: "var(--color-gold)" } : {}) }}
-                aria-label="Quick Adjust"
-              >
-                Adjust
-              </button>
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 6 }}>
+                <button onClick={() => setStep("notes")} style={hdrBtn} aria-label="Notes">
+                  Notes
+                </button>
+                <button
+                  onClick={() => setQuickAdjOpen(v => !v)}
+                  style={{ ...hdrBtn, ...(quickAdjOpen ? { background: "var(--color-gold-surface)", borderColor: "var(--color-gold)", color: "var(--color-gold)" } : {}) }}
+                  aria-label="Quick Adjust"
+                >
+                  Adjust
+                </button>
+              </div>
             </div>
           </div>
         </div>
