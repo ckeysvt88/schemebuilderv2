@@ -1,8 +1,9 @@
 const CACHE = 'schemebuilders-v3-1';
 const BASE  = '/';
+const SHELL = BASE + 'index.html';
 const ASSETS = [
   BASE,
-  BASE + 'index.html',
+  SHELL,
   BASE + 'manifest.json',
 ];
 
@@ -20,18 +21,47 @@ self.addEventListener('activate', e => {
   );
 });
 
+// Network-first. Used for URLs whose filename never changes — the HTML shell
+// and the manifest. A cached copy of these would pin the user to an old build,
+// because index.html is what names the current asset hashes.
+async function networkFirst(e, key) {
+  const req   = e.request;
+  const cache = await caches.open(CACHE);
+  try {
+    const res = await fetch(req);
+    if (res.ok) e.waitUntil(cache.put(key || req, res.clone()));
+    return res;
+  } catch {
+    const cached = await cache.match(key || req);
+    if (cached) return cached;
+    throw new Error('offline, not cached: ' + req.url);
+  }
+}
+
+// Cache-first. Everything under /assets/ is content-hashed by Vite, so a cache
+// hit cannot be stale — different content means a different filename.
+async function cacheFirst(e) {
+  const req    = e.request;
+  const cache  = await caches.open(CACHE);
+  const cached = await cache.match(req);
+  if (cached) return cached;
+  const res = await fetch(req);
+  if (res.ok) e.waitUntil(cache.put(req, res.clone()));
+  return res;
+}
+
 self.addEventListener('fetch', e => {
   if (e.request.method !== 'GET') return;
-  e.respondWith(
-    caches.match(e.request).then(cached => {
-      const network = fetch(e.request).then(res => {
-        if (res.ok) {
-          const clone = res.clone();
-          caches.open(CACHE).then(c => c.put(e.request, clone));
-        }
-        return res;
-      }).catch(() => cached);
-      return cached || network;
-    })
-  );
+  const url = new URL(e.request.url);
+  if (url.origin !== location.origin) return;   // cross-origin: browser handles it
+
+  if (e.request.mode === 'navigate') {
+    e.respondWith(networkFirst(e, SHELL));      // offline falls back to the shell
+    return;
+  }
+  if (url.pathname.startsWith(BASE + 'assets/')) {
+    e.respondWith(cacheFirst(e));
+    return;
+  }
+  e.respondWith(networkFirst(e));
 });
