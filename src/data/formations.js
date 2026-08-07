@@ -893,7 +893,7 @@ export const FDB = {
     books:["3-2-6","3-3-5","3-3-5 Man","3-3-5 Man Pressure","3-3-5 Three High","3-3-5 Zone Pressure","Multiple"], priority:"pass", personnel:"Nickel",
     desc:"An odd front from 3-3-5 personnel with an edge defender in a ghost alignment, set in space off the edge as if outside an absent tight end. From that alignment he can rush the edge cleanly or drop, and the coverage-heavy menu drops him more often than not. Tampa and two-deep looks dominate. A disguise front that shows edge pressure and plays coverage.",
     dcNote:"Odd Ghost sells pressure and plays coverage. The edge man in space looks like a free rusher, but he usually drops, so you show heat and fall into a Tampa or two-deep shell that smothers the intermediate middle. The menu leans hard on disguise: Tampa variants, Cover 2 looks, and sky drops that all start from the same picture. Keep a mid blitz and a Cover 0 in your pocket so the bluff occasionally becomes real. Use it against a quarterback who guesses your coverage off the front.",
-    blitzBase:28, blitzMods:[{tags:["qb_pocket","qb_one_read"],d:+10},{tags:["quick_game","screens","rpo"],d:-14},{tags:["qb_scramble","dual_threat"],d:-8},{tags:["deep_shots","pass_heavy_3rd"],d:+6}],
+    capSkip:["box_bodies"], blitzBase:28, blitzMods:[{tags:["qb_pocket","qb_one_read"],d:+10},{tags:["quick_game","screens","rpo"],d:-14},{tags:["qb_scramble","dual_threat"],d:-8},{tags:["deep_shots","pass_heavy_3rd"],d:+6}],
     avoidTags:["p22","p13","short_yardage_run","fb_lead","inside_run"],
     coreTags:["p11","p10","four_wide","qb_pocket","pass_heavy_3rd","empty","middle_heavy"],
     suppTags:["trips","slot_threat","crossers","seam_routes"],
@@ -901,13 +901,14 @@ export const FDB = {
       {name:"Cover 3 Match",rating:5,tag:"Base",detail:"Three-deep pattern match behind the ghosted front. Carries verticals and passes off crossers by rule. The stay-safe call."},
       {name:"Cover 6",rating:4,tag:"vs Trips",detail:"Quarter-quarter-half against a trips set. Quarters to the trips side, half to the single side."},
       {name:"Cover 2 Tampa",rating:4,tag:"vs Quick Game",detail:"Two deep with the middle linebacker on the pole. The disguise front drops eight and smothers the intermediate middle."},
+      {name:"Cover 4 Quarters",rating:4,tag:"vs Four Verts",detail:"Four across deep out of the disguise front. Every vertical stem has a defender over the top while the ghost man drops, so the quarterback who guessed pressure finds no window."},
       {name:"Cover 1 Dbl Hook",rating:3,tag:"Man Coverage",detail:"Man outside with two hook droppers underneath. Man coverage with extra help on the crossers over the middle."},
       {name:"Mike Will 3",rating:3,tag:"Zone Pressure",detail:"Mike and Will fire zone, five rush with three deep. The pressure that makes the ghost bluff real."},
       {name:"Cover 3 Sky",rating:3,tag:"Base alt",detail:"Three-deep with a safety to the flat. A spot-drop change-up from the pattern-match base."},
     ],
     preSnap:["Show the ghost lane, then drop the bluffed rusher","Play the disguise — Tampa and two-deep hide the same way","Occasionally send the mid blitz so the bluff stays honest","Corners: Cushion vs shots, Press vs quick game"],
     coaching:[{label:"Coverage Shell",value:"Cov 2"},{label:"CB Depth",value:"7 yds"},{label:"Coverage Strategy",value:"Balanced"},{label:"Show Blitz",value:"Both"},{label:"Usage",value:"Passing downs / coverage disguise"}],
-    callsheet:[{down:"1st & 10 (spread)",call:"3-3-5 Odd Ghost · Cover 3 Match",note:"Show the ghost, match the routes"},{down:"2nd & Long",call:"3-3-5 Odd Ghost · Cover 2 Tampa",note:"Drop eight, smother the middle"},{down:"3rd & Medium",call:"3-3-5 Odd Ghost · Mike Will 3",note:"Make the bluff real, three deep"},{down:"3rd & Long vs Trips",call:"3-3-5 Odd Ghost · Cover 6",note:"Quarters to trips, half to single"}],
+    callsheet:[{down:"1st & 10 (spread)",call:"3-3-5 Odd Ghost · Cover 3 Match",note:"Show the ghost, match the routes"},{down:"2nd & Long",call:"3-3-5 Odd Ghost · Cover 2 Tampa",note:"Drop eight, smother the middle"},{down:"3rd & Medium",call:"3-3-5 Odd Ghost · Mike Will 3",note:"Make the bluff real, three deep"},{down:"3rd & Long vs Trips",call:"3-3-5 Odd Ghost · Cover 6",note:"Quarters to trips, half to single"},{down:"2nd & Long vs Verts",call:"3-3-5 Odd Ghost · Cover 4 Quarters",note:"Four across deep, no window over the top"}],
   },
 
   // ── 4-2-5 FAMILY
@@ -1191,7 +1192,7 @@ export const FDB = {
     callsheet:[{down:"1st & 10",call:"4-3 Tite Leo · Cover 3 Sky",note:"Five-man wall, sound behind"},{down:"2nd & Long vs Spread",call:"4-3 Tite Leo · Cover 3 Match",note:"Match routes, keep pressure"},{down:"3rd & Medium",call:"4-3 Tite Leo · Saw Blitz 3",note:"Add a rusher, keep deep third"},{down:"3rd & Long (sure pass)",call:"4-3 Tite Leo · Saw Blitz 0",note:"Max pressure — ball out now"}],
   },
   "4-3 Under Wide": {
-    books:["4-3","4-3 Man","4-3 Man Pressure","4-3 Multiple","4-3 Press Quarters","4-3 Shell","4-3 Zone","4-3 Zone Pressure","Multiple"], priority:"pass", personnel:"Base",
+    books:["4-2-5 Zone Pressure","4-3","4-3 Man","4-3 Man Pressure","4-3 Multiple","4-3 Press Quarters","4-3 Shell","4-3 Zone","4-3 Zone Pressure","Multiple"], priority:"pass", personnel:"Base",
     desc:"Front spread wider for spread passing, carrying the deepest pressure and man-coverage menu of the 4-3 family. 20 plays span single-high man variants, fire zones & a dedicated mobile QB answer. A versatile 4-down front built to pressure and match a spread offense.",
     dcNote:"Under Wide is the most complete 4-3 in the package — twenty plays covering nearly every man, zone, and pressure answer. Its standout is Cover 1 Contain Press: both edges contain, a spy underneath, corners pressing outside — the four-down answer to a mobile quarterback who also has weapons outside. Beyond that it carries the full crash and fire-zone pressure menu. Use it when you need one four-down front that can do everything against a spread passing attack.",
     blitzBase:30, blitzMods:[{tags:["qb_pocket","qb_one_read"],d:+12},{tags:["empty","pass_heavy_3rd"],d:+7},{tags:["quick_game","rpo","screens"],d:-15},{tags:["qb_scramble","dual_threat"],d:-8}],

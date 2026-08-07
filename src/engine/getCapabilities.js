@@ -4,6 +4,7 @@
 // refinement on the tag score. Approved weights (CK 7/16/26): layer not
 // replace; clamp ±15; Rule 1 "neither" penalty -6. Stubs skip the layer.
 import { PLAYS } from '../data/plays.js';
+import { FDB } from '../data/formations.js';
 
 const round2 = x => Math.round(x * 100) / 100;
 const _capCache = new Map();
@@ -70,6 +71,7 @@ export function capabilityAdjust(formationName, flat) {
   if (!c) return 0;                        // stub formation — tag score stands
   const has = t => flat.includes(t);
   let adj = 0;
+  const capSkip = FDB[formationName]?.capSkip || [];
 
   // 1. Mobile/scrambling QB → needs a spy or contain answer
   if (has("mobile_qb") || has("qb_scramble") || has("dual_threat")) {
@@ -93,7 +95,8 @@ export function capabilityAdjust(formationName, flat) {
     if (c.zoneRate >= 0.5 && c.maxUnder >= 5) adj += 4;
   }
   // 5. Inside run / short yardage / strong OL → box bodies
-  if (has("inside_run") || has("short_yardage_run") || has("strong_oline")) {
+  if (!capSkip.includes("box_bodies") &&
+      (has("inside_run") || has("short_yardage_run") || has("strong_oline"))) {
     if (c.avgRush >= 4.5) adj += 5;
     else if (c.avgRush < 3.5) adj -= 6;
   }

@@ -621,6 +621,7 @@ export const PLAYS = {
   { n:"Tampa Sim Pressure",    badge:"BLITZ", rush:4, cont:0, spy:0, deep:2, shell:2, und:5, man:0, notes:"Sim pressure, ends pop out, drops to Tampa 2" },
 ],
   "3-3-5 Odd Ghost": [
+  { n:"Bear Claw 3",        badge:"BLITZ", rush:5, cont:0, spy:0, deep:3, shell:3, und:3, man:0, notes:"Both inside backers fire the A-gaps, ends crash inside" },
   { n:"Cover 1 Dbl Hook",   badge:"MAN",   rush:4, cont:0, spy:0, deep:1, shell:1, und:2, man:4, notes:"Cover 1, two hook droppers, man outside" },  // VERIFY split
   { n:"Cover 2 Invert",     badge:"ZONE",  rush:4, cont:0, spy:0, deep:2, shell:2, und:5, man:0, notes:"Cover 2 invert, 2 deep, 5 under" },
   { n:"Cover 2 Man",        badge:"MAN",   rush:4, cont:0, spy:0, deep:2, shell:2, und:0, man:5, notes:"2 deep, man under" },
@@ -629,12 +630,16 @@ export const PLAYS = {
   { n:"Cover 3 Match",      badge:"MATCH", rush:4, cont:0, spy:0, deep:3, shell:3, und:4, man:0, notes:"3 match, 4 under" },
   { n:"Cover 3 Sky",        badge:"ZONE",  rush:4, cont:0, spy:0, deep:3, shell:3, und:4, man:0, notes:"3 deep, safety to flat" },
   { n:"Cover 3 Sky Drop",   badge:"ZONE",  rush:4, cont:0, spy:0, deep:3, shell:3, und:4, man:0, notes:"3 deep, lineman drops" },
+  { n:"Cover 4 Palms",      badge:"MATCH", rush:4, cont:0, spy:0, deep:4, shell:4, und:3, man:0, notes:"Palms 2-read, 4 deep" },
+  { n:"Cover 4 Quarters",   badge:"MATCH", rush:4, cont:0, spy:0, deep:4, shell:4, und:3, man:0, notes:"Quarters, 4 deep, 3 under" },
   { n:"Cover 6",            badge:"MATCH", rush:4, cont:0, spy:0, deep:3, shell:6, und:4, man:0, notes:"Quarter-quarter-half, 3 deep" },
   { n:"Hot Blitz 3",        badge:"BLITZ", rush:6, cont:0, spy:0, deep:3, shell:3, und:2, man:0, notes:"6-man pressure, 3 deep, 2 under" },
   { n:"LB Blitz 0",         badge:"BLITZ", rush:6, cont:0, spy:0, deep:0, shell:0, und:0, man:5, notes:"Cover 0, LBs blitz, man behind" },
   { n:"Mid Blitz 1",        badge:"BLITZ", rush:5, cont:0, spy:0, deep:1, shell:1, und:0, man:5, notes:"A-gap mid pressure, Cover 1" },
   { n:"Mike Will 3",        badge:"BLITZ", rush:5, cont:0, spy:0, deep:3, shell:3, und:3, man:0, notes:"Mike/Will blitz, fire zone, 3 deep" },
+  { n:"Razor 3",            badge:"BLITZ", rush:5, cont:0, spy:0, deep:3, shell:3, und:3, man:0, notes:"Ghost defender rushes the boundary edge, three deep behind" },
   { n:"Saw Blitz 1",        badge:"BLITZ", rush:5, cont:0, spy:0, deep:1, shell:1, und:0, man:5, notes:"Saw pressure, Cover 1" },
+  { n:"Stinger 3",          badge:"BLITZ", rush:5, cont:0, spy:0, deep:3, shell:3, und:3, man:0, notes:"Line slants to the field, Mike crosses to the backside edge" },
   { n:"Tampa Sim Pressure", badge:"ZONE",  rush:4, cont:0, spy:0, deep:2, shell:2, und:5, man:0, notes:"Sim pressure, ends pop out, drops to Tampa 2" },
 ],
   "3-3-5 Over Flex": [
