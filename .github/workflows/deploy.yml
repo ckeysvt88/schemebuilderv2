@@ -16,7 +16,7 @@ jobs:
           node-version: 20
       - run: npm install
       - run: npm run build
-      - run: echo "schemebuilders.com" > dist/CNAME
+      - run: cp public/CNAME dist/CNAME
       - uses: actions/upload-pages-artifact@v3
         with:
           path: dist
