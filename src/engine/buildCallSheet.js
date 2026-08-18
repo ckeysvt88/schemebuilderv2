@@ -7,6 +7,7 @@ import { applyDownDistance, getSituationTip, getLikelyPersonnel } from './downDi
 import { TRAIT_LABELS, TRAITS } from '../data/traits.js';
 import { blitzInfo } from './scoring.js';
 import { COVERAGE_FLAGS } from '../data/coverageFlags.js';
+import { rankCoverages } from './coverageRank.js';
 
 const RUN_PASS_LABELS = {
   1: 'Full Pass', 2: 'Pass Heavy', 3: 'Pass Lean',
@@ -61,31 +62,13 @@ function selectCoverage(f, down, distance, flat) {
   if (!covs || covs.length === 0) return '—';
   if (covs.length === 1) return covs[0].name;
 
-  const sorted = [...covs].sort((a, b) => (b.rating || 0) - (a.rating || 0));
-
-if ((down === 3 || down === 4) && distance >= 7) {
-    // Help over the top required — no single-high, no Cover 0
-    const deep = sorted.find(c => COVERAGE_FLAGS[c.name]?.longOK === true);
-    if (deep) return deep.name;
-  }
-
-  if ((down === 3 || down === 4) && distance <= 3) {
-    // Assignment-sound calls on short-yardage stops
-    const short = sorted.find(c => COVERAGE_FLAGS[c.name]?.shortOK === true);
-    if (short) return short.name;
-  }
-
+  const longOKEligible  = (down === 3 || down === 4) && distance >= 7;
+  const shortOKEligible = (down === 3 || down === 4) && distance <= 3;
   const hasInside  = flat?.includes('inside_run');
   const hasOutside = flat?.includes('outside_run');
-  const fitKey     = hasInside === hasOutside ? null : (hasInside ? 'fitIn' : 'fitOut');
-  if (!fitKey) return sorted[0].name;
+  const fitDirection = hasInside === hasOutside ? null : (hasInside ? 'fitIn' : 'fitOut');
 
-  const nudged = [...covs].sort((a, b) => {
-    const scoreA = (a.rating || 0) + (COVERAGE_FLAGS[a.name]?.[fitKey] || 0) * 0.25;
-    const scoreB = (b.rating || 0) + (COVERAGE_FLAGS[b.name]?.[fitKey] || 0) * 0.25;
-    return scoreB - scoreA;
-  });
-  return nudged[0].name;
+  return rankCoverages(covs, { longOKEligible, shortOKEligible, fitDirection })[0].name;
 }
 
 function pluck(f, down, distance, flat) {
