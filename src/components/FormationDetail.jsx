@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { getBlitz } from '../engine/scoring.js';
 import { rankCoveragesForSituation } from '../engine/coverageRank.js';
-import { ADJUSTMENTS } from '../data/adjustments.js';
+import { ADJUSTMENTS, computeConflicts } from '../data/adjustments.js';
 import { TRAIT_LABELS } from '../data/traits.js';
 import BlitzBar from './BlitzBar.jsx';
 import WhySelected from './WhySelected.jsx';
@@ -17,6 +17,28 @@ function AdjSection({ sec, items, icon }) {
         <div key={i} style={{ background: "var(--color-surface-1)", border: "1px solid var(--color-border-subtle)", borderLeft: "3px solid var(--color-border)", borderRadius: 5, padding: "10px 13px", marginBottom: 7 }}>
           <div style={{ fontSize: 11, fontWeight: "bold", color: "var(--color-text-1)", fontFamily: "'IBM Plex Mono', monospace", marginBottom: 3 }}>{a.setting}</div>
           <div style={{ fontSize: 11, color: "var(--color-text-3)", lineHeight: 1.55 }}>{a.reason}</div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function ConflictingReads({ fm, flat, matched }) {
+  const conflicts = computeConflicts(fm, flat, matched);
+  if (conflicts.length === 0) return null;
+  return (
+    <div style={{ marginBottom: 18 }}>
+      <div style={{ fontSize: "12px", color: "var(--color-text-3)", letterSpacing: "2px", textTransform: "uppercase", marginBottom: 14, fontFamily: "'IBM Plex Mono', monospace" }}>Conflicting Reads</div>
+      {conflicts.map(c => (
+        <div key={c.axis} style={{ background: "var(--color-surface-1)", border: "1px solid var(--color-border-subtle)", borderLeft: "3px solid var(--color-gold)", borderRadius: 5, padding: "10px 13px", marginBottom: 7 }}>
+          <div style={{ fontSize: 11, fontWeight: "bold", color: "var(--color-text-1)", fontFamily: "'IBM Plex Mono', monospace", marginBottom: 6 }}>{c.axis}</div>
+          {c.entries.map((e, i) => (
+            <div key={i} style={{ fontSize: 11, color: "var(--color-text-2)", marginBottom: 3 }}>
+              <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontWeight: "bold" }}>{e.value}</span>
+              <span style={{ color: "var(--color-text-3)" }}> — {e.source}</span>
+            </div>
+          ))}
+          <div style={{ fontSize: 11, color: "var(--color-text-3)", lineHeight: 1.55, marginTop: 6 }}>{c.note}</div>
         </div>
       ))}
     </div>
@@ -45,6 +67,7 @@ function AdjustmentsPanel({ fm, flat }) {
           </div>
         </div>
       )}
+      <ConflictingReads fm={fm} flat={flat} matched={matched} />
       <div style={{ fontSize: "12px", color: "var(--color-text-3)", letterSpacing: "2px", textTransform: "uppercase", marginBottom: 14, fontFamily: "'IBM Plex Mono', monospace" }}>Scouting-Based</div>
       {matched.length === 0 && (
         <div style={{ fontSize: 11, color: "var(--color-text-3)", padding: "10px", textAlign: "center", fontStyle: "italic" }}>No specific adjustments flagged — default settings apply.</div>
