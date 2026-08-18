@@ -4,6 +4,12 @@
 //
 //   shortOK  assignment-sound on 3rd/4th & <=3
 //   longOK   safe to call on 3rd/4th & >=7 — requires help over the top
+//   fitIn    run-fit defenders vs inside runs (0-2) — nudges fall-through sort only
+//   fitOut   run-fit defenders vs outside runs (0-2) — nudges fall-through sort only
+//
+// fitIn/fitOut are set only on the families named in RUNFIT_COVERAGE_HANDOFF.md §2
+// (C4, C2, TAMPA2, C6, C3 Sky, C3 Buzz). Every other row is silently 0/0 via the
+// same absent-key fallback the shortOK/longOK lookups already rely on.
 //
 // Both false is valid and by far the most common case: 122 of 149 names. It means
 // the name is never selected by either branch and the formation falls through to
@@ -41,39 +47,39 @@ export const COVERAGE_FLAGS = {
   "Cover 2 Man": { shortOK: false, longOK: true  },
 
   // ── C2 (11) — Two-deep zone — long
-  "CB Bench Sim 2":           { shortOK: false, longOK: true  },
-  "Corner Blitz 2":           { shortOK: false, longOK: true  },
-  "Cover 2":                  { shortOK: false, longOK: true  },
-  "Cover 2 Hard Flat":        { shortOK: false, longOK: true  },
-  "Cover 2 Invert":           { shortOK: false, longOK: true  },
-  "Cover 2 Invert Hard Flat": { shortOK: false, longOK: true  },
-  "Dime Blitz 2":             { shortOK: false, longOK: true  },
-  "Edge Blitz 2":             { shortOK: false, longOK: true  },
-  "Mike Sim 2":               { shortOK: false, longOK: true  },
-  "Mike Will 2":              { shortOK: false, longOK: true  },
-  "Nickel Sim 2":             { shortOK: false, longOK: true  },
+  "CB Bench Sim 2":           { shortOK: false, longOK: true , fitIn: 0, fitOut: 2 },
+  "Corner Blitz 2":           { shortOK: false, longOK: true , fitIn: 0, fitOut: 2 },
+  "Cover 2":                  { shortOK: false, longOK: true , fitIn: 0, fitOut: 2 },
+  "Cover 2 Hard Flat":        { shortOK: false, longOK: true , fitIn: 0, fitOut: 2 },
+  "Cover 2 Invert":           { shortOK: false, longOK: true , fitIn: 0, fitOut: 2 },
+  "Cover 2 Invert Hard Flat": { shortOK: false, longOK: true , fitIn: 0, fitOut: 2 },
+  "Dime Blitz 2":             { shortOK: false, longOK: true , fitIn: 0, fitOut: 2 },
+  "Edge Blitz 2":             { shortOK: false, longOK: true , fitIn: 0, fitOut: 2 },
+  "Mike Sim 2":               { shortOK: false, longOK: true , fitIn: 0, fitOut: 2 },
+  "Mike Will 2":              { shortOK: false, longOK: true , fitIn: 0, fitOut: 2 },
+  "Nickel Sim 2":             { shortOK: false, longOK: true , fitIn: 0, fitOut: 2 },
 
   // ── C2_LURK (1) — Two-deep with a lurk defender — long
   "Cover 2 Lurk": { shortOK: false, longOK: true  },
 
   // ── TAMPA2 (5) — Tampa 2 — long
-  "Cover 2 Tampa":      { shortOK: false, longOK: true  },
-  "Tampa 2":            { shortOK: false, longOK: true  },
-  "Tampa 2 Contain":    { shortOK: false, longOK: true  },
-  "Tampa 2 Spy":        { shortOK: false, longOK: true  },
-  "Tampa Sim Pressure": { shortOK: false, longOK: true  },
+  "Cover 2 Tampa":      { shortOK: false, longOK: true , fitIn: 0, fitOut: 2 },
+  "Tampa 2":            { shortOK: false, longOK: true , fitIn: 0, fitOut: 2 },
+  "Tampa 2 Contain":    { shortOK: false, longOK: true , fitIn: 0, fitOut: 2 },
+  "Tampa 2 Spy":        { shortOK: false, longOK: true , fitIn: 0, fitOut: 2 },
+  "Tampa Sim Pressure": { shortOK: false, longOK: true , fitIn: 0, fitOut: 2 },
 
   // ── C4 (5) — Quarters family — long
-  "Cover 4 Drop":     { shortOK: false, longOK: true  },
-  "Cover 4 Palms":    { shortOK: false, longOK: true  },
-  "Cover 4 Quarters": { shortOK: false, longOK: true  },
-  "Cover 4 Show 2":   { shortOK: false, longOK: true  },
-  "Pinch 4 Palms":    { shortOK: false, longOK: true  },
+  "Cover 4 Drop":     { shortOK: false, longOK: true , fitIn: 2, fitOut: 0 },
+  "Cover 4 Palms":    { shortOK: false, longOK: true , fitIn: 2, fitOut: 0 },
+  "Cover 4 Quarters": { shortOK: false, longOK: true , fitIn: 2, fitOut: 0 },
+  "Cover 4 Show 2":   { shortOK: false, longOK: true , fitIn: 2, fitOut: 0 },
+  "Pinch 4 Palms":    { shortOK: false, longOK: true , fitIn: 2, fitOut: 0 },
 
   // ── C6 (3) — Cover 6 — long
-  "Cover 6":        { shortOK: false, longOK: true  },
-  "Cover 6 Invert": { shortOK: false, longOK: true  },
-  "Cover 6 Press":  { shortOK: false, longOK: true  },
+  "Cover 6":        { shortOK: false, longOK: true , fitIn: 1, fitOut: 1 },
+  "Cover 6 Invert": { shortOK: false, longOK: true , fitIn: 1, fitOut: 1 },
+  "Cover 6 Press":  { shortOK: false, longOK: true , fitIn: 1, fitOut: 1 },
 
   // ── C3_DROP (1) — Cover 3 Drop — long, per the Drop rule
   "Cover 3 Drop": { shortOK: false, longOK: true  },
@@ -160,18 +166,18 @@ export const COVERAGE_FLAGS = {
   "Blitz Tex 3":           { shortOK: false, longOK: false },
   "Blitz Tex 3 Sim":       { shortOK: false, longOK: false },
   "Blitz Tex 3 Sim 3":     { shortOK: false, longOK: false },
-  "Cov 3 Buzz Show 1":     { shortOK: false, longOK: false },
+  "Cov 3 Buzz Show 1":     { shortOK: false, longOK: false, fitIn: 1, fitOut: 0 },
   "Cover 3":               { shortOK: false, longOK: false },
-  "Cover 3 Buzz":          { shortOK: false, longOK: false },
-  "Cover 3 Buzz Match":    { shortOK: false, longOK: false },
-  "Cover 3 Buzz Match Wk": { shortOK: false, longOK: false },
-  "Cover 3 Buzz Spy":      { shortOK: false, longOK: false },
+  "Cover 3 Buzz":          { shortOK: false, longOK: false, fitIn: 1, fitOut: 0 },
+  "Cover 3 Buzz Match":    { shortOK: false, longOK: false, fitIn: 1, fitOut: 0 },
+  "Cover 3 Buzz Match Wk": { shortOK: false, longOK: false, fitIn: 1, fitOut: 0 },
+  "Cover 3 Buzz Spy":      { shortOK: false, longOK: false, fitIn: 1, fitOut: 0 },
   "Cover 3 Cloud":         { shortOK: false, longOK: false },
   "Cover 3 Lock":          { shortOK: false, longOK: false },
   "Cover 3 Match":         { shortOK: false, longOK: false },
-  "Cover 3 Sky":           { shortOK: false, longOK: false },
-  "Cover 3 Sky Press":     { shortOK: false, longOK: false },
-  "Cover 3 Sky Wk":        { shortOK: false, longOK: false },
+  "Cover 3 Sky":           { shortOK: false, longOK: false, fitIn: 1, fitOut: 0 },
+  "Cover 3 Sky Press":     { shortOK: false, longOK: false, fitIn: 1, fitOut: 0 },
+  "Cover 3 Sky Wk":        { shortOK: false, longOK: false, fitIn: 1, fitOut: 0 },
   "Crash 3":               { shortOK: false, longOK: false },
   "Crash Blitz 3":         { shortOK: false, longOK: false },
   "Cross Fire 3":          { shortOK: false, longOK: false },

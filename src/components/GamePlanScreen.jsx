@@ -239,7 +239,7 @@ export default function GamePlanScreen({
               </button>
             )}
             <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-              <ExportPDFButton variant="compact" label="Call Sheet" rawScored={rawScored} sel={sel} myBook={myBook} runPass={runPass} />
+              <ExportPDFButton variant="compact" label="Call Sheet" rawScored={rawScored} sel={sel} myBook={myBook} runPass={runPass} flat={flat} />
               <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 6 }}>
                 <button onClick={() => setStep("notes")} style={hdrBtn} aria-label="Notes">
                   Notes

@@ -48,7 +48,15 @@ const SITUATIONS = [
 // formation's #1-rated coverage. A name absent from COVERAGE_FLAGS also falls
 // through, so adding a coverage to formations.js without adding it here degrades
 // to the old default rather than picking wrong.
-function selectCoverage(f, down, distance) {
+//
+// Run-fit nudge (RUNFIT_COVERAGE_HANDOFF.md): applies ONLY to the fall-through
+// below, never to the longOK/shortOK branches above — those stay byte-identical
+// to pre-nudge behavior (D2). `flat` is the opponent's scouted trait array. If
+// it contains exactly one of inside_run/outside_run, the fall-through re-sorts
+// using rating plus a small fraction of the matching fit count, so a real rating
+// gap (ratings run 2-5, integer steps) always wins over the nudge (D3). Neither
+// tag present, or both present, leaves the fall-through unchanged (no-guess rule).
+function selectCoverage(f, down, distance, flat) {
   const covs = f?.coverages;
   if (!covs || covs.length === 0) return '—';
   if (covs.length === 1) return covs[0].name;
@@ -67,16 +75,25 @@ if ((down === 3 || down === 4) && distance >= 7) {
     if (short) return short.name;
   }
 
-  // All other situations: top-rated coverage (index 0)
-  return sorted[0].name;
+  const hasInside  = flat?.includes('inside_run');
+  const hasOutside = flat?.includes('outside_run');
+  const fitKey     = hasInside === hasOutside ? null : (hasInside ? 'fitIn' : 'fitOut');
+  if (!fitKey) return sorted[0].name;
+
+  const nudged = [...covs].sort((a, b) => {
+    const scoreA = (a.rating || 0) + (COVERAGE_FLAGS[a.name]?.[fitKey] || 0) * 0.25;
+    const scoreB = (b.rating || 0) + (COVERAGE_FLAGS[b.name]?.[fitKey] || 0) * 0.25;
+    return scoreB - scoreA;
+  });
+  return nudged[0].name;
 }
 
-function pluck(f, down, distance) {
+function pluck(f, down, distance, flat) {
   if (!f) return null;
   const bi = blitzInfo(f.blitz);
   return {
     name:       f.name,
-    coverage:   selectCoverage(f, down, distance),
+    coverage:   selectCoverage(f, down, distance, flat),
     sc:         f.sc,
     blitz:      f.blitz,
     blitzLabel: bi.label,
@@ -95,7 +112,7 @@ function pluck(f, down, distance) {
   };
 }
 
-export function buildCallSheetData({ rawScored, sel, myBook, runPass }) {
+export function buildCallSheetData({ rawScored, sel, myBook, runPass, flat }) {
   // 1. Offensive profile — scouted traits grouped by their UI category
   const profile = TRAITS.map(group => {
     const ids    = sel[group.id] || [];
@@ -108,8 +125,8 @@ export function buildCallSheetData({ rawScored, sel, myBook, runPass }) {
     const ranked = applyDownDistance(rawScored, sit.down, sit.distance);
     return {
       label:     sit.label,
-      primary:   pluck(ranked[0], sit.down, sit.distance),
-      secondary: pluck(ranked[1], sit.down, sit.distance),
+      primary:   pluck(ranked[0], sit.down, sit.distance, flat),
+      secondary: pluck(ranked[1], sit.down, sit.distance, flat),
       dcTip:     getSituationTip(sit.down, sit.distance) || null,
     };
   });
@@ -118,8 +135,8 @@ export function buildCallSheetData({ rawScored, sel, myBook, runPass }) {
   const glForms = rawScored.filter(f => f.personnel === 'Goal Line');
   situationMatrix.push({
     label:     'GOAL LINE',
-    primary:   pluck(glForms[0], 4, 1),
-    secondary: pluck(glForms[1], 4, 1),
+    primary:   pluck(glForms[0], 4, 1, flat),
+    secondary: pluck(glForms[1], 4, 1, flat),
     dcTip:     'Sub into Goal Line 5-3, 5-2, or 46 Bear immediately. All gaps assigned pre-snap. Cover 0 viable — make them earn every inch.',
   });
 
@@ -127,13 +144,13 @@ export function buildCallSheetData({ rawScored, sel, myBook, runPass }) {
   const pvForms = rawScored.filter(f => f.personnel === 'Prevent');
   situationMatrix.push({
     label:     '2-MINUTE DEF',
-    primary:   pluck(pvForms[0], 3, 10),
-    secondary: pluck(pvForms[1], 3, 10),
+    primary:   pluck(pvForms[0], 3, 10, flat),
+    secondary: pluck(pvForms[1], 3, 10, flat),
     dcTip:     'Allow the short throw — attack the tackle. Clock is your ally. Three-deep eliminates the explosive play.',
   });
 
   // 3. Top 4 formations for detail cards — no situation context, use default coverage
-  const topFormations = rawScored.slice(0, 4).map(f => pluck(f));
+  const topFormations = rawScored.slice(0, 4).map(f => pluck(f, undefined, undefined, flat));
 
   // 4. Situational coaching guide — DC tips + likely personnel + best call per situation
   const situationGuide = SITUATIONS.map(sit => {
@@ -145,20 +162,20 @@ export function buildCallSheetData({ rawScored, sel, myBook, runPass }) {
         .slice(0, 4)
         .map(p => TRAIT_LABELS[p] || p)
         .join(' · '),
-      primary: pluck(ranked[0], sit.down, sit.distance),
+      primary: pluck(ranked[0], sit.down, sit.distance, flat),
     };
   });
   situationGuide.push({
     label:           'GOAL LINE',
     dcTip:           'Sub into Goal Line 5-3, 5-2, or 46 Bear immediately. All gaps assigned pre-snap. Cover 0 viable — make them earn every inch.',
     likelyPersonnel: '22p (2 RB, 2 TE, 1 WR) · 23p (2 RB, 3 TE — Jumbo) · 13p (1 RB, 3 TE, 1 WR)',
-    primary: pluck(glForms[0], 4, 1),
+    primary: pluck(glForms[0], 4, 1, flat),
   });
   situationGuide.push({
     label:           '2-MINUTE DEF',
     dcTip:           'Allow the short throw — attack the tackle. Clock is your ally. NEVER press from Prevent. Three-deep eliminates the explosive play. Do NOT deploy before 2:00 remaining.',
     likelyPersonnel: '10p (1 RB, 4 WR) · 11p (1 RB, 1 TE, 3 WR) · Empty Backfield',
-    primary: pluck(pvForms[0], 3, 10),
+    primary: pluck(pvForms[0], 3, 10, flat),
   });
 
   return {

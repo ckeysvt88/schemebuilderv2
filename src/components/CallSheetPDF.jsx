@@ -419,10 +419,10 @@ function CallSheetDocument({ data }) {
 // ── Exported button component ─────────────────────────────────────────────────
 // variant="compact"  →  small header button (default)
 // variant="full"     →  wide, prominent banner button for top-of-page placement
-export const ExportPDFButton = memo(function ExportPDFButton({ rawScored, sel, myBook, runPass, variant = 'compact', label }) {
+export const ExportPDFButton = memo(function ExportPDFButton({ rawScored, sel, myBook, runPass, flat, variant = 'compact', label }) {
   if (!rawScored || rawScored.length === 0) return null;
 
-  const data     = buildCallSheetData({ rawScored, sel, myBook, runPass });
+  const data     = buildCallSheetData({ rawScored, sel, myBook, runPass, flat });
   const fileName = `call-sheet-${new Date().toISOString().slice(0, 10)}.pdf`;
   const isFull   = variant === 'full';
 
