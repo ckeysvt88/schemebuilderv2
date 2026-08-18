@@ -1,3 +1,5 @@
+import { TRAIT_LABELS } from './traits.js';
+
 // In-game adjustments — trait-reactive CFB27 settings
 // Values corrected to verbatim options from CFB27_ADJUSTMENT_GROUNDTRUTH.md (issue 9).
 export const ADJUSTMENTS = [
@@ -28,3 +30,57 @@ export const ADJUSTMENTS = [
   { section:"QB Threat", icon:"🏃", setting:"RPO Pass Keys: Conservative", reason:"A dual-threat in an RPO offense reads your pre-snap alignment. Hold the coverage defenders' pass reaction until after the mesh point — give him nothing pre-snap.", triggers:["dual_threat"] },
   { section:"QB Threat", icon:"🏈", setting:"Option Pitch Key: Conservative", reason:"One unassigned option key is an automatic touchdown. Pair with a conservative Option Read Key so the dive, QB, and pitch are all accounted for — never freelance on option.", triggers:["option_run"] },
 ];
+
+// Keyed by axis — the text before the colon in an ADJUSTMENTS `setting` string, and
+// exactly matching a formation-coaching entry's `label`. Only axes that can have 2+
+// simultaneously active values need an entry here. An axis that conflicts but has no
+// entry here still renders (values + a generic fallback line in computeConflicts below)
+// rather than being silently dropped — same absent-key-degrades-safely philosophy as
+// coverageFlags.js.
+export const AXIS_RECONCILIATION = {
+  "DL Technique": "This opponent runs effectively both directions — DL technique should match the specific run look, not sit fixed for the game. Spread the front vs. stretch/outside-zone/option looks; pinch inside vs. inside-zone/power/counter looks.",
+
+  "Safety Depth": "None of these are the resting position — sit at Default (~12 yds) until a specific read confirms pre-snap, then shift: 25 vs. deep-shot/back-shoulder/two-minute-pass signals, 5 once short-yardage or heavy-personnel run threat is confirmed, 9 for play-action/seam-route looks. Return to Default once the read passes.",
+
+  "Safety Width": "This opponent shows both spread and heavy personnel groupings — width should track the personnel on the field, not sit fixed. Spread wide vs. trips/empty/four-wide sets; pinch inside the moment he substitutes into 13p/FB-lead sets.",
+
+  "Zone Drops Curls": "Base curl depth on the opponent's overall scouted tendency first — tight (5) for a primarily quick-game/RPO team, wide (15) for a primarily West Coast/comeback-route team — then adjust per-snap for tempo: tighten further on hurry-up, widen once he settles into standard drop-back rhythm.",
+
+  "Zone Drops Hooks": "Base hook depth on the opponent's overall scouted tendency first — tight (10) for a primarily slant/motion-heavy team, deep (20) for a primarily seam/vertical-TE team — then adjust per-snap: tighten when he's been running slants/motion, drop deep the moment an elite TE or seam concept shows in the formation.",
+};
+
+// Merges a formation's static coaching baseline with its currently-matched scouted
+// ADJUSTMENTS entries, grouped by setting axis, and returns only the axes where 2+
+// distinct values are simultaneously active. `matched` is the caller's already-filtered
+// ADJUSTMENTS subset (see AdjustmentsPanel in FormationDetail.jsx) — this does not
+// re-filter ADJUSTMENTS itself.
+export function computeConflicts(fm, flat, matched) {
+  const active = [];
+
+  (fm.coaching || []).forEach(c => {
+    active.push({ axis: c.label, value: c.value, source: 'Formation baseline' });
+  });
+
+  matched.forEach(a => {
+    const [axisRaw, ...rest] = a.setting.split(':');
+    const axis = axisRaw.trim();
+    const value = rest.join(':').trim();
+    const hitTriggers = a.triggers.filter(t => flat.includes(t));
+    const source = 'Scouted: ' + hitTriggers.map(t => TRAIT_LABELS[t] || t).join(', ');
+    active.push({ axis, value, source });
+  });
+
+  const byAxis = {};
+  active.forEach(entry => {
+    if (!byAxis[entry.axis]) byAxis[entry.axis] = [];
+    byAxis[entry.axis].push(entry);
+  });
+
+  return Object.entries(byAxis)
+    .filter(([, entries]) => new Set(entries.map(e => e.value)).size > 1)
+    .map(([axis, entries]) => ({
+      axis,
+      entries,
+      note: AXIS_RECONCILIATION[axis] || 'Multiple values are active for this setting — use judgment based on the live situation.',
+    }));
+}
