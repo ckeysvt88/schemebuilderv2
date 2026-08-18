@@ -6,7 +6,6 @@
 import { applyDownDistance, getSituationTip, getLikelyPersonnel } from './downDistance.js';
 import { TRAIT_LABELS, TRAITS } from '../data/traits.js';
 import { blitzInfo } from './scoring.js';
-import { COVERAGE_FLAGS } from '../data/coverageFlags.js';
 import { rankCoverages } from './coverageRank.js';
 
 const RUN_PASS_LABELS = {
@@ -30,40 +29,19 @@ const SITUATIONS = [
 ];
 
 // Select the most situationally correct coverage for this formation + down/distance.
-// Formations are expected to list coverages sorted by general rating (5 = best),
-// but we sort explicitly here so an out-of-order data entry can't silently win.
+// Distance >=7 searches longOK — every eligible name gives help over the top, on any down.
+// Distance <=3 searches shortOK — assignment man, all-out zero, goal-line calls, and
+// pressure calls that carry no coverage token in the name, on any down.
+// Everything else falls through to the formation's #1-rated coverage.
 //
-// Eligibility comes from data/coverageFlags.js, one entry per coverage name. It
-// replaced a pair of regexes that matched 2 and 11 of the 149 names respectively —
-// coverage names carry their coverage in five different conventions, and no pattern
-// reads all five
-//
-// 3rd/4th & >=7 searches longOK — every eligible name gives help over the top.
-// Cover 1 and Cover 0 are deliberately excluded: a formation with no longOK call
-// falls through to its top-rated coverage rather than reaching for single-high.
-//
-// 3rd/4th & <=3 searches shortOK — assignment man, all-out zero, goal-line calls,
-// and pressure calls that carry no coverage token in the name.
-//
-// Everything else, including 3rd/4th at 4-6 yards, falls through to the
-// formation's #1-rated coverage. A name absent from COVERAGE_FLAGS also falls
-// through, so adding a coverage to formations.js without adding it here degrades
-// to the old default rather than picking wrong.
-//
-// Run-fit nudge (RUNFIT_COVERAGE_HANDOFF.md): applies ONLY to the fall-through
-// below, never to the longOK/shortOK branches above — those stay byte-identical
-// to pre-nudge behavior (D2). `flat` is the opponent's scouted trait array. If
-// it contains exactly one of inside_run/outside_run, the fall-through re-sorts
-// using rating plus a small fraction of the matching fit count, so a real rating
-// gap (ratings run 2-5, integer steps) always wins over the nudge (D3). Neither
-// tag present, or both present, leaves the fall-through unchanged (no-guess rule).
+// Coverage-eligibility reasoning lives with the algorithm now — see rankCoverages in coverageRank.js.
 function selectCoverage(f, down, distance, flat) {
   const covs = f?.coverages;
   if (!covs || covs.length === 0) return '—';
   if (covs.length === 1) return covs[0].name;
 
-  const longOKEligible  = (down === 3 || down === 4) && distance >= 7;
-  const shortOKEligible = (down === 3 || down === 4) && distance <= 3;
+  const longOKEligible  = distance >= 7;
+  const shortOKEligible = distance <= 3;
   const hasInside  = flat?.includes('inside_run');
   const hasOutside = flat?.includes('outside_run');
   const fitDirection = hasInside === hasOutside ? null : (hasInside ? 'fitIn' : 'fitOut');
@@ -95,7 +73,9 @@ function pluck(f, down, distance, flat) {
   };
 }
 
-export function buildCallSheetData({ rawScored, sel, myBook, runPass, flat }) {
+export function buildCallSheetData({ rawScored, sel, myBook, runPass }) {
+  const flat = Object.values(sel).flat();
+
   // 1. Offensive profile — scouted traits grouped by their UI category
   const profile = TRAITS.map(group => {
     const ids    = sel[group.id] || [];

@@ -4,6 +4,35 @@
 // can never disagree about which coverage is "best" for a given situation.
 import { COVERAGE_FLAGS } from '../data/coverageFlags.js';
 
+// Formations are expected to list coverages sorted by general rating (5 = best),
+// but we sort explicitly here so an out-of-order data entry can't silently win.
+//
+// Eligibility comes from data/coverageFlags.js, one entry per coverage name. It
+// replaced a pair of regexes that matched 2 and 11 of the 149 names respectively —
+// coverage names carry their coverage in five different conventions, and no pattern
+// reads all five.
+//
+// longOK — every eligible name gives help over the top. Cover 1 and Cover 0 are
+// deliberately excluded: a formation with no longOK call falls through to its
+// top-rated coverage rather than reaching for single-high.
+//
+// shortOK — assignment man, all-out zero, goal-line calls, and pressure calls
+// that carry no coverage token in the name.
+//
+// If neither flag fires, falls through to the formation's #1-rated coverage. A
+// name absent from COVERAGE_FLAGS also falls through, so adding a coverage to
+// formations.js without adding it here degrades to the old default rather than
+// picking wrong.
+//
+// Run-fit nudge (RUNFIT_COVERAGE_HANDOFF.md): applies ONLY when neither longOK
+// nor shortOK fires — never overriding those branches, which stay byte-identical
+// to pre-nudge behavior (D2). `fitDirection` ('fitIn' or 'fitOut') is derived by
+// the caller from the opponent's scouted run tendency; when set, the fall-through
+// re-sorts using rating plus a small fraction of the matching fit count, so a real
+// rating gap (ratings run 2-5, integer steps) always wins over the nudge (D3). No
+// fitDirection (neither or both of inside_run/outside_run scouted) leaves the
+// fall-through unchanged (no-guess rule).
+//
 // Reorders `covs` best-first. `longOKEligible`/`shortOKEligible` pull the
 // first rating-ordered longOK/shortOK-flagged coverage to the front (longOK
 // checked first). If neither fires and `fitDirection` ('fitIn' or 'fitOut')

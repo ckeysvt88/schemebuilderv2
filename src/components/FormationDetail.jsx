@@ -187,7 +187,7 @@ export default function FormationDetail({ fm, flat, situation = "base", runPass 
 
       <div style={{ padding: 13 }}>
         {tab === "coverages" && rankCoveragesForSituation(fm, situation, flat).map((c, i) => (
-          <div key={i} style={{ background: "var(--color-surface-1)", border: "1px solid var(--color-border-subtle)", borderLeft: `3px solid ${["#b8880c","#6090b8","#7858a0","#508860"][i] || "#b8880c"}`, borderRadius: 5, padding: "14px 16px", marginBottom: 16 }}>
+          <div key={c.name} style={{ background: "var(--color-surface-1)", border: "1px solid var(--color-border-subtle)", borderLeft: `3px solid ${["#b8880c","#6090b8","#7858a0","#508860"][i] || "#b8880c"}`, borderRadius: 5, padding: "14px 16px", marginBottom: 16 }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 4 }}>
               <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
                 <span style={{ fontWeight: "bold", fontSize: 11, color: "var(--color-text-1)" }}>{c.name}</span>
