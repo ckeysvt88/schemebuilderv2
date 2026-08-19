@@ -1,4 +1,4 @@
-const CACHE = 'schemebuilders-TEST-v1';
+const CACHE = 'schemebuilders-v3-2';
 const BASE  = '/';
 const SHELL = BASE + 'index.html';
 const ASSETS = [
