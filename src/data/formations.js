@@ -1150,7 +1150,7 @@ export const FDB = {
       {name:"WS Blitz 3",rating:3,tag:"Zone Pressure",detail:"Weak-safety blitz, three-deep fire zone. Pressure from the boundary that keeps the deep third. Your safe blitz off this coverage front."},
     ],
     preSnap:["Set the match check to the concept — Willie/Skinny vs trips, bracket vs elite WR","Identify the elite receiver pre-snap and choose your double","Safeties: disguise the shell, rotate late","This front wins with structure — only blitz to change the picture"],
-    coaching:[{label:"Coverage Shell",value:"Cov 4"},{label:"CB Matchup",value:"By Route Running"},{label:"CB Depth",value:"5 yds"},{label:"Coverage Strategy",value:"Balanced"},{label:"Usage",value:"Passing downs / elite WR / trips"}],
+    coaching:[{label:"Coverage Shell",value:"Cov 4"},{label:"Cornerback Matchup",value:"By Route Running"},{label:"CB Depth",value:"5 yds"},{label:"Coverage Strategy",value:"Balanced"},{label:"Usage",value:"Passing downs / elite WR / trips"}],
     callsheet:[{down:"1st & 10 (spread)",call:"4-2-5 Even · Cover 3 Match",note:"Match the routes, don't chase"},{down:"2nd & Long vs Trips",call:"4-2-5 Even · Cover 6 Willie",note:"Quarters to trips, half to single"},{down:"3rd & Medium vs Elite WR",call:"4-2-5 Even · 1 Double WR1",note:"Bracket him, man elsewhere"},{down:"3rd & Long (shots)",call:"4-2-5 Even · Cover 4 Palms",note:"Two-read, cap verticals + rob out"}],
   },
   "4-3 Over Wide": {

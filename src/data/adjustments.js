@@ -9,7 +9,7 @@ export const ADJUSTMENTS = [
   { section:"Safety Setup", icon:"🔭", setting:"Safety Depth: 9",        reason:"Mid-depth for play action and TE seam routes — stays out of the box without surrendering the intermediate window.", triggers:["play_action","elite_te","crossers"] },
   { section:"Safety Setup", icon:"🔭", setting:"Safety Width: Spread",   reason:"Spread safeties wide to match split receivers and trips surfaces. Do not use vs heavy run formations.", triggers:["trips","p10","four_wide","empty"] },
   { section:"Safety Setup", icon:"🔭", setting:"Safety Width: Pinch",    reason:"Pinch safeties toward interior for seam route help and run support with multiple TEs or power personnel.", triggers:["p13","fb_lead","seam_routes"] },
-  { section:"Safety Setup", icon:"🔭", setting:"Safety Midpoint: Field", reason:"Bias the safety toward the field hash — routes are most dangerous to the wide side of the field.", triggers:["field_hash","boundary_hash","motion_heavy"] },
+  { section:"Safety Setup", icon:"🔭", setting:"Safety Midpoint: Field", reason:"Bias the safety toward the field hash — routes are most dangerous to the wide side of the field.", triggers:["field_hash","motion_heavy"] },
   // ── Zone Drops ────────────────────────────────────────────────────────────
   { section:"Zone Drops",   icon:"📐", setting:"Zone Drops Curls: 5",  reason:"Closes bubble screens and quick flat routes — critical vs RPO and quick-game teams who take free yards at the catch.", triggers:["quick_game","hurry_up","rpo"] },
   { section:"Zone Drops",   icon:"📐", setting:"Zone Drops Curls: 15", reason:"Pushes curl defenders deeper to undercut comeback and intermediate out routes vs West Coast / crossing-heavy offenses.", triggers:["west_coast","no_deep","qb_pocket"] },
@@ -47,6 +47,10 @@ export const AXIS_RECONCILIATION = {
   "Zone Drops Curls": "Base curl depth on the opponent's overall scouted tendency first — tight (5) for a primarily quick-game/RPO team, wide (15) for a primarily West Coast/comeback-route team — then adjust per-snap for tempo: tighten further on hurry-up, widen once he settles into standard drop-back rhythm.",
 
   "Zone Drops Hooks": "Base hook depth on the opponent's overall scouted tendency first — tight (10) for a primarily slant/motion-heavy team, deep (20) for a primarily seam/vertical-TE team — then adjust per-snap: tighten when he's been running slants/motion, drop deep the moment an elite TE or seam concept shows in the formation.",
+
+  "Cornerback Matchup": "This opponent shows both a genuine burner and situational speed threats (deep shots, back-shoulder, slot) — CB matchup should follow the specific release, not sit fixed. Set to By Speed when facing a confirmed vertical/speed threat; By Overall otherwise, so your best all-around corner still travels with the opponent's most complete receiver.",
+
+  "Show Blitz": "This opponent shows both pre-snap-sensitive QB reads and situational blitz-disguise needs — Show Blitz should track the down and personnel, not sit fixed. Walk a linebacker to the line specifically vs RPO/motion/one-read QBs to disrupt his pre-snap read; use Both (LBs and DBs) as the default the rest of the time for broader disguise.",
 };
 
 // Merges a formation's static coaching baseline with its currently-matched scouted
@@ -66,7 +70,9 @@ export function computeConflicts(fm, flat, matched) {
     const axis = axisRaw.trim();
     const value = rest.join(':').trim();
     const hitTriggers = a.triggers.filter(t => flat.includes(t));
-    const source = 'Scouted: ' + hitTriggers.map(t => TRAIT_LABELS[t] || t).join(', ');
+    const source = hitTriggers.length
+      ? 'Scouted: ' + hitTriggers.map(t => TRAIT_LABELS[t] || t).join(', ')
+      : 'Scouted';
     active.push({ axis, value, source });
   });
 
@@ -78,6 +84,7 @@ export function computeConflicts(fm, flat, matched) {
 
   return Object.entries(byAxis)
     .filter(([, entries]) => new Set(entries.map(e => e.value)).size > 1)
+    .filter(([axis]) => !(axis === 'Safety Depth' && fm.personnel === 'Prevent'))
     .map(([axis, entries]) => ({
       axis,
       entries,

@@ -1,7 +1,7 @@
 // Trait label map for 'Why Selected' explainer
 export const TRAIT_LABELS = {
   outside_run:"Outside Runs / Sweeps", inside_run:"Inside Zone / Power", hb_stretch:"HB Stretch",
-  option_run:"Option / QB Run", counter_trap:"Counter / Trap", fb_lead:"Fullback Lead / Iso",
+  option_run:"Option / QB Run", triple_option:"Triple Option", counter_trap:"Counter / Trap", fb_lead:"Fullback Lead / Iso",
   no_run:"Rarely Runs", rpo:"RPO Heavy", play_action:"Play Action", quick_game:"Quick Game / Bubbles",
   deep_shots:"Deep Shots / Verticals", west_coast:"West Coast / Short Horizontal",
   no_deep:"Avoids Going Deep", screens:"Screen Game", crossers:"Crossing Routes / Mesh",

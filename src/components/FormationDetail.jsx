@@ -30,8 +30,8 @@ function ConflictingReads({ fm, flat, matched }) {
     <div style={{ marginBottom: 18 }}>
       <div style={{ fontSize: "12px", color: "var(--color-text-3)", letterSpacing: "2px", textTransform: "uppercase", marginBottom: 14, fontFamily: "'IBM Plex Mono', monospace" }}>Conflicting Reads</div>
       {conflicts.map(c => (
-        <div key={c.axis} style={{ background: "var(--color-surface-1)", border: "1px solid var(--color-border-subtle)", borderLeft: "3px solid var(--color-gold)", borderRadius: 5, padding: "10px 13px", marginBottom: 7 }}>
-          <div style={{ fontSize: 11, fontWeight: "bold", color: "var(--color-text-1)", fontFamily: "'IBM Plex Mono', monospace", marginBottom: 6 }}>{c.axis}</div>
+        <div key={c.axis} style={{ background: "var(--color-surface-1)", border: "1px solid var(--color-border-subtle)", borderLeft: "3px solid var(--color-danger)", borderRadius: 5, padding: "10px 13px", marginBottom: 7 }}>
+          <div style={{ fontSize: 11, fontWeight: "bold", color: "var(--color-danger)", fontFamily: "'IBM Plex Mono', monospace", marginBottom: 6 }}>{c.axis}</div>
           {c.entries.map((e, i) => (
             <div key={i} style={{ fontSize: 11, color: "var(--color-text-2)", marginBottom: 3 }}>
               <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontWeight: "bold" }}>{e.value}</span>
