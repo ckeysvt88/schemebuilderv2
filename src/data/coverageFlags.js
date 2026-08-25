@@ -229,3 +229,14 @@ export const COVERAGE_FLAGS = {
 
 export const isShortYardageCall = name => COVERAGE_FLAGS[name]?.shortOK === true;
 export const isDeepSafeCall     = name => COVERAGE_FLAGS[name]?.longOK  === true;
+
+// Two-deep zone shells — the C2 (11) and TAMPA2 (5) families above, sharing the
+// same base structural weakness/strength this set exists to flag. Excludes
+// Cover 2 Man (man, not zone) and Cover 2 Lurk (different underneath structure).
+// Consumed by coverageRank.js's trips/mesh trait nudge.
+export const TWO_DEEP_ZONE_FAMILY = new Set([
+  "CB Bench Sim 2", "Corner Blitz 2", "Cover 2", "Cover 2 Hard Flat",
+  "Cover 2 Invert", "Cover 2 Invert Hard Flat", "Dime Blitz 2", "Edge Blitz 2",
+  "Mike Sim 2", "Mike Will 2", "Nickel Sim 2",
+  "Cover 2 Tampa", "Tampa 2", "Tampa 2 Contain", "Tampa 2 Spy", "Tampa Sim Pressure",
+]);

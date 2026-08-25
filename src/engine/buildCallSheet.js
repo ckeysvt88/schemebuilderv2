@@ -46,7 +46,7 @@ function selectCoverage(f, down, distance, flat) {
   const hasOutside = flat?.includes('outside_run');
   const fitDirection = hasInside === hasOutside ? null : (hasInside ? 'fitIn' : 'fitOut');
 
-  return rankCoverages(covs, { longOKEligible, shortOKEligible, fitDirection })[0].name;
+  return rankCoverages(covs, { longOKEligible, shortOKEligible, fitDirection, flat })[0].name;
 }
 
 function pluck(f, down, distance, flat) {
