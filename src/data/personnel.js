@@ -13,7 +13,7 @@ export const PMAP = {
   p22:   { label: "22p (2 RB, 2 TE, 1 WR — Heavy)", priority: "Base or max-box personnel. Two TEs and two RBs give them 9 potential blockers — you need LBs in the box. The 1 WR means you still carry one CB but never sub to Nickel. OLBs set hard edges; MLB takes the lead FB.", avoid: "Nickel (removes LBs vs 9 blockers), Dime, Dollar (disaster vs power run — completely outmanned)", blitzNote: "Very low (10–16%). FB and TE in protection soak up extra rushers. Gap integrity wins this matchup — don't sacrifice gaps for pressure." },
   p23:   { label: "23p (2 RB, 3 TE, 0 WR — Jumbo)", priority: "Absolute max box. This is the heaviest possible offensive package — 2 RBs and 3 TEs provide up to 10 blockers with zero WRs on the field. Sub into Goal Line 5-3, 5-2, or 46 Bear immediately. Assign every gap before the snap. Safeties become extra box defenders — there is nothing to cover downfield. Power inside zone and QB sneaks are the primary threats.", avoid: "Nickel (you lose a LB vs 10 blockers), Dime (complete disaster), Dollar, any sub package — you are outnumbered at every gap if you remove LBs", blitzNote: "Very low (5–12%). With up to 10 blockers, gap-assignment defense beats any blitz. Interior DL stunts and twists work better than pure blitzes. Contain first." },
   trips: { label: "Trips / Bunch",          priority: "Trips floods one side with 3 receivers. Rotate coverage to match the overload.", avoid: "Standard base 4-3 without coverage adjustment — 3 DBs vs 3 receivers = overload wins", blitzNote: "Low-moderate (16–22%). Trips flooding exploits coverage busts from blitz." },
-  empty: { label: "Empty Backfield",        priority: "No RB = no run threat and no protection help on blitzes. Maximum pass coverage.", avoid: "Any base formation with LBs (LBs on spread WRs = automatic mismatches)", blitzNote: "High (28–40%). No RB in protection — any blitz has a free rusher. Capitalize." },
+  empty: { label: "Empty Backfield",        priority: "No backfield RB; preserve a QB-run answer while covering five eligible receivers.", avoid: "Any base formation with LBs (LBs on spread WRs = automatic mismatches)", blitzNote: "Extra pressure trades coverage for rushers. Check the hot throw and QB escape lane." },
   option_run:{ label:"Option / Triple Option", priority:"Assignment defense mandatory. DE takes HB every snap. LB spies QB. Safety has pitch man. Coach adjustments: set Option Read Key and RPO Read Key to Conservative.", avoid:"Any blitz removing the pitch key defender — automatic pitch TD. Never blitz unassigned option threat.", blitzNote:"Very low (8–12%). Contain first, pressure never. Blitzing into option = free pitch or QB keeper every time." },
 };
 
@@ -32,12 +32,12 @@ export const PERSONNEL_FAMILIES = {
   // ── 10 Personnel ───────────────────────────────────────────────
   p10_gun:    { label:"10p Gun",           desc:"4 WR, 1 RB from shotgun — run threat stays, CBs cannot press", base:"p10" },
   p10_trips:  { label:"10p Trips",         desc:"4 WR with trips surface and 1 RB — flood one side, RB checkdown", base:"p10" },
-  p10_empty:  { label:"10p Empty",         desc:"No back, 5 eligible — pure pass, no protection", base:"p10" },
+  p10_empty:  { label:"10p Empty",         desc:"RB split out, 5 eligible — account for QB run and quick throws", base:"p10" },
   // ── 11 Personnel ───────────────────────────────────────────────
   p11_gun:    { label:"11p Gun",           desc:"3 WR, 1 TE, 1 RB from shotgun — standard spread", base:"p11" },
   p11_pistol: { label:"11p Pistol",        desc:"3 WR, 1 TE, 1 RB from pistol — run-pass balance", base:"p11" },
   p11_trips:  { label:"11p Trips / Bunch", desc:"Trips or bunch surface from spread — flooding threat", base:"trips" },
-  p11_empty:  { label:"11p Empty",         desc:"RB leaves field — 5 eligible, no pick-up protection", base:"empty" },
+  p11_empty:  { label:"11p Empty",         desc:"RB aligns outside the backfield; QB run and quick throws remain threats", base:"empty" },
   p11_motion: { label:"11p Motion Heavy",  desc:"Pre-snap motion from 11p — shifts coverage keys", base:"p11" },
   p11_single: { label:"11p Singleback",    desc:"1 RB, 1 TE, 3 WR from singleback — balanced zone-run base", base:"p11" },
   // ── 12 Personnel ───────────────────────────────────────────────
@@ -67,7 +67,7 @@ export const PERSONNEL_FAMILIES = {
   // ── Trips / Empty standalone ───────────────────────────────────
   trips_gun:  { label:"Trips Gun",         desc:"Trips or bunch from shotgun — 3 receivers one side", base:"trips" },
   trips_motion:{ label:"Trips w/ Motion",  desc:"Trips with pre-snap motion — coverage disguise essential", base:"trips" },
-  empty_gun:  { label:"Empty Gun",         desc:"Empty backfield from spread — blitz freely, no RB help", base:"empty" },
+  empty_gun:  { label:"Empty Gun",         desc:"Empty backfield — evaluate QB run, quick throws and protection", base:"empty" },
   empty_trips:{ label:"Empty Trips",       desc:"Empty with trips surface — maximum pass coverage needed", base:"empty" },
 };
 
@@ -86,12 +86,12 @@ export const FAMILY_ADJUSTMENTS = {
   // ── 10 Personnel ─────────────────────────────────────────────────────────
   p10_gun:    { extra:"10p Gun — 4 WRs with 1 RB. Sub into Nickel immediately. RB is still a run threat — do not go Dime unless it's obviously a passing down. CBs at 7 yards, never press. SS in the flat eliminates the bubble read.", bias:["Nickel 3-3 Over Jack","Nickel Wide","3-3-5 Stack"] },
   p10_trips:  { extra:"10p Trips — 4 WRs with trips surface and 1 RB. Rotate a safety to trips at the snap. Cover 4 Quarters handles the overload — 3 receivers on one side beats Cover 3 math. RB is a checkdown, not a non-factor.", bias:["3-3-5 Split","Nickel Wide","Dollar Sugar 3-2"] },
-  p10_empty:  { extra:"10p empty — 5 eligible, no back, no protection help. Sub into Dime Rush or Dollar Sugar 3-2. Blitz aggressively — the CPU cannot pick up extra rushers without a RB.", bias:["Dime Rush","Dollar Sugar 3-2","Nickel 3-3 Dbl Mug"] },
+  p10_empty:  { extra:"Empty spreads five eligible receivers while leaving QB runs live. Choose pressure only when the hot throw and escape lanes are accounted for; the absence of a back does not guarantee a free rusher.", bias:["Dime Rush","Dollar Sugar 3-2","Nickel 3-3 Dbl Mug"] },
   // ── 11 Personnel ─────────────────────────────────────────────────────────
   p11_gun:    { extra:"Gun 11p is the standard spread RPO look. CBs must stay at 7+ yards — never press. SS walks to the flat pre-snap to kill the bubble read. Show Cover 2 pre-snap, play Cover 3 at the snap.", bias:["Nickel 3-3 Over Jack","Nickel 3-3 Stack","3-3-5 Stack"] },
   p11_pistol: { extra:"Pistol 11p — HB aligned deeper, inside zone and HB Stretch are the primary run threats. Tite front compresses exactly these gaps. DE rule: take the HB on Read Option every snap without hesitation.", bias:["3-4 Tite","3-3-5 Over Flex","4-3 Under"] },
   p11_trips:  { extra:"Trips from 11p — Cover 6 to the trips side is the strongest answer. Cover 4 to the strength, Cover 2 to the boundary. Rotate the safety at the snap only. Cover 3 loses the math — 2 DBs vs 3 receivers on the same side.", bias:["3-3-5 Split","Nickel 3-3 Mint","3-3-5 Over Flex"] },
-  p11_empty:  { extra:"11p empty removes the RB — no run threat and no protection. Sub into Dime or Dollar Sugar 3-2 immediately. Blitz freely — the 5 OL cannot account for extra rushers without a back.", bias:["Dollar Sugar 3-2","Dime Rush","Nickel 3-3 Dbl Mug"] },
+  p11_empty:  { extra:"Empty spreads five eligible receivers while leaving QB runs live. Choose pressure only when the hot throw and escape lanes are accounted for; the absence of a back does not guarantee a free rusher.", bias:["Dollar Sugar 3-2","Dime Rush","Nickel 3-3 Dbl Mug"] },
   p11_motion: { extra:"11p with heavy pre-snap motion tries to shift coverage responsibilities before the snap. Show one coverage, rotate at the snap. The walked-up LB in 4-3 Over Walk naturally mirrors the motion man.", bias:["4-3 Over Walk","Nickel 3-3 Over Jack","3-3-5 Stack"] },
   p11_single: { extra:"11p Singleback is the balanced base-down offense — inside/outside zone with play-action built off the run fake. Stay disciplined in run fits; the single back plus PA boot is the trap, not the read. SS reads run-pass and is the force player, don't over-commit the box. Base nickel handles it — no need to sub heavy.", bias:["4-3 Under","Nickel 3-3 Over Jack","4-3 Even 6-1"] },
   // ── 12 Personnel ─────────────────────────────────────────────────────────
@@ -121,8 +121,8 @@ export const FAMILY_ADJUSTMENTS = {
   // ── Trips / Empty standalone ─────────────────────────────────────────────
   trips_gun:  { extra:"Trips from Gun creates a 3-on-2 surface. Cover 6 to the trips side is the sound answer — Cover 4 to the strength, Cover 2 to the boundary. Rotate the safety at the snap only. Cover 3 has only 2 DBs for 3 receivers — it loses the math every time.", bias:["3-3-5 Split","Nickel 3-3 Mint","Nickel Wide"] },
   trips_motion:{ extra:"Trips with motion shifts surface strength at the last second — show a 2-high shell and hold your rotation until the motion settles. Cover 6 to the final trips side is the answer. LB mirrors the motion man, safety holds until declared.", bias:["3-3-5 Split","Nickel 3-3 Mint","3-3-5 Over Flex"] },
-  empty_gun:  { extra:"Empty from Gun — maximum pass coverage territory. Sub into Dime or Dollar Sugar 3-2. Blitz rate should be 30%+ — the CPU cannot adjust protection against an overload when there is no RB.", bias:["Dollar Sugar 3-2","Dime Rush","Nickel 3-3 Dbl Mug"] },
-  empty_trips:{ extra:"Empty with a trips surface — maximum coverage required. Dollar Sugar 3-2 gives you 6 DBs to cover 5 receivers plus an extra for the trips flood. Never drop below 6 DBs in this situation.", bias:["Dollar Sugar 3-2","Dime Normal","3-3-5 Split"] },
+  empty_gun:  { extra:"Empty spreads five eligible receivers while leaving QB runs live. Choose pressure only when the hot throw and escape lanes are accounted for; the absence of a back does not guarantee a free rusher.", bias:["Dollar Sugar 3-2","Dime Rush","Nickel 3-3 Dbl Mug"] },
+  empty_trips:{ extra:"Empty spreads five eligible receivers while leaving QB runs live. Choose pressure only when the hot throw and escape lanes are accounted for; the absence of a back does not guarantee a free rusher.", bias:["Dollar Sugar 3-2","Dime Normal","3-3-5 Split"] },
 };
 
 export function getAvailableFamilies(flat, teamId) {
@@ -267,25 +267,8 @@ function inferFamiliesFromTraits(flat) {
 }
 
 // Derives implied formation-type traits from personnel selection.
-// Used to ensure scoreAll / scoreForFamily rank formations correctly
-// even when trips and empty are not explicitly scouted as separate traits.
+// Compatibility helper: deduplicate observed traits. Personnel availability does
+// not establish trips, empty alignment, run frequency or the called concept.
 export function deriveImpliedTraits(flat) {
-  const derived = new Set(flat);
-  // No-back packages always align in empty or near-empty sets
-  if (flat.some(t => ["p00","p01","p02"].includes(t))) {
-    derived.add("empty");
-    derived.add("no_run");
-  }
-  // 4-wide packages routinely use trips, empty, and four-wide surfaces
-  if (flat.includes("p10")) {
-    derived.add("trips");
-    derived.add("four_wide");
-    derived.add("empty");
-    derived.add("no_run");
-  }
-  // Standard spread packages — trips surface is always available
-  if (flat.includes("p11")) derived.add("trips");
-  if (flat.includes("p12")) derived.add("trips");  // TE split wide
-  if (flat.includes("p20")) derived.add("trips");  // 3-WR surface
-  return [...derived];
+  return [...new Set(flat)];
 }

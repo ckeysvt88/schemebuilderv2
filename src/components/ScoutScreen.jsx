@@ -17,7 +17,7 @@ const ICONS = {
 export default function ScoutScreen({
   sel, setSel, flat, runPass, setRunPass,
   myBook, changeBook,
-  scored, setScored,
+  scored,
   setSelFm,
   setActiveP,
   modal, setModal,
@@ -220,7 +220,7 @@ export default function ScoutScreen({
         {scored.length > 0 ? (
           <div style={{ background: "var(--color-surface-success)", border: "1px solid var(--color-border)", borderLeft: "3px solid var(--color-success)", borderRadius: "var(--r-md)", padding: "10px 14px", marginBottom: 16, fontSize: 13, color: "var(--color-success)", lineHeight: 1.5, display: "flex", justifyContent: "space-between", alignItems: "center", gap: 10 }}>
             <span>Editing active game plan — update traits then rebuild.</span>
-            <button onClick={() => { setSel({}); setScored([]); setSelFm(null); setActiveP(null); }} style={{ ...smallBtn, color: "#70aa50", borderColor: "#2a4a1e", whiteSpace: "nowrap", flexShrink: 0 }}>Clear All</button>
+            <button onClick={() => { setSel({}); setSelFm(null); setActiveP(null); }} style={{ ...smallBtn, color: "#70aa50", borderColor: "#2a4a1e", whiteSpace: "nowrap", flexShrink: 0 }}>Clear All</button>
           </div>
         ) : null}
 

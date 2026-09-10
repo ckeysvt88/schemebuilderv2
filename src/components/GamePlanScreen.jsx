@@ -4,7 +4,7 @@ import { CONFERENCES } from '../data/teams.js';
 import { FDB } from '../data/formations.js';
 import { TRAITS } from '../data/traits.js';
 import { PMAP, PERSONNEL_FAMILIES, FAMILY_ADJUSTMENTS } from '../data/personnel.js';
-import { scoreAll, scoreForPersonnel, scoreForFamily, groupByPersonnel } from '../engine/scoring.js';
+import { scoreAll, groupByPersonnel } from '../engine/scoring.js';
 import { getAvailableFamilies } from '../data/personnel.js';
 import FormationCard, { PC, PL } from './FormationCard.jsx';
 import FormationDetail from './FormationDetail.jsx';
@@ -56,53 +56,10 @@ const DIST_BTNS = [
   { id: "long",  label: "Long" },
 ];
 
-const SIT_LABELS_GPS = { base:"Base", "2md":"2nd & Mid", "3lg":"3rd & Long", "3sh":"3rd & Short", rz:"Red Zone" };
-
-function deriveSituation(down, dist) {
-  if (!down || down === "base") return "base";
-  if (down === "rz") return "rz";
-  if (dist === "short") return "3sh";
-  if (dist === "long")  return "3lg";
-  if (dist === "mid") return down === "1" ? "base" : "2md";
-  // No distance selected — down-only defaults
-  if (down === "1") return "base";
-  if (down === "2") return "2md";
-  if (down === "3") return "3lg";
-  if (down === "4") return "3sh";
-  return "base";
-}
-
-function applySituationSort(fmList, sit) {
-  if (!sit || sit === "base") return [...fmList].sort((a, b) => b.sc - a.sc);
-  return fmList.map(fm => {
-    let adj = 0;
-    const pers = fm.personnel || "Base";
-    if (sit === "2md") {
-      if (fm.priority === "hybrid") adj += 10;
-      if (fm.priority === "run") adj -= 8;
-      if (pers === "Heavy" || pers === "Goal Line") adj -= 15;
-    } else if (sit === "3lg") {
-      if (fm.priority === "pass" || fm.priority === "pressure") adj += 15;
-      if (fm.priority === "run") adj -= 20;
-      if (fm.coreTags?.some(t => t === "p22" || t === "p21") ||
-          fm.suppTags?.some(t => t === "p22" || t === "p21") ||
-          pers === "Heavy" || pers === "Goal Line") adj -= 25;
-    } else if (sit === "3sh") {
-      if (fm.priority === "run" || pers === "Heavy" || pers === "Goal Line") adj += 15;
-      if (fm.priority === "pass" || pers === "Dime") adj -= 20;
-      if (fm.books?.includes("3-2-6")) adj -= 20;
-    } else if (sit === "rz") {
-      if (pers === "Nickel" || pers === "Dime") adj -= 25;
-      if (pers === "Base" || pers === "Heavy" || pers === "Goal Line" || pers === "Prevent") adj += 15;
-    }
-    return { ...fm, sc: Math.max(0, Math.min(100, fm.sc + adj)), _situationAdj: adj };
-  }).filter(f => f.sc > 0).sort((a, b) => b.sc - a.sc);
-}
-
 export default function GamePlanScreen({
-  sel, setSel, flat, personnelSel,
+  sel, setSel, flat,
   runPass, myBook,
-  scored, rawScored, setScored,
+  recommendation, recommendationInput,
   activeP, setActiveP,
   selFm, setSelFm,
   mainTab, setMainTab,
@@ -111,13 +68,10 @@ export default function GamePlanScreen({
   shareToast, handleShare,
   toggle,
   compareA, setCompareA, compareB, setCompareB,
-  ddDown, setDdDown, ddDistance, setDdDistance,
+  situDown, setSituDown, situDist, setSituDist,
   setStep,
   selectedTeam,
 }) {
-  const [personnelSel2] = useState(personnelSel.length ? personnelSel : ["p11"]);
-  const [situDown, setSituDown] = useState("base");
-  const [situDist, setSituDist] = useState("");
   const [listOpacity, setListOpacity] = useState(1);
   const [showAlignment, setShowAlignment] = useState(false);
   const [showTeamInfo, setShowTeamInfo] = useState(false);
@@ -129,7 +83,7 @@ export default function GamePlanScreen({
     if (!selFm) return;
     const t = setTimeout(() => {
       // Wait past the 150ms card transition before measuring position
-      const el = document.querySelector(`[data-fm-name="${selFm.name.replace(/"/g, '\\"')}"]`);
+      const el = document.querySelector(`[data-fm-name="${selFm.replace(/"/g, '\\"')}"]`);
       const scroller = document.getElementById('root');
       if (!el || !scroller) return;
       const headerEl = document.querySelector('[data-sticky-header]');
@@ -142,7 +96,6 @@ export default function GamePlanScreen({
     return () => clearTimeout(t);
   }, [selFm]);
 
-  const situation = deriveSituation(situDown, situDist);
 
   useEffect(() => {
     setListOpacity(0.6);
@@ -150,18 +103,11 @@ export default function GamePlanScreen({
     return () => clearTimeout(t);
   }, [situDown, situDist]);
 
-  const situationScored = applySituationSort(scored, situation);
-  const groupedPersonnel = groupByPersonnel(situationScored);
-
-  // Plan-tab list: hide Prevent and low-relevance noise (<20). If a thin scout
-  // leaves nothing above the floor, fall back to the top 5 so the tab never blanks.
-  const planPool = situationScored.filter(f => f.name !== "Prevent 3-Deep");
-  const aboveFloor = planPool.filter(f => f.sc >= 20);
-  const planList = aboveFloor.length > 0 ? aboveFloor : planPool.slice(0, 5);
+  const planList = recommendation.formations;
 
   // ── Recommended playbook ──────────────────────────────────────────────────────
   const recBook = (() => {
-    const allScored = scoreAll(flat, "All");
+    const allScored = scoreAll(flat, "All", runPass);
     if (!allScored.length) return null;
     const BOOKS = ["4-3","4-3 Multiple","3-4","3-4 Multiple","4-2-5","3-3-5","3-3-5 Tite","3-2-6"];
     const RUN_T    = ["inside_run","outside_run","strong_oline","p21","p22","fb_lead","short_yardage_run","run_heavy_1st","option_run","triple_option"];
@@ -229,7 +175,7 @@ export default function GamePlanScreen({
               Defensive Gameplan
             </div>
             <div style={{ fontSize: 15, fontWeight: "600", color: "var(--color-text-3)", fontFamily: "var(--font-mono)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
-              {scored.length} Formation{scored.length !== 1 ? "s" : ""}{myBook !== "All" ? " · " + myBook : ""}
+              {planList.length} Formation{planList.length !== 1 ? "s" : ""}{myBook !== "All" ? " · " + myBook : ""}
             </div>
           </div>
           <div style={{ display: "flex", gap: 6, alignItems: "flex-start", flexShrink: 0 }}>
@@ -239,7 +185,7 @@ export default function GamePlanScreen({
               </button>
             )}
             <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-              <ExportPDFButton variant="compact" label="Call Sheet" rawScored={rawScored} sel={sel} myBook={myBook} runPass={runPass} />
+              <ExportPDFButton variant="compact" label="Call Sheet" input={recommendationInput} sel={sel} />
               <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 6 }}>
                 <button onClick={() => setStep("notes")} style={hdrBtn} aria-label="Notes">
                   Notes
@@ -370,6 +316,10 @@ export default function GamePlanScreen({
           </div>
         </div>
 
+        <p style={{ fontSize: 11, color: "var(--color-text-3)" }}>
+          {recommendation.familyLabel} · {recommendation.context.label}. Fit scores are rankings, not success probabilities.
+        </p>
+        {!planList.length && <p role="status">No catalogued calls match this profile and playbook. Adjust the scout or playbook.</p>}
         {/* ── Tempo warning ── */}
         {(flat.includes("hurry_up") || flat.includes("tempo_shift")) && (
           <div style={{ background: "var(--color-gold-surface)", border: "1px solid var(--color-gold-border)", borderLeft: "4px solid var(--color-gold)", borderRadius: "var(--r-md)", padding: "12px 14px", marginBottom: 16 }}>
@@ -418,13 +368,7 @@ export default function GamePlanScreen({
               const fam = PERSONNEL_FAMILIES[activeP];
               const pd  = fam ? PMAP[fam.base] : PMAP[activeP];
               const adj = FAMILY_ADJUSTMENTS[activeP];
-              const persMatchesRaw = fam ? scoreForFamily(activeP, flat) : scoreForPersonnel(activeP, flat);
-              const persMatches = applySituationSort(
-                myBook && myBook !== "All"
-                  ? persMatchesRaw.filter(f => f.books && (f.books.includes(myBook) || f.books.includes("All")))
-                  : persMatchesRaw,
-                situation
-              ).slice(0, 10);
+              const persMatches = recommendation.formations.slice(0, 10);
 
               return (
                 <div>
@@ -539,8 +483,8 @@ export default function GamePlanScreen({
                   <div style={{ opacity: listOpacity, transition: "opacity 150ms ease" }}>
                   {persMatches.map(fm => (
                     <div key={fm.name} data-fm-name={fm.name}>
-                      <FormationCard fm={fm} onSelect={f => setSelFm(selFm?.name === f.name ? null : f)} isSelected={selFm?.name === fm.name} myBook={myBook} />
-                      {selFm?.name === fm.name && <FormationDetail fm={selFm} flat={flat} situation={situation} runPass={runPass} />}
+                      <FormationCard fm={fm} onSelect={f => setSelFm(selFm === f.name ? null : f.name)} isSelected={selFm === fm.name} myBook={myBook} />
+                      {selFm === fm.name && <FormationDetail fm={fm} flat={fm.effectiveTraits} />}
                     </div>
                   ))}
                   </div>
@@ -551,7 +495,7 @@ export default function GamePlanScreen({
         )}
 
         {/* ── ALL FORMATIONS TAB ── */}
-        {mainTab === "all" && (
+        {(mainTab === "all" || !activeP) && (
           <div style={{ opacity: listOpacity, transition: "opacity 150ms ease" }}>
             {groupByPersonnel(planList).map(group => (
               <div key={group.label} style={{ marginBottom: 28 }}>
@@ -560,8 +504,8 @@ export default function GamePlanScreen({
                 </div>
                 {group.formations.map(fm => (
                   <div key={fm.name} data-fm-name={fm.name}>
-                    <FormationCard fm={fm} onSelect={f => setSelFm(selFm?.name === f.name ? null : f)} isSelected={selFm?.name === fm.name} myBook={myBook} />
-                    {selFm?.name === fm.name && <FormationDetail fm={selFm} flat={flat} situation={situation} runPass={runPass} />}
+                    <FormationCard fm={fm} onSelect={f => setSelFm(selFm === f.name ? null : f.name)} isSelected={selFm === fm.name} myBook={myBook} />
+                    {selFm === fm.name && <FormationDetail fm={fm} flat={fm.effectiveTraits} />}
                   </div>
                 ))}
               </div>
@@ -613,7 +557,6 @@ export default function GamePlanScreen({
                             const newSel = { ...sel };
                             const cur = newSel[group.id] || [];
                             newSel[group.id] = cur.includes(item.id) ? cur.filter(x => x !== item.id) : [...cur, item.id];
-                            setScored(scoreAll(Object.values(newSel).flat(), myBook));
                             setSelFm(null);
                           }}
                           style={{

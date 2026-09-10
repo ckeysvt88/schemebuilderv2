@@ -221,13 +221,17 @@ export default function FormationCard({ fm, onSelect, isSelected, myBook }) {
             color: "var(--color-gold)",
             fontFamily: "var(--font-mono)",
           }}>
-            {fm.sc}%
+            {fm.sc}/100
           </span>
           <span style={{ fontSize: 11, fontWeight: "600", color: bi.color, fontFamily: "var(--font-mono)" }}>
             {fm.blitz}% blitz
           </span>
         </div>
       </div>
+
+      {fm.recommendedCoverage && <div style={{ fontSize: 12, color: "var(--color-text-2)", marginTop: 6 }}>
+        Suggested call: {fm.recommendedCoverage}
+      </div>}
 
       {/* Score progress bar */}
       <div style={{ height: 3, borderRadius: 2, background: "var(--color-border-subtle)", marginTop: 8, marginBottom: 6 }}>

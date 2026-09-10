@@ -1,8 +1,8 @@
-import { useState, useCallback, useEffect } from 'react';
-import { TRAIT_LABELS } from './data/traits.js';
+import { useState, useCallback, useEffect, useMemo } from 'react';
+import { recommend, buildRecommendationShareText } from './engine/recommendations.js';
 import { scoreAll } from './engine/scoring.js';
 import { getAvailableFamilies } from './data/personnel.js';
-import { applyDownDistance } from './engine/downDistance.js';
+
 import TeamsScreen from './components/TeamsScreen.jsx';
 import ScoutScreen from './components/ScoutScreen.jsx';
 import GamePlanScreen from './components/GamePlanScreen.jsx';
@@ -38,14 +38,13 @@ export default function App() {
   const [runPass, setRunPass] = useState(4);
 
   // ── Game plan state ──────────────────────────────────────────────────────────
-  const [scored, setScored]             = useState([]);
   const [activeP, setActiveP]           = useState(null);
   const [selFm, setSelFm]               = useState(null);
   const [mainTab, setMainTab]           = useState("personnel");
   const [quickAdjOpen, setQuickAdjOpen] = useState(false);
   const [shareToast, setShareToast]     = useState(null);
-  const [ddDown, setDdDown]             = useState("");
-  const [ddDistance, setDdDistance]     = useState("");
+  const [situDown, setSituDown] = useState("base");
+  const [situDist, setSituDist] = useState("");
 
   // ── Playbook ─────────────────────────────────────────────────────────────────
   const [myBook, setMyBook] = useState(() => {
@@ -69,21 +68,15 @@ export default function App() {
   const [selectedTeam, setSelectedTeam] = useState(null);
 
   // ── Derived ──────────────────────────────────────────────────────────────────
-  const flat         = Object.values(sel).flat();
+  const flat = useMemo(() => Object.values(sel).flat(), [sel]);
   const personnelSel = sel.personnel || [];
-
-  // Keep `scored` in sync with the live scout. Previously scored only recomputed
-  // on explicit Build/book-change, so changing tags then viewing Plan showed a
-  // STALE ranking (e.g. run fronts left over from a prior scout vs an empty set).
-  // Deriving it reactively makes stale recommendations structurally impossible.
-  useEffect(() => {
-    if (!flat.length) { setScored([]); return; }
-    setScored(scoreAll(flat, myBook || "All", runPass));
-  }, [JSON.stringify(flat), myBook, runPass]);
-
-  const displayScored = (ddDown && ddDistance)
-    ? applyDownDistance(scored, Number(ddDown), Number(ddDistance))
-    : scored;
+  const availableFamilies = getAvailableFamilies(flat, selectedTeam?.id);
+  const activeFamily = availableFamilies.includes(activeP) ? activeP : (availableFamilies[0] || null);
+  const familyId = mainTab === 'personnel' ? activeFamily : null;
+  const scored = useMemo(() => scoreAll(flat, myBook, runPass), [flat, myBook, runPass]);
+  const recommendationInput = useMemo(() => ({ traits: flat, book: myBook, runPass, familyId, down: situDown, distance: situDist }),
+    [flat, myBook, runPass, familyId, situDown, situDist]);
+  const recommendation = useMemo(() => recommend(recommendationInput), [recommendationInput]);
 
   // ── Navigation — cleans up plan-specific UI when leaving plan/notes ───────────
   const navigate = useCallback((newStep) => {
@@ -106,25 +99,22 @@ export default function App() {
   const changeBook = (book) => {
     setMyBook(book);
     try { localStorage.setItem("cfb26_myBook", book); } catch(e) {}
-    setScored(scoreAll(Object.values(sel).flat(), book, runPass));
     setSelFm(null);
   };
 
 
   const loadProfile = useCallback((profileTags) => {
     setSel(profileTags);
-    setScored(scoreAll(Object.values(profileTags).flat(), myBook || "All", runPass));
     setSelFm(null);
     setActiveP(null);
     setSelectedTeam(null);
-  }, [myBook, runPass]);
+    setSituDown("base"); setSituDist("");
+  }, []);
 
   const toggle = useCallback((g, t) =>
     setSel(p => { const c = p[g] || []; return { ...p, [g]: c.includes(t) ? c.filter(x => x !== t) : [...c, t] }; }), []);
 
   const build = () => {
-    const results = scoreAll(flat, myBook || "All", runPass);
-    setScored(results);
     // Default to the first available personnel family (applies expert bias immediately)
     // rather than a raw personnel tag which bypasses family-level guidance
     const fams = getAvailableFamilies(flat);
@@ -132,28 +122,13 @@ export default function App() {
     setSelFm(null);
     setMainTab("personnel");
     setSelectedTeam(null);
+    setSituDown("base"); setSituDist("");
     navigate("plan");
     document.getElementById('root')?.scrollTo(0, 0);
   };
 
-  const buildShareText = () => {
-    const lines = ['CFB 27 DC SCHEME BUILDER — GAME PLAN', '═'.repeat(38), ''];
-    const allTraits = Object.entries(sel).flatMap(([, ids]) => ids.map(id => TRAIT_LABELS[id] || id));
-    if (allTraits.length) { lines.push('SCOUTED TRAITS:'); allTraits.forEach(t => lines.push(`  · ${t}`)); lines.push(''); }
-    lines.push('TOP MATCHED FORMATIONS:', '─'.repeat(30));
-    displayScored.slice(0, 4).forEach((fm, i) => {
-      lines.push(`#${i+1} ${fm.name} — ${fm.sc}% match · ${fm.blitz}% blitz`);
-      lines.push(`  Base: ${fm.coverages?.[0]?.name || '—'}`);
-      if (fm.coreHits?.length) lines.push(`  Core: ${fm.coreHits.map(t => TRAIT_LABELS[t]||t).join(', ')}`);
-      if (fm.callsheet?.length) { lines.push('  Calls:'); fm.callsheet.slice(0,3).forEach(c => lines.push(`    ${c.down}: ${c.call}`)); }
-      lines.push('');
-    });
-    lines.push('Generated by Scheme Builders');
-    return lines.join('\n');
-  };
-
   const handleShare = async () => {
-    const text = buildShareText();
+    const text = buildRecommendationShareText(recommendation, flat);
     try {
       if (navigator.share) { await navigator.share({ title: 'CFB 27 DC Game Plan', text }); setShareToast('shared'); }
       else { await navigator.clipboard.writeText(text); setShareToast('copied'); }
@@ -193,8 +168,8 @@ export default function App() {
     sel, setSel, flat, personnelSel,
     runPass, setRunPass,
     myBook, changeBook,
-    scored: displayScored, rawScored: scored, setScored,
-    activeP, setActiveP,
+    scored, recommendation, recommendationInput,
+    activeP: activeFamily, setActiveP,
     selFm, setSelFm,
     mainTab, setMainTab,
     quickAdjOpen, setQuickAdjOpen,
@@ -206,8 +181,7 @@ export default function App() {
     toggle, build,
     compareA, setCompareA,
     compareB, setCompareB,
-    ddDown, setDdDown,
-    ddDistance, setDdDistance,
+    situDown, setSituDown, situDist, setSituDist,
     setStep: navigate,
     navigateToNotes: (profileName) => { setNotesInitProfile(profileName); navigate("notes"); },
     selectedTeam,
@@ -216,16 +190,15 @@ export default function App() {
   return (
     <>
       {step === "teams"   && <TeamsScreen   key="teams"   onBack={() => navigate("scout")} onBuildFromTeam={(team) => {
-        const results = scoreAll(team.traits, "All");
         setMyBook("All");
         try { localStorage.setItem("cfb26_myBook", "All"); } catch(e) {}
         setSel({ _team: team.traits });
-        setScored(results);
         // Use getAvailableFamilies to pick the most contextually relevant starting family
         const teamFams = getAvailableFamilies(team.traits, team.id);
         setActiveP(teamFams[0] || "p11_gun");
         setSelFm(null); setMainTab("personnel");
         setSelectedTeam(team);
+        setSituDown("base"); setSituDist("");
         navigate("plan");
         document.getElementById('root')?.scrollTo(0, 0);
       }} />}

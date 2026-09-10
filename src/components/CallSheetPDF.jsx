@@ -120,16 +120,16 @@ const S = StyleSheet.create({
   // Column widths
   cSit:  { width: 70,  paddingVertical: 5, paddingHorizontal: 6, borderRightWidth: 1, borderRightColor: C.border, justifyContent: 'center' },
   cPrim: { flex: 3,    paddingVertical: 5, paddingHorizontal: 6, borderRightWidth: 1, borderRightColor: C.border },
-  cPct:  { width: 30,  paddingVertical: 5, paddingHorizontal: 4, borderRightWidth: 1, borderRightColor: C.border, alignItems: 'center', justifyContent: 'center' },
+  cPct:  { width: 30, flexShrink: 0, paddingVertical: 5, paddingHorizontal: 4, borderRightWidth: 1, borderRightColor: C.border, alignItems: 'center', justifyContent: 'center' },
   cSec:  { flex: 2.4,  paddingVertical: 5, paddingHorizontal: 6, borderRightWidth: 1, borderRightColor: C.border },
-  cPct2: { width: 26,  paddingVertical: 5, paddingHorizontal: 4, alignItems: 'center', justifyContent: 'center' },
+  cPct2: { width: 26, flexShrink: 0, paddingVertical: 5, paddingHorizontal: 4, alignItems: 'center', justifyContent: 'center' },
 
   // Header column widths
   cSitH:  { width: 70,  paddingVertical: 4, paddingHorizontal: 6, borderRightWidth: 1, borderRightColor: 'rgba(255,255,255,0.15)', justifyContent: 'center' },
   cPrimH: { flex: 3,    paddingVertical: 4, paddingHorizontal: 6, borderRightWidth: 1, borderRightColor: 'rgba(255,255,255,0.15)' },
-  cPctH:  { width: 30,  paddingVertical: 4, paddingHorizontal: 4, borderRightWidth: 1, borderRightColor: 'rgba(255,255,255,0.15)', alignItems: 'center' },
+  cPctH:  { width: 30, flexShrink: 0, paddingVertical: 4, paddingHorizontal: 4, borderRightWidth: 1, borderRightColor: 'rgba(255,255,255,0.15)', alignItems: 'center' },
   cSecH:  { flex: 2.4,  paddingVertical: 4, paddingHorizontal: 6, borderRightWidth: 1, borderRightColor: 'rgba(255,255,255,0.15)' },
-  cPct2H: { width: 26,  paddingVertical: 4, paddingHorizontal: 4, alignItems: 'center' },
+  cPct2H: { width: 26, flexShrink: 0, paddingVertical: 4, paddingHorizontal: 4, alignItems: 'center' },
 
   matHdrTxt: { color: C.hdrText, fontSize: 6, fontFamily: 'Helvetica-Bold', letterSpacing: 0.5 },
   sitTxt:    { fontSize: 7, fontFamily: 'Helvetica-Bold' },
@@ -190,7 +190,7 @@ function MatrixRow({ row, isAlt }) {
           {row.primary && (
             <>
               <Text style={[S.callPct, { color: PC[row.primary.priority] || C.gold }]}>
-                {row.primary.sc}%
+                {row.primary.sc}
               </Text>
               <Text style={[S.callBzLbl, { color: row.primary.blitzColor || C.text3 }]}>
                 {row.primary.blitz}% bz
@@ -216,7 +216,7 @@ function MatrixRow({ row, isAlt }) {
           {row.secondary && (
             <>
               <Text style={[S.callPct, { fontSize: 7, color: PC[row.secondary.priority] || C.gold }]}>
-                {row.secondary.sc}%
+                {row.secondary.sc}
               </Text>
               <Text style={[S.callBzLbl, { color: row.secondary.blitzColor || C.text3 }]}>
                 {row.secondary.blitz}%
@@ -252,7 +252,7 @@ function TopFormationItem({ fm, rank, isLast }) {
             <Text style={S.tfBadgeTxt}>{PL[fm.priority] || fm.priority}</Text>
           </View>
         </View>
-        <Text style={S.tfPct}>{fm.sc}%</Text>
+        <Text style={S.tfPct}>{fm.sc}/100</Text>
       </View>
       <Text style={S.tfMeta}>{fm.coverage}  ·  {fm.blitz}% blitz</Text>
       {fm.dcNote ? (
@@ -281,7 +281,7 @@ function GuideEntry({ entry, isLast }) {
           <Text style={[S.guideCallTxt, { color: PC[entry.primary.priority] || C.text1 }]}>
             {entry.primary.name} · {entry.primary.coverage}
           </Text>
-          <Text style={S.guideCallPct}>{entry.primary.sc}% · {entry.primary.blitzLabel}</Text>
+          <Text style={S.guideCallPct}>{entry.primary.sc}/100 · {entry.primary.blitzLabel}</Text>
         </View>
       ) : (
         <Text style={S.guideNoCall}>No formation matched for this situation</Text>
@@ -298,10 +298,10 @@ function GuideEntry({ entry, isLast }) {
 }
 
 // ── PDF Document ──────────────────────────────────────────────────────────────
-function CallSheetDocument({ data }) {
+export function CallSheetDocument({ data }) {
   const {
     profile, situationMatrix, topFormations, situationGuide,
-    myBook, runPassLabel, date, totalFormations,
+    myBook, runPassLabel, date, totalFormations, contextLabel,
   } = data;
 
   return (
@@ -313,7 +313,7 @@ function CallSheetDocument({ data }) {
           <View>
             <Text style={S.hdrBrand}>SCHEME BUILDERS</Text>
             <Text style={S.hdrTitle}>DEFENSIVE CALL SHEET</Text>
-            <Text style={S.hdrSubtitle}>CFB 27 Defensive Scheme Builder — Game Preparation</Text>
+            <Text style={S.hdrSubtitle}>{contextLabel}</Text>
           </View>
           <View style={S.hdrRight}>
             <Text style={S.hdrMeta}>{date}</Text>
@@ -346,7 +346,7 @@ function CallSheetDocument({ data }) {
             {topFormations.length > 0 && (
               <View style={S.tfSection}>
                 <View style={S.secHdr}>
-                  <Text style={S.secHdrTxt}>TOP FORMATIONS</Text>
+                  <Text style={S.secHdrTxt}>CURRENT RECOMMENDATIONS</Text>
                 </View>
                 {topFormations.map((fm, i) =>
                   fm ? (
@@ -371,9 +371,9 @@ function CallSheetDocument({ data }) {
             <View style={S.matHdrRow}>
               <View style={S.cSitH}><Text style={S.matHdrTxt}>SITUATION</Text></View>
               <View style={S.cPrimH}><Text style={S.matHdrTxt}>PRIMARY CALL</Text></View>
-              <View style={S.cPctH}><Text style={S.matHdrTxt}>MATCH</Text></View>
+              <View style={S.cPctH}><Text style={S.matHdrTxt}>FIT</Text></View>
               <View style={S.cSecH}><Text style={S.matHdrTxt}>SECONDARY CALL</Text></View>
-              <View style={S.cPct2H}><Text style={S.matHdrTxt}>%</Text></View>
+              <View style={S.cPct2H}><Text style={S.matHdrTxt}>FIT</Text></View>
             </View>
 
             {situationMatrix.map((row, i) => (
@@ -383,7 +383,7 @@ function CallSheetDocument({ data }) {
         </View>
 
         <View style={S.footer}>
-          <Text style={S.footerTxt}>Scheme Builders · CFB 27 Defensive Scheme Builder · CONFIDENTIAL — GAME PREP</Text>
+          <Text style={S.footerTxt}>Scheme Builders · Fit: 0–100 heuristic, not success probability</Text>
           <Text style={S.footerTxt}>Page 1 of 2</Text>
         </View>
       </Page>
@@ -395,7 +395,7 @@ function CallSheetDocument({ data }) {
             <Text style={S.p2Brand}>SCHEME BUILDERS</Text>
             <Text style={S.p2Title}>SITUATIONAL COACHING GUIDE</Text>
           </View>
-          <Text style={S.p2Sub}>DC keys · likely personnel · best call — for every game situation</Text>
+          <Text style={S.p2Sub}>Fit scores: 0–100, not success probabilities. Same scouted look across rows.</Text>
         </View>
 
         {situationGuide.map((entry, i) => (
@@ -407,7 +407,7 @@ function CallSheetDocument({ data }) {
         ))}
 
         <View style={S.footer}>
-          <Text style={S.footerTxt}>Scheme Builders · CFB 27 Defensive Scheme Builder · CONFIDENTIAL — GAME PREP</Text>
+          <Text style={S.footerTxt}>Scheme Builders · Fit: 0–100 heuristic, not success probability</Text>
           <Text style={S.footerTxt}>Page 2 of 2</Text>
         </View>
       </Page>
@@ -419,10 +419,10 @@ function CallSheetDocument({ data }) {
 // ── Exported button component ─────────────────────────────────────────────────
 // variant="compact"  →  small header button (default)
 // variant="full"     →  wide, prominent banner button for top-of-page placement
-export const ExportPDFButton = memo(function ExportPDFButton({ rawScored, sel, myBook, runPass, variant = 'compact', label }) {
-  if (!rawScored || rawScored.length === 0) return null;
+export const ExportPDFButton = memo(function ExportPDFButton({ input, sel, variant = 'compact', label }) {
+  if (!input?.traits?.length) return null;
 
-  const data     = buildCallSheetData({ rawScored, sel, myBook, runPass });
+  const data     = buildCallSheetData({ input, sel });
   const fileName = `call-sheet-${new Date().toISOString().slice(0, 10)}.pdf`;
   const isFull   = variant === 'full';
 

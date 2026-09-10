@@ -70,7 +70,7 @@ export const COVERAGE_FLAGS = {
   "Tampa Sim Pressure": { shortOK: false, longOK: true , fitIn: 0, fitOut: 2 },
 
   // ── C4 (5) — Quarters family — long
-  "Cover 4 Drop":     { shortOK: false, longOK: true , fitIn: 2, fitOut: 0 },
+  "Cover 4 Drop":     { shortOK: false, longOK: true , fitIn: 0, fitOut: 0 },
   "Cover 4 Palms":    { shortOK: false, longOK: true , fitIn: 2, fitOut: 0 },
   "Cover 4 Quarters": { shortOK: false, longOK: true , fitIn: 2, fitOut: 0 },
   "Cover 4 Show 2":   { shortOK: false, longOK: true , fitIn: 2, fitOut: 0 },

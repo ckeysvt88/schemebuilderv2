@@ -1,6 +1,4 @@
 import { useState } from 'react';
-import { getBlitz } from '../engine/scoring.js';
-import { rankCoveragesForSituation } from '../engine/coverageRank.js';
 import { ADJUSTMENTS, computeConflicts } from '../data/adjustments.js';
 import { TRAIT_LABELS } from '../data/traits.js';
 import BlitzBar from './BlitzBar.jsx';
@@ -81,38 +79,22 @@ function AdjustmentsPanel({ fm, flat }) {
   );
 }
 
-const SIT_LABELS = { base:"Base", "2md":"2nd & Mid", "3lg":"3rd & Long", "3sh":"3rd & Short", rz:"Red Zone" };
-const BIAS_MAP_RP = { 1:-1.0, 2:-0.65, 3:-0.30, 4:0, 5:0.30, 6:0.65, 7:1.0 };
-
-export default function FormationDetail({ fm, flat, situation = "base", runPass = 4 }) {
+export default function FormationDetail({ fm, flat }) {
   const [tab, setTab] = useState("coverages");
   const [showWhy, setShowWhy] = useState(false);
   const [showScoring, setShowScoring] = useState(false);
-  const blitz = getBlitz(fm, flat);
-
-  // ── Scoring factor calculations ───────────────────────────────────────────
-  const runBias = BIAS_MAP_RP[runPass] || 0;
-  let biasAdj = 0;
-  if (fm.priority === "run" && runBias > 0) biasAdj = Math.round(runBias * 15);
-  else if (fm.priority === "pass" && runBias < 0) biasAdj = Math.round(-runBias * 15);
-  else if (fm.priority === "run" && runBias < 0) biasAdj = Math.round(runBias * 10);
-  else if (fm.priority === "pass" && runBias > 0) biasAdj = Math.round(-runBias * 10);
-
-  const avoidFired = (fm.avoidTags || []).filter(t => flat.includes(t));
-  const blitzModsFired = (fm.blitzMods || []).filter(m => m.tags.some(t => flat.includes(t)));
-  const situAdj = fm._situationAdj || 0;
+  const blitz = fm.blitz;
 
   return (
     <div style={{ background: "var(--color-bg)", border: "1px solid var(--color-gold)", borderTop: "none", borderLeft: "3px solid var(--color-gold)", borderRadius: "0 0 9px 9px", overflow: "hidden", marginBottom: 18 }}>
       {/* Blitz bar */}
       <div style={{ padding: "16px 16px", borderBottom: "1px solid var(--color-border-subtle)", background: "var(--color-bg)" }}>
         <BlitzBar pct={blitz} />
-        {fm.blitzMods.filter(m => m.tags.some(t => flat.includes(t))).slice(0, 3).map((m, i) => (
-          <div key={i} style={{ fontSize: "11px", color: "var(--color-text-3)", marginTop: 3, display: "flex", gap: 8 }}>
-            <span style={{ color: m.d >= 0 ? "var(--color-gold-bright)" : "var(--color-success)", fontWeight: "bold" }}>{m.d >= 0 ? `+${m.d}%` : `${m.d}%`}</span>
-            <span>— {m.tags.filter(t => flat.includes(t)).map(t => TRAIT_LABELS[t] || t).join(", ")}</span>
-          </div>
-        ))}
+        <div style={{ fontSize: 11, color: "var(--color-text-3)", marginTop: 5 }}>
+          Suggested frequency: base {fm.blitzLedger.base}% + {fm.blitzLedger.positive}% − {Math.abs(fm.blitzLedger.negative)}%
+          {fm.blitzLedger.clamp !== 0 ? `; bounds adjustment ${fm.blitzLedger.clamp > 0 ? '+' : ''}${fm.blitzLedger.clamp}%` : ''}.
+          Only the largest increase and largest decrease apply.
+        </div>
       </div>
 
       {/* Why This Formation Was Selected — collapsible */}
@@ -150,41 +132,13 @@ export default function FormationDetail({ fm, flat, situation = "base", runPass 
             {showScoring && (
               <div style={{ marginTop: 8, borderTop: "1px solid var(--color-border-subtle)", paddingTop: 10 }}>
                 <div style={{ fontSize: 10, color: "var(--color-text-3)", letterSpacing: "2px", textTransform: "uppercase", fontFamily: "'IBM Plex Mono', monospace", marginBottom: 8 }}>Scoring Factors</div>
-                {/* Run/Pass Bias */}
-                <div style={{ fontSize: 11, fontFamily: "'IBM Plex Mono', monospace", marginBottom: 5, display: "flex", gap: 8 }}>
-                  <span style={{ color: "var(--color-text-3)", minWidth: 110 }}>Run/Pass Bias:</span>
-                  {biasAdj === 0
-                    ? <span style={{ color: "var(--color-text-3)" }}>Balanced</span>
-                    : <span style={{ color: biasAdj > 0 ? "var(--color-success)" : "var(--color-danger)" }}>
-                        {biasAdj > 0 ? `+${biasAdj}` : biasAdj} {fm.priority} {biasAdj > 0 ? "bias" : "penalty"}
-                      </span>
-                  }
-                </div>
-                {/* AvoidTags Penalty */}
-                {avoidFired.length > 0 && (
-                  <div style={{ fontSize: 11, fontFamily: "'IBM Plex Mono', monospace", marginBottom: 5, display: "flex", gap: 8 }}>
-                    <span style={{ color: "var(--color-text-3)", minWidth: 110 }}>Avoid Penalty:</span>
-                    <span style={{ color: "var(--color-danger)" }}>-25: {avoidFired.map(t => TRAIT_LABELS[t] || t).join(", ")}</span>
-                  </div>
-                )}
-                {/* Blitz Modifiers */}
-                {blitzModsFired.slice(0, 2).map((m, i) => (
-                  <div key={i} style={{ fontSize: 11, fontFamily: "'IBM Plex Mono', monospace", marginBottom: 5, display: "flex", gap: 8 }}>
-                    <span style={{ color: "var(--color-text-3)", minWidth: 110 }}>Blitz Mod:</span>
-                    <span style={{ color: m.d >= 0 ? "var(--color-gold-bright)" : "var(--color-success)" }}>
-                      {m.d >= 0 ? `+${m.d}%` : `${m.d}%`} — {m.tags.filter(t => flat.includes(t)).map(t => TRAIT_LABELS[t] || t).join(", ")}
-                    </span>
+                {fm.ledger.map((entry, i) => (
+                  <div key={`${entry.id}-${i}`} style={{ fontSize: 11, marginBottom: 5 }}>
+                    {entry.label}: {entry.delta > 0 ? '+' : ''}{entry.delta}
+                    {entry.tags?.length ? ` — ${entry.tags.map(t => TRAIT_LABELS[t] || t).join(', ')}` : ''}
                   </div>
                 ))}
-                {/* Situation Adjustment */}
-                {situation !== "base" && (
-                  <div style={{ fontSize: 11, fontFamily: "'IBM Plex Mono', monospace", marginBottom: 5, display: "flex", gap: 8 }}>
-                    <span style={{ color: "var(--color-text-3)", minWidth: 110 }}>Situation:</span>
-                    <span style={{ color: situAdj !== 0 ? "var(--color-gold)" : "var(--color-text-3)" }}>
-                      {SIT_LABELS[situation]}{situAdj !== 0 ? (situAdj > 0 ? ` +${situAdj}` : ` ${situAdj}`) : " — no adjustment"}
-                    </span>
-                  </div>
-                )}
+                <div style={{ fontSize: 11 }}>Fit score: {fm.sc}/100. This is an authored heuristic, not a success probability.</div>
               </div>
             )}
           </div>
@@ -209,7 +163,7 @@ export default function FormationDetail({ fm, flat, situation = "base", runPass 
       </div>
 
       <div style={{ padding: 13 }}>
-        {tab === "coverages" && rankCoveragesForSituation(fm, situation, flat).map((c, i) => (
+        {tab === "coverages" && fm.rankedCoverages.map((c, i) => (
           <div key={c.name} style={{ background: "var(--color-surface-1)", border: "1px solid var(--color-border-subtle)", borderLeft: `3px solid ${["#b8880c","#6090b8","#7858a0","#508860"][i] || "#b8880c"}`, borderRadius: 5, padding: "14px 16px", marginBottom: 16 }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 4 }}>
               <div style={{ display: "flex", alignItems: "center", gap: 10 }}>

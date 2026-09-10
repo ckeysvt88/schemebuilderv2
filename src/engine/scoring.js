@@ -1,177 +1,78 @@
 import { FDB } from '../data/formations.js';
-import { PERSONNEL_FAMILIES, FAMILY_ADJUSTMENTS, deriveImpliedTraits } from '../data/personnel.js';
-import { capabilityAdjust } from './getCapabilities.js';
+import { FAMILY_ADJUSTMENTS } from '../data/personnel.js';
+import { contextTraits } from './context.js';
 
-const PKG_TAGS = new Set(["p00","p01","p02","p10","p11","p12","p13","p20","p21","p22","p23"]);
+const PKG_TAGS = new Set(['p00','p01','p02','p10','p11','p12','p13','p20','p21','p22','p23']);
+const BIAS_MAP = { 1: -1, 2: -0.65, 3: -0.30, 4: 0, 5: 0.30, 6: 0.65, 7: 1 };
+const FAMILY_BONUS = [20, 14, 9, 5, 3];
+const clamp = n => Math.max(0, Math.min(100, n));
 
-// ── SCORING ENGINE ────────────────────────────────────────────────────────────
-export function getBlitz(f, flat) {
-  let pos = 0; let neg = 0;
-  for (const m of f.blitzMods) {
-    if (m.tags.some(t => flat.includes(t))) {
-      if (m.d > 0) pos = Math.max(pos, m.d);   // take the single largest positive mod
-      else         neg = Math.min(neg, m.d);    // take the single largest negative mod
-    }
-  }
-  return Math.round(Math.max(5, Math.min(50, f.blitzBase + pos + neg)));
+export function blitzBreakdown(f, flat = []) {
+  const fired = (f.blitzMods || []).filter(m => m.tags.some(t => flat.includes(t)));
+  const positive = Math.max(0, ...fired.map(m => m.d));
+  const negative = Math.min(0, ...fired.map(m => m.d));
+  const base = f.blitzBase || 0;
+  const value = Math.round(Math.max(5, Math.min(50, base + positive + negative)));
+  return { base, positive, negative, clamp: value - base - positive - negative, value };
 }
-
+export function getBlitz(f, flat) { return blitzBreakdown(f, flat).value; }
 export function blitzInfo(pct) {
-  if (pct <= 10) return { label: "Very Conservative", color: "#60906e" };
-  if (pct <= 20) return { label: "Conservative",      color: "#6a9870" };
-  if (pct <= 30) return { label: "Moderate",          color: "#a07830" };
-  if (pct <= 40) return { label: "Aggressive",        color: "#a06030" };
-  return                 { label: "Max Pressure",     color: "#aa5050" };
+  if (pct <= 10) return { label: 'Very Conservative', color: '#60906e' };
+  if (pct <= 20) return { label: 'Conservative', color: '#6a9870' };
+  if (pct <= 30) return { label: 'Moderate', color: '#a07830' };
+  if (pct <= 40) return { label: 'Aggressive', color: '#a06030' };
+  return { label: 'Max Pressure', color: '#aa5050' };
 }
 
-// Returns ALL matched formations with score, sorted — no slice
-// Score is normalized to a 0-100 match percentage based on formation's total possible tags
-// runPass: 1-7 discrete positions (1=Full Pass, 4=Balanced, 7=Full Run)
-export function scoreAll(flat, book, runPass) {
-  if (!flat.length) return [];
-  // Expand personnel selections with implied formation traits (trips, empty, four_wide, etc.)
-  // so formations score correctly even when those aren't explicitly scouted.
-  flat = deriveImpliedTraits(flat);
-  const pos = runPass !== undefined ? runPass : 4;
-  const BIAS_MAP = { 1: -1.0, 2: -0.65, 3: -0.30, 4: 0, 5: 0.30, 6: 0.65, 7: 1.0 };
-  const runBias = BIAS_MAP[pos] || 0;  // negative=pass-heavy, positive=run-heavy
-  return Object.entries(FDB).map(([name, d]) => {
-    if (book && book !== "All") {
-      if (!d.books.includes(book) && !d.books.includes("All")) return null;
-    }
+// Transitional formation heuristic. All consumers use these same coefficients.
+// Menu-wide spy, rush and shell counts are not credited to an individual call.
+// Exact play evaluation and replacement of the tag denominator are later phases.
+export function scoreAll(traits = [], book = 'All', runPass = 4, familyId = null) {
+  if (!traits.length) return [];
+  const flat = contextTraits(traits, familyId);
+  const bias = BIAS_MAP[runPass] || 0;
+  const preferred = FAMILY_ADJUSTMENTS[familyId]?.bias || [];
+  return Object.entries(FDB).flatMap(([name, d]) => {
+    if (book && book !== 'All' && !d.books.includes(book) && !d.books.includes('All')) return [];
     const coreHits = d.coreTags.filter(t => flat.includes(t));
     const suppHits = d.suppTags.filter(t => flat.includes(t));
-    // CFB 27: offenses shift formations within a personnel grouping (Formation Shifts),
-    // so personnel reads are the trustworthy signal. Package tags weigh 3, others 2.
     const w = t => PKG_TAGS.has(t) ? 3 : 2;
-    const raw = coreHits.reduce((acc, t) => acc + w(t), 0) + suppHits.length;
-    const maxPossible = d.coreTags.reduce((acc, t) => acc + w(t), 0) + d.suppTags.length;
-    let sc = maxPossible > 0 ? Math.round((raw / maxPossible) * 100) : 0;
-    // Run/pass bias: run formations get +bonus when slider is run-heavy; pass formations when pass-heavy
-    if (sc > 0) {
-      const isRun  = d.priority === "run";
-      const isPass = d.priority === "pass";
-      if (isRun  && runBias > 0) sc = Math.min(100, sc + Math.round(runBias * 15));
-      if (isPass && runBias < 0) sc = Math.min(100, sc + Math.round(-runBias * 15));
-      if (isRun  && runBias < 0) sc = Math.max(0, sc + Math.round(runBias * 10));
-      if (isPass && runBias > 0) sc = Math.max(0, sc + Math.round(-runBias * 10));
-    }
-    // Penalize formations tagged as poor matchups for this opponent.
-    // Scaled by hit count: 1 hit = -15, 2 = -23, 3 = -31, 4+ = -39/40.
-    // Proportional suppression — severe multi-tag mismatches are penalized harder
-    // than the old flat -25 allowed, while single-tag edge cases stay visible.
-    if (d.avoidTags) {
-      const avoidHits = d.avoidTags.filter(t => flat.includes(t)).length;
-      if (avoidHits > 0) sc = Math.max(0, sc - Math.min(40, 15 + (avoidHits - 1) * 8));
-    }
-    // Capability layer (Phase C): fact-based refinement from transcribed play
-    // data, clamped ±15. Stubs return 0 adjustment. Approved weights, CK 7/16/26.
-    if (sc > 0) sc = Math.max(0, Math.min(100, sc + capabilityAdjust(name, flat)));
-    if (sc === 0) return null;
-    return { name, sc, coreHits, suppHits, blitz: getBlitz(d, flat), ...d };
-  }).filter(Boolean).filter(f => f.sc > 0).sort((a, b) => b.sc - a.sc);
+    const raw = coreHits.reduce((s, t) => s + w(t), 0) + suppHits.length;
+    const possible = d.coreTags.reduce((s, t) => s + w(t), 0) + d.suppTags.length;
+    const base = possible ? Math.round(100 * raw / possible) : 0;
+    if (!base) return [];
+    let runPassDelta = 0;
+    if (d.priority === 'run') runPassDelta = Math.round(bias * (bias > 0 ? 15 : 10));
+    if (d.priority === 'pass') runPassDelta = Math.round(-bias * (bias < 0 ? 15 : 10));
+    const avoidHits = (d.avoidTags || []).filter(t => flat.includes(t));
+    const avoid = avoidHits.length ? -Math.min(40, 15 + (avoidHits.length - 1) * 8) : 0;
+    const idx = preferred.indexOf(name);
+    // An expert preference cannot revive a matchup suppressed to zero.
+    const family = base + runPassDelta + avoid > 0 && idx >= 0 ? (FAMILY_BONUS[idx] ?? 3) : 0;
+    const rawSc = base + runPassDelta + avoid + family;
+    const sc = clamp(rawSc);
+    if (!sc) return [];
+    const ledger = [
+      { id: 'tags', label: 'Trait match', delta: base },
+      { id: 'runPass', label: 'Run/pass preference', delta: runPassDelta },
+      { id: 'avoid', label: 'Matchup penalty', delta: avoid, tags: avoidHits },
+      { id: 'family', label: 'Authored family preference', delta: family },
+      { id: 'clamp', label: 'Score bounds', delta: sc - rawSc },
+    ];
+    return [{ ...d, name, sc, coreHits, suppHits, effectiveTraits: flat, ledger,
+      blitz: getBlitz(d, flat), blitzLedger: blitzBreakdown(d, flat) }];
+  }).sort((a, b) => b.sc - a.sc || a.name.localeCompare(b.name));
 }
 
-// Group formations by personnel type for the "All Formations" browser
-// Re-scores formations weighted toward a specific personnel tag
-// so switching tabs re-ranks, not just re-filters
-export function scoreForPersonnel(personnelTag, allTraits) {
-  if (!allTraits.length) return [];
-  // Personnel-adjacent tags that co-occur with this package
-  const personnelContext = {
-    p00:  ["p00","empty","no_run","four_wide","elite_wr","hurry_up","quick_game","pass_heavy_3rd","two_minute_pass","qb_pocket","no_huddle","screens","trips"],
-    p01:  ["p01","p00","empty","no_run","four_wide","elite_wr","elite_te","slot_threat","hurry_up","quick_game","pass_heavy_3rd","seam_routes","two_minute_pass"],
-    p02:  ["p02","p00","p01","empty","no_run","elite_te","seam_routes","elite_wr","quick_game","pass_heavy_3rd","west_coast","hurry_up","flat_attack"],
-    p10:  ["p10","no_run","empty","trips","elite_wr","slot_threat","hurry_up","quick_game","screens","rpo","four_wide"],
-    p11:  ["p11","rpo","play_action","quick_game","outside_run","inside_run","elite_wr","slot_threat","trips","motion_heavy"],
-    p12:  ["p12","p21","elite_te","inside_run","outside_run","play_action","seam_routes","run_heavy_1st","strong_oline"],
-    p13:  ["p12","p13","elite_te","inside_run","strong_oline","run_heavy_1st","fb_lead","p21","seam_routes"],
-    p20:  ["p20","p10","p11","elite_wr","slot_threat","outside_run","inside_run","rpo","trips","motion_heavy","elite_rb"],
-    p21:  ["p21","p22","fb_lead","inside_run","counter_trap","strong_oline","run_heavy_1st","short_yardage_run"],
-    p22:  ["p22","p21","strong_oline","inside_run","run_heavy_1st","fb_lead","four_down_go","short_yardage_run"],
-    p23:  ["p23","p22","p21","p13","strong_oline","inside_run","run_heavy_1st","fb_lead","short_yardage_run","four_down_go","elite_te"],
-    trips:["trips","p10","p11","elite_wr","slot_threat","motion_heavy","rpo","quick_game","flat_attack"],
-    empty:["empty","p10","pass_heavy_3rd","qb_pocket","no_run","hurry_up","west_coast","quick_game"],
-  };
-  const ctx = personnelContext[personnelTag] || [personnelTag];
-  return Object.entries(FDB).map(([name, d]) => {
-    const coreHits = d.coreTags.filter(t => allTraits.includes(t));
-    const suppHits = d.suppTags.filter(t => allTraits.includes(t));
-    const raw = coreHits.length * 2 + suppHits.length;
-    const maxPossible = d.coreTags.length * 2 + d.suppTags.length;
-    const baseNorm = maxPossible > 0 ? (raw / maxPossible) * 100 : 0;
-    // Only apply personnel-context bonus when the formation already has tag matches —
-    // prevents surfacing formations with zero scouted-trait relevance
-    const personnelBonus = baseNorm > 0
-      ? ctx.filter(t => d.coreTags.includes(t)).length * 3
-        + ctx.filter(t => d.suppTags.includes(t)).length * 1
-      : 0;
-    let sc = Math.round(baseNorm + personnelBonus);
-    // Apply the same scaled avoid-tag penalty as scoreAll() so mismatched
-    // formations don't surface in the personnel browser.
-    if (d.avoidTags) {
-      const avoidHits = d.avoidTags.filter(t => allTraits.includes(t)).length;
-      if (avoidHits > 0) sc = Math.max(0, sc - Math.min(40, 15 + (avoidHits - 1) * 8));
-    }
-    if (sc === 0) return null;
-    return { name, sc, coreHits, suppHits, blitz: getBlitz(d, allTraits), ...d };
-  }).filter(Boolean).sort((a, b) => b.sc - a.sc);
+// Compatibility wrappers; no independent personnel-scoring implementation.
+export function scoreForPersonnel(tag, traits, book = 'All', runPass = 4) {
+  return scoreAll(traits, book, runPass, tag);
 }
-
+export function scoreForFamily(id, traits, book = 'All', runPass = 4) {
+  return scoreAll(traits, book, runPass, id);
+}
 export function groupByPersonnel(scored) {
-  const order = ["Prevent","Goal Line","Heavy","Base","Nickel","Dime"];
-  const groups = {};
-  for (const f of scored) {
-    const key = f.personnel || "Base";
-    if (!groups[key]) groups[key] = [];
-    groups[key].push(f);
-  }
-  return order.filter(k => groups[k]).map(k => ({ label: k, formations: groups[k].sort((a, b) => b.sc - a.sc) }));
-}
-
-export function scoreForFamily(familyId, allTraits) {
-  const family = PERSONNEL_FAMILIES[familyId];
-  if (!family) return scoreForPersonnel("p11", allTraits);
-  // Expand implied traits so family-specific scoring matches formation tags correctly
-  allTraits = deriveImpliedTraits(allTraits);
-  // Run-first packages must assert their own run identity, or a pass-heavy offense
-  // surfaces Dime/Nickel on every run tab (jumbo, wildcat, I-Form). Injecting the run
-  // tags makes run fronts score and trips the avoid tags on pass fronts. Scoped: all
-  // p22/p23 are heavy; within p21 only the downhill looks inject — option is assignment
-  // defense and gun is balanced, so both are left as-is.
-  const HEAVY_BASE = {
-    p22: ["p22", "inside_run", "run_heavy_1st", "fb_lead"],
-    p23: ["p23", "inside_run", "short_yardage_run", "fb_lead"],
-  };
-  const RUN_FAMILY = {
-    p21_iForm:  ["p21", "inside_run", "fb_lead"],
-    p21_pistol: ["p21", "inside_run", "fb_lead"],
-  };
-  const inject = HEAVY_BASE[family.base] ?? RUN_FAMILY[familyId];
-  if (inject) allTraits = [...new Set([...allTraits, ...inject])];
-  // Layer 1 — hard physical constraint: a back-less look cannot run, so a run-heavy
-  // team's tendency gets no vote here. Strip the run identity, assert no_run/empty.
-  const NO_RUN_FAMILY = new Set(["p11_empty","p10_empty","empty_gun","empty_trips",
-    "p00_gun","p00_trips","p00_motion","p01_gun","p01_trips","p02_gun","p02_trips"]);
-  if (NO_RUN_FAMILY.has(familyId)) {
-    allTraits = [...new Set([...allTraits, "no_run", "empty"])]
-      .filter(t => !["inside_run","short_yardage_run","run_heavy_1st","fb_lead",
-                     "outside_run","counter_trap","p22","p23"].includes(t));
-  }
-  const adj = FAMILY_ADJUSTMENTS[familyId];
-  const biasNames = adj ? adj.bias : [];
-  const baseResults = scoreForPersonnel(family.base, allTraits);
-  if (!biasNames.length) return baseResults;
-  // Apply a tiered score bonus to expert-recommended (biased) formations.
-  // The bonus reflects defensive football knowledge about what works vs this package,
-  // but a significantly better-matching formation will still rank above a weakly-matched biased one.
-  // Bonus tiers: 1st bias +20, 2nd +14, 3rd +9, 4th +5, beyond +3
-  // Zero-score formations get no bonus — they have no scouted-trait relevance.
-  const BIAS_BONUS = [20, 14, 9, 5, 3];
-  return baseResults.map(f => {
-    const biasIdx = biasNames.indexOf(f.name);
-    if (biasIdx < 0 || f.sc === 0) return f;
-    const bonus = BIAS_BONUS[biasIdx] ?? 3;
-    return { ...f, sc: Math.min(100, f.sc + bonus) };
-  }).sort((a, b) => b.sc - a.sc);
+  const order = ['Prevent','Goal Line','Heavy','Base','Nickel','Dime'];
+  return order.map(label => ({ label, formations: scored.filter(f => (f.personnel || 'Base') === label) }))
+    .filter(g => g.formations.length);
 }
