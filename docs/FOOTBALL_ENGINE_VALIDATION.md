@@ -2,7 +2,9 @@
 
 Branch: `FootballEngineImprovements`.
 Baseline: `6ecbf15bf76ba7248c79deea8aeaf8126d73f582`.
-Status: first implementation phase; not approved for production or gameplay accuracy.
+Status: phases 1 and 2 implemented; not approved for production or gameplay accuracy.
+
+See PLAY_MATCHUP_PHASE2.md for the subsequent exact-call layer, all its coefficients, and additional device checks. The foundation scoring below feeds that layer; the final displayed score now also includes the selected play's documented risk adjustments.
 
 ## What changed
 

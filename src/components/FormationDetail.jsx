@@ -135,6 +135,7 @@ export default function FormationDetail({ fm, flat }) {
                 {fm.ledger.map((entry, i) => (
                   <div key={`${entry.id}-${i}`} style={{ fontSize: 11, marginBottom: 5 }}>
                     {entry.label}: {entry.delta > 0 ? '+' : ''}{entry.delta}
+                    {entry.reason && <div style={{ color: 'var(--color-text-3)', marginTop: 2 }}>{entry.reason}</div>}
                     {entry.tags?.length ? ` — ${entry.tags.map(t => TRAIT_LABELS[t] || t).join(', ')}` : ''}
                   </div>
                 ))}
@@ -173,6 +174,18 @@ export default function FormationDetail({ fm, flat }) {
               </div>
             </div>
             <div style={{ fontSize: 11, color: "var(--color-text-2)", lineHeight: 1.65 }}>{c.detail || c.note}</div>
+            {c.matchup && <div style={{ fontSize: 11, lineHeight: 1.6, marginTop: 8 }}>
+              <div>Call fit: {c.sc}/100 · {c.matchup.structure}</div>
+              {c.matchup.support.slice(0, 2).map(text => <p key={text}>{text}</p>)}
+              <strong>Main concerns</strong>
+              {c.matchup.weaknesses.length ? c.matchup.weaknesses.map(text => <p key={text}>{text}</p>)
+                : <p>No count-based warning triggered. This does not establish matchup safety.</p>}
+              <details><summary>What still needs checking</summary>
+                <p>{c.matchup.evidence}</p>
+                {c.matchup.unknowns.map(text => <p key={text}>{text}</p>)}
+                <p>Risk adjustments are provisional football judgments, not measured CFB 27 outcomes.</p>
+              </details>
+            </div>}
           </div>
         ))}
 

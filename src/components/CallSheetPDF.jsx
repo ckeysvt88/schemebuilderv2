@@ -255,9 +255,10 @@ function TopFormationItem({ fm, rank, isLast }) {
         <Text style={S.tfPct}>{fm.sc}/100</Text>
       </View>
       <Text style={S.tfMeta}>{fm.coverage}  ·  {fm.blitz}% blitz</Text>
-      {fm.dcNote ? (
-        <Text style={S.tfNote} numberOfLines={2}>{fm.dcNote}</Text>
-      ) : null}
+      {fm.matchup && <>
+        <Text style={S.tfMeta}>{fm.matchup.structure}</Text>
+        <Text style={S.tfNote}>Concern: {fm.matchup.weaknesses[0] || 'Assignment counts alone do not establish matchup safety.'}</Text>
+      </>}
     </View>
   );
 }

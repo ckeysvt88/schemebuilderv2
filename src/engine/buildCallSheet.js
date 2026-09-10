@@ -33,6 +33,7 @@ function pluck(f) {
   const bi = blitzInfo(f.blitz);
   return {
     name:       f.name,
+    matchup:    f.matchup,
     coverage:   f.recommendedCoverage,
     sc:         f.sc,
     blitz:      f.blitz,
