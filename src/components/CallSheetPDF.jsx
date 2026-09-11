@@ -257,6 +257,7 @@ function TopFormationItem({ fm, rank, isLast }) {
       <Text style={S.tfMeta}>{fm.coverage}  ·  {fm.blitz}% blitz</Text>
       {fm.matchup && <>
         <Text style={S.tfMeta}>{fm.matchup.structure}</Text>
+        {fm.matchup.concept && <Text style={S.tfMeta}>Threat assessment: {fm.matchup.concept.utility}/100 · {fm.matchup.concept.confidence} confidence · Worst case: {fm.matchup.concept.badCase.label}</Text>}
         <Text style={S.tfNote}>Concern: {fm.matchup.weaknesses[0] || 'Assignment counts alone do not establish matchup safety.'}</Text>
       </>}
     </View>

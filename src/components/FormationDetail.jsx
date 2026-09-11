@@ -176,6 +176,16 @@ export default function FormationDetail({ fm, flat }) {
             <div style={{ fontSize: 11, color: "var(--color-text-2)", lineHeight: 1.65 }}>{c.detail || c.note}</div>
             {c.matchup && <div style={{ fontSize: 11, lineHeight: 1.6, marginTop: 8 }}>
               <div>Call fit: {c.sc}/100 · {c.matchup.structure}</div>
+              {c.matchup.concept && <div style={{ marginTop: 6 }}>
+                <strong>Threat + complement assessment: {c.matchup.concept.utility}/100 · {c.matchup.concept.confidence} confidence</strong>
+                <p>Worst credible case: {c.matchup.concept.badCase.label}. {c.matchup.concept.mainConcession}</p>
+                <details><summary>Concept-by-concept reasoning</summary>
+                  {c.matchup.concept.scenarios.map(scenario => <p key={scenario.id}>
+                    <strong>{scenario.label} ({scenario.grade}/100)</strong>{scenario.source === 'complement' ? ' · credible complement' : ' · observed'}<br />
+                    {scenario.support} Concedes: {scenario.concession}
+                  </p>)}
+                </details>
+              </div>}
               {c.matchup.support.slice(0, 2).map(text => <p key={text}>{text}</p>)}
               <strong>Main concerns</strong>
               {c.matchup.weaknesses.length ? c.matchup.weaknesses.map(text => <p key={text}>{text}</p>)

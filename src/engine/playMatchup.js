@@ -84,8 +84,18 @@ export function assessPlay(play, threats = {}) {
 export function evaluateCoverage(coverage, play, traits, formationScore) {
   const matchup = assessPlay(play, threatProfile(traits));
   if (!matchup) return null;
-  const raw = formationScore + matchup.delta;
+  const assignmentRaw = formationScore + matchup.delta;
+  const concept = assessConceptMatchups(play, coverage.name, traits);
+  // Preserve formation/personnel context while allowing the concept pilot to
+  // distinguish exact calls. The blend is provisional and fully ledgered.
+  const blended = concept ? Math.round(assignmentRaw * 0.55 + concept.utility * 0.45) : assignmentRaw;
+  const conceptDelta = blended - assignmentRaw;
+  const raw = assignmentRaw + conceptDelta;
   const sc = Math.max(0, Math.min(matchup.scoreCap, raw));
-  return { ...coverage, sc, matchup, ledger: [...matchup.factors,
+  return { ...coverage, sc, matchup: { ...matchup, concept }, ledger: [...matchup.factors,
+    ...(concept ? [{ id: 'concept:blend', label: `Threat/complement assessment (${concept.utility}/100)`, delta: conceptDelta,
+      reason: `Weighted scenarios include a ${Math.round(concept.riskWeight * 100)}% bad-case component.`,
+      basis: concept.evidence }] : []),
     { id: 'play:bounds', label: matchup.scoreCap < 100 ? 'Deep-shot exposure cap (35)' : 'Play score bounds', delta: sc - raw }] };
 }
+import { assessConceptMatchups } from './conceptMatchup.js';

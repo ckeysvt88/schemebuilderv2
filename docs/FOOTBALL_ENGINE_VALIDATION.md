@@ -2,9 +2,11 @@
 
 Branch: `FootballEngineImprovements`.
 Baseline: `6ecbf15bf76ba7248c79deea8aeaf8126d73f582`.
-Status: phases 1 and 2 implemented; not approved for production or gameplay accuracy.
+Status: phases 1 through 3 implemented; not approved for production or gameplay accuracy.
 
 See PLAY_MATCHUP_PHASE2.md for the subsequent exact-call layer, all its coefficients, and additional device checks. The foundation scoring below feeds that layer; the final displayed score now also includes the selected play's documented risk adjustments.
+
+See THREAT_COMPLEMENT_PHASE3.md for the scenario pilot, its complete ordinal rubric, bad-case weighting and device checks. Its grades are explainable product heuristics, not game-success probabilities.
 
 ## What changed
 
@@ -81,7 +83,7 @@ Open the Network URL printed by Vite on your phone on the same Wi-Fi. Local HTTP
 
 Record game version, platform, difficulty, mode, defensive book, exact play, coaching settings and user-controlled position. Repeat comparable snaps with both old and proposed calls against inside zone, QB draw/read option, RPO bubble, four verticals, mesh and flood. Record conversion, explosive, run-fit and user-assignment failures rather than relying on a single successful snap. Do not claim statistical accuracy from a small practice sample.
 
-Next phase: model exact play + supported adjustments + human assignment, then evaluate multiple likely concepts and risk. Add user-friendly, safe and aggressive alternatives only when their distinctions are supported by that data. No live LLM, backend or football simulator is required.
+Next phase: validate supported adjustments and add a saved human user-role/burden profile. Add user-friendly, explosive-protection and aggressive alternatives only when their distinctions are supported by the exact call and user-job data. No live LLM, backend or football simulator is required.
 
 ## Release and rollback
 
