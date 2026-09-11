@@ -37,7 +37,7 @@ test('contain improves the narrow QB-run assessment but states its remaining con
   assert.match(withContain.mainConcession, /interior draw|option phase/);
 });
 
-test('pilot produces explainable scenarios for the six acceptance looks', () => {
+test('unverified catalog calls stay available but withhold scenario claims for the six acceptance looks', () => {
   const cases = [
     { traits: ['p11', 'empty', 'mobile_qb', 'option_run', 'quick_game'], familyId: 'p11_empty' },
     { traits: ['p10', 'inside_run', 'outside_run', 'rpo'], familyId: 'p10_gun' },
@@ -50,10 +50,9 @@ test('pilot produces explainable scenarios for the six acceptance looks', () => 
     const result = recommend(input);
     assert.ok(result.formations.length);
     for (const formation of result.formations.slice(0, 3)) {
-      const concept = formation.matchup.concept;
-      assert.ok(concept?.scenarios.length, `${input.familyId}: ${formation.name}`);
-      assert.ok(concept.utility >= 0 && concept.utility <= 100);
-      assert.ok(concept.badCase?.concession);
+      assert.equal(formation.matchup.status, 'unverified', `${input.familyId}: ${formation.name}`);
+      assert.equal(formation.matchup.concept, null);
+      assert.equal(formation.matchup.facts, null);
       assert.equal(formation.sc, formation.ledger.reduce((sum, entry) => sum + entry.delta, 0));
     }
   }

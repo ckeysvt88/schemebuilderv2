@@ -26,12 +26,22 @@ test('QB assignment evaluation uses this play, not its formation menu', () => {
 });
 
 test('deep-shot exposure caps a highly rated zero call despite formation bonuses', () => {
-  const a = evaluateCoverage({ name: zero.n, rating: 5 }, zero, ['deep_shots'], 100);
-  const b = evaluateCoverage({ name: zone.n, rating: 3 }, zone, ['deep_shots'], 100);
+  const evidence = { source: 'test fixture' };
+  const a = evaluateCoverage({ name: zero.n, rating: 5 }, zero, ['deep_shots'], 100, evidence);
+  const b = evaluateCoverage({ name: zone.n, rating: 3 }, zone, ['deep_shots'], 100, evidence);
   assert.equal(a.sc, 35);
   assert.ok(b.sc > a.sc);
   assert.equal(100 + a.ledger.reduce((sum, f) => sum + f.delta, 0), a.sc);
   assert.equal(a.matchup.factors.filter(f => f.id.includes('Deep') || f.id.includes('deepShots')).length, 1);
+});
+
+test('unverified play-art counts are withheld and cannot change a recommendation score', () => {
+  const a = evaluateCoverage({ name: zero.n, rating: 5 }, zero, ['deep_shots'], 73);
+  assert.equal(a.sc, 73);
+  assert.equal(a.matchup.status, 'unverified');
+  assert.equal(a.matchup.facts, null);
+  assert.equal(a.matchup.concept, null);
+  assert.equal(a.ledger.reduce((sum, item) => sum + item.delta, 0), 0);
 });
 
 test('quick/RPO/screen tags do not triple-charge the same thin-pressure risk', () => {

@@ -2,11 +2,13 @@
 
 Branch: `FootballEngineImprovements`.
 Baseline: `6ecbf15bf76ba7248c79deea8aeaf8126d73f582`.
-Status: phases 1 through 3 implemented; not approved for production or gameplay accuracy.
+Status: phases 1 through 4 implemented; not approved for production or gameplay accuracy.
 
 See PLAY_MATCHUP_PHASE2.md for the subsequent exact-call layer, all its coefficients, and additional device checks. The foundation scoring below feeds that layer; the final displayed score now also includes the selected play's documented risk adjustments.
 
 See THREAT_COMPLEMENT_PHASE3.md for the scenario pilot, its complete ordinal rubric, bad-case weighting and device checks. Its grades are explainable product heuristics, not game-success probabilities.
+
+See DATA_INTEGRITY_PHASE4.md for the evidence gate added after device review found that a formation front and unverified post-snap play assignments were being conflated. Unverified assignment totals no longer appear or affect scoring.
 
 ## What changed
 

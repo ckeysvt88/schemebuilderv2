@@ -4,6 +4,8 @@ import { normalizeSituation, coverageSituation } from './context.js';
 import { rankCoveragesForSituation } from './coverageRank.js';
 import { evaluateCoverage } from './playMatchup.js';
 import { PLAYS } from '../data/plays.js';
+import { getPlayAssignmentEvidence } from '../data/playEvidence.js';
+import { isDeepSafeCall } from '../data/coverageFlags.js';
 import { TRAIT_LABELS } from '../data/traits.js';
 import { PERSONNEL_FAMILIES } from '../data/personnel.js';
 
@@ -19,12 +21,13 @@ export function recommend({ traits = [], book = 'All', runPass = 4, familyId = n
     const plays = PLAYS[f.name] || [];
     const verified = f.coverages.filter(c => plays.some(p => p.n === c.name));
     const eligible = sit === '3lg'
-      ? verified.filter(c => plays.find(p => p.n === c.name).deep > 0)
+      ? verified.filter(c => isDeepSafeCall(c.name))
       : verified;
     if (!eligible.length) return [];
     const baseline = rankCoveragesForSituation({ ...f, coverages: eligible }, sit, f.effectiveTraits);
     const rankedCoverages = baseline.map((c, index) => {
-      const evaluated = evaluateCoverage(c, plays.find(p => p.n === c.name), f.effectiveTraits, f.sc);
+      const evidence = getPlayAssignmentEvidence(f.name, c.name);
+      const evaluated = evaluateCoverage(c, plays.find(p => p.n === c.name), f.effectiveTraits, f.sc, evidence);
       return evaluated && { ...evaluated, baselineOrder: index };
     }).filter(c => c && c.sc > 0).sort((a, b) => b.sc - a.sc || a.baselineOrder - b.baselineOrder);
     if (!rankedCoverages.length) return [];
@@ -42,7 +45,9 @@ export function buildRecommendationShareText(result, traits = []) {
   if (traits.length) lines.push('Scouted: ' + traits.map(t => TRAIT_LABELS[t] || t).join(', '), '');
   for (const [i, f] of result.formations.slice(0, 4).entries()) {
     lines.push(`#${i + 1} ${f.name} — fit ${f.sc}/100`, `Call: ${f.recommendedCoverage}`, `Suggested blitz frequency: ${f.blitz}%`);
-    lines.push(`Assignments: ${f.matchup.structure}`, `Main concern: ${f.matchup.weaknesses[0] || 'Assignment counts alone cannot establish matchup safety.'}`, `Not assessed: ${f.matchup.unknowns.join(' ')}`);
+    lines.push(`Assignments: ${f.matchup.structure}`);
+    if (f.matchup.status === 'verified') lines.push(`Main concern: ${f.matchup.weaknesses[0] || 'No verified assignment warning triggered.'}`);
+    lines.push(`Not assessed: ${f.matchup.unknowns.join(' ')}`);
     if (f.matchup.concept) lines.push(`Threat assessment: ${f.matchup.concept.utility}/100 (${f.matchup.concept.confidence.toLowerCase()} confidence)`,
       `Bad-case scenario: ${f.matchup.concept.badCase.label} — ${f.matchup.concept.mainConcession}`);
     lines.push(...f.ledger.filter(x => x.delta !== 0).map(x => `  ${x.label}: ${x.delta > 0 ? '+' : ''}${x.delta}`), '');

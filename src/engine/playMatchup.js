@@ -1,3 +1,5 @@
+import { assessConceptMatchups } from './conceptMatchup.js';
+
 // Assignment-level guardrails. Counts are transcribed catalog evidence;
 // penalties are provisional football judgments, never CFB success estimates.
 export const PLAY_RULES = Object.freeze({
@@ -81,7 +83,30 @@ export function assessPlay(play, threats = {}) {
   };
 }
 
-export function evaluateCoverage(coverage, play, traits, formationScore) {
+export function unverifiedPlayAssessment() {
+  return {
+    status: 'unverified',
+    facts: null,
+    structure: 'Exact play assignments need verification.',
+    factors: [],
+    support: [],
+    unknowns: ['Rushers, coverage responsibilities, spy and contain are withheld until this exact call is checked in CFB 27.'],
+    weaknesses: [],
+    delta: 0,
+    scoreCap: 100,
+    concept: null,
+    evidence: 'Unverified play-art record; excluded from assignment and concept scoring',
+  };
+}
+
+export function evaluateCoverage(coverage, play, traits, formationScore, evidence = null) {
+  if (!evidence) {
+    return { ...coverage, sc: formationScore, matchup: unverifiedPlayAssessment(), ledger: [
+      { id: 'play:unverified', label: 'Unverified assignments excluded', delta: 0,
+        reason: 'This call keeps its authored ordering, but its play-art counts do not affect the score.',
+        basis: 'Data integrity guardrail' },
+    ] };
+  }
   const matchup = assessPlay(play, threatProfile(traits));
   if (!matchup) return null;
   const assignmentRaw = formationScore + matchup.delta;
@@ -92,10 +117,9 @@ export function evaluateCoverage(coverage, play, traits, formationScore) {
   const conceptDelta = blended - assignmentRaw;
   const raw = assignmentRaw + conceptDelta;
   const sc = Math.max(0, Math.min(matchup.scoreCap, raw));
-  return { ...coverage, sc, matchup: { ...matchup, concept }, ledger: [...matchup.factors,
+  return { ...coverage, sc, matchup: { ...matchup, status: 'verified', verification: evidence, concept }, ledger: [...matchup.factors,
     ...(concept ? [{ id: 'concept:blend', label: `Threat/complement assessment (${concept.utility}/100)`, delta: conceptDelta,
       reason: `Weighted scenarios include a ${Math.round(concept.riskWeight * 100)}% bad-case component.`,
       basis: concept.evidence }] : []),
     { id: 'play:bounds', label: matchup.scoreCap < 100 ? 'Deep-shot exposure cap (35)' : 'Play score bounds', delta: sc - raw }] };
 }
-import { assessConceptMatchups } from './conceptMatchup.js';

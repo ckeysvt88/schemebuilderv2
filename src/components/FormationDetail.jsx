@@ -3,6 +3,7 @@ import { ADJUSTMENTS, computeConflicts } from '../data/adjustments.js';
 import { TRAIT_LABELS } from '../data/traits.js';
 import BlitzBar from './BlitzBar.jsx';
 import WhySelected from './WhySelected.jsx';
+import { getFrontStructure } from '../engine/frontStructure.js';
 
 const PC = { run: "#a06030", pass: "#1a6fe8", hybrid: "#7858a0", pressure: "#aa5050" };
 
@@ -84,6 +85,7 @@ export default function FormationDetail({ fm, flat }) {
   const [showWhy, setShowWhy] = useState(false);
   const [showScoring, setShowScoring] = useState(false);
   const blitz = fm.blitz;
+  const front = getFrontStructure(fm.name);
 
   return (
     <div style={{ background: "var(--color-bg)", border: "1px solid var(--color-gold)", borderTop: "none", borderLeft: "3px solid var(--color-gold)", borderRadius: "0 0 9px 9px", overflow: "hidden", marginBottom: 18 }}>
@@ -147,6 +149,10 @@ export default function FormationDetail({ fm, flat }) {
       </div>
 
       {/* Inner tabs */}
+      {front && <div style={{ padding: "10px 16px", borderBottom: "1px solid var(--color-border-subtle)", background: "var(--color-surface-1)", fontSize: 11, lineHeight: 1.5 }}>
+        <strong>Formation front:</strong> {front.summary}
+        <div style={{ color: "var(--color-text-3)" }}>Positions: {front.labels.join(' · ')}. Alignment only—not the number rushing.</div>
+      </div>}
       <div style={{ display: "flex", borderBottom: "1px solid var(--color-border-subtle)", background: "var(--color-bg)" }}>
         {[
           { id: "coverages", l: "📡 Coverages" },
@@ -173,28 +179,30 @@ export default function FormationDetail({ fm, flat }) {
                 {i === 0 && <span style={{ fontSize: "12px", background: "var(--color-surface-success)", border: "1px solid var(--color-border)", color: "var(--color-success)", padding: "1px 5px", borderRadius: 4, fontWeight: "bold", fontFamily: "'IBM Plex Mono', monospace" }}>RECOMMENDED</span>}
               </div>
             </div>
-            <div style={{ fontSize: 11, color: "var(--color-text-2)", lineHeight: 1.65 }}>{c.detail || c.note}</div>
+            <div style={{ fontSize: 11, color: "var(--color-text-2)", lineHeight: 1.65 }}><strong>Why it fits:</strong> {c.detail || c.note}</div>
             {c.matchup && <div style={{ fontSize: 11, lineHeight: 1.6, marginTop: 8 }}>
-              <div>Call fit: {c.sc}/100 · {c.matchup.structure}</div>
-              {c.matchup.concept && <div style={{ marginTop: 6 }}>
-                <strong>Threat + complement assessment: {c.matchup.concept.utility}/100 · {c.matchup.concept.confidence} confidence</strong>
-                <p>Worst credible case: {c.matchup.concept.badCase.label}. {c.matchup.concept.mainConcession}</p>
-                <details><summary>Concept-by-concept reasoning</summary>
+              {c.matchup.status !== 'verified' ? <div style={{ color: "var(--color-warning, #9a6b00)", padding: "7px 9px", border: "1px solid var(--color-gold-border)", borderRadius: 4 }}>
+                <strong>Exact assignments need verification.</strong> Rush and coverage counts are hidden and do not affect this score.
+              </div> : <>
+                <div><strong>Overall matchup:</strong> {c.matchup.concept?.utility ?? c.sc}/100 · {c.matchup.concept?.confidence || 'Assignment'} confidence</div>
+                {c.matchup.concept && <div style={{ marginTop: 6 }}>
+                <p><strong>Biggest risk:</strong> {c.matchup.concept.badCase.label}. {c.matchup.concept.mainConcession}</p>
+                <details><summary>Threat-by-threat analysis</summary>
                   {c.matchup.concept.scenarios.map(scenario => <p key={scenario.id}>
-                    <strong>{scenario.label} ({scenario.grade}/100)</strong>{scenario.source === 'complement' ? ' · credible complement' : ' · observed'}<br />
-                    {scenario.support} Concedes: {scenario.concession}
+                    <strong>{scenario.label} ({scenario.grade}/100)</strong>{scenario.source === 'complement' ? ' · likely counter' : ' · observed'}<br />
+                    {scenario.support} <strong>What we allow:</strong> {scenario.concession}
                   </p>)}
                 </details>
-              </div>}
-              {c.matchup.support.slice(0, 2).map(text => <p key={text}>{text}</p>)}
-              <strong>Main concerns</strong>
-              {c.matchup.weaknesses.length ? c.matchup.weaknesses.map(text => <p key={text}>{text}</p>)
-                : <p>No count-based warning triggered. This does not establish matchup safety.</p>}
-              <details><summary>What still needs checking</summary>
+                </div>}
+              <details><summary>Verified assignments and testing limits</summary>
+                <p>{c.matchup.structure}</p>
+                {c.matchup.support.slice(0, 2).map(text => <p key={text}>{text}</p>)}
+                {c.matchup.weaknesses.map(text => <p key={text}>{text}</p>)}
                 <p>{c.matchup.evidence}</p>
                 {c.matchup.unknowns.map(text => <p key={text}>{text}</p>)}
                 <p>Risk adjustments are provisional football judgments, not measured CFB 27 outcomes.</p>
               </details>
+              </>}
             </div>}
           </div>
         ))}
