@@ -6,8 +6,9 @@ The game-day guidance should distinguish game behavior documented by EA from ord
 
 Source: [EA SPORTS College Football 27 Gameplay Deep Dive](https://www.ea.com/games/ea-sports-college-football/college-football-27/news/college-football-27-gameplay)
 
-- Smart Zones: Aggressive prioritizes short routes and risks windows behind; Balanced plays normal zone behavior; Conservative prioritizes deeper threats and concedes underneath throws.
-- Plaster: Conservative allows backside zone defenders to attach after a trigger while preserving more of the original zone. “Out of Pocket and Time” is identified by EA as the safest trigger.
+- The preset defensive Custom Adjustments are QB Scramble, Play Short Routes, No Deep Passes, and Defend Screen Pass. The app uses these names so the recommendation matches the in-game menu.
+- EA's preview advertised Smart Zones, but the shipped in-game menu available to the app owner does not contain that option. Smart Zones are therefore excluded from all user-facing guidance.
+- Plaster is documented by EA, but the app does not currently prescribe it; a preset adjustment is faster and clearer during a game.
 - Red Zone Awareness improves zone spacing near the goal line.
 - Roll Coverage can lean help toward the fastest player, the highest-rated player, the field, boundary, pass strength, or a named receiver/tight end.
 - Against bunch man coverage, Point Combo locks the point defender while other defenders exchange releases. Against stacks, Combo lets defenders exchange inside/outside releases.
@@ -29,6 +30,7 @@ Source: [EA SPORTS College Football 27 Title Update — August 6, 2026](https://
 ## Deliberately excluded until gameplay-tested
 
 - Exact numeric zone-drop depths as universal answers.
+- Smart Zones, because the option is not present in the validated shipped game menu despite appearing in EA's preview documentation.
 - Claims that a generic formation always assigns a particular linebacker as a spy.
 - Exact rush, underneath-zone, or run-fit counts without verified play art.
 - A fixed safety depth or defensive-line technique based only on a season-long tendency.
@@ -39,3 +41,9 @@ Source: [EA SPORTS College Football 27 Title Update — August 6, 2026](https://
 - A scouting trait describes what the opponent tends to do; it does not prove the current play. Red-zone and short-yardage settings require the matching live situation.
 - Coverage cards use five coaching prompts: best spot, what the defense is taking away, the offense's likely answer, the user's job, and the signal to leave the call.
 - The default view stays short. The user's job and the call-change trigger remain under one optional dropdown.
+
+## Play-art verification sources
+
+- [CFB Labs defensive playbooks](https://www.cfblabs.com/playbooks) and [CollegeFootball.gg playbooks](https://collegefootball.gg/playbooks/) are useful inventory indexes for formations and play names.
+- [Civil.GG's CFB 27 defense guide](https://www.civil.gg/tips/cfb-27-complete-defense-guide) is treated as experienced-player guidance, not confirmation of an EA mechanic. It is useful for prioritizing what needs lab testing, especially user technique, contain behavior, and formation-specific bugs.
+- Individual player assignments, rush counts, and run fits are not imported from a formation name or a play-list page. They enter the app only after the exact in-game play art is visually checked and recorded in `playEvidence.js`.

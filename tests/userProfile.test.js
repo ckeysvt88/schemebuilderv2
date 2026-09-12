@@ -10,5 +10,5 @@ test('missing or malformed user settings return safe defaults', () => {
 test('supported user settings survive normalization and have readable labels', () => {
   const profile = normalizeUserProfile({ position: 'safety', callStyle: 'safe', ignored: true });
   assert.deepEqual(profile, { position: 'safety', callStyle: 'safe' });
-  assert.deepEqual(userProfileLabels(profile), { position: 'Safety', callStyle: 'Protect explosives' });
+  assert.deepEqual(userProfileLabels(profile), { position: 'Safety', callStyle: 'Protect Explosives' });
 });

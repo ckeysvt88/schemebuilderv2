@@ -4,18 +4,22 @@ import { buildAdjustmentPlan } from '../src/engine/adjustmentPlan.js';
 
 const fm = coverage => ({ recommendedCoverage: coverage });
 
-test('mixed quick and deep threats produce one balanced smart-zone instruction', () => {
+test('mixed quick and deep threats do not create conflicting preset instructions', () => {
   const plan = buildAdjustmentPlan(fm('Cover 3 Sky'), ['quick_game', 'deep_shots']);
-  const zones = plan.settings.filter(item => item.setting === 'Smart Zones');
-  assert.equal(zones.length, 1);
-  assert.equal(zones[0].value, 'Balanced');
+  assert.doesNotMatch(JSON.stringify(plan), /Smart Zones|Play Short Routes|No Deep Passes/);
 });
 
-test('mobile quarterback guidance uses the documented safe plaster trigger', () => {
+test('mobile quarterback guidance uses the available QB Scramble preset', () => {
   const plan = buildAdjustmentPlan(fm('Cover 3 Sky'), ['mobile_qb']);
-  const plaster = plan.settings.find(item => item.setting === 'Plaster');
-  assert.equal(plaster.value, 'Conservative · Out of Pocket + Time');
+  const preset = plan.settings.find(item => item.setting === 'In-game preset');
+  assert.equal(preset.value, 'QB Scramble');
   assert.doesNotMatch(JSON.stringify(plan), /MIKE\/WILL Assignment|QB Spy/);
+});
+
+test('the preset menu gives direct answers for a repeated single threat', () => {
+  assert.match(JSON.stringify(buildAdjustmentPlan(fm('Cover 1 Robber Press'), ['screens'])), /Defend Screen Pass/);
+  assert.match(JSON.stringify(buildAdjustmentPlan(fm('Cover 3 Sky'), ['quick_game'])), /Play Short Routes/);
+  assert.match(JSON.stringify(buildAdjustmentPlan(fm('Cover 3 Sky'), ['deep_shots'])), /No Deep Passes/);
 });
 
 test('play action receives patient linebacker behavior rather than a conflicting run instruction', () => {
@@ -50,8 +54,8 @@ test('the game-day plan stays short and contains no developer language', () => {
 });
 
 test('man and unknown calls do not receive zone-only menu settings', () => {
-  const man = buildAdjustmentPlan(fm('Cover 1 Robber Press'), ['quick_game', 'mobile_qb']);
-  const unknown = buildAdjustmentPlan(fm('Bracket Switch Willie'), ['deep_shots']);
-  assert.doesNotMatch(JSON.stringify(man.settings), /Smart Zones|Plaster/);
-  assert.doesNotMatch(JSON.stringify(unknown.settings), /Smart Zones|Plaster/);
+  const man = buildAdjustmentPlan(fm('Cover 1 Robber Press'), ['elite_wr']);
+  const unknown = buildAdjustmentPlan(fm('Bracket Switch Willie'), ['elite_te']);
+  assert.doesNotMatch(JSON.stringify(man.settings), /Smart Zones|Plaster|Red Zone Awareness/);
+  assert.doesNotMatch(JSON.stringify(unknown.settings), /Smart Zones|Plaster|Red Zone Awareness/);
 });

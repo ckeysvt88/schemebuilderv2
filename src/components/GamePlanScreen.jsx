@@ -261,9 +261,12 @@ export default function GamePlanScreen({
           </div>
         )}
 
-        <button onClick={() => setUserProfileOpen(true)} style={{ width: "100%", display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, background: "var(--color-surface-1)", border: "1px solid var(--color-border-subtle)", borderRadius: "var(--r-md)", padding: "9px 12px", marginBottom: 12, cursor: "pointer", textAlign: "left" }}>
-          <span style={{ fontSize: 10, color: "var(--color-text-3)", letterSpacing: "1.5px", textTransform: "uppercase", fontFamily: "var(--font-mono)" }}>My Defense</span>
-          <span style={{ fontSize: 11, color: "var(--color-text-2)", fontWeight: 700 }}>{profileLabels.callStyle} · {profileLabels.position} ›</span>
+        <button onClick={() => setUserProfileOpen(true)} style={{ width: "100%", display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, background: "linear-gradient(100deg, var(--color-gold-surface), var(--color-surface-1))", border: "1px solid var(--color-gold)", borderLeft: "4px solid var(--color-gold)", borderRadius: "var(--r-md)", padding: "11px 12px", marginBottom: 12, cursor: "pointer", textAlign: "left" }}>
+          <span>
+            <span style={{ display: "block", fontSize: 11, color: "var(--color-gold-bright)", letterSpacing: "1.3px", textTransform: "uppercase", fontFamily: "var(--font-mono)", fontWeight: 800 }}>🎮 My Defensive User</span>
+            <span style={{ display: "block", fontSize: 10, color: "var(--color-text-3)", marginTop: 2 }}>Personalizes your recommended call</span>
+          </span>
+          <span style={{ fontSize: 11, color: "var(--color-text-1)", fontWeight: 800, textAlign: "right" }}>{profileLabels.position}<br/><span style={{ color: "var(--color-gold)" }}>{profileLabels.callStyle} ›</span></span>
         </button>
 
         {/* ── Down & Distance Situation ── */}

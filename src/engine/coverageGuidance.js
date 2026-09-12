@@ -42,7 +42,7 @@ function quarters(p) {
       ? 'The quick game you scouted—screens, hitches, and short throws underneath.'
       : 'Quick outs, screens, and the run. The offense will take easy yards underneath.',
     userKey: 'Stay inside the nearest slot or tight end and carry him if he runs vertically. Rally down only after the throw.',
-    getOut: 'They complete the same quick throw three times and you are not stopping it after the catch. Move to Cover 2/3 or set Smart Zones to Aggressive.',
+    getOut: 'They complete the same quick throw three times and you are not stopping it after the catch. Move to Cover 2/3 or use the Play Short Routes preset.',
   };
 }
 
@@ -61,12 +61,12 @@ function split(p) {
 function tampa2(p) {
   return {
     bestSpot: p.middle
-      ? 'When they are attacking between the numbers and your middle defender can run with the seam.'
+      ? 'When they are attacking between the numbers and your linebacker can run with the seam.'
       : 'Long passing downs when you want two deep safeties plus help down the middle.',
     takesAway: 'The deep middle window that normally opens between two Cover 2 safeties.',
-    offenseAnswer: 'Put one route in the flat and another behind the corner, or make your middle defender chase a fast seam route.',
-    userKey: 'User the middle defender. Gain depth with the slot or tight end first, then break downhill after the quarterback throws.',
-    getOut: 'Your middle defender cannot stay with the seam, or the offense keeps completing the sideline corner route. Move to Cover 3 or Quarters.',
+    offenseAnswer: 'Put one route in the flat and another behind the corner, or make your linebacker chase a fast seam route.',
+    userKey: 'User the linebacker. Gain depth with the slot or tight end first, then break downhill after the quarterback throws.',
+    getOut: 'Your linebacker cannot stay with the seam, or the offense keeps completing the sideline corner route. Move to Cover 3 or Quarters.',
   };
 }
 

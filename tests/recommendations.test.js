@@ -87,7 +87,7 @@ test('PDF current calls and share output match the live result; matrix changes o
     const share = buildRecommendationShareText(live, traits);
     for (const f of live.formations.slice(0, 4)) {
       assert.ok(share.includes(`${f.name} — fit ${f.sc}/100`));
-      assert.ok(share.includes(`My call: ${f.personalizedCoverage}`));
+      assert.ok(share.includes(`Best for you: ${f.personalizedCoverage}`));
       assert.ok(!share.includes('Suggested blitz frequency'));
     }
     for (const row of pdf.situationMatrix.filter(r => r.down)) {

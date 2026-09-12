@@ -39,11 +39,22 @@ test('unsupported user-friendly claims are not created', () => {
 });
 
 test('player style selects a supported option without replacing best overall', () => {
-  const safe = buildCallOptions(calls, [], 'base', 6, { callStyle: 'safe' });
-  const pressure = buildCallOptions(calls, [], 'base', 6, { callStyle: 'pressure' });
+  const safe = buildCallOptions(calls, [], 'base', 6, { position: 'middle', callStyle: 'safe' });
+  const pressure = buildCallOptions(calls, [], 'base', 6, { position: 'middle', callStyle: 'pressure' });
   assert.equal(safe[0].optionRoles.some(role => role.id === 'overall'), true);
   assert.equal(safe.find(call => call.isPlayerChoice)?.name, 'Cover 2 Hard Flat');
   assert.equal(pressure.find(call => call.isPlayerChoice)?.name, 'Sam Edge 3');
+});
+
+test('defensive user changes the supported personalized call', () => {
+  const linebacker = buildCallOptions(calls, ['inside_run', 'quick_game', 'mobile_qb'], 'base', 4, { position: 'middle', callStyle: 'balanced' });
+  const safety = buildCallOptions(calls, ['inside_run', 'quick_game', 'mobile_qb'], 'base', 4, { position: 'safety', callStyle: 'balanced' });
+  const slot = buildCallOptions(calls, ['inside_run', 'quick_game', 'mobile_qb'], 'base', 4, { position: 'slot', callStyle: 'balanced' });
+  const line = buildCallOptions(calls, ['inside_run', 'quick_game', 'mobile_qb'], 'base', 4, { position: 'line', callStyle: 'balanced' });
+  assert.equal(linebacker.find(call => call.isPlayerChoice)?.name, 'Cover 1 Contain Spy');
+  assert.equal(safety.find(call => call.isPlayerChoice)?.name, 'Cover 2 Hard Flat');
+  assert.equal(slot.find(call => call.isPlayerChoice)?.name, 'Cover 2 Hard Flat');
+  assert.equal(line.find(call => call.isPlayerChoice)?.name, 'Sam Edge 3');
 });
 
 test('unsupported player style falls back to best overall', () => {

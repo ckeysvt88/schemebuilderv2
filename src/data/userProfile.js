@@ -1,14 +1,14 @@
 export const USER_POSITIONS = [
-  { id: 'middle', label: 'Middle defender', note: 'Linebacker or safety working between the hashes.' },
-  { id: 'safety', label: 'Safety', note: 'Protect the top of the coverage and trigger downhill.' },
-  { id: 'slot', label: 'Slot / corner', note: 'Handle releases, leverage, and outside space.' },
-  { id: 'line', label: 'Defensive line', note: 'Control a rush lane or run gap first.' },
+  { id: 'middle', label: 'Linebacker', note: 'Choose this if you defend the middle, match backs or tight ends, and track a mobile quarterback.' },
+  { id: 'safety', label: 'Safety', note: 'Choose this if you read routes from depth and protect against deep passes.' },
+  { id: 'slot', label: 'Slot / Corner', note: 'Choose this if you prefer leverage, man coverage, and quick throws near the sideline.' },
+  { id: 'line', label: 'Defensive Line', note: 'Choose this if you win with pass-rush moves and control run lanes.' },
 ];
 
 export const CALL_STYLES = [
-  { id: 'balanced', label: 'Balanced', note: 'Start with the best overall answer.' },
-  { id: 'safe', label: 'Protect explosives', note: 'Prefer a supported deep-help call when one is available.' },
-  { id: 'pressure', label: 'Create pressure', note: 'Prefer a supported pressure call when one is available.' },
+  { id: 'balanced', label: 'Stay Balanced', note: 'Favor the strongest all-around answer against both run and pass.' },
+  { id: 'safe', label: 'Protect Explosives', note: 'Favor help over the top and make the offense earn yards underneath.' },
+  { id: 'pressure', label: 'Create Pressure', note: 'Favor calls that speed up the quarterback, accepting more coverage risk.' },
 ];
 
 export const DEFAULT_USER_PROFILE = Object.freeze({ position: 'middle', callStyle: 'balanced' });

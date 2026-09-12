@@ -52,7 +52,7 @@ export function buildRecommendationShareText(result, traits = []) {
   const lines = ['CFB 27 — DEFENSIVE GAME PLAN', `${result.familyLabel} · ${result.context.label} · ${result.book}`, ''];
   if (traits.length) lines.push('Scouted: ' + traits.map(t => TRAIT_LABELS[t] || t).join(', '), '');
   for (const [i, f] of result.formations.slice(0, 4).entries()) {
-    lines.push(`#${i + 1} ${f.name} — fit ${f.sc}/100`, `My call: ${f.personalizedCoverage}`);
+    lines.push(`#${i + 1} ${f.name} — fit ${f.sc}/100`, `Best for you: ${f.personalizedCoverage}`);
     if (f.personalizedCoverage !== f.recommendedCoverage) lines.push(`Best overall: ${f.recommendedCoverage}`);
     lines.push(`Assignments: ${f.matchup.structure}`);
     if (f.matchup.status === 'verified') lines.push(`Main concern: ${f.matchup.weaknesses[0] || 'No verified assignment warning triggered.'}`);

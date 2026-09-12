@@ -6,6 +6,54 @@ const MOBILE_TRAITS = new Set(['option_run', 'mobile_qb', 'dual_threat', 'qb_scr
 
 const hasAny = (traits, set) => traits.some(trait => set.has(trait));
 
+const POSITION_ROLE_FIT = {
+  middle: { mobile: 7, run: 3, quick: 1 },
+  safety: { safe: 7, overall: 1 },
+  slot: { quick: 7, pressure: 1 },
+  line: { pressure: 7, run: 2 },
+};
+
+const STYLE_ROLE_FIT = {
+  balanced: { overall: 5 },
+  safe: { safe: 9 },
+  pressure: { pressure: 9 },
+};
+
+function personalFit(option, profile, order) {
+  const roles = option.optionRoles.map(role => role.id);
+  const styleFit = Math.max(0, ...roles.map(role => STYLE_ROLE_FIT[profile.callStyle]?.[role] || 0));
+  const positionFit = Math.max(0, ...roles.map(role => POSITION_ROLE_FIT[profile.position]?.[role] || 0));
+  return { option, order, styleFit, positionFit, total: styleFit + positionFit };
+}
+
+function personalReason(fit, profile) {
+  const roles = fit.option.optionRoles.map(role => role.id);
+  const positionReason = {
+    middle: roles.includes('mobile')
+      ? 'It gives your Linebacker preference the menu’s best answer for quarterback movement.'
+      : roles.includes('run')
+        ? 'It fits your Linebacker preference by prioritizing the scouted run threat.'
+        : '',
+    safety: roles.includes('safe') ? 'It fits your Safety preference by keeping more help against the deep pass.' : '',
+    slot: roles.includes('quick') ? 'It fits your Slot / Corner preference by prioritizing the quick-throw threat.' : '',
+    line: roles.includes('pressure')
+      ? 'It fits your Defensive Line preference by choosing the available call designed to hurry the quarterback.'
+      : roles.includes('run')
+        ? 'It fits your Defensive Line preference by prioritizing the scouted run threat.'
+        : '',
+  }[profile.position];
+  const styleReason = profile.callStyle === 'safe' && roles.includes('safe')
+    ? 'It also matches your Protect Explosives style.'
+    : profile.callStyle === 'pressure' && roles.includes('pressure')
+      ? 'It also matches your Create Pressure style.'
+      : profile.callStyle === 'balanced' && roles.includes('overall')
+        ? 'It is still the strongest all-around matchup.'
+        : '';
+  if (positionReason && styleReason) return `${positionReason} ${styleReason}`;
+  if (positionReason || styleReason) return positionReason || styleReason;
+  return 'A stronger alternative for your saved preferences is not supported in this formation, so stay with Best Overall.';
+}
+
 export function isPressureOption(call = {}) {
   const label = `${call.name || ''} ${call.tag || ''}`;
   return /pressure|all-out|\bblitz\b|\bfire\b|\bshoot\b|\bstorm\b|engage eight|gaps all/i.test(label);
@@ -95,21 +143,18 @@ export function buildCallOptions(rankedCalls = [], traits = [], situation = 'bas
     });
   }
 
-  const visible = options.slice(0, Math.max(1, limit));
   const profile = normalizeUserProfile(userProfile);
-  const preferredRole = profile.callStyle === 'safe' ? 'safe' : profile.callStyle === 'pressure' ? 'pressure' : 'overall';
-  const playerCall = visible.find(option => option.optionRoles.some(role => role.id === preferredRole)) || visible[0];
+  const fitted = options.map((option, order) => personalFit(option, profile, order));
+  const playerFit = fitted.sort((a, b) => b.total - a.total || a.order - b.order)[0];
+  const maxVisible = Math.max(1, limit);
+  const visible = options.slice(0, maxVisible);
+  if (playerFit && !visible.some(option => option.name === playerFit.option.name)) {
+    visible.splice(visible.length - 1, 1, playerFit.option);
+  }
 
   return visible.map(option => ({
     ...option,
-    isPlayerChoice: option.name === playerCall.name,
-    playerChoiceReason: option.name !== playerCall.name ? ''
-      : preferredRole === 'safe' && option.optionRoles.some(role => role.id === 'safe')
-        ? 'Matches your Protect Explosives style.'
-        : preferredRole === 'pressure' && option.optionRoles.some(role => role.id === 'pressure')
-          ? 'Matches your Create Pressure style.'
-          : profile.callStyle === 'balanced'
-            ? 'Matches your Balanced style.'
-            : 'Your preferred style is not supported by this menu, so stay with Best Overall.',
+    isPlayerChoice: option.name === playerFit?.option.name,
+    playerChoiceReason: option.name === playerFit?.option.name ? personalReason(playerFit, profile) : '',
   }));
 }

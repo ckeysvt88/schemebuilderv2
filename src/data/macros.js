@@ -639,7 +639,7 @@ export const MACRO_LIBRARY = [
     adapt:"Leak teams go double-leak (both TEs). The Will's collision rule scales — hit whatever crosses." },
 
   { id:"double_moves", tier:"deep", cat:"Pass Attack", label:"Sluggos & double moves baiting my DBs", aka:"double move sluggo hitch and go out and up stop and go pump fake bait jump",
-    diag:"Double moves only work on defenders who jump. He has watched your Smart Zone settings on film — this macro is the counter-read.",
+    diag:"Double moves punish defenders who drive on the first break. Make the quarterback take the hitch; do not give up the go route behind it.",
     name:"NO BAIT",
     team:["Coverage Strategy: Conservative on all deep-responsible defenders for a full drive","Roll Coverage: Fastest","The discipline trade is explicit: give the hitch all day, never the go"],
     assignments:[

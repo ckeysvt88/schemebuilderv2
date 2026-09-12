@@ -26,14 +26,14 @@ export default function UserProfileModal({ profile, onChange, onClose }) {
       <div onClick={event => event.stopPropagation()} style={{ width: "100%", maxWidth: 520, maxHeight: "82dvh", overflowY: "auto", background: "var(--color-surface-2)", border: "1px solid var(--color-gold)", borderRadius: "var(--r-lg)", padding: "18px 20px" }}>
         <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 12, marginBottom: 16 }}>
           <div>
-            <div style={{ fontSize: 15, color: "var(--color-text-1)", fontWeight: 800 }}>My Defense</div>
-            <div style={{ fontSize: 11, color: "var(--color-text-3)", lineHeight: 1.45, marginTop: 3 }}>Saved on this device. You can change it at any time.</div>
+            <div style={{ fontSize: 16, color: "var(--color-gold-bright)", fontWeight: 800 }}>🎮 My Defensive User</div>
+            <div style={{ fontSize: 11, color: "var(--color-text-2)", lineHeight: 1.45, marginTop: 4 }}>Tell the app who you control and what you want your defense to prioritize.</div>
           </div>
           <button onClick={onClose} style={{ minHeight: 32, padding: "0 12px", background: "transparent", border: "1px solid var(--color-border)", borderRadius: "var(--r-sm)", color: "var(--color-text-2)", cursor: "pointer" }}>Done</button>
         </div>
-        <ChoiceGroup title="Who do you usually control?" value={profile.position} items={USER_POSITIONS} onChange={position => update({ position })} />
-        <ChoiceGroup title="How do you want to call the game?" value={profile.callStyle} items={CALL_STYLES} onChange={callStyle => update({ callStyle })} />
-        <div style={{ fontSize: 11, color: "var(--color-text-3)", lineHeight: 1.5 }}>Your call style can change My Call. Best Overall remains visible so you can compare the football answer with your preferred approach.</div>
+        <ChoiceGroup title="Which defender do you user?" value={profile.position} items={USER_POSITIONS} onChange={position => update({ position })} />
+        <ChoiceGroup title="What should your call prioritize?" value={profile.callStyle} items={CALL_STYLES} onChange={callStyle => update({ callStyle })} />
+        <div style={{ fontSize: 11, color: "var(--color-text-2)", lineHeight: 1.5, padding: "10px 11px", background: "var(--color-gold-surface)", borderLeft: "3px solid var(--color-gold)", borderRadius: "var(--r-sm)" }}><strong>How this works:</strong> Best Overall stays visible. Best For You can change based on both choices above when this formation has a supported alternative.</div>
       </div>
     </div>
   );

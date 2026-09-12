@@ -2,27 +2,35 @@ import { getCoverageFamily } from './coverageGuidance.js';
 
 const hasAny = (traits, ids) => ids.some(id => traits.includes(id));
 
-function smartZonePlan(traits) {
+function presetMacroFor(traits) {
   const quick = hasAny(traits, ['quick_game', 'rpo', 'screens', 'slant_heavy', 'flat_attack', 'qb_checkdown']);
   const deep = hasAny(traits, ['deep_shots', 'back_shoulder', 'seam_routes', 'two_minute_pass']);
 
-  if (quick && !deep) return {
-    setting: 'Smart Zones', value: 'Aggressive',
-    why: 'You marked quick throws and screens. This tells zone defenders to drive on those routes sooner.',
-    tradeoff: 'Routes behind the underneath defenders will open sooner.',
+  if (traits.includes('screens')) return {
+    priority: 96,
+    setting: 'In-game preset', value: 'Defend Screen Pass',
+    why: 'Use this after the offense shows repeated receiver or running back screens.',
+    tradeoff: 'Do not leave it on when the offense returns to its normal pass game.',
+  };
+  if (hasAny(traits, ['mobile_qb', 'qb_scramble', 'dual_threat'])) return {
+    priority: 95,
+    setting: 'In-game preset', value: 'QB Scramble',
+    why: 'Use this when the quarterback keeps escaping the pocket or extending pass plays.',
+    tradeoff: 'The defense gives extra attention to the quarterback, so watch the throws he creates around it.',
   };
   if (deep && !quick) return {
-    setting: 'Smart Zones', value: 'Conservative',
-    why: 'You marked deep shots or seams. This keeps zone defenders from jumping the short throw too soon.',
-    tradeoff: 'The offense will get more room for checkdowns and short completions.',
+    priority: 94,
+    setting: 'In-game preset', value: 'No Deep Passes',
+    why: 'Use this when the offense is repeatedly taking vertical shots.',
+    tradeoff: 'Be ready to rally to checkdowns and underneath throws.',
   };
-  return {
-    setting: 'Smart Zones', value: 'Balanced',
-    why: quick && deep
-      ? 'You marked both quick throws and deep shots. Stay balanced instead of opening one area to stop the other.'
-      : 'Start at the normal setting and make the offense show you what it wants to repeat.',
-    tradeoff: 'Balanced will not jump short routes or carry deep routes as aggressively.',
+  if (quick && !deep) return {
+    priority: 94,
+    setting: 'In-game preset', value: 'Play Short Routes',
+    why: 'Use this when quick outs, hitches, slants, or RPO throws keep moving the chains.',
+    tradeoff: 'Do not overplay the short throw if the offense starts taking shots behind it.',
   };
+  return null;
 }
 
 function userKeyFor(traits) {
@@ -68,16 +76,8 @@ export function buildAdjustmentPlan(fm, traits = [], situation = {}) {
   const settings = [];
   const alerts = [];
 
-  if (isZone) settings.push(smartZonePlan(traits));
-
-  if (isZone && hasAny(traits, ['mobile_qb', 'qb_scramble', 'dual_threat'])) {
-    settings.push({
-      priority: 90,
-      setting: 'Plaster', value: 'Conservative · Out of Pocket + Time',
-      why: 'You marked a scrambling quarterback. Defenders can find nearby receivers after the quarterback breaks the pocket.',
-      tradeoff: 'Coverage stays in its original zone longer, so the quarterback may still have room to run.',
-    });
-  }
+  const presetMacro = presetMacroFor(traits);
+  if (presetMacro) settings.push(presetMacro);
 
   if (situation?.down === 'rz' && isZone) {
     settings.push({
