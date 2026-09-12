@@ -1,81 +1,45 @@
 import { useState } from 'react';
-import { ADJUSTMENTS, computeConflicts } from '../data/adjustments.js';
 import { TRAIT_LABELS } from '../data/traits.js';
 import WhySelected from './WhySelected.jsx';
 import { getFrontStructure } from '../engine/frontStructure.js';
 import { getCoverageGuidance } from '../engine/coverageGuidance.js';
-
-const PC = { run: "#a06030", pass: "#1a6fe8", hybrid: "#7858a0", pressure: "#aa5050" };
-
-function AdjSection({ sec, items, icon }) {
-  if (!items || items.length === 0) return null;
-  return (
-    <div style={{ marginBottom: 14 }}>
-      <div style={{ fontSize: "12px", color: "var(--color-gold)", letterSpacing: "1.5px", textTransform: "uppercase", marginBottom: 8, fontFamily: "'IBM Plex Mono', monospace" }}>{icon} {sec}</div>
-      {items.map((a, i) => (
-        <div key={i} style={{ background: "var(--color-surface-1)", border: "1px solid var(--color-border-subtle)", borderLeft: "3px solid var(--color-border)", borderRadius: 5, padding: "10px 13px", marginBottom: 7 }}>
-          <div style={{ fontSize: 11, fontWeight: "bold", color: "var(--color-text-1)", fontFamily: "'IBM Plex Mono', monospace", marginBottom: 3 }}>{a.setting}</div>
-          <div style={{ fontSize: 11, color: "var(--color-text-3)", lineHeight: 1.55 }}>{a.reason}</div>
-        </div>
-      ))}
-    </div>
-  );
-}
-
-function ConflictingReads({ fm, flat, matched }) {
-  const conflicts = computeConflicts(fm, flat, matched);
-  if (conflicts.length === 0) return null;
-  return (
-    <div style={{ marginBottom: 18 }}>
-      <div style={{ fontSize: "12px", color: "var(--color-text-3)", letterSpacing: "2px", textTransform: "uppercase", marginBottom: 14, fontFamily: "'IBM Plex Mono', monospace" }}>Conflicting Reads</div>
-      {conflicts.map(c => (
-        <div key={c.axis} style={{ background: "var(--color-surface-1)", border: "1px solid var(--color-border-subtle)", borderLeft: "3px solid var(--color-danger)", borderRadius: 5, padding: "10px 13px", marginBottom: 7 }}>
-          <div style={{ fontSize: 11, fontWeight: "bold", color: "var(--color-danger)", fontFamily: "'IBM Plex Mono', monospace", marginBottom: 6 }}>{c.axis}</div>
-          {c.entries.map((e, i) => (
-            <div key={i} style={{ fontSize: 11, color: "var(--color-text-2)", marginBottom: 3 }}>
-              <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontWeight: "bold" }}>{e.value}</span>
-              <span style={{ color: "var(--color-text-3)" }}> — {e.source}</span>
-            </div>
-          ))}
-          <div style={{ fontSize: 11, color: "var(--color-text-3)", lineHeight: 1.55, marginTop: 6 }}>{c.note}</div>
-        </div>
-      ))}
-    </div>
-  );
-}
+import { buildAdjustmentPlan } from '../engine/adjustmentPlan.js';
 
 function AdjustmentsPanel({ fm, flat }) {
-  const matched = ADJUSTMENTS.filter(a => a.triggers.some(t => flat.includes(t)));
-  const ss = matched.filter(a => a.section === "Safety Setup");
-  const zd = matched.filter(a => a.section === "Zone Drops");
-  const ps = matched.filter(a => a.section === "Pre-Snap");
-  const kr = matched.filter(a => a.section === "Keys & Reads");
-  const qt = matched.filter(a => a.section === "QB Threat");
+  const plan = buildAdjustmentPlan(fm, flat);
   return (
     <div>
-      {fm.coaching?.length > 0 && (
-        <div style={{ marginBottom: 18 }}>
-          <div style={{ fontSize: "12px", color: "var(--color-text-3)", letterSpacing: "2px", textTransform: "uppercase", marginBottom: 14, fontFamily: "'IBM Plex Mono', monospace" }}>Formation-Specific</div>
-          <div style={{ display: "flex", flexWrap: "nowrap", gap: 5 }}>
-            {fm.coaching.map((c, i) => (
-              <div key={i} style={{ flex: "1 1 0", minWidth: 0, background: "var(--color-surface-1)", border: "1px solid var(--color-border-subtle)", borderLeft: "3px solid var(--color-gold)", borderRadius: 5, padding: "7px 7px" }}>
-                <div style={{ fontSize: 10.5, fontWeight: "bold", color: "var(--color-text-1)", fontFamily: "'IBM Plex Mono', monospace", lineHeight: 1.3 }}>{c.label}</div>
-                <div style={{ fontSize: 11, color: "var(--color-text-3)", lineHeight: 1.35, marginTop: 3 }}>{c.value}</div>
-              </div>
-            ))}
+      <div style={{ fontSize: 12, fontWeight: 800, color: "var(--color-text-1)", marginBottom: 3 }}>Set before the drive</div>
+      <div style={{ fontSize: 11, color: "var(--color-text-3)", lineHeight: 1.5, marginBottom: 10 }}>Use these as your starting settings. Change them only when the offense gives you a clear reason.</div>
+      {plan.settings.map(item => (
+        <div key={item.setting} style={{ background: "var(--color-surface-1)", border: "1px solid var(--color-border-subtle)", borderLeft: "3px solid var(--color-gold)", borderRadius: 5, padding: "10px 13px", marginBottom: 7 }}>
+          <div style={{ display: "flex", justifyContent: "space-between", gap: 10, alignItems: "baseline" }}>
+            <strong style={{ fontSize: 11, color: "var(--color-text-1)" }}>{item.setting}</strong>
+            <strong style={{ fontSize: 11, color: "var(--color-gold)", textAlign: "right" }}>{item.value}</strong>
           </div>
+          <div style={{ fontSize: 11, color: "var(--color-text-2)", lineHeight: 1.5, marginTop: 4 }}>{item.why}</div>
+          <details style={{ fontSize: 11, color: "var(--color-text-3)", marginTop: 5 }}>
+            <summary style={{ cursor: "pointer", color: "var(--color-gold)" }}>Tradeoff</summary>
+            <div style={{ marginTop: 4, lineHeight: 1.5 }}>{item.tradeoff}</div>
+          </details>
         </div>
-      )}
-      <ConflictingReads fm={fm} flat={flat} matched={matched} />
-      <div style={{ fontSize: "12px", color: "var(--color-text-3)", letterSpacing: "2px", textTransform: "uppercase", marginBottom: 14, fontFamily: "'IBM Plex Mono', monospace" }}>Scouting-Based</div>
-      {matched.length === 0 && (
-        <div style={{ fontSize: 11, color: "var(--color-text-3)", padding: "10px", textAlign: "center", fontStyle: "italic" }}>No specific adjustments flagged — default settings apply.</div>
-      )}
-      <AdjSection sec="QB Threat" items={qt} icon="🏃" />
-      <AdjSection sec="Safety Setup" items={ss} icon="🔭" />
-      <AdjSection sec="Zone Drops" items={zd} icon="📐" />
-      <AdjSection sec="Pre-Snap" items={ps} icon="🎭" />
-      <AdjSection sec="Keys & Reads" items={kr} icon="🏈" />
+      ))}
+
+      {plan.alerts.length > 0 && <>
+        <div style={{ fontSize: 12, fontWeight: 800, color: "var(--color-text-1)", margin: "16px 0 8px" }}>Change only when you see it</div>
+        {plan.alerts.map(item => (
+          <div key={item.when} style={{ background: "var(--color-surface-1)", border: "1px solid var(--color-border-subtle)", borderLeft: "3px solid var(--color-pass)", borderRadius: 5, padding: "10px 13px", marginBottom: 7 }}>
+            <strong style={{ fontSize: 11, color: "var(--color-text-1)" }}>{item.when}</strong>
+            <div style={{ fontSize: 11, color: "var(--color-text-3)", lineHeight: 1.5, marginTop: 4 }}>{item.action}</div>
+          </div>
+        ))}
+      </>}
+
+      <div style={{ background: "var(--color-surface-1)", border: "1px solid var(--color-border-subtle)", borderLeft: "3px solid var(--color-success)", borderRadius: 5, padding: "10px 13px", marginTop: 16 }}>
+        <div style={{ fontSize: 10, color: "var(--color-success)", letterSpacing: "1.5px", textTransform: "uppercase", marginBottom: 4, fontFamily: "'IBM Plex Mono', monospace" }}>Your user key</div>
+        <strong style={{ fontSize: 11, color: "var(--color-text-1)" }}>{plan.userKey.title}</strong>
+        <div style={{ fontSize: 11, color: "var(--color-text-3)", lineHeight: 1.5, marginTop: 4 }}>{plan.userKey.text}</div>
+      </div>
     </div>
   );
 }
@@ -171,15 +135,17 @@ export default function FormationDetail({ fm, flat }) {
               </div>
             </div>
             <div style={{ fontSize: 11, color: "var(--color-text-2)", lineHeight: 1.65 }}>
-              <div><strong>Best for:</strong> {guidance.bestFor}</div>
-              <div><strong>Call goal:</strong> {c.detail || c.note}</div>
-              <div><strong>Watch for:</strong> {guidance.watchFor}</div>
+              <div><strong>Use when:</strong> {guidance.bestFor}</div>
+              <div><strong>Takes away:</strong> {guidance.takesAway}</div>
+              <div><strong>Be ready for:</strong> {guidance.watchFor}</div>
             </div>
+            <details style={{ fontSize: 11, lineHeight: 1.55, marginTop: 8 }}>
+              <summary style={{ cursor: "pointer", color: "var(--color-gold)", fontWeight: 700 }}>How to play this call</summary>
+              <p><strong>Your job:</strong> {guidance.userKey}</p>
+              <p><strong>Change the call when:</strong> {guidance.checkOut}</p>
+            </details>
             {c.matchup && <div style={{ fontSize: 11, lineHeight: 1.6, marginTop: 8 }}>
-              {c.matchup.status !== 'verified' ? <details><summary>Verification and technical details</summary>
-                <p><strong>Exact assignments need verification.</strong> Rush and coverage counts are hidden and do not affect this score.</p>
-                <p>{guidance.basis}</p>
-              </details> : <>
+              {c.matchup.status === 'verified' && <>
                 <div><strong>Overall matchup:</strong> {c.matchup.concept?.utility ?? c.sc}/100 · {c.matchup.concept?.confidence || 'Assignment'} confidence</div>
                 {c.matchup.concept && <div style={{ marginTop: 6 }}>
                 <p><strong>Biggest risk:</strong> {c.matchup.concept.badCase.label}. {c.matchup.concept.mainConcession}</p>
@@ -190,14 +156,6 @@ export default function FormationDetail({ fm, flat }) {
                   </p>)}
                 </details>
                 </div>}
-              <details><summary>Verified assignments and testing limits</summary>
-                <p>{c.matchup.structure}</p>
-                {c.matchup.support.slice(0, 2).map(text => <p key={text}>{text}</p>)}
-                {c.matchup.weaknesses.map(text => <p key={text}>{text}</p>)}
-                <p>{c.matchup.evidence}</p>
-                {c.matchup.unknowns.map(text => <p key={text}>{text}</p>)}
-                <p>Risk adjustments are provisional football judgments, not measured CFB 27 outcomes.</p>
-              </details>
               </>}
             </div>}
           </div>
@@ -216,22 +174,7 @@ export default function FormationDetail({ fm, flat }) {
         )}
 
         {tab === "coaching" && (
-          <div>
-            <AdjustmentsPanel fm={fm} flat={flat} />
-            {(flat.includes("boundary_hash") || flat.includes("field_hash")) && (
-              <div style={{ marginTop: 4, background: "var(--color-surface-1)", border: "1px solid var(--color-border-subtle)", borderLeft: "3px solid var(--color-border)", borderRadius: 5, padding: "10px 13px" }}>
-                <div style={{ fontSize: 10, color: "var(--color-gold)", letterSpacing: "1.5px", textTransform: "uppercase", marginBottom: 4, fontFamily: "'IBM Plex Mono', monospace" }}>📐 Hash Shade</div>
-                <div style={{ fontSize: 11, fontWeight: "bold", color: "var(--color-text-1)", fontFamily: "'IBM Plex Mono', monospace", marginBottom: 3 }}>
-                  {flat.includes("boundary_hash") ? "Shade toward boundary" : "Shade toward field"}
-                </div>
-                <div style={{ fontSize: 11, color: "var(--color-text-3)", lineHeight: 1.55 }}>
-                  {flat.includes("boundary_hash")
-                    ? "Routes attack the wide side — shade your coverage toward the boundary and rotate safety support to the field."
-                    : "Safety midpoint shifts to field side — routes concentrate to the wide hash. Rotate coverage toward the field."}
-                </div>
-              </div>
-            )}
-          </div>
+          <AdjustmentsPanel fm={fm} flat={flat} />
         )}
 
         {tab === "callsheet" && (
