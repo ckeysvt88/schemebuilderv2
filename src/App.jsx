@@ -2,6 +2,7 @@ import { useState, useCallback, useEffect, useMemo } from 'react';
 import { recommend, buildRecommendationShareText } from './engine/recommendations.js';
 import { scoreAll } from './engine/scoring.js';
 import { getAvailableFamilies } from './data/personnel.js';
+import { DEFAULT_USER_PROFILE, normalizeUserProfile } from './data/userProfile.js';
 
 import TeamsScreen from './components/TeamsScreen.jsx';
 import ScoutScreen from './components/ScoutScreen.jsx';
@@ -45,6 +46,14 @@ export default function App() {
   const [shareToast, setShareToast]     = useState(null);
   const [situDown, setSituDown] = useState("base");
   const [situDist, setSituDist] = useState("");
+
+  // ── Human defensive profile ─────────────────────────────────────────────────
+  const [userProfile, setUserProfileState] = useState(() => {
+    try {
+      const saved = localStorage.getItem('sb_user_profile');
+      return normalizeUserProfile(saved ? JSON.parse(saved) : DEFAULT_USER_PROFILE);
+    } catch { return { ...DEFAULT_USER_PROFILE }; }
+  });
 
   // ── Playbook ─────────────────────────────────────────────────────────────────
   const [myBook, setMyBook] = useState(() => {
@@ -100,6 +109,14 @@ export default function App() {
     setMyBook(book);
     try { localStorage.setItem("cfb26_myBook", book); } catch(e) {}
     setSelFm(null);
+  };
+
+  const setUserProfile = (updater) => {
+    setUserProfileState(current => {
+      const next = normalizeUserProfile(typeof updater === 'function' ? updater(current) : updater);
+      try { localStorage.setItem('sb_user_profile', JSON.stringify(next)); } catch { /* storage may be unavailable */ }
+      return next;
+    });
   };
 
 
@@ -185,6 +202,7 @@ export default function App() {
     setStep: navigate,
     navigateToNotes: (profileName) => { setNotesInitProfile(profileName); navigate("notes"); },
     selectedTeam,
+    userProfile, setUserProfile,
   };
 
   return (

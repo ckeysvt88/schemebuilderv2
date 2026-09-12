@@ -9,6 +9,8 @@ import { getAvailableFamilies } from '../data/personnel.js';
 import FormationCard, { PC, PL } from './FormationCard.jsx';
 import FormationDetail from './FormationDetail.jsx';
 import { ExportPDFButton } from './CallSheetPDF.jsx';
+import UserProfileModal from './UserProfileModal.jsx';
+import { userProfileLabels } from '../data/userProfile.js';
 
 
 const STAR_PATH = "M12 2.5l2.95 6.4 6.85.6-5.2 4.6 1.6 6.9L12 17.1 5.8 20l1.6-6.9-5.2-4.6 6.85-.6z";
@@ -71,11 +73,14 @@ export default function GamePlanScreen({
   situDown, setSituDown, situDist, setSituDist,
   setStep,
   selectedTeam,
+  userProfile, setUserProfile,
 }) {
   const [listOpacity, setListOpacity] = useState(1);
   const [showAlignment, setShowAlignment] = useState(false);
   const [showTeamInfo, setShowTeamInfo] = useState(false);
   const [pbOpen, setPbOpen] = useState(false);
+  const [userProfileOpen, setUserProfileOpen] = useState(false);
+  const profileLabels = userProfileLabels(userProfile);
 
   useEffect(() => { setShowAlignment(false); }, [activeP]);
 
@@ -255,6 +260,11 @@ export default function GamePlanScreen({
             })}
           </div>
         )}
+
+        <button onClick={() => setUserProfileOpen(true)} style={{ width: "100%", display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, background: "var(--color-surface-1)", border: "1px solid var(--color-border-subtle)", borderRadius: "var(--r-md)", padding: "9px 12px", marginBottom: 12, cursor: "pointer", textAlign: "left" }}>
+          <span style={{ fontSize: 10, color: "var(--color-text-3)", letterSpacing: "1.5px", textTransform: "uppercase", fontFamily: "var(--font-mono)" }}>My Defense</span>
+          <span style={{ fontSize: 11, color: "var(--color-text-2)", fontWeight: 700 }}>{profileLabels.callStyle} · {profileLabels.position} ›</span>
+        </button>
 
         {/* ── Down & Distance Situation ── */}
         <div style={{ background: "var(--color-surface-success)", border: "1px solid var(--color-border)", borderLeft: "3px solid var(--color-success)", borderRadius: "var(--r-md)", padding: "8px 10px", marginBottom: 12 }}>
@@ -580,6 +590,8 @@ export default function GamePlanScreen({
           </div>
         </div>
       )}
+
+      {userProfileOpen && <UserProfileModal profile={userProfile} onChange={setUserProfile} onClose={() => setUserProfileOpen(false)} />}
 
     </>
   );
