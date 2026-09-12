@@ -9,8 +9,14 @@ function AdjustmentsPanel({ fm, flat, situation }) {
   const plan = buildAdjustmentPlan(fm, flat, situation);
   return (
     <div>
-      <div style={{ fontSize: 12, fontWeight: 800, color: "var(--color-text-1)", marginBottom: 3 }}>Set before the drive</div>
-      <div style={{ fontSize: 11, color: "var(--color-text-3)", lineHeight: 1.5, marginBottom: 10 }}>Start here. Do not keep changing settings until the offense proves this answer is wrong.</div>
+      <div style={{ background: "var(--color-gold-surface)", border: "1px solid var(--color-gold-border)", borderLeft: "4px solid var(--color-gold)", borderRadius: 5, padding: "11px 13px", marginBottom: 13 }}>
+        <div style={{ fontSize: 10, color: "var(--color-gold)", letterSpacing: "1.3px", textTransform: "uppercase", fontFamily: "'IBM Plex Mono', monospace" }}>{plan.objective.situation} objective</div>
+        <strong style={{ display: "block", fontSize: 13, color: "var(--color-text-1)", marginTop: 3 }}>{plan.objective.label}</strong>
+        <div style={{ fontSize: 11, color: "var(--color-text-2)", lineHeight: 1.5, marginTop: 4 }}>{plan.objective.text}</div>
+      </div>
+
+      <div style={{ fontSize: 12, fontWeight: 800, color: "var(--color-text-1)", marginBottom: 3 }}>Quick setup</div>
+      <div style={{ fontSize: 11, color: "var(--color-text-3)", lineHeight: 1.5, marginBottom: 10 }}>Make these changes first. The live down and distance take priority over the scouting report.</div>
       {plan.settings.length === 0 && (
         <div style={{ background: "var(--color-surface-1)", border: "1px solid var(--color-border-subtle)", borderLeft: "3px solid var(--color-gold)", borderRadius: 5, padding: "10px 13px", marginBottom: 7 }}>
           <strong style={{ fontSize: 11, color: "var(--color-text-1)" }}>Keep the defaults</strong>
@@ -40,6 +46,23 @@ function AdjustmentsPanel({ fm, flat, situation }) {
           </div>
           <div style={{ fontSize: 11, color: "var(--color-text-2)", lineHeight: 1.5, marginTop: 4 }}>{plan.preset.why}</div>
           <div style={{ fontSize: 11, color: "var(--color-text-3)", lineHeight: 1.5, marginTop: 4 }}><strong>Reset it when:</strong> {plan.preset.tradeoff}</div>
+        </details>
+      )}
+
+      {plan.tools.length > 0 && (
+        <details style={{ background: "var(--color-surface-1)", border: "1px solid var(--color-border-subtle)", borderRadius: 5, padding: "10px 12px", marginTop: 10 }}>
+          <summary style={{ cursor: "pointer", color: "var(--color-gold)", fontSize: 11, fontWeight: 700 }}>More counters — use only after you see the problem</summary>
+          <div style={{ fontSize: 11, color: "var(--color-text-3)", lineHeight: 1.5, margin: "7px 0 9px" }}>These are available tools, not extra steps to apply every snap.</div>
+          {plan.tools.map(item => (
+            <div key={`${item.setting}-${item.value}`} style={{ borderTop: "1px solid var(--color-border-subtle)", padding: "9px 1px" }}>
+              <div style={{ display: "flex", justifyContent: "space-between", gap: 10 }}>
+                <strong style={{ fontSize: 11, color: "var(--color-text-1)" }}>{item.setting}</strong>
+                <strong style={{ fontSize: 11, color: "var(--color-gold)", textAlign: "right" }}>{item.value}</strong>
+              </div>
+              <div style={{ fontSize: 11, color: "var(--color-text-2)", lineHeight: 1.45, marginTop: 4 }}>{item.why}</div>
+              <div style={{ fontSize: 10, color: "var(--color-text-3)", lineHeight: 1.45, marginTop: 3 }}><strong>Risk:</strong> {item.tradeoff}</div>
+            </div>
+          ))}
         </details>
       )}
 

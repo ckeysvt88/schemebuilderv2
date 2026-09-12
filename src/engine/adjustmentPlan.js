@@ -1,39 +1,133 @@
 import { getCoverageFamily } from './coverageGuidance.js';
+import { normalizeSituation, coverageSituation } from './context.js';
 
 const hasAny = (traits, ids) => ids.some(id => traits.includes(id));
+const ZONE_FAMILIES = new Set(['quarters', 'split', 'tampa2', 'cover2', 'cover3']);
+const TWO_HIGH_FAMILIES = new Set(['quarters', 'split', 'tampa2', 'cover2', 'twoMan']);
 
-function presetMacroFor(traits) {
+function situationContext(situation = {}) {
+  const context = normalizeSituation(situation.down, situation.distance);
+  return { context, key: coverageSituation(context) };
+}
+
+function objectiveFor(key) {
+  if (key === '3lg') return {
+    label: 'Protect the sticks',
+    text: 'Keep every throw in front of the deep coverage. Make the offense catch it short and tackle before the line to gain.',
+  };
+  if (key === '3sh') return {
+    label: 'Win the line to gain',
+    text: 'The run, quarterback keep, RPO, and quick throw are all live. Keep the fit sound and close short windows without giving up a free shot.',
+  };
+  if (key === 'rz') return {
+    label: 'Protect the goal line',
+    text: 'The field is compressed. Tighten leverage, identify the best target, and do not create an uncovered receiver with extra adjustments.',
+  };
+  return {
+    label: 'Stay balanced',
+    text: 'Use the selected call as drawn, then make one change only when the scouting report points to a clear problem.',
+  };
+}
+
+function presetMacroFor(traits, situationKey) {
   const quick = hasAny(traits, ['quick_game', 'rpo', 'screens', 'slant_heavy', 'flat_attack', 'qb_checkdown']);
   const deep = hasAny(traits, ['deep_shots', 'back_shoulder', 'seam_routes', 'two_minute_pass']);
 
   if (traits.includes('screens')) return {
-    priority: 96,
     setting: 'In-game preset', value: 'Defend Screen Pass',
-    why: 'Use this after the offense shows repeated receiver or running back screens.',
-    tradeoff: 'Do not leave it on when the offense returns to its normal pass game.',
+    why: 'Use only after the offense has shown repeated receiver or running back screens.',
+    tradeoff: 'Turn it off when the offense returns to its normal pass game.',
+  };
+  if (situationKey === '3lg' && deep) return {
+    setting: 'In-game preset', value: 'No Deep Passes',
+    why: 'Long yardage plus a vertical tendency makes the deep ball the first threat to remove.',
+    tradeoff: 'Turn it off when the offense starts taking easy completions underneath.',
+  };
+  if (situationKey === '3sh' && quick) return {
+    setting: 'In-game preset', value: 'Play Short Routes',
+    why: 'Short yardage plus a quick-game tendency makes the catch point the line to defend.',
+    tradeoff: 'Turn it off if the offense protects and sends routes behind the underneath coverage.',
   };
   if (hasAny(traits, ['mobile_qb', 'qb_scramble', 'dual_threat'])) return {
-    priority: 95,
     setting: 'In-game preset', value: 'QB Scramble',
-    why: 'Use this when the quarterback keeps escaping the pocket or extending pass plays.',
-    tradeoff: 'The defense gives extra attention to the quarterback, so watch the throws he creates around it.',
+    why: 'Use when the quarterback keeps escaping or extending pass plays.',
+    tradeoff: 'Turn it off if the quarterback stays in the pocket and attacks the extra attention around him.',
   };
-  if (deep && !quick) return {
-    priority: 94,
+  if (situationKey !== '3lg' && deep && !quick) return {
     setting: 'In-game preset', value: 'No Deep Passes',
-    why: 'Use this when the offense is repeatedly taking vertical shots.',
-    tradeoff: 'Be ready to rally to checkdowns and underneath throws.',
+    why: 'Use after the offense shows that vertical shots are its preferred answer.',
+    tradeoff: 'Turn it off when the offense consistently takes the space underneath.',
   };
-  if (quick && !deep) return {
-    priority: 94,
+  if (situationKey !== '3lg' && quick && !deep) return {
     setting: 'In-game preset', value: 'Play Short Routes',
-    why: 'Use this when quick outs, hitches, slants, or RPO throws keep moving the chains.',
-    tradeoff: 'Do not overplay the short throw if the offense starts taking shots behind it.',
+    why: 'Use after quick outs, hitches, slants, or RPO throws repeatedly move the chains.',
+    tradeoff: 'Turn it off when the offense starts attacking behind the short coverage.',
+  }
+  return null;
+}
+
+function add(list, family, item) {
+  if (!list.some(entry => entry.family === family)) list.push({ family, ...item });
+}
+
+function publicAdjustment(item) {
+  return {
+    setting: item.setting,
+    value: item.value,
+    why: item.why,
+    tradeoff: item.tradeoff,
+  };
+}
+
+function matchCheckFor(family, coverageName, traits) {
+  const bunch = traits.includes('bunch');
+  const stack = traits.includes('stack_align');
+  const trips = traits.includes('trips');
+  const palms = /Palms/i.test(coverageName);
+
+  if (family === 'cover1' || family === 'twoMan') {
+    if (bunch) return { value: 'Bunch — Point Combo', why: 'Let defenders exchange bunch releases instead of chasing through traffic.' };
+    if (stack) return { value: 'Stack — Combo', why: 'Trade the two stacked releases so the offense cannot create an easy pick.' };
+  }
+  if (family === 'cover3') {
+    if (bunch) return { value: 'Cover 3 Bunch — Skate', why: 'Widen the underneath defenders toward the bunch and the likely Flood release.' };
+    if (stack) return { value: 'Cover 3 Stack — Combo', why: 'Exchange the stacked releases instead of letting them create traffic.' };
+    if (trips) return { value: 'Cover 3 Trips — Skinny', why: 'Use the built-in trips distribution so #2 and #3 are not passed off blindly.' };
+  }
+  if (family === 'quarters' || family === 'split') {
+    const prefix = family === 'split' ? 'Cover 6' : palms ? 'Palms' : 'Quarters';
+    if (bunch) return { value: `${prefix} Bunch — Box`, why: 'Box the bunch with four defenders owning the four release directions.' };
+    if (stack) return { value: `${prefix} Stack — Triangle`, why: 'Bracket two stacked receivers with three defenders and exchange releases.' };
+    if (trips && palms) return { value: 'Palms Trips — Stubbie', why: 'Lock #1 while three defenders distribute #2 and #3.' };
+    if (trips && family === 'split') return { value: 'Cover 6 Trips — Stubbie', why: 'Point the match side at trips and distribute #2 and #3 with inside help.' };
+    if (trips) return { value: 'Quarters Trips — Stress', why: 'Use Stress only when trips repeatedly sends all three receivers vertical.' };
+  }
+  return null;
+}
+
+function shellTool(family) {
+  if (['cover1', 'cover3'].includes(family)) return {
+    setting: 'Coverage Shell', value: 'Show Cover 2',
+    why: 'Hide the one-high rotation until the snap. The selected play still controls the post-snap coverage.',
+    tradeoff: 'Confirm the defense actually aligns correctly; shell behavior can vary by play.',
+  };
+  if (TWO_HIGH_FAMILIES.has(family)) return {
+    setting: 'Coverage Shell', value: 'Show Cover 3',
+    why: 'Present one-high before rotating to the selected two-high call after the snap.',
+    tradeoff: 'Do not sacrifice getting lined up just to disguise the call.',
   };
   return null;
 }
 
-function userKeyFor(traits) {
+function userKeyFor(traits, situationKey) {
+  if (situationKey === '3lg') return {
+    title: 'Guard the line to gain first',
+    text: 'Gain depth with the first inside route, then break downhill. Do not chase a short route that cannot reach the sticks.',
+  };
+  if (situationKey === '3sh') return {
+    title: 'Read run to quick throw',
+    text: 'Stay square through the mesh, fit the run if the ball is handed off, and close the first inside throw if the quarterback pulls it.',
+  };
   if (hasAny(traits, ['rpo', 'dual_threat', 'option_run'])) return {
     title: 'Slow-play the conflict',
     text: 'Stay square through the mesh. Force the handoff or throw, then commit—chasing too early gives the quarterback the answer.',
@@ -46,202 +140,200 @@ function userKeyFor(traits) {
     title: 'Protect the inside window',
     text: 'Wall the first inside break and make the quarterback throw around you. Do not chase a shallow route out of the middle.',
   };
-  if (hasAny(traits, ['screens', 'quick_game', 'flat_attack'])) return {
-    title: 'Trigger, then tackle outside-in',
-    text: 'Read the release before attacking the flat. Keep outside leverage so a short completion does not become an explosive play.',
-  };
-  if (hasAny(traits, ['deep_shots', 'back_shoulder', 'seam_routes'])) return {
-    title: 'Stay deeper than the deepest threat',
-    text: 'Do not jump the first underneath route. Make the offense complete the short throw and tackle it in front of you.',
-  };
-  if (hasAny(traits, ['outside_run', 'hb_stretch'])) return {
-    title: 'Set the edge',
-    text: 'Keep your outside shoulder free and turn the runner back toward the rest of the defense. Do not chase inside and give up the sideline.',
-  };
-  if (hasAny(traits, ['inside_run', 'counter_trap', 'fb_lead', 'strong_oline', 'run_heavy_1st', 'short_yardage_run'])) return {
-    title: 'Fit your gap first',
-    text: 'Stay in your assigned gap and make the runner change direction. Do not chase into another defender’s gap and open a cutback lane.',
-  };
   return {
-    title: 'Keep inside position',
-    text: 'Line up between your receiver and the ball. Make the quarterback throw outside instead of giving him an easy throw through the middle.',
+    title: 'Protect your space first',
+    text: 'Handle the threat entering your assignment before chasing another route. Make the quarterback hold the ball and throw outside.',
   };
 }
 
 export function buildAdjustmentPlan(fm, traits = [], situation = {}) {
-  const activeCoverage = fm?.personalizedCoverage || fm?.recommendedCoverage;
+  const activeCoverage = fm?.personalizedCoverage || fm?.recommendedCoverage || '';
   const selectedCall = fm?.rankedCoverages?.find(call => call.name === activeCoverage);
-  const family = getCoverageFamily(activeCoverage || '', selectedCall?.tag);
-  const isZone = ['quarters', 'split', 'tampa2', 'cover2', 'cover3'].includes(family);
+  const family = getCoverageFamily(activeCoverage, selectedCall?.tag);
+  const isZone = ZONE_FAMILIES.has(family);
+  const { context, key: situationKey } = situationContext(situation);
   const settings = [];
+  const tools = [];
   const alerts = [];
-
-  const presetMacro = presetMacroFor(traits);
 
   const quick = hasAny(traits, ['quick_game', 'rpo', 'slant_heavy', 'flat_attack', 'qb_checkdown']);
   const deep = hasAny(traits, ['deep_shots', 'back_shoulder', 'seam_routes', 'two_minute_pass']);
-  const insideBreaks = hasAny(traits, ['crossers', 'middle_heavy', 'slant_heavy']);
+  const insideBreaks = hasAny(traits, ['crossers', 'middle_heavy', 'slant_heavy', 'seam_routes']);
   const outsideBreaks = hasAny(traits, ['flat_attack', 'back_shoulder']);
   const runThreat = hasAny(traits, ['inside_run', 'outside_run', 'hb_stretch', 'counter_trap', 'fb_lead', 'option_run', 'strong_oline', 'run_heavy_1st', 'short_yardage_run']);
   const mobileQb = hasAny(traits, ['mobile_qb', 'qb_scramble', 'dual_threat', 'option_run']);
+  const heavyRun = hasAny(traits, ['short_yardage_run', 'inside_run', 'counter_trap', 'fb_lead', 'strong_oline', 'p22', 'p23']);
 
-  if (mobileQb) {
-    settings.push({
-      priority: 84,
-      setting: 'Pass Rush', value: 'QB Contain',
-      why: 'Keep the outside rushers wider so the quarterback has to step up instead of escaping around the edge.',
-      tradeoff: 'Contain does not close the middle by itself. The user still has to see the quarterback step up.',
+  if (situationKey === '3lg') {
+    if (isZone) add(settings, 'zone-depth', {
+      setting: 'Zone Strategy', value: 'Conservative',
+      why: 'Long yardage: zone defenders protect deeper routes before driving on the checkdown.',
+      tradeoff: 'The offense can complete a short throw. Rally and tackle before the line to gain.',
     });
-  }
-
-  if (runThreat) {
-    settings.push({
-      priority: 82,
+    if (deep) add(settings, 'safety-depth', {
+      setting: 'Safety Depth', value: '16 yards',
+      why: 'The scouting report includes vertical shots. Keep the safeties above seams and posts.',
+      tradeoff: 'Safeties arrive later on underneath throws and the run.',
+    });
+    else add(settings, 'cb-depth', {
+      setting: 'Cornerback Depth', value: '10 yards',
+      why: 'Put the corners in position to see the route develop and protect the line to gain.',
+      tradeoff: 'Quick hitches and outs will be available underneath.',
+    });
+    add(settings, 'commit', {
+      setting: 'Pass Commit', value: 'Pass',
+      why: 'On 3rd or 4th-and-long, ignore the run fake and attack the pass protection.',
+      tradeoff: 'A draw or quarterback run can punish this. Skip it if the offense has already run successfully from long yardage.',
+    });
+  } else if (situationKey === '3sh') {
+    add(settings, 'cb-depth', {
+      setting: 'Cornerback Depth', value: '5 yards',
+      why: 'Close the cushion so a hitch, slant, or quick out is contested near the line to gain.',
+      tradeoff: 'Do not press a receiver who can win immediately deep without safety help.',
+    });
+    if (runThreat) add(settings, 'gap', {
       setting: 'Gap Integrity', value: 'Conservative',
-      why: 'Keep every defender responsible for his run fit and make the ball cut back toward help.',
-      tradeoff: 'You may get fewer instant sheds outside the assigned gap.',
+      why: 'Short yardage plus a scouted run threat makes every defender holding his assigned gap more valuable than chasing a splash play.',
+      tradeoff: 'Defenders are less likely to abandon their gap for an immediate shed.',
+    });
+    if (quick && isZone) add(settings, 'zone-depth', {
+      setting: 'Zone Strategy', value: 'Aggressive',
+      why: 'Drive on the short routes that can reach the line to gain immediately.',
+      tradeoff: 'A protected double move or seam can open behind an underneath defender.',
+    });
+    if (traits.includes('play_action') && heavyRun) add(settings, 'aggression', {
+      setting: 'Defender Aggression', value: 'Conservative',
+      why: 'Stay disciplined through the run fake so play action does not create a free throw behind the linebackers.',
+      tradeoff: 'The second level attacks a real handoff more slowly.',
+    });
+  } else if (situationKey === 'rz') {
+    add(settings, 'cb-depth', {
+      setting: 'Cornerback Depth', value: '5 yards',
+      why: 'The field is compressed. Reduce free access without forcing every corner into press coverage.',
+      tradeoff: 'Fast receivers can still threaten vertically; keep the selected call’s safety help intact.',
+    });
+    if (insideBreaks && !outsideBreaks) add(settings, 'cb-width', {
+      setting: 'Cornerback Width', value: 'Tight',
+      why: 'Take away the slant, glance, and short inside window near the goal line.',
+      tradeoff: 'Quick outs and fades get more outside space.',
+    });
+    if (outsideBreaks && !insideBreaks) add(settings, 'cb-width', {
+      setting: 'Cornerback Width', value: 'Wide',
+      why: 'Make fades and quick outs release back toward inside help.',
+      tradeoff: 'Slants get cleaner access inside.',
+    });
+  } else {
+    if (isZone && deep && !quick) add(settings, 'zone-depth', {
+      setting: 'Zone Strategy', value: 'Conservative',
+      why: 'The opponent’s clearest passing tendency is vertical. Keep zone defenders above the deep route.',
+      tradeoff: 'Short completions will have more room underneath.',
+    });
+    if (isZone && quick && !deep) add(settings, 'zone-depth', {
+      setting: 'Zone Strategy', value: 'Aggressive',
+      why: 'The opponent’s clearest passing tendency is quick game. Break downhill on short routes.',
+      tradeoff: 'Routes breaking behind the underneath defender become more dangerous.',
+    });
+    if (traits.includes('play_action')) add(settings, 'aggression', {
+      setting: 'Defender Aggression', value: 'Conservative',
+      why: 'Stay patient through the run fake and protect the intermediate window behind the linebackers.',
+      tradeoff: 'The second level attacks real handoffs more slowly.',
     });
   }
 
-  if (isZone && quick && !deep) {
-    settings.push({
-      priority: 78,
-      setting: 'Coverage', value: 'Underneath',
-      why: 'Drive on the short routes the offense keeps using to stay on schedule.',
-      tradeoff: 'Watch for a double move or route breaking behind the underneath defender.',
-    });
-  } else if (isZone && deep && !quick) {
-    settings.push({
-      priority: 78,
-      setting: 'Coverage', value: 'Over the top',
-      why: 'Make the quarterback complete the checkdown instead of winning with a vertical shot.',
-      tradeoff: 'Short routes will have more room before the defense rallies.',
-    });
-  } else if (!isZone && insideBreaks && !outsideBreaks) {
-    settings.push({
-      priority: 78,
-      setting: 'Coverage leverage', value: 'Inside',
-      why: 'Take away the first inside break on slants, digs, and crossers.',
-      tradeoff: 'Outside-breaking routes get cleaner access to the sideline.',
-    });
-  } else if (!isZone && outsideBreaks && !insideBreaks) {
-    settings.push({
-      priority: 78,
-      setting: 'Coverage leverage', value: 'Outside',
-      why: 'Make outside-breaking routes work back through the defender instead of winning cleanly to the sideline.',
-      tradeoff: 'Inside-breaking routes have more room if there is no help waiting there.',
-    });
-  }
+  if (mobileQb) add(settings, 'contain', {
+    setting: 'Pass Rush', value: 'QB Contain',
+    why: 'Keep the outermost rushers outside the quarterback and force him to step up into traffic.',
+    tradeoff: 'Contain protects the edge, not the middle. The user must still see the step-up or draw.',
+  });
 
-  if (traits.includes('field_hash') && !traits.includes('boundary_hash')) {
-    settings.push({
-      priority: 72,
-      setting: 'Safety Midpoint', value: 'Field',
-      why: 'Lean the safety alignment toward the wide side where the offense has more space.',
-      tradeoff: 'The boundary side has less immediate safety help.',
-    });
-  } else if (traits.includes('boundary_hash') && !traits.includes('field_hash')) {
-    settings.push({
-      priority: 72,
-      setting: 'Safety Midpoint', value: 'Boundary',
-      why: 'Lean the safety alignment toward the short side the offense prefers to attack.',
-      tradeoff: 'The wide side has less immediate safety help.',
-    });
-  }
+  const shell = shellTool(family);
+  if (shell) add(tools, 'shell', shell);
 
-  if (situation?.down === 'rz' && isZone) {
-    settings.push({
-      priority: 100,
-      setting: 'Red Zone Awareness', value: 'On',
-      why: 'You are in the red zone. This helps zone defenders tighten up as the field gets shorter.',
-      tradeoff: 'Turn it back off when the drive leaves the red zone.',
-    });
-  } else if (traits.includes('elite_te')) {
-    settings.push({
-      priority: 70,
-      setting: 'Roll Coverage', value: 'TE1',
-      why: 'You marked an elite tight end. Make the coverage lean toward him instead of leaving one defender alone.',
-      tradeoff: 'Receivers away from the tight end get less safety help.',
-    });
-  } else if (traits.includes('elite_wr')) {
-    settings.push({
-      priority: 70,
-      setting: 'Roll Coverage', value: 'Fastest',
-      why: 'You marked an elite speed threat. Make the coverage lean toward the fastest receiver.',
-      tradeoff: 'The rest of the formation gets less safety help.',
-    });
-  }
+  if (situationKey === '3lg' && deep) add(tools, 'cb-depth', {
+    setting: 'Cornerback Depth', value: '10 yards',
+    why: 'Add cushion if intermediate sideline routes are reaching the sticks before the corner can react.',
+    tradeoff: 'Quick hitches and outs will be available underneath.',
+  });
 
-  if (traits.includes('play_action')) {
-    settings.push({
-      priority: 100,
-      setting: 'Defensive Aggression', value: 'Conservative',
-      why: 'You marked play action. This keeps linebackers from charging at the run fake and opening a throw behind them.',
-      tradeoff: 'Linebackers will attack real handoffs more slowly.',
-    });
-  } else if (situation?.distance === 'short' && hasAny(traits, ['short_yardage_run', 'p22', 'p23']) && !hasAny(traits, ['deep_shots', 'rpo'])) {
-    settings.push({
-      priority: 90,
-      setting: 'Defensive Aggression', value: 'Aggressive',
-      why: 'It is short yardage and you marked a heavy run threat. Linebackers will attack downhill sooner.',
-      tradeoff: 'Play action can open a large throwing window behind them. Reset it after short yardage.',
-    });
-  }
+  if (insideBreaks && !outsideBreaks) add(tools, 'leverage', {
+    setting: 'Coverage Leverage', value: 'Inside',
+    why: 'Use after slants, digs, or crossers repeatedly win inside.',
+    tradeoff: 'Outside-breaking routes get cleaner leverage.',
+  });
+  if (outsideBreaks && !insideBreaks) add(tools, 'leverage', {
+    setting: 'Coverage Leverage', value: 'Outside',
+    why: 'Use after outs, corners, or fades repeatedly win toward the sideline.',
+    tradeoff: 'Inside-breaking routes get more room.',
+  });
 
-  if (traits.includes('redzone_spec') && situation?.down !== 'rz') {
-    alerts.push({
-      priority: 90,
-      when: 'The ball enters the red zone',
-      action: 'Turn Red Zone Awareness on for zone calls. Turn it off again when the drive leaves the red zone.',
-    });
-  }
+  if (insideBreaks !== outsideBreaks) add(tools, 'safety-width', {
+    setting: 'Safety Width', value: insideBreaks ? 'Pinch' : 'Wide',
+    why: insideBreaks
+      ? 'Use after seams, posts, and crossers repeatedly attack between the safeties.'
+      : 'Use after corner routes and deep sideline throws repeatedly stretch the safeties outside.',
+    tradeoff: insideBreaks
+      ? 'The deep sidelines receive less immediate safety help.'
+      : 'The middle of the field receives less immediate safety help.',
+  });
 
-  if (traits.includes('short_yardage_run') && situation?.distance !== 'short') {
-    alerts.push({
-      priority: 85,
-      when: 'It becomes 3rd/4th-and-short',
-      action: 'If the offense shows heavy personnel, use Aggressive defensive behavior. Reset it when normal down-and-distance returns.',
-    });
-  }
+  if (traits.includes('field_hash') !== traits.includes('boundary_hash')) add(tools, 'midpoint', {
+    setting: 'Safety Midpoint', value: traits.includes('field_hash') ? 'Field' : 'Boundary',
+    why: `Lean the safeties toward the ${traits.includes('field_hash') ? 'wide side' : 'short side'} the offense prefers to attack.`,
+    tradeoff: 'The opposite side receives less immediate safety help.',
+  });
 
-  if (traits.includes('inside_run') && traits.includes('outside_run')) {
-    alerts.push({
-      priority: 70,
-      when: 'The offense changes where it is running',
-      action: 'Return the defensive line to normal. Do not leave the line pinched or spread because both runs appeared in the scout.',
-    });
-  }
+  if (traits.includes('elite_te') || traits.includes('elite_wr')) add(tools, 'target-help', {
+    setting: 'Roll Coverage', value: traits.includes('elite_te') ? 'TE1' : 'Fastest',
+    why: `Send extra help toward the ${traits.includes('elite_te') ? 'featured tight end' : 'speed threat'}.`,
+    tradeoff: 'Receivers away from the roll receive less help.',
+  });
 
-  if (hasAny(traits, ['hurry_up', 'no_huddle', 'tempo_shift'])) {
-    alerts.push({
-      priority: 100,
-      when: 'The offense goes hurry-up',
-      action: 'Keep the base call and one adjustment you trust. Get lined up before trying another menu change.',
-    });
-  }
+  if (mobileQb && isZone) add(tools, 'plaster', {
+    setting: 'Plaster', value: 'Conservative · O.O.P & Time',
+    why: 'After the quarterback escapes and the play extends, backside zone defenders can attach to nearby receivers.',
+    tradeoff: 'Coverage eventually leaves its original zone structure. Keep the conservative trigger until scramble-drill throws prove it is too slow.',
+  });
+
+  if (hasAny(traits, ['mobile_qb', 'dual_threat']) && traits.includes('option_run')) add(tools, 'option-key', {
+    setting: 'Option Read Key', value: 'Conservative',
+    why: 'Use after quarterback keeps are the option play’s winning answer; the read defender will focus the quarterback.',
+    tradeoff: 'The dive handoff receives less attention. Do not use it merely because option exists in the playbook.',
+  });
+
+  if (traits.includes('rpo')) add(tools, 'rpo-key', {
+    setting: 'RPO Pass Key', value: 'Conservative',
+    why: 'Use after the attached RPO throw repeatedly beats your conflict defender; this tells him to favor pass coverage.',
+    tradeoff: 'The run gap receives less help. If the offense starts handing it off, return to Balanced.',
+  });
+
+  const matchCheck = matchCheckFor(family, activeCoverage, traits);
+  if (matchCheck) add(tools, 'match-check', {
+    setting: 'Formation Check', value: matchCheck.value,
+    why: matchCheck.why,
+    tradeoff: 'Use only with the named coverage family. A different call may use different rules.',
+  });
+
+  if (hasAny(traits, ['elite_wr', 'elite_te', 'slot_threat', 'crossers', 'screens'])) add(tools, 'individual', {
+    setting: 'Individual Coverage', value: 'Man up the problem receiver',
+    why: 'Use after one receiver or one repeated route—not merely the formation—has proven it can beat the call.',
+    tradeoff: 'The assigned defender leaves his original job. Check the play art so his vacated area still has help.',
+  });
+
+  if (traits.includes('inside_run') && traits.includes('outside_run')) alerts.push({
+    when: 'The run direction changes',
+    action: 'Return the defensive line to normal. Pinch only for a confirmed inside run look; spread only for a confirmed outside run look.',
+  });
+  if (hasAny(traits, ['hurry_up', 'no_huddle', 'tempo_shift'])) alerts.push({
+    when: 'The offense goes hurry-up',
+    action: 'Keep the call and the first adjustment you trust. Get lined up before opening another menu.',
+  });
 
   return {
-    settings: settings
-      .map((item, order) => ({ priority: item.priority ?? 80, order, ...item }))
-      .sort((a, b) => b.priority - a.priority || a.order - b.order)
-      .slice(0, 3)
-      .map(item => ({
-        setting: item.setting,
-        value: item.value,
-        why: item.why,
-        tradeoff: item.tradeoff,
-      })),
-    preset: presetMacro ? {
-      setting: presetMacro.setting,
-      value: presetMacro.value,
-      why: presetMacro.why,
-      tradeoff: presetMacro.tradeoff,
-    } : null,
-    alerts: alerts
-      .map((item, order) => ({ priority: item.priority ?? 80, order, ...item }))
-      .sort((a, b) => b.priority - a.priority || a.order - b.order)
-      .slice(0, 2)
-      .map(item => ({ when: item.when, action: item.action })),
-    userKey: userKeyFor(traits),
+    objective: { ...objectiveFor(situationKey), situation: context.label },
+    settings: settings.slice(0, 3).map(publicAdjustment),
+    tools: tools.slice(0, 8).map(publicAdjustment),
+    preset: presetMacroFor(traits, situationKey),
+    alerts: alerts.slice(0, 2),
+    userKey: userKeyFor(traits, situationKey),
   };
 }
