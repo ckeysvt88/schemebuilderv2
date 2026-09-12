@@ -117,18 +117,6 @@ export function buildAdjustmentPlan(fm, traits = [], situation = {}) {
     });
   }
 
-  if (traits.includes('bunch')) {
-    alerts.push({
-      when: 'If you call man against bunch',
-      action: 'Use Point Combo so defenders can exchange crossing releases. Use Lock only when you want everyone to chase his original man.',
-    });
-  } else if (traits.includes('stack_align')) {
-    alerts.push({
-      when: 'If you call man against a stack',
-      action: 'Use Combo so the two defenders can exchange releases instead of fighting through traffic.',
-    });
-  }
-
   if (traits.includes('redzone_spec') && situation?.down !== 'rz') {
     alerts.push({
       priority: 90,
