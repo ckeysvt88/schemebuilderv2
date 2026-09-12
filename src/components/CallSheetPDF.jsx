@@ -185,15 +185,12 @@ function MatrixRow({ row, isAlt }) {
           ) : <Text style={S.emptyCell}>—</Text>}
         </View>
 
-        {/* Primary match % + blitz label */}
+        {/* Primary fit */}
         <View style={S.cPct}>
           {row.primary && (
             <>
               <Text style={[S.callPct, { color: PC[row.primary.priority] || C.gold }]}>
                 {row.primary.sc}
-              </Text>
-              <Text style={[S.callBzLbl, { color: row.primary.blitzColor || C.text3 }]}>
-                {row.primary.blitz}% bz
               </Text>
             </>
           )}
@@ -211,15 +208,12 @@ function MatrixRow({ row, isAlt }) {
           ) : <Text style={S.emptyCell}>—</Text>}
         </View>
 
-        {/* Secondary match % + blitz label */}
+        {/* Secondary fit */}
         <View style={S.cPct2}>
           {row.secondary && (
             <>
               <Text style={[S.callPct, { fontSize: 7, color: PC[row.secondary.priority] || C.gold }]}>
                 {row.secondary.sc}
-              </Text>
-              <Text style={[S.callBzLbl, { color: row.secondary.blitzColor || C.text3 }]}>
-                {row.secondary.blitz}%
               </Text>
             </>
           )}
@@ -254,7 +248,7 @@ function TopFormationItem({ fm, rank, isLast }) {
         </View>
         <Text style={S.tfPct}>{fm.sc}/100</Text>
       </View>
-      <Text style={S.tfMeta}>{fm.coverage}  ·  {fm.blitz}% blitz</Text>
+      <Text style={S.tfMeta}>{fm.coverage}</Text>
       {fm.matchup && <>
         <Text style={S.tfMeta}>{fm.matchup.structure}</Text>
         {fm.front && <Text style={S.tfMeta}>Formation front: {fm.front.summary}</Text>}
@@ -284,7 +278,7 @@ function GuideEntry({ entry, isLast }) {
           <Text style={[S.guideCallTxt, { color: PC[entry.primary.priority] || C.text1 }]}>
             {entry.primary.name} · {entry.primary.coverage}
           </Text>
-          <Text style={S.guideCallPct}>{entry.primary.sc}/100 · {entry.primary.blitzLabel}</Text>
+          <Text style={S.guideCallPct}>{entry.primary.sc}/100</Text>
         </View>
       ) : (
         <Text style={S.guideNoCall}>No formation matched for this situation</Text>

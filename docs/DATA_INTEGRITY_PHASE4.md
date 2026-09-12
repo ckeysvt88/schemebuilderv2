@@ -29,12 +29,17 @@ Third/fourth-and-long eligibility now uses the separate exact-name coverage-safe
 The coverage card now leads with:
 
 1. Exact call name.
-2. “Why it fits” authored summary.
-3. A visible verification warning when exact assignments are unknown.
+2. “Best for” game situation or purpose.
+3. “Call goal” authored summary.
+4. “Watch for” conservative coverage-family risk.
 
-Detailed threat analysis and assignment/testing limitations remain collapsed. Technical counts appear only for verified calls. Formation-front information is shown once above the coverage list rather than repeated as if it were a call assignment.
+Detailed threat analysis and assignment/testing limitations remain collapsed. The unverified-assignment warning is inside the technical dropdown instead of dominating the game-day guidance. Technical counts appear only for verified calls. Formation-front information is shown once above the coverage list rather than repeated as if it were a call assignment.
+
+The formation-level suggested blitz percentage has been removed from cards, expanded details, PDFs and share text. It was an authored usage tendency rather than an exact-call pressure recommendation, so the number implied precision that the engine could not support.
 
 PDF and share output consume the same verification state. They must never restore hidden assignment claims independently.
+
+Every recommendable formation is regression-tested so each stored front position is accounted for exactly once as interior DL, edge, linebacker or other front-aligned defender. Prevent 3-Deep is the documented exception: it has no conventional stored front and remains excluded from recommendations. This is a global guardrail, not a 3-4 Tite exception.
 
 ## Verification workflow
 

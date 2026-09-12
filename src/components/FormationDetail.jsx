@@ -1,9 +1,9 @@
 import { useState } from 'react';
 import { ADJUSTMENTS, computeConflicts } from '../data/adjustments.js';
 import { TRAIT_LABELS } from '../data/traits.js';
-import BlitzBar from './BlitzBar.jsx';
 import WhySelected from './WhySelected.jsx';
 import { getFrontStructure } from '../engine/frontStructure.js';
+import { getCoverageGuidance } from '../engine/coverageGuidance.js';
 
 const PC = { run: "#a06030", pass: "#1a6fe8", hybrid: "#7858a0", pressure: "#aa5050" };
 
@@ -84,21 +84,10 @@ export default function FormationDetail({ fm, flat }) {
   const [tab, setTab] = useState("coverages");
   const [showWhy, setShowWhy] = useState(false);
   const [showScoring, setShowScoring] = useState(false);
-  const blitz = fm.blitz;
   const front = getFrontStructure(fm.name);
 
   return (
     <div style={{ background: "var(--color-bg)", border: "1px solid var(--color-gold)", borderTop: "none", borderLeft: "3px solid var(--color-gold)", borderRadius: "0 0 9px 9px", overflow: "hidden", marginBottom: 18 }}>
-      {/* Blitz bar */}
-      <div style={{ padding: "16px 16px", borderBottom: "1px solid var(--color-border-subtle)", background: "var(--color-bg)" }}>
-        <BlitzBar pct={blitz} />
-        <div style={{ fontSize: 11, color: "var(--color-text-3)", marginTop: 5 }}>
-          Suggested frequency: base {fm.blitzLedger.base}% + {fm.blitzLedger.positive}% − {Math.abs(fm.blitzLedger.negative)}%
-          {fm.blitzLedger.clamp !== 0 ? `; bounds adjustment ${fm.blitzLedger.clamp > 0 ? '+' : ''}${fm.blitzLedger.clamp}%` : ''}.
-          Only the largest increase and largest decrease apply.
-        </div>
-      </div>
-
       {/* Why This Formation Was Selected — collapsible */}
       <div style={{ borderBottom: "1px solid var(--color-border-subtle)", background: "var(--color-bg)" }}>
         <button
@@ -170,7 +159,9 @@ export default function FormationDetail({ fm, flat }) {
       </div>
 
       <div style={{ padding: 13 }}>
-        {tab === "coverages" && fm.rankedCoverages.map((c, i) => (
+        {tab === "coverages" && fm.rankedCoverages.map((c, i) => {
+          const guidance = getCoverageGuidance(c.name, c.tag);
+          return (
           <div key={c.name} style={{ background: "var(--color-surface-1)", border: "1px solid var(--color-border-subtle)", borderLeft: `3px solid ${["#b8880c","#6090b8","#7858a0","#508860"][i] || "#b8880c"}`, borderRadius: 5, padding: "14px 16px", marginBottom: 16 }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 4 }}>
               <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
@@ -179,11 +170,16 @@ export default function FormationDetail({ fm, flat }) {
                 {i === 0 && <span style={{ fontSize: "12px", background: "var(--color-surface-success)", border: "1px solid var(--color-border)", color: "var(--color-success)", padding: "1px 5px", borderRadius: 4, fontWeight: "bold", fontFamily: "'IBM Plex Mono', monospace" }}>RECOMMENDED</span>}
               </div>
             </div>
-            <div style={{ fontSize: 11, color: "var(--color-text-2)", lineHeight: 1.65 }}><strong>Why it fits:</strong> {c.detail || c.note}</div>
+            <div style={{ fontSize: 11, color: "var(--color-text-2)", lineHeight: 1.65 }}>
+              <div><strong>Best for:</strong> {guidance.bestFor}</div>
+              <div><strong>Call goal:</strong> {c.detail || c.note}</div>
+              <div><strong>Watch for:</strong> {guidance.watchFor}</div>
+            </div>
             {c.matchup && <div style={{ fontSize: 11, lineHeight: 1.6, marginTop: 8 }}>
-              {c.matchup.status !== 'verified' ? <div style={{ color: "var(--color-warning, #9a6b00)", padding: "7px 9px", border: "1px solid var(--color-gold-border)", borderRadius: 4 }}>
-                <strong>Exact assignments need verification.</strong> Rush and coverage counts are hidden and do not affect this score.
-              </div> : <>
+              {c.matchup.status !== 'verified' ? <details><summary>Verification and technical details</summary>
+                <p><strong>Exact assignments need verification.</strong> Rush and coverage counts are hidden and do not affect this score.</p>
+                <p>{guidance.basis}</p>
+              </details> : <>
                 <div><strong>Overall matchup:</strong> {c.matchup.concept?.utility ?? c.sc}/100 · {c.matchup.concept?.confidence || 'Assignment'} confidence</div>
                 {c.matchup.concept && <div style={{ marginTop: 6 }}>
                 <p><strong>Biggest risk:</strong> {c.matchup.concept.badCase.label}. {c.matchup.concept.mainConcession}</p>
@@ -205,7 +201,7 @@ export default function FormationDetail({ fm, flat }) {
               </>}
             </div>}
           </div>
-        ))}
+        )})}
 
         {tab === "preSnap" && (
           <div>

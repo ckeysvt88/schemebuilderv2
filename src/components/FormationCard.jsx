@@ -1,6 +1,5 @@
 import { useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
-import { blitzInfo } from '../engine/scoring.js';
 
 const PC = { run: "#c07040", pass: "#3a80e0", hybrid: "#7858a0", pressure: "#bb5050" };
 const PL = { run: "RUN STOP", pass: "PASS DEF", hybrid: "HYBRID", pressure: "PRESSURE" };
@@ -119,7 +118,6 @@ function BooksSheet({ fm, books, active, onClose }) {
 }
 
 export default function FormationCard({ fm, onSelect, isSelected, myBook }) {
-  const bi = blitzInfo(fm.blitz);
   const [sheetOpen, setSheetOpen] = useState(false);
   const ordered = orderBooks(fm.books, myBook);
   const visible = ordered.slice(0, 3);
@@ -222,9 +220,6 @@ export default function FormationCard({ fm, onSelect, isSelected, myBook }) {
             fontFamily: "var(--font-mono)",
           }}>
             {fm.sc}/100
-          </span>
-          <span style={{ fontSize: 11, fontWeight: "600", color: bi.color, fontFamily: "var(--font-mono)" }}>
-            {fm.blitz}% blitz
           </span>
         </div>
       </div>

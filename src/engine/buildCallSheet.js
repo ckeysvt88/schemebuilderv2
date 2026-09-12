@@ -6,7 +6,6 @@
 import { getSituationTip } from './downDistance.js';
 import { recommend } from './recommendations.js';
 import { TRAIT_LABELS, TRAITS } from '../data/traits.js';
-import { blitzInfo } from './scoring.js';
 import { getFrontStructure } from './frontStructure.js';
 
 const RUN_PASS_LABELS = {
@@ -31,15 +30,11 @@ const SITUATIONS = [
 
 function pluck(f) {
   if (!f) return null;
-  const bi = blitzInfo(f.blitz);
   return {
     name:       f.name,
     matchup:    f.matchup,
     coverage:   f.recommendedCoverage,
     sc:         f.sc,
-    blitz:      f.blitz,
-    blitzLabel: bi.label,
-    blitzColor: bi.color,
     priority:   f.priority,
     personnel:  f.personnel,
     front:      getFrontStructure(f.name),

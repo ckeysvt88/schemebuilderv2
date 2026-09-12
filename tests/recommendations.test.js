@@ -83,11 +83,12 @@ test('PDF current calls and share output match the live result; matrix changes o
     const input = { traits, familyId, runPass: 6, down: 3, distance: 'long', book: 'All' };
     const live = recommend(input);
     const pdf = buildCallSheetData({ input });
-    assert.deepEqual(pdf.topFormations.map(f => [f.name, f.sc, f.coverage, f.blitz]), live.formations.slice(0, 4).map(shape));
+    assert.deepEqual(pdf.topFormations.map(f => [f.name, f.sc, f.coverage]), live.formations.slice(0, 4).map(f => [f.name, f.sc, f.recommendedCoverage]));
     const share = buildRecommendationShareText(live, traits);
     for (const f of live.formations.slice(0, 4)) {
       assert.ok(share.includes(`${f.name} — fit ${f.sc}/100`));
       assert.ok(share.includes(`Call: ${f.recommendedCoverage}`));
+      assert.ok(!share.includes('Suggested blitz frequency'));
     }
     for (const row of pdf.situationMatrix.filter(r => r.down)) {
       const expected = recommend({ ...input, down: row.down, distance: row.distance }).formations[0];
