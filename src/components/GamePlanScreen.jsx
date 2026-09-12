@@ -484,7 +484,7 @@ export default function GamePlanScreen({
                   {persMatches.map(fm => (
                     <div key={fm.name} data-fm-name={fm.name}>
                       <FormationCard fm={fm} onSelect={f => setSelFm(selFm === f.name ? null : f.name)} isSelected={selFm === fm.name} myBook={myBook} />
-                      {selFm === fm.name && <FormationDetail fm={fm} flat={fm.effectiveTraits} />}
+                      {selFm === fm.name && <FormationDetail fm={fm} flat={fm.effectiveTraits} situation={{ down: situDown, distance: situDist }} />}
                     </div>
                   ))}
                   </div>
@@ -505,7 +505,7 @@ export default function GamePlanScreen({
                 {group.formations.map(fm => (
                   <div key={fm.name} data-fm-name={fm.name}>
                     <FormationCard fm={fm} onSelect={f => setSelFm(selFm === f.name ? null : f.name)} isSelected={selFm === fm.name} myBook={myBook} />
-                    {selFm === fm.name && <FormationDetail fm={fm} flat={fm.effectiveTraits} />}
+                    {selFm === fm.name && <FormationDetail fm={fm} flat={fm.effectiveTraits} situation={{ down: situDown, distance: situDist }} />}
                   </div>
                 ))}
               </div>

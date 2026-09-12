@@ -5,12 +5,18 @@ import { getFrontStructure } from '../engine/frontStructure.js';
 import { getCoverageGuidance } from '../engine/coverageGuidance.js';
 import { buildAdjustmentPlan } from '../engine/adjustmentPlan.js';
 
-function AdjustmentsPanel({ fm, flat }) {
-  const plan = buildAdjustmentPlan(fm, flat);
+function AdjustmentsPanel({ fm, flat, situation }) {
+  const plan = buildAdjustmentPlan(fm, flat, situation);
   return (
     <div>
       <div style={{ fontSize: 12, fontWeight: 800, color: "var(--color-text-1)", marginBottom: 3 }}>Set before the drive</div>
-      <div style={{ fontSize: 11, color: "var(--color-text-3)", lineHeight: 1.5, marginBottom: 10 }}>Use these as your starting settings. Change them only when the offense gives you a clear reason.</div>
+      <div style={{ fontSize: 11, color: "var(--color-text-3)", lineHeight: 1.5, marginBottom: 10 }}>Start here. Do not keep changing settings until the offense proves this answer is wrong.</div>
+      {plan.settings.length === 0 && (
+        <div style={{ background: "var(--color-surface-1)", border: "1px solid var(--color-border-subtle)", borderLeft: "3px solid var(--color-gold)", borderRadius: 5, padding: "10px 13px", marginBottom: 7 }}>
+          <strong style={{ fontSize: 11, color: "var(--color-text-1)" }}>Keep the defaults</strong>
+          <div style={{ fontSize: 11, color: "var(--color-text-3)", lineHeight: 1.5, marginTop: 4 }}>This call does not need a universal menu adjustment. Get lined up and execute it first.</div>
+        </div>
+      )}
       {plan.settings.map(item => (
         <div key={item.setting} style={{ background: "var(--color-surface-1)", border: "1px solid var(--color-border-subtle)", borderLeft: "3px solid var(--color-gold)", borderRadius: 5, padding: "10px 13px", marginBottom: 7 }}>
           <div style={{ display: "flex", justifyContent: "space-between", gap: 10, alignItems: "baseline" }}>
@@ -19,14 +25,14 @@ function AdjustmentsPanel({ fm, flat }) {
           </div>
           <div style={{ fontSize: 11, color: "var(--color-text-2)", lineHeight: 1.5, marginTop: 4 }}>{item.why}</div>
           <details style={{ fontSize: 11, color: "var(--color-text-3)", marginTop: 5 }}>
-            <summary style={{ cursor: "pointer", color: "var(--color-gold)" }}>Tradeoff</summary>
+            <summary style={{ cursor: "pointer", color: "var(--color-gold)" }}>What you give up</summary>
             <div style={{ marginTop: 4, lineHeight: 1.5 }}>{item.tradeoff}</div>
           </details>
         </div>
       ))}
 
       {plan.alerts.length > 0 && <>
-        <div style={{ fontSize: 12, fontWeight: 800, color: "var(--color-text-1)", margin: "16px 0 8px" }}>Change only when you see it</div>
+        <div style={{ fontSize: 12, fontWeight: 800, color: "var(--color-text-1)", margin: "16px 0 8px" }}>Only change it when...</div>
         {plan.alerts.map(item => (
           <div key={item.when} style={{ background: "var(--color-surface-1)", border: "1px solid var(--color-border-subtle)", borderLeft: "3px solid var(--color-pass)", borderRadius: 5, padding: "10px 13px", marginBottom: 7 }}>
             <strong style={{ fontSize: 11, color: "var(--color-text-1)" }}>{item.when}</strong>
@@ -44,7 +50,7 @@ function AdjustmentsPanel({ fm, flat }) {
   );
 }
 
-export default function FormationDetail({ fm, flat }) {
+export default function FormationDetail({ fm, flat, situation }) {
   const [tab, setTab] = useState("coverages");
   const [showWhy, setShowWhy] = useState(false);
   const [showScoring, setShowScoring] = useState(false);
@@ -124,7 +130,7 @@ export default function FormationDetail({ fm, flat }) {
 
       <div style={{ padding: 13 }}>
         {tab === "coverages" && fm.rankedCoverages.map((c, i) => {
-          const guidance = getCoverageGuidance(c.name, c.tag);
+          const guidance = getCoverageGuidance(c.name, c.tag, flat);
           return (
           <div key={c.name} style={{ background: "var(--color-surface-1)", border: "1px solid var(--color-border-subtle)", borderLeft: `3px solid ${["#b8880c","#6090b8","#7858a0","#508860"][i] || "#b8880c"}`, borderRadius: 5, padding: "14px 16px", marginBottom: 16 }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 4 }}>
@@ -135,29 +141,15 @@ export default function FormationDetail({ fm, flat }) {
               </div>
             </div>
             <div style={{ fontSize: 11, color: "var(--color-text-2)", lineHeight: 1.65 }}>
-              <div><strong>Use when:</strong> {guidance.bestFor}</div>
-              <div><strong>Takes away:</strong> {guidance.takesAway}</div>
-              <div><strong>Be ready for:</strong> {guidance.watchFor}</div>
+              <div><strong>Best spot:</strong> {guidance.bestSpot}</div>
+              <div><strong>We are taking away:</strong> {guidance.takesAway}</div>
+              <div><strong>They will try:</strong> {guidance.offenseAnswer}</div>
             </div>
             <details style={{ fontSize: 11, lineHeight: 1.55, marginTop: 8 }}>
               <summary style={{ cursor: "pointer", color: "var(--color-gold)", fontWeight: 700 }}>How to play this call</summary>
               <p><strong>Your job:</strong> {guidance.userKey}</p>
-              <p><strong>Change the call when:</strong> {guidance.checkOut}</p>
+              <p><strong>Get out of this call if:</strong> {guidance.getOut}</p>
             </details>
-            {c.matchup && <div style={{ fontSize: 11, lineHeight: 1.6, marginTop: 8 }}>
-              {c.matchup.status === 'verified' && <>
-                <div><strong>Overall matchup:</strong> {c.matchup.concept?.utility ?? c.sc}/100 · {c.matchup.concept?.confidence || 'Assignment'} confidence</div>
-                {c.matchup.concept && <div style={{ marginTop: 6 }}>
-                <p><strong>Biggest risk:</strong> {c.matchup.concept.badCase.label}. {c.matchup.concept.mainConcession}</p>
-                <details><summary>Threat-by-threat analysis</summary>
-                  {c.matchup.concept.scenarios.map(scenario => <p key={scenario.id}>
-                    <strong>{scenario.label} ({scenario.grade}/100)</strong>{scenario.source === 'complement' ? ' · likely counter' : ' · observed'}<br />
-                    {scenario.support} <strong>What we allow:</strong> {scenario.concession}
-                  </p>)}
-                </details>
-                </div>}
-              </>}
-            </div>}
           </div>
         )})}
 
@@ -174,7 +166,7 @@ export default function FormationDetail({ fm, flat }) {
         )}
 
         {tab === "coaching" && (
-          <AdjustmentsPanel fm={fm} flat={flat} />
+          <AdjustmentsPanel fm={fm} flat={flat} situation={situation} />
         )}
 
         {tab === "callsheet" && (

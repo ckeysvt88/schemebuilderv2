@@ -27,7 +27,19 @@ test('play action receives patient linebacker behavior rather than a conflicting
 test('opposing run tendencies become a conditional reset, not simultaneous line calls', () => {
   const plan = buildAdjustmentPlan(fm('Cover 3 Sky'), ['inside_run', 'outside_run']);
   assert.doesNotMatch(JSON.stringify(plan.settings), /Pinch|Spread/);
-  assert.match(plan.alerts[0].action, /Return the front to normal/);
+  assert.match(plan.alerts[0].action, /Return the defensive line to normal/);
+});
+
+test('red-zone and short-yardage settings require the live situation', () => {
+  const base = buildAdjustmentPlan(fm('Cover 3 Sky'), ['redzone_spec', 'short_yardage_run']);
+  assert.doesNotMatch(JSON.stringify(base.settings), /Red Zone Awareness|Defensive Aggression/);
+  assert.match(JSON.stringify(base.alerts), /ball enters the red zone|3rd\/4th-and-short/);
+
+  const redZone = buildAdjustmentPlan(fm('Cover 3 Sky'), ['redzone_spec'], { down: 'rz' });
+  assert.match(JSON.stringify(redZone.settings), /Red Zone Awareness/);
+
+  const short = buildAdjustmentPlan(fm('Cover 3 Sky'), ['short_yardage_run'], { down: 3, distance: 'short' });
+  assert.match(JSON.stringify(short.settings), /Defensive Aggression/);
 });
 
 test('the game-day plan stays short and contains no developer language', () => {

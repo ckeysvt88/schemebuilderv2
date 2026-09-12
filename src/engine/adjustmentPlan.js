@@ -8,20 +8,20 @@ function smartZonePlan(traits) {
 
   if (quick && !deep) return {
     setting: 'Smart Zones', value: 'Aggressive',
-    why: 'Closes faster on the quick throws this opponent prefers.',
-    tradeoff: 'Deeper windows open behind underneath defenders.',
+    why: 'You marked quick throws and screens. This tells zone defenders to drive on those routes sooner.',
+    tradeoff: 'Routes behind the underneath defenders will open sooner.',
   };
   if (deep && !quick) return {
     setting: 'Smart Zones', value: 'Conservative',
-    why: 'Keeps more depth against vertical routes and explosive throws.',
-    tradeoff: 'Expect to concede short completions and rally to tackle.',
+    why: 'You marked deep shots or seams. This keeps zone defenders from jumping the short throw too soon.',
+    tradeoff: 'The offense will get more room for checkdowns and short completions.',
   };
   return {
     setting: 'Smart Zones', value: 'Balanced',
     why: quick && deep
-      ? 'The offense threatens both quick throws and shots; do not tilt the whole defense toward one answer.'
-      : 'Start sound and make the offense prove which area needs extra help.',
-    tradeoff: 'Change it only after the same route family beats you more than once.',
+      ? 'You marked both quick throws and deep shots. Stay balanced instead of opening one area to stop the other.'
+      : 'Start at the normal setting and make the offense show you what it wants to repeat.',
+    tradeoff: 'Balanced will not jump short routes or carry deep routes as aggressively.',
   };
 }
 
@@ -46,13 +46,21 @@ function userKeyFor(traits) {
     title: 'Stay deeper than the deepest threat',
     text: 'Do not jump the first underneath route. Make the offense complete the short throw and tackle it in front of you.',
   };
+  if (hasAny(traits, ['outside_run', 'hb_stretch'])) return {
+    title: 'Set the edge',
+    text: 'Keep your outside shoulder free and turn the runner back toward the rest of the defense. Do not chase inside and give up the sideline.',
+  };
+  if (hasAny(traits, ['inside_run', 'counter_trap', 'fb_lead', 'strong_oline', 'run_heavy_1st', 'short_yardage_run'])) return {
+    title: 'Fit your gap first',
+    text: 'Stay in your assigned gap and make the runner change direction. Do not chase into another defender’s gap and open a cutback lane.',
+  };
   return {
-    title: 'Protect your leverage',
-    text: 'Start inside, keep the ball in front, and make the offense complete the harder throw outside.',
+    title: 'Keep inside position',
+    text: 'Line up between your receiver and the ball. Make the quarterback throw outside instead of giving him an easy throw through the middle.',
   };
 }
 
-export function buildAdjustmentPlan(fm, traits = []) {
+export function buildAdjustmentPlan(fm, traits = [], situation = {}) {
   const selectedCall = fm?.rankedCoverages?.find(call => call.name === fm?.recommendedCoverage);
   const family = getCoverageFamily(fm?.recommendedCoverage || '', selectedCall?.tag);
   const isZone = ['quarters', 'split', 'tampa2', 'cover2', 'cover3'].includes(family);
@@ -65,31 +73,31 @@ export function buildAdjustmentPlan(fm, traits = []) {
     settings.push({
       priority: 90,
       setting: 'Plaster', value: 'Conservative · Out of Pocket + Time',
-      why: 'Adds scramble-drill help after the quarterback extends the play.',
-      tradeoff: 'Keeps the original zone intact longer before defenders attach to receivers.',
+      why: 'You marked a scrambling quarterback. Defenders can find nearby receivers after the quarterback breaks the pocket.',
+      tradeoff: 'Coverage stays in its original zone longer, so the quarterback may still have room to run.',
     });
   }
 
-  if (traits.includes('redzone_spec') && isZone) {
+  if (situation?.down === 'rz' && isZone) {
     settings.push({
       priority: 100,
       setting: 'Red Zone Awareness', value: 'On',
-      why: 'Improves zone spacing when the field is compressed near the goal line.',
-      tradeoff: 'Use it in the red zone; return to your normal plan outside it.',
+      why: 'You are in the red zone. This helps zone defenders tighten up as the field gets shorter.',
+      tradeoff: 'Turn it back off when the drive leaves the red zone.',
     });
   } else if (traits.includes('elite_te')) {
     settings.push({
       priority: 70,
       setting: 'Roll Coverage', value: 'TE1',
-      why: 'Leans help toward the tight end instead of asking one defender to win alone.',
-      tradeoff: 'The opposite side receives less help.',
+      why: 'You marked an elite tight end. Make the coverage lean toward him instead of leaving one defender alone.',
+      tradeoff: 'Receivers away from the tight end get less safety help.',
     });
   } else if (traits.includes('elite_wr')) {
     settings.push({
       priority: 70,
       setting: 'Roll Coverage', value: 'Fastest',
-      why: 'Leans help toward the receiver most likely to create an explosive play.',
-      tradeoff: 'The opposite side receives less help.',
+      why: 'You marked an elite speed threat. Make the coverage lean toward the fastest receiver.',
+      tradeoff: 'The rest of the formation gets less safety help.',
     });
   }
 
@@ -97,15 +105,15 @@ export function buildAdjustmentPlan(fm, traits = []) {
     settings.push({
       priority: 100,
       setting: 'Defensive Aggression', value: 'Conservative',
-      why: 'Keeps linebackers more patient against run action and underneath play-action routes.',
-      tradeoff: 'They will trigger downhill more slowly against the handoff.',
+      why: 'You marked play action. This keeps linebackers from charging at the run fake and opening a throw behind them.',
+      tradeoff: 'Linebackers will attack real handoffs more slowly.',
     });
-  } else if (hasAny(traits, ['short_yardage_run', 'p22', 'p23']) && !hasAny(traits, ['deep_shots', 'rpo'])) {
+  } else if (situation?.distance === 'short' && hasAny(traits, ['short_yardage_run', 'p22', 'p23']) && !hasAny(traits, ['deep_shots', 'rpo'])) {
     settings.push({
       priority: 90,
       setting: 'Defensive Aggression', value: 'Aggressive',
-      why: 'Gets second-level defenders downhill faster against a confirmed heavy run threat.',
-      tradeoff: 'Higher play-action risk; reset it when the offense spreads out.',
+      why: 'It is short yardage and you marked a heavy run threat. Linebackers will attack downhill sooner.',
+      tradeoff: 'Play action can open a large throwing window behind them. Reset it after short yardage.',
     });
   }
 
@@ -121,17 +129,35 @@ export function buildAdjustmentPlan(fm, traits = []) {
     });
   }
 
+  if (traits.includes('redzone_spec') && situation?.down !== 'rz') {
+    alerts.push({
+      priority: 90,
+      when: 'The ball enters the red zone',
+      action: 'Turn Red Zone Awareness on for zone calls. Turn it off again when the drive leaves the red zone.',
+    });
+  }
+
+  if (traits.includes('short_yardage_run') && situation?.distance !== 'short') {
+    alerts.push({
+      priority: 85,
+      when: 'It becomes 3rd/4th-and-short',
+      action: 'If the offense shows heavy personnel, use Aggressive defensive behavior. Reset it when normal down-and-distance returns.',
+    });
+  }
+
   if (traits.includes('inside_run') && traits.includes('outside_run')) {
     alerts.push({
-      when: 'When the run direction changes',
-      action: 'Return the front to normal. Do not leave it pinched or spread based only on the scouting report.',
+      priority: 70,
+      when: 'The offense changes where it is running',
+      action: 'Return the defensive line to normal. Do not leave the line pinched or spread because both runs appeared in the scout.',
     });
   }
 
   if (hasAny(traits, ['hurry_up', 'no_huddle', 'tempo_shift'])) {
     alerts.push({
-      when: 'If the offense goes fast',
-      action: 'Keep the base call and one adjustment you trust. Skip extra menu changes and get aligned first.',
+      priority: 100,
+      when: 'The offense goes hurry-up',
+      action: 'Keep the base call and one adjustment you trust. Get lined up before trying another menu change.',
     });
   }
 
@@ -146,7 +172,11 @@ export function buildAdjustmentPlan(fm, traits = []) {
         why: item.why,
         tradeoff: item.tradeoff,
       })),
-    alerts: alerts.slice(0, 2),
+    alerts: alerts
+      .map((item, order) => ({ priority: item.priority ?? 80, order, ...item }))
+      .sort((a, b) => b.priority - a.priority || a.order - b.order)
+      .slice(0, 2)
+      .map(item => ({ when: item.when, action: item.action })),
     userKey: userKeyFor(traits),
   };
 }

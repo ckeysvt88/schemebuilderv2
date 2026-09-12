@@ -32,3 +32,10 @@ Source: [EA SPORTS College Football 27 Title Update — August 6, 2026](https://
 - Claims that a generic formation always assigns a particular linebacker as a spy.
 - Exact rush, underneath-zone, or run-fit counts without verified play art.
 - A fixed safety depth or defensive-line technique based only on a season-long tendency.
+
+## Game-day copy rules
+
+- All 57 selectable Scout Traits are represented in the coaching profile. Trips and empty may also come from the selected offensive family.
+- A scouting trait describes what the opponent tends to do; it does not prove the current play. Red-zone and short-yardage settings require the matching live situation.
+- Coverage cards use five coaching prompts: best spot, what the defense is taking away, the offense's likely answer, the user's job, and the signal to leave the call.
+- The default view stays short. The user's job and the call-change trigger remain under one optional dropdown.
