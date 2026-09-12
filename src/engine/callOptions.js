@@ -6,24 +6,30 @@ const MOBILE_TRAITS = new Set(['option_run', 'mobile_qb', 'dual_threat', 'qb_scr
 
 const hasAny = (traits, set) => traits.some(trait => set.has(trait));
 
-const POSITION_ROLE_FIT = {
+export const PERSONAL_CALL_WEIGHTS = Object.freeze({
+  position: Object.freeze({
   middle: { mobile: 7, run: 3, quick: 1 },
   safety: { safe: 7, overall: 1 },
   slot: { quick: 7, pressure: 1 },
   line: { pressure: 7, run: 2 },
-};
-
-const STYLE_ROLE_FIT = {
+  }),
+  style: Object.freeze({
   balanced: { overall: 5 },
   safe: { safe: 9 },
   pressure: { pressure: 9 },
-};
+  }),
+  situation: Object.freeze({
+    '3lg': { safe: 10 },
+    '3sh': { run: 10, quick: 6 },
+  }),
+});
 
-function personalFit(option, profile, order) {
+function personalFit(option, profile, situation, order) {
   const roles = option.optionRoles.map(role => role.id);
-  const styleFit = Math.max(0, ...roles.map(role => STYLE_ROLE_FIT[profile.callStyle]?.[role] || 0));
-  const positionFit = Math.max(0, ...roles.map(role => POSITION_ROLE_FIT[profile.position]?.[role] || 0));
-  return { option, order, styleFit, positionFit, total: styleFit + positionFit };
+  const styleFit = Math.max(0, ...roles.map(role => PERSONAL_CALL_WEIGHTS.style[profile.callStyle]?.[role] || 0));
+  const positionFit = Math.max(0, ...roles.map(role => PERSONAL_CALL_WEIGHTS.position[profile.position]?.[role] || 0));
+  const situationFit = Math.max(0, ...roles.map(role => PERSONAL_CALL_WEIGHTS.situation[situation]?.[role] || 0));
+  return { option, order, styleFit, positionFit, situationFit, total: styleFit + positionFit + situationFit };
 }
 
 function personalReason(fit, profile) {
@@ -49,8 +55,15 @@ function personalReason(fit, profile) {
       : profile.callStyle === 'balanced' && roles.includes('overall')
         ? 'It is still the strongest all-around matchup.'
         : '';
-  if (positionReason && styleReason) return `${positionReason} ${styleReason}`;
-  if (positionReason || styleReason) return positionReason || styleReason;
+  const situationReason = fit.situationFit > 0 && roles.includes('safe')
+    ? 'The long-yardage priority is protecting the sticks and preventing the explosive pass.'
+    : fit.situationFit > 0 && roles.includes('run')
+      ? 'The short-yardage priority is fitting the run first.'
+      : fit.situationFit > 0 && roles.includes('quick')
+        ? 'The short-yardage priority includes the quick throw and RPO answer.'
+        : '';
+  const reasons = [positionReason, styleReason, situationReason].filter(Boolean);
+  if (reasons.length) return reasons.join(' ');
   return 'A stronger alternative for your saved preferences is not supported in this formation, so stay with Best Overall.';
 }
 
@@ -144,7 +157,7 @@ export function buildCallOptions(rankedCalls = [], traits = [], situation = 'bas
   }
 
   const profile = normalizeUserProfile(userProfile);
-  const fitted = options.map((option, order) => personalFit(option, profile, order));
+  const fitted = options.map((option, order) => personalFit(option, profile, situation, order));
   const playerFit = fitted.sort((a, b) => b.total - a.total || a.order - b.order)[0];
   const maxVisible = Math.max(1, limit);
   const visible = options.slice(0, maxVisible);
@@ -156,5 +169,12 @@ export function buildCallOptions(rankedCalls = [], traits = [], situation = 'bas
     ...option,
     isPlayerChoice: option.name === playerFit?.option.name,
     playerChoiceReason: option.name === playerFit?.option.name ? personalReason(playerFit, profile) : '',
+    personalFit: option.name === playerFit?.option.name ? {
+      style: playerFit.styleFit,
+      userPosition: playerFit.positionFit,
+      situation: playerFit.situationFit,
+      total: playerFit.total,
+      basis: 'Authored preference weights; not a gameplay success probability.',
+    } : null,
   }));
 }

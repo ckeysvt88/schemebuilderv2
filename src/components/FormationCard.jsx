@@ -226,7 +226,10 @@ export default function FormationCard({ fm, onSelect, isSelected, myBook }) {
 
       {fm.recommendedCoverage && <div style={{ fontSize: 12, color: "var(--color-text-2)", marginTop: 6, lineHeight: 1.45 }}>
         <div><strong>Best overall:</strong> {fm.recommendedCoverage}</div>
-        {fm.personalizedCoverage !== fm.recommendedCoverage && <div style={{ color: "var(--color-gold)" }}><strong>Best for you:</strong> {fm.personalizedCoverage}</div>}
+        <div style={{ color: "var(--color-gold)", display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap" }}>
+          <span><strong>Best for you:</strong> {fm.personalizedCoverage || fm.recommendedCoverage}</span>
+          {fm.personalizedRole && <span style={{ fontSize: 9, padding: "1px 5px", border: "1px solid var(--color-gold)", borderRadius: 4, fontFamily: "var(--font-mono)", fontWeight: 800 }}>{fm.personalizedRole}</span>}
+        </div>
       </div>}
 
       {/* Score progress bar */}

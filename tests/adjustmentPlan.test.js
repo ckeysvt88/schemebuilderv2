@@ -11,15 +11,22 @@ test('mixed quick and deep threats do not create conflicting preset instructions
 
 test('mobile quarterback guidance uses the available QB Scramble preset', () => {
   const plan = buildAdjustmentPlan(fm('Cover 3 Sky'), ['mobile_qb']);
-  const preset = plan.settings.find(item => item.setting === 'In-game preset');
-  assert.equal(preset.value, 'QB Scramble');
+  assert.equal(plan.preset.value, 'QB Scramble');
+  assert.match(JSON.stringify(plan.settings), /QB Contain/);
   assert.doesNotMatch(JSON.stringify(plan), /MIKE\/WILL Assignment|QB Spy/);
 });
 
 test('the preset menu gives direct answers for a repeated single threat', () => {
-  assert.match(JSON.stringify(buildAdjustmentPlan(fm('Cover 1 Robber Press'), ['screens'])), /Defend Screen Pass/);
-  assert.match(JSON.stringify(buildAdjustmentPlan(fm('Cover 3 Sky'), ['quick_game'])), /Play Short Routes/);
-  assert.match(JSON.stringify(buildAdjustmentPlan(fm('Cover 3 Sky'), ['deep_shots'])), /No Deep Passes/);
+  assert.equal(buildAdjustmentPlan(fm('Cover 1 Robber Press'), ['screens']).preset.value, 'Defend Screen Pass');
+  assert.equal(buildAdjustmentPlan(fm('Cover 3 Sky'), ['quick_game']).preset.value, 'Play Short Routes');
+  assert.equal(buildAdjustmentPlan(fm('Cover 3 Sky'), ['deep_shots']).preset.value, 'No Deep Passes');
+});
+
+test('a quick preset does not replace the actual coaching adjustments', () => {
+  const plan = buildAdjustmentPlan(fm('Cover 3 Sky'), ['inside_run', 'quick_game']);
+  assert.equal(plan.preset.value, 'Play Short Routes');
+  assert.match(JSON.stringify(plan.settings), /Gap Integrity|Underneath/);
+  assert.doesNotMatch(JSON.stringify(plan.settings), /In-game preset/);
 });
 
 test('play action receives patient linebacker behavior rather than a conflicting run instruction', () => {

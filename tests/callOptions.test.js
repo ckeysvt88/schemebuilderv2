@@ -62,3 +62,16 @@ test('unsupported player style falls back to best overall', () => {
   assert.equal(menu[0].isPlayerChoice, true);
   assert.match(menu[0].playerChoiceReason, /not supported/);
 });
+
+test('situational objectives change the personalized alternative and remain fully ledgered', () => {
+  const long = buildCallOptions(calls, ['inside_run', 'quick_game'], '3lg', 4, { position: 'middle', callStyle: 'balanced' });
+  const short = buildCallOptions(calls, ['inside_run', 'quick_game'], '3sh', 4, { position: 'middle', callStyle: 'balanced' });
+  const longChoice = long.find(call => call.isPlayerChoice);
+  const shortChoice = short.find(call => call.isPlayerChoice);
+  assert.ok(longChoice.optionRoles.some(role => role.id === 'safe'));
+  assert.ok(shortChoice.optionRoles.some(role => role.id === 'run'));
+  for (const choice of [longChoice, shortChoice]) {
+    assert.equal(choice.personalFit.style + choice.personalFit.userPosition + choice.personalFit.situation, choice.personalFit.total);
+    assert.match(choice.personalFit.basis, /not a gameplay success probability/);
+  }
+});

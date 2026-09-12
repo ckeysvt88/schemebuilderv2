@@ -37,10 +37,13 @@ export function recommend({ traits = [], book = 'All', runPass = 4, familyId = n
     const best = rankedCoverages[0];
     const callOptions = buildCallOptions(rankedCoverages, f.effectiveTraits, sit, 4, normalizedUserProfile);
     const playerCall = callOptions.find(call => call.isPlayerChoice) || callOptions[0];
+    const playerRole = playerCall?.optionRoles?.find(role => role.id !== 'overall') || playerCall?.optionRoles?.[0];
     return [{ ...f, formationScore: f.sc, sc: best.sc, ledger: [...f.ledger, ...best.ledger],
       matchup: best.matchup, rankedCoverages, callOptions, recommendedCoverage: best.name,
       personalizedCoverage: playerCall?.name || best.name,
+      personalizedRole: playerRole?.label || 'BEST OVERALL',
       personalizedReason: playerCall?.playerChoiceReason || '',
+      personalizedFit: playerCall?.personalFit || null,
       inventoryOmissions: f.coverages.length - verified.length }];
   });
   formations.sort((a, b) => b.sc - a.sc || a.name.localeCompare(b.name));

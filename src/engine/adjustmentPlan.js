@@ -77,7 +77,77 @@ export function buildAdjustmentPlan(fm, traits = [], situation = {}) {
   const alerts = [];
 
   const presetMacro = presetMacroFor(traits);
-  if (presetMacro) settings.push(presetMacro);
+
+  const quick = hasAny(traits, ['quick_game', 'rpo', 'slant_heavy', 'flat_attack', 'qb_checkdown']);
+  const deep = hasAny(traits, ['deep_shots', 'back_shoulder', 'seam_routes', 'two_minute_pass']);
+  const insideBreaks = hasAny(traits, ['crossers', 'middle_heavy', 'slant_heavy']);
+  const outsideBreaks = hasAny(traits, ['flat_attack', 'back_shoulder']);
+  const runThreat = hasAny(traits, ['inside_run', 'outside_run', 'hb_stretch', 'counter_trap', 'fb_lead', 'option_run', 'strong_oline', 'run_heavy_1st', 'short_yardage_run']);
+  const mobileQb = hasAny(traits, ['mobile_qb', 'qb_scramble', 'dual_threat', 'option_run']);
+
+  if (mobileQb) {
+    settings.push({
+      priority: 84,
+      setting: 'Pass Rush', value: 'QB Contain',
+      why: 'Keep the outside rushers wider so the quarterback has to step up instead of escaping around the edge.',
+      tradeoff: 'Contain does not close the middle by itself. The user still has to see the quarterback step up.',
+    });
+  }
+
+  if (runThreat) {
+    settings.push({
+      priority: 82,
+      setting: 'Gap Integrity', value: 'Conservative',
+      why: 'Keep every defender responsible for his run fit and make the ball cut back toward help.',
+      tradeoff: 'You may get fewer instant sheds outside the assigned gap.',
+    });
+  }
+
+  if (isZone && quick && !deep) {
+    settings.push({
+      priority: 78,
+      setting: 'Coverage', value: 'Underneath',
+      why: 'Drive on the short routes the offense keeps using to stay on schedule.',
+      tradeoff: 'Watch for a double move or route breaking behind the underneath defender.',
+    });
+  } else if (isZone && deep && !quick) {
+    settings.push({
+      priority: 78,
+      setting: 'Coverage', value: 'Over the top',
+      why: 'Make the quarterback complete the checkdown instead of winning with a vertical shot.',
+      tradeoff: 'Short routes will have more room before the defense rallies.',
+    });
+  } else if (!isZone && insideBreaks && !outsideBreaks) {
+    settings.push({
+      priority: 78,
+      setting: 'Coverage leverage', value: 'Inside',
+      why: 'Take away the first inside break on slants, digs, and crossers.',
+      tradeoff: 'Outside-breaking routes get cleaner access to the sideline.',
+    });
+  } else if (!isZone && outsideBreaks && !insideBreaks) {
+    settings.push({
+      priority: 78,
+      setting: 'Coverage leverage', value: 'Outside',
+      why: 'Make outside-breaking routes work back through the defender instead of winning cleanly to the sideline.',
+      tradeoff: 'Inside-breaking routes have more room if there is no help waiting there.',
+    });
+  }
+
+  if (traits.includes('field_hash') && !traits.includes('boundary_hash')) {
+    settings.push({
+      priority: 72,
+      setting: 'Safety Midpoint', value: 'Field',
+      why: 'Lean the safety alignment toward the wide side where the offense has more space.',
+      tradeoff: 'The boundary side has less immediate safety help.',
+    });
+  } else if (traits.includes('boundary_hash') && !traits.includes('field_hash')) {
+    settings.push({
+      priority: 72,
+      setting: 'Safety Midpoint', value: 'Boundary',
+      why: 'Lean the safety alignment toward the short side the offense prefers to attack.',
+      tradeoff: 'The wide side has less immediate safety help.',
+    });
+  }
 
   if (situation?.down === 'rz' && isZone) {
     settings.push({
@@ -161,6 +231,12 @@ export function buildAdjustmentPlan(fm, traits = [], situation = {}) {
         why: item.why,
         tradeoff: item.tradeoff,
       })),
+    preset: presetMacro ? {
+      setting: presetMacro.setting,
+      value: presetMacro.value,
+      why: presetMacro.why,
+      tradeoff: presetMacro.tradeoff,
+    } : null,
     alerts: alerts
       .map((item, order) => ({ priority: item.priority ?? 80, order, ...item }))
       .sort((a, b) => b.priority - a.priority || a.order - b.order)

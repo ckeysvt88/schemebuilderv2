@@ -31,6 +31,18 @@ function AdjustmentsPanel({ fm, flat, situation }) {
         </div>
       ))}
 
+      {plan.preset && (
+        <details style={{ background: "var(--color-surface-1)", border: "1px solid var(--color-border-subtle)", borderRadius: 5, padding: "9px 12px", marginTop: 9 }}>
+          <summary style={{ cursor: "pointer", color: "var(--color-gold)", fontSize: 11, fontWeight: 700 }}>Optional one-button counter</summary>
+          <div style={{ display: "flex", justifyContent: "space-between", gap: 10, marginTop: 8 }}>
+            <strong style={{ fontSize: 11, color: "var(--color-text-1)" }}>{plan.preset.setting}</strong>
+            <strong style={{ fontSize: 11, color: "var(--color-gold)", textAlign: "right" }}>{plan.preset.value}</strong>
+          </div>
+          <div style={{ fontSize: 11, color: "var(--color-text-2)", lineHeight: 1.5, marginTop: 4 }}>{plan.preset.why}</div>
+          <div style={{ fontSize: 11, color: "var(--color-text-3)", lineHeight: 1.5, marginTop: 4 }}><strong>Reset it when:</strong> {plan.preset.tradeoff}</div>
+        </details>
+      )}
+
       {plan.alerts.length > 0 && <>
         <div style={{ fontSize: 12, fontWeight: 800, color: "var(--color-text-1)", margin: "16px 0 8px" }}>Only change it when...</div>
         {plan.alerts.map(item => (
