@@ -37,3 +37,17 @@ test('unsupported user-friendly claims are not created', () => {
   const options = buildCallOptions(calls, ['quick_game']);
   assert.ok(options.every(option => option.optionRoles.every(role => role.id !== 'user')));
 });
+
+test('player style selects a supported option without replacing best overall', () => {
+  const safe = buildCallOptions(calls, [], 'base', 6, { callStyle: 'safe' });
+  const pressure = buildCallOptions(calls, [], 'base', 6, { callStyle: 'pressure' });
+  assert.equal(safe[0].optionRoles.some(role => role.id === 'overall'), true);
+  assert.equal(safe.find(call => call.isPlayerChoice)?.name, 'Cover 2 Hard Flat');
+  assert.equal(pressure.find(call => call.isPlayerChoice)?.name, 'Sam Edge 3');
+});
+
+test('unsupported player style falls back to best overall', () => {
+  const menu = buildCallOptions([{ name: 'Cover 3 Sky', tag: 'Base' }], [], 'base', 4, { callStyle: 'safe' });
+  assert.equal(menu[0].isPlayerChoice, true);
+  assert.match(menu[0].playerChoiceReason, /not supported/);
+});

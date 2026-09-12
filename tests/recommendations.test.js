@@ -83,18 +83,18 @@ test('PDF current calls and share output match the live result; matrix changes o
     const input = { traits, familyId, runPass: 6, down: 3, distance: 'long', book: 'All' };
     const live = recommend(input);
     const pdf = buildCallSheetData({ input });
-    assert.deepEqual(pdf.topFormations.map(f => [f.name, f.sc, f.coverage]), live.formations.slice(0, 4).map(f => [f.name, f.sc, f.recommendedCoverage]));
+    assert.deepEqual(pdf.topFormations.map(f => [f.name, f.sc, f.coverage]), live.formations.slice(0, 4).map(f => [f.name, f.sc, f.personalizedCoverage]));
     const share = buildRecommendationShareText(live, traits);
     for (const f of live.formations.slice(0, 4)) {
       assert.ok(share.includes(`${f.name} — fit ${f.sc}/100`));
-      assert.ok(share.includes(`Call: ${f.recommendedCoverage}`));
+      assert.ok(share.includes(`My call: ${f.personalizedCoverage}`));
       assert.ok(!share.includes('Suggested blitz frequency'));
     }
     for (const row of pdf.situationMatrix.filter(r => r.down)) {
       const expected = recommend({ ...input, down: row.down, distance: row.distance }).formations[0];
       assert.equal(row.primary?.name, expected?.name);
       assert.equal(row.primary?.sc, expected?.sc);
-      assert.equal(row.primary?.coverage, expected?.recommendedCoverage);
+      assert.equal(row.primary?.coverage, expected?.personalizedCoverage);
     }
     assert.equal(pdf.situationMatrix.find(r => r.label === '2-MINUTE DEF').primary, null);
     assert.equal(pdf.situationMatrix.find(r => r.label === 'GOAL LINE').primary, null);

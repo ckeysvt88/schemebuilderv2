@@ -61,8 +61,9 @@ function userKeyFor(traits) {
 }
 
 export function buildAdjustmentPlan(fm, traits = [], situation = {}) {
-  const selectedCall = fm?.rankedCoverages?.find(call => call.name === fm?.recommendedCoverage);
-  const family = getCoverageFamily(fm?.recommendedCoverage || '', selectedCall?.tag);
+  const activeCoverage = fm?.personalizedCoverage || fm?.recommendedCoverage;
+  const selectedCall = fm?.rankedCoverages?.find(call => call.name === activeCoverage);
+  const family = getCoverageFamily(activeCoverage || '', selectedCall?.tag);
   const isZone = ['quarters', 'split', 'tampa2', 'cover2', 'cover3'].includes(family);
   const settings = [];
   const alerts = [];

@@ -224,8 +224,9 @@ export default function FormationCard({ fm, onSelect, isSelected, myBook }) {
         </div>
       </div>
 
-      {fm.recommendedCoverage && <div style={{ fontSize: 12, color: "var(--color-text-2)", marginTop: 6 }}>
-        Suggested call: {fm.recommendedCoverage}
+      {fm.recommendedCoverage && <div style={{ fontSize: 12, color: "var(--color-text-2)", marginTop: 6, lineHeight: 1.45 }}>
+        <div><strong>Best overall:</strong> {fm.recommendedCoverage}</div>
+        {fm.personalizedCoverage !== fm.recommendedCoverage && <div style={{ color: "var(--color-gold)" }}><strong>My call:</strong> {fm.personalizedCoverage}</div>}
       </div>}
 
       {/* Score progress bar */}

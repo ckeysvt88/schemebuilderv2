@@ -33,7 +33,8 @@ function pluck(f) {
   return {
     name:       f.name,
     matchup:    f.matchup,
-    coverage:   f.recommendedCoverage,
+    coverage:   f.personalizedCoverage || f.recommendedCoverage,
+    bestOverall: f.recommendedCoverage,
     sc:         f.sc,
     priority:   f.priority,
     personnel:  f.personnel,

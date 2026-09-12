@@ -9,9 +9,11 @@ import { getPlayAssignmentEvidence } from '../data/playEvidence.js';
 import { isDeepSafeCall } from '../data/coverageFlags.js';
 import { TRAIT_LABELS } from '../data/traits.js';
 import { PERSONNEL_FAMILIES } from '../data/personnel.js';
+import { normalizeUserProfile, userProfileLabels } from '../data/userProfile.js';
 
 // The single entry point for live cards, details, sharing and PDF rows.
-export function recommend({ traits = [], book = 'All', runPass = 4, familyId = null, down = 'base', distance = '' } = {}) {
+export function recommend({ traits = [], book = 'All', runPass = 4, familyId = null, down = 'base', distance = '', userProfile = {} } = {}) {
+  const normalizedUserProfile = normalizeUserProfile(userProfile);
   const context = normalizeSituation(down, distance);
   const sit = coverageSituation(context);
   const scored = applyDownDistance(scoreAll(traits, book, runPass, familyId), down, distance);
@@ -33,20 +35,25 @@ export function recommend({ traits = [], book = 'All', runPass = 4, familyId = n
     }).filter(c => c && c.sc > 0).sort((a, b) => b.sc - a.sc || a.baselineOrder - b.baselineOrder);
     if (!rankedCoverages.length) return [];
     const best = rankedCoverages[0];
-    const callOptions = buildCallOptions(rankedCoverages, f.effectiveTraits, sit);
+    const callOptions = buildCallOptions(rankedCoverages, f.effectiveTraits, sit, 4, normalizedUserProfile);
+    const playerCall = callOptions.find(call => call.isPlayerChoice) || callOptions[0];
     return [{ ...f, formationScore: f.sc, sc: best.sc, ledger: [...f.ledger, ...best.ledger],
       matchup: best.matchup, rankedCoverages, callOptions, recommendedCoverage: best.name,
+      personalizedCoverage: playerCall?.name || best.name,
+      personalizedReason: playerCall?.playerChoiceReason || '',
       inventoryOmissions: f.coverages.length - verified.length }];
   });
   formations.sort((a, b) => b.sc - a.sc || a.name.localeCompare(b.name));
-  return { context, familyId, familyLabel: PERSONNEL_FAMILIES[familyId]?.label || 'All scouted looks', book, runPass, formations };
+  return { context, familyId, familyLabel: PERSONNEL_FAMILIES[familyId]?.label || 'All scouted looks', book, runPass,
+    userProfile: normalizedUserProfile, userProfileLabels: userProfileLabels(normalizedUserProfile), formations };
 }
 
 export function buildRecommendationShareText(result, traits = []) {
   const lines = ['CFB 27 — DEFENSIVE GAME PLAN', `${result.familyLabel} · ${result.context.label} · ${result.book}`, ''];
   if (traits.length) lines.push('Scouted: ' + traits.map(t => TRAIT_LABELS[t] || t).join(', '), '');
   for (const [i, f] of result.formations.slice(0, 4).entries()) {
-    lines.push(`#${i + 1} ${f.name} — fit ${f.sc}/100`, `Call: ${f.recommendedCoverage}`);
+    lines.push(`#${i + 1} ${f.name} — fit ${f.sc}/100`, `My call: ${f.personalizedCoverage}`);
+    if (f.personalizedCoverage !== f.recommendedCoverage) lines.push(`Best overall: ${f.recommendedCoverage}`);
     lines.push(`Assignments: ${f.matchup.structure}`);
     if (f.matchup.status === 'verified') lines.push(`Main concern: ${f.matchup.weaknesses[0] || 'No verified assignment warning triggered.'}`);
     lines.push(`Not assessed: ${f.matchup.unknowns.join(' ')}`);

@@ -50,7 +50,7 @@ function AdjustmentsPanel({ fm, flat, situation }) {
   );
 }
 
-function CoverageCard({ call, index, flat, recommended = false }) {
+function CoverageCard({ call, index, flat, recommended = false, playerChoice = false }) {
   const guidance = getCoverageGuidance(call.name, call.tag, flat);
   return (
     <div style={{ background: "var(--color-surface-1)", border: "1px solid var(--color-border-subtle)", borderLeft: `3px solid ${["#b8880c","#6090b8","#7858a0","#508860"][index] || "#b8880c"}`, borderRadius: 5, padding: "14px 16px", marginBottom: 12 }}>
@@ -63,12 +63,14 @@ function CoverageCard({ call, index, flat, recommended = false }) {
             {role.label}
           </span>
         ))}
+        {playerChoice && <span style={{ fontSize: "10px", background: "var(--color-gold-surface)", border: "1px solid var(--color-gold)", color: "var(--color-gold-bright)", padding: "2px 5px", borderRadius: 4, fontWeight: "bold", fontFamily: "'IBM Plex Mono', monospace" }}>MY CALL</span>}
       </div>
       {call.optionRoles?.length > 0 && (
         <div style={{ fontSize: 11, color: "var(--color-text-2)", lineHeight: 1.5, marginBottom: 7 }}>
           {call.optionRoles.map(role => <div key={role.id}>{role.reason}</div>)}
         </div>
       )}
+      {playerChoice && call.playerChoiceReason && call.optionRoles?.[0]?.id !== 'overall' && <div style={{ fontSize: 11, color: "var(--color-gold)", lineHeight: 1.45, marginBottom: 7 }}>{call.playerChoiceReason}</div>}
       <div style={{ fontSize: 11, color: "var(--color-text-2)", lineHeight: 1.65 }}>
         <div><strong>Use it when:</strong> {guidance.bestSpot}</div>
         <div><strong>Make them beat you with:</strong> {guidance.offenseAnswer}</div>
@@ -168,8 +170,8 @@ export default function FormationDetail({ fm, flat, situation }) {
           const more = fm.rankedCoverages.filter(call => !choiceNames.has(call.name));
           return <>
             <div style={{ fontSize: 12, fontWeight: 800, color: "var(--color-text-1)", marginBottom: 3 }}>Choose the call for the problem</div>
-            <div style={{ fontSize: 11, color: "var(--color-text-3)", lineHeight: 1.5, marginBottom: 10 }}>Start with Best Overall. Change only when the offense shows you why.</div>
-            {choices.map((call, index) => <CoverageCard key={call.name} call={call} index={index} flat={flat} recommended={call.name === fm.recommendedCoverage} />)}
+            <div style={{ fontSize: 11, color: "var(--color-text-3)", lineHeight: 1.5, marginBottom: 10 }}>Best Overall is the football answer. My Call also considers the style saved under My Defense.</div>
+            {choices.map((call, index) => <CoverageCard key={call.name} call={call} index={index} flat={flat} recommended={call.name === fm.recommendedCoverage} playerChoice={call.name === fm.personalizedCoverage} />)}
             {more.length > 0 && (
               <details style={{ marginTop: 8 }}>
                 <summary style={{ cursor: "pointer", color: "var(--color-gold)", fontSize: 11, fontWeight: 700, marginBottom: 10 }}>More calls in this formation ({more.length})</summary>

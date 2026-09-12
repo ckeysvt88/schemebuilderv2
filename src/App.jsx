@@ -83,8 +83,8 @@ export default function App() {
   const activeFamily = availableFamilies.includes(activeP) ? activeP : (availableFamilies[0] || null);
   const familyId = mainTab === 'personnel' ? activeFamily : null;
   const scored = useMemo(() => scoreAll(flat, myBook, runPass), [flat, myBook, runPass]);
-  const recommendationInput = useMemo(() => ({ traits: flat, book: myBook, runPass, familyId, down: situDown, distance: situDist }),
-    [flat, myBook, runPass, familyId, situDown, situDist]);
+  const recommendationInput = useMemo(() => ({ traits: flat, book: myBook, runPass, familyId, down: situDown, distance: situDist, userProfile }),
+    [flat, myBook, runPass, familyId, situDown, situDist, userProfile]);
   const recommendation = useMemo(() => recommend(recommendationInput), [recommendationInput]);
 
   // ── Navigation — cleans up plan-specific UI when leaving plan/notes ───────────

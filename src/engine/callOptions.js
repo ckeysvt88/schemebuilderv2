@@ -1,4 +1,5 @@
 import { COVERAGE_FLAGS } from '../data/coverageFlags.js';
+import { normalizeUserProfile } from '../data/userProfile.js';
 
 const QUICK_TRAITS = new Set(['rpo', 'quick_game', 'west_coast', 'screens', 'flat_attack', 'slant_heavy', 'qb_checkdown']);
 const MOBILE_TRAITS = new Set(['option_run', 'mobile_qb', 'dual_threat', 'qb_scramble']);
@@ -38,7 +39,7 @@ function bestRunFit(calls, traits) {
 // Builds a short, evidence-gated call menu. These labels describe authored
 // exact-call classifications; they do not infer rushers, run fits or user jobs
 // from the formation shell.
-export function buildCallOptions(rankedCalls = [], traits = [], situation = 'base', limit = 4) {
+export function buildCallOptions(rankedCalls = [], traits = [], situation = 'base', limit = 4, userProfile = {}) {
   if (!rankedCalls.length) return [];
   const options = [];
 
@@ -94,5 +95,21 @@ export function buildCallOptions(rankedCalls = [], traits = [], situation = 'bas
     });
   }
 
-  return options.slice(0, Math.max(1, limit));
+  const visible = options.slice(0, Math.max(1, limit));
+  const profile = normalizeUserProfile(userProfile);
+  const preferredRole = profile.callStyle === 'safe' ? 'safe' : profile.callStyle === 'pressure' ? 'pressure' : 'overall';
+  const playerCall = visible.find(option => option.optionRoles.some(role => role.id === preferredRole)) || visible[0];
+
+  return visible.map(option => ({
+    ...option,
+    isPlayerChoice: option.name === playerCall.name,
+    playerChoiceReason: option.name !== playerCall.name ? ''
+      : preferredRole === 'safe' && option.optionRoles.some(role => role.id === 'safe')
+        ? 'Matches your Protect Explosives style.'
+        : preferredRole === 'pressure' && option.optionRoles.some(role => role.id === 'pressure')
+          ? 'Matches your Create Pressure style.'
+          : profile.callStyle === 'balanced'
+            ? 'Matches your Balanced style.'
+            : 'Your preferred style is not supported by this menu, so stay with Best Overall.',
+  }));
 }
