@@ -50,6 +50,39 @@ function AdjustmentsPanel({ fm, flat, situation }) {
   );
 }
 
+function CoverageCard({ call, index, flat, recommended = false }) {
+  const guidance = getCoverageGuidance(call.name, call.tag, flat);
+  return (
+    <div style={{ background: "var(--color-surface-1)", border: "1px solid var(--color-border-subtle)", borderLeft: `3px solid ${["#b8880c","#6090b8","#7858a0","#508860"][index] || "#b8880c"}`, borderRadius: 5, padding: "14px 16px", marginBottom: 12 }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 7, flexWrap: "wrap", marginBottom: 6 }}>
+        <span style={{ fontWeight: "bold", fontSize: 11, color: "var(--color-text-1)" }}>{call.name}</span>
+        <span style={{ fontSize: "10px", background: "var(--color-gold-surface)", border: "1px solid var(--color-gold-border)", color: "var(--color-gold)", padding: "2px 5px", borderRadius: 4, fontFamily: "'IBM Plex Mono', monospace" }}>{call.tag}</span>
+        {recommended && !call.optionRoles?.length && <span style={{ fontSize: "10px", background: "var(--color-surface-success)", border: "1px solid var(--color-border)", color: "var(--color-success)", padding: "2px 5px", borderRadius: 4, fontWeight: "bold", fontFamily: "'IBM Plex Mono', monospace" }}>BEST OVERALL</span>}
+        {call.optionRoles?.map(role => (
+          <span key={role.id} style={{ fontSize: "10px", background: role.id === 'overall' ? "var(--color-surface-success)" : "var(--color-surface-2)", border: "1px solid var(--color-border)", color: role.id === 'overall' ? "var(--color-success)" : "var(--color-text-2)", padding: "2px 5px", borderRadius: 4, fontWeight: "bold", fontFamily: "'IBM Plex Mono', monospace" }}>
+            {role.label}
+          </span>
+        ))}
+      </div>
+      {call.optionRoles?.length > 0 && (
+        <div style={{ fontSize: 11, color: "var(--color-text-2)", lineHeight: 1.5, marginBottom: 7 }}>
+          {call.optionRoles.map(role => <div key={role.id}>{role.reason}</div>)}
+        </div>
+      )}
+      <div style={{ fontSize: 11, color: "var(--color-text-2)", lineHeight: 1.65 }}>
+        <div><strong>Use it when:</strong> {guidance.bestSpot}</div>
+        <div><strong>Make them beat you with:</strong> {guidance.offenseAnswer}</div>
+      </div>
+      <details style={{ fontSize: 11, lineHeight: 1.55, marginTop: 8 }}>
+        <summary style={{ cursor: "pointer", color: "var(--color-gold)", fontWeight: 700 }}>Call coaching</summary>
+        <p><strong>This call protects:</strong> {guidance.takesAway}</p>
+        <p><strong>Your job:</strong> {guidance.userKey}</p>
+        <p><strong>Change the call when:</strong> {guidance.getOut}</p>
+      </details>
+    </div>
+  );
+}
+
 export default function FormationDetail({ fm, flat, situation }) {
   const [tab, setTab] = useState("coverages");
   const [showWhy, setShowWhy] = useState(false);
@@ -129,29 +162,22 @@ export default function FormationDetail({ fm, flat, situation }) {
       </div>
 
       <div style={{ padding: 13 }}>
-        {tab === "coverages" && fm.rankedCoverages.map((c, i) => {
-          const guidance = getCoverageGuidance(c.name, c.tag, flat);
-          return (
-          <div key={c.name} style={{ background: "var(--color-surface-1)", border: "1px solid var(--color-border-subtle)", borderLeft: `3px solid ${["#b8880c","#6090b8","#7858a0","#508860"][i] || "#b8880c"}`, borderRadius: 5, padding: "14px 16px", marginBottom: 16 }}>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 4 }}>
-              <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                <span style={{ fontWeight: "bold", fontSize: 11, color: "var(--color-text-1)" }}>{c.name}</span>
-                <span style={{ fontSize: "12px", background: "var(--color-gold-surface)", border: "1px solid var(--color-gold-border)", color: "var(--color-gold)", padding: "1px 5px", borderRadius: 4, fontFamily: "'IBM Plex Mono', monospace" }}>{c.tag}</span>
-                {i === 0 && <span style={{ fontSize: "12px", background: "var(--color-surface-success)", border: "1px solid var(--color-border)", color: "var(--color-success)", padding: "1px 5px", borderRadius: 4, fontWeight: "bold", fontFamily: "'IBM Plex Mono', monospace" }}>RECOMMENDED</span>}
-              </div>
-            </div>
-            <div style={{ fontSize: 11, color: "var(--color-text-2)", lineHeight: 1.65 }}>
-              <div><strong>Best spot:</strong> {guidance.bestSpot}</div>
-              <div><strong>We are taking away:</strong> {guidance.takesAway}</div>
-              <div><strong>They will try:</strong> {guidance.offenseAnswer}</div>
-            </div>
-            <details style={{ fontSize: 11, lineHeight: 1.55, marginTop: 8 }}>
-              <summary style={{ cursor: "pointer", color: "var(--color-gold)", fontWeight: 700 }}>How to play this call</summary>
-              <p><strong>Your job:</strong> {guidance.userKey}</p>
-              <p><strong>Get out of this call if:</strong> {guidance.getOut}</p>
-            </details>
-          </div>
-        )})}
+        {tab === "coverages" && (() => {
+          const choices = fm.callOptions?.length ? fm.callOptions : fm.rankedCoverages.slice(0, 4);
+          const choiceNames = new Set(choices.map(call => call.name));
+          const more = fm.rankedCoverages.filter(call => !choiceNames.has(call.name));
+          return <>
+            <div style={{ fontSize: 12, fontWeight: 800, color: "var(--color-text-1)", marginBottom: 3 }}>Choose the call for the problem</div>
+            <div style={{ fontSize: 11, color: "var(--color-text-3)", lineHeight: 1.5, marginBottom: 10 }}>Start with Best Overall. Change only when the offense shows you why.</div>
+            {choices.map((call, index) => <CoverageCard key={call.name} call={call} index={index} flat={flat} recommended={call.name === fm.recommendedCoverage} />)}
+            {more.length > 0 && (
+              <details style={{ marginTop: 8 }}>
+                <summary style={{ cursor: "pointer", color: "var(--color-gold)", fontSize: 11, fontWeight: 700, marginBottom: 10 }}>More calls in this formation ({more.length})</summary>
+                {more.map((call, index) => <CoverageCard key={call.name} call={call} index={index + choices.length} flat={flat} />)}
+              </details>
+            )}
+          </>;
+        })()}
 
         {tab === "preSnap" && (
           <div>

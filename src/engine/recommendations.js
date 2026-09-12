@@ -2,6 +2,7 @@ import { scoreAll } from './scoring.js';
 import { applyDownDistance } from './downDistance.js';
 import { normalizeSituation, coverageSituation } from './context.js';
 import { rankCoveragesForSituation } from './coverageRank.js';
+import { buildCallOptions } from './callOptions.js';
 import { evaluateCoverage } from './playMatchup.js';
 import { PLAYS } from '../data/plays.js';
 import { getPlayAssignmentEvidence } from '../data/playEvidence.js';
@@ -32,8 +33,9 @@ export function recommend({ traits = [], book = 'All', runPass = 4, familyId = n
     }).filter(c => c && c.sc > 0).sort((a, b) => b.sc - a.sc || a.baselineOrder - b.baselineOrder);
     if (!rankedCoverages.length) return [];
     const best = rankedCoverages[0];
+    const callOptions = buildCallOptions(rankedCoverages, f.effectiveTraits, sit);
     return [{ ...f, formationScore: f.sc, sc: best.sc, ledger: [...f.ledger, ...best.ledger],
-      matchup: best.matchup, rankedCoverages, recommendedCoverage: best.name,
+      matchup: best.matchup, rankedCoverages, callOptions, recommendedCoverage: best.name,
       inventoryOmissions: f.coverages.length - verified.length }];
   });
   formations.sort((a, b) => b.sc - a.sc || a.name.localeCompare(b.name));
