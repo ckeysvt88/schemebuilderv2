@@ -10,6 +10,7 @@ import FormationCard, { PC, PL } from './FormationCard.jsx';
 import FormationDetail from './FormationDetail.jsx';
 import { ExportPDFButton } from './CallSheetPDF.jsx';
 import UserProfileModal from './UserProfileModal.jsx';
+import DriveLogger from './DriveLogger.jsx';
 import { userProfileLabels } from '../data/userProfile.js';
 
 
@@ -80,7 +81,21 @@ export default function GamePlanScreen({
   const [showTeamInfo, setShowTeamInfo] = useState(false);
   const [pbOpen, setPbOpen] = useState(false);
   const [userProfileOpen, setUserProfileOpen] = useState(false);
+  const [callTestDefaults, setCallTestDefaults] = useState(null);
   const profileLabels = userProfileLabels(userProfile);
+
+  const openCallTest = (fm, selection = {}) => {
+    const plan = selection.plan;
+    setCallTestDefaults({
+      down: situDown === 'base' ? '' : situDown,
+      distance: situDist || '',
+      defensiveFormation: fm.name,
+      defensiveCall: selection.call || fm.personalizedCoverage || fm.recommendedCoverage,
+      userPosition: profileLabels.position,
+      objective: plan?.objective?.label || '',
+      setup: plan?.settings?.map(item => `${item.setting}: ${item.value}`) || [],
+    });
+  };
 
   useEffect(() => { setShowAlignment(false); }, [activeP]);
 
@@ -497,7 +512,7 @@ export default function GamePlanScreen({
                   {persMatches.map(fm => (
                     <div key={fm.name} data-fm-name={fm.name}>
                       <FormationCard fm={fm} onSelect={f => setSelFm(selFm === f.name ? null : f.name)} isSelected={selFm === fm.name} myBook={myBook} />
-                      {selFm === fm.name && <FormationDetail fm={fm} flat={fm.effectiveTraits} situation={{ down: situDown, distance: situDist }} />}
+                      {selFm === fm.name && <FormationDetail fm={fm} flat={fm.effectiveTraits} situation={{ down: situDown, distance: situDist }} onLogCall={selection => openCallTest(fm, selection)} />}
                     </div>
                   ))}
                   </div>
@@ -518,7 +533,7 @@ export default function GamePlanScreen({
                 {group.formations.map(fm => (
                   <div key={fm.name} data-fm-name={fm.name}>
                     <FormationCard fm={fm} onSelect={f => setSelFm(selFm === f.name ? null : f.name)} isSelected={selFm === fm.name} myBook={myBook} />
-                    {selFm === fm.name && <FormationDetail fm={fm} flat={fm.effectiveTraits} situation={{ down: situDown, distance: situDist }} />}
+                    {selFm === fm.name && <FormationDetail fm={fm} flat={fm.effectiveTraits} situation={{ down: situDown, distance: situDist }} onLogCall={selection => openCallTest(fm, selection)} />}
                   </div>
                 ))}
               </div>
@@ -528,6 +543,8 @@ export default function GamePlanScreen({
       </div>
 
     </div>
+
+      {callTestDefaults && <DriveLogger defaults={callTestDefaults} onClose={() => setCallTestDefaults(null)} />}
 
       {/* ── Quick Adjust modal — outside screen-enter to avoid transform stacking context ── */}
       {quickAdjOpen && (

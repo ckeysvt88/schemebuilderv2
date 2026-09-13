@@ -5,7 +5,7 @@ import { getFrontStructure } from '../engine/frontStructure.js';
 import { getCoverageGuidance } from '../engine/coverageGuidance.js';
 import { buildAdjustmentPlan } from '../engine/adjustmentPlan.js';
 
-function AdjustmentsPanel({ fm, flat, situation }) {
+function AdjustmentsPanel({ fm, flat, situation, onLogCall }) {
   const plan = buildAdjustmentPlan(fm, flat, situation);
   return (
     <div>
@@ -81,11 +81,12 @@ function AdjustmentsPanel({ fm, flat, situation }) {
         <strong style={{ fontSize: 11, color: "var(--color-text-1)" }}>{plan.userKey.title}</strong>
         <div style={{ fontSize: 11, color: "var(--color-text-3)", lineHeight: 1.5, marginTop: 4 }}>{plan.userKey.text}</div>
       </div>
+      {onLogCall && <button onClick={() => onLogCall({ call: fm.personalizedCoverage || fm.recommendedCoverage, plan })} style={{ width: "100%", marginTop: 10, padding: "10px 12px", background: "var(--color-gold-surface)", border: "1px solid var(--color-gold)", borderRadius: 6, color: "var(--color-gold-bright)", fontSize: 11, fontWeight: 800, cursor: "pointer" }}>Log this setup after the snap</button>}
     </div>
   );
 }
 
-function CoverageCard({ call, index, flat, recommended = false, playerChoice = false }) {
+function CoverageCard({ call, index, flat, recommended = false, playerChoice = false, onLogCall }) {
   const guidance = getCoverageGuidance(call.name, call.tag, flat);
   return (
     <div style={{ background: "var(--color-surface-1)", border: "1px solid var(--color-border-subtle)", borderLeft: `3px solid ${["#b8880c","#6090b8","#7858a0","#508860"][index] || "#b8880c"}`, borderRadius: 5, padding: "14px 16px", marginBottom: 12 }}>
@@ -116,11 +117,12 @@ function CoverageCard({ call, index, flat, recommended = false, playerChoice = f
         <p><strong>Your job:</strong> {guidance.userKey}</p>
         <p><strong>Change the call when:</strong> {guidance.getOut}</p>
       </details>
+      {onLogCall && <button onClick={() => onLogCall({ call: call.name })} style={{ marginTop: 9, padding: "6px 9px", background: "transparent", border: "1px solid var(--color-gold-border)", borderRadius: 5, color: "var(--color-gold)", fontSize: 10, fontWeight: 700, cursor: "pointer" }}>Test this call</button>}
     </div>
   );
 }
 
-export default function FormationDetail({ fm, flat, situation }) {
+export default function FormationDetail({ fm, flat, situation, onLogCall }) {
   const [tab, setTab] = useState("coverages");
   const [showWhy, setShowWhy] = useState(false);
   const [showScoring, setShowScoring] = useState(false);
@@ -206,11 +208,11 @@ export default function FormationDetail({ fm, flat, situation }) {
           return <>
             <div style={{ fontSize: 12, fontWeight: 800, color: "var(--color-text-1)", marginBottom: 3 }}>Choose the call for the problem</div>
             <div style={{ fontSize: 11, color: "var(--color-text-3)", lineHeight: 1.5, marginBottom: 10 }}>Best Overall is the top matchup. Best For You also considers your saved defensive user and play style.</div>
-            {choices.map((call, index) => <CoverageCard key={call.name} call={call} index={index} flat={flat} recommended={call.name === fm.recommendedCoverage} playerChoice={call.name === fm.personalizedCoverage} />)}
+            {choices.map((call, index) => <CoverageCard key={call.name} call={call} index={index} flat={flat} recommended={call.name === fm.recommendedCoverage} playerChoice={call.name === fm.personalizedCoverage} onLogCall={onLogCall} />)}
             {more.length > 0 && (
               <details style={{ marginTop: 8 }}>
                 <summary style={{ cursor: "pointer", color: "var(--color-gold)", fontSize: 11, fontWeight: 700, marginBottom: 10 }}>More calls in this formation ({more.length})</summary>
-                {more.map((call, index) => <CoverageCard key={call.name} call={call} index={index + choices.length} flat={flat} />)}
+                {more.map((call, index) => <CoverageCard key={call.name} call={call} index={index + choices.length} flat={flat} onLogCall={onLogCall} />)}
               </details>
             )}
           </>;
@@ -229,7 +231,7 @@ export default function FormationDetail({ fm, flat, situation }) {
         )}
 
         {tab === "coaching" && (
-          <AdjustmentsPanel fm={fm} flat={flat} situation={situation} />
+          <AdjustmentsPanel fm={fm} flat={flat} situation={situation} onLogCall={onLogCall} />
         )}
 
         {tab === "callsheet" && (
