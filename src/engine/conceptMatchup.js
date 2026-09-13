@@ -16,6 +16,27 @@ const DIRECT_SCENARIOS = Object.freeze([
   { id: 'play-action', label: 'Play-action shot', tags: ['play_action'], weight: 1 },
 ]);
 
+export const SITUATION_CONCEPT_WEIGHTS = Object.freeze({
+  base: Object.freeze({}),
+  '3lg': Object.freeze({
+    'inside-run': 0.55, 'edge-run': 0.55, 'run-choice': 0.60, 'qb-run': 0.80,
+    rpo: 0.80, quick: 0.85, screen: 1.00, crossers: 1.15, sideline: 1.30,
+    vertical: 1.75, 'play-action': 1.25,
+  }),
+  '3sh': Object.freeze({
+    'inside-run': 1.55, 'edge-run': 1.40, 'run-choice': 1.45, 'qb-run': 1.60,
+    rpo: 1.50, quick: 1.40, screen: 1.00, crossers: 0.85, sideline: 0.85,
+    vertical: 0.85, 'play-action': 1.15,
+  }),
+  rz: Object.freeze({
+    'inside-run': 1.30, 'edge-run': 1.10, 'run-choice': 1.25, 'qb-run': 1.45,
+    rpo: 1.35, quick: 1.30, screen: 0.90, crossers: 1.20, sideline: 1.10,
+    vertical: 1.10, 'play-action': 1.20,
+  }),
+});
+
+export const SITUATION_RISK_WEIGHTS = Object.freeze({ base: 0.25, '3lg': 0.40, '3sh': 0.35, rz: 0.35 });
+
 function addScenario(map, id, label, weight, source, reason) {
   const current = map.get(id);
   if (!current || current.weight < weight || current.source === 'complement') {
@@ -23,7 +44,7 @@ function addScenario(map, id, label, weight, source, reason) {
   }
 }
 
-export function buildConceptScenarios(traits = []) {
+export function buildConceptScenarios(traits = [], situation = 'base') {
   const selected = new Set(traits);
   const scenarios = new Map();
   for (const scenario of DIRECT_SCENARIOS) {
@@ -54,7 +75,13 @@ export function buildConceptScenarios(traits = []) {
       'A conservative answer when the defense protects the shot.');
   }
 
-  const result = [...scenarios.values()];
+  const multipliers = SITUATION_CONCEPT_WEIGHTS[situation] || SITUATION_CONCEPT_WEIGHTS.base;
+  const result = [...scenarios.values()].map(scenario => ({
+    ...scenario,
+    baseWeight: scenario.weight,
+    situationMultiplier: multipliers[scenario.id] || 1,
+    weight: scenario.weight * (multipliers[scenario.id] || 1),
+  }));
   const total = result.reduce((sum, scenario) => sum + scenario.weight, 0);
   return result.map(scenario => ({ ...scenario, normalizedWeight: total ? scenario.weight / total : 0 }));
 }
@@ -78,7 +105,9 @@ function gradeScenario(play, coverageName, scenario) {
 
   if (scenario.id === 'vertical' || scenario.id === 'play-action') {
     const grades = [12, 35, 60, 72, 82];
-    const grade = grades[Math.min(play.deep, 4)];
+    const grade = structure === 'quarters' && play.badge === 'MATCH'
+      ? 88
+      : grades[Math.min(play.deep, 4)];
     return { grade, support: `${play.deep} deep defender${play.deep === 1 ? '' : 's'} remain assigned against the developing shot.`,
       concession: play.deep >= 3 ? 'The underneath outlet may be available if the defense rallies and tackles.' : 'A won matchup can escape limited deep help.' };
   }
@@ -100,6 +129,11 @@ function gradeScenario(play, coverageName, scenario) {
     return { ...base, grade: 50, support: 'No verified force/alley fit is stored for this call.', concession: 'The edge can be lost even when the rush count looks sound.' };
   }
   if (scenario.id === 'quick' || scenario.id === 'rpo') {
+    if (/hard flat/i.test(coverageName)) return {
+      grade: 80,
+      support: 'Hard-flat defenders are assigned to drive immediately on the outside access throw.',
+      concession: 'The corner route or seam can open behind an aggressive flat defender.',
+    };
     if (play.rush >= 5 && play.und <= 3) return { grade: 38, support: 'Pressure reduces the underneath resources available before the rush arrives.', concession: 'The immediate outlet can beat pressure timing.' };
     if (play.und >= 4) return { grade: 68, support: `${play.und} underneath defenders can rally to an immediate throw.`, concession: 'Spacing or leverage can still create a clean catch.' };
     if (structure === 'two-man') return { grade: 58, support: 'Two deep helpers cap a lost man matchup.', concession: 'Traffic and quick separation can win before help arrives.' };
@@ -123,15 +157,16 @@ function gradeScenario(play, coverageName, scenario) {
   return base;
 }
 
-export function assessConceptMatchups(play, coverageName, traits = [], riskWeight = 0.25) {
-  const scenarios = buildConceptScenarios(traits);
+export function assessConceptMatchups(play, coverageName, traits = [], situation = 'base') {
+  const scenarios = buildConceptScenarios(traits, situation);
   if (!scenarios.length) return null;
+  const riskWeight = SITUATION_RISK_WEIGHTS[situation] ?? SITUATION_RISK_WEIGHTS.base;
   const grades = scenarios.map(scenario => ({ ...scenario, ...gradeScenario(play, coverageName, scenario) }));
   const weightedMean = grades.reduce((sum, item) => sum + item.grade * item.normalizedWeight, 0);
   const badCase = grades.reduce((worst, item) => item.grade < worst.grade ? item : worst, grades[0]);
   const utility = Math.round((1 - riskWeight) * weightedMean + riskWeight * badCase.grade);
   return {
-    utility, weightedMean: Math.round(weightedMean), riskWeight, badCase,
+    utility, weightedMean: Math.round(weightedMean), riskWeight, situation, badCase,
     scenarios: grades,
     mainConcession: badCase.concession,
     confidence: grades.some(item => item.id === 'rpo' || item.id === 'run-choice' || item.id.includes('run')) ? 'Limited' : 'Moderate',

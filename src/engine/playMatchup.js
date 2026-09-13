@@ -99,7 +99,7 @@ export function unverifiedPlayAssessment() {
   };
 }
 
-export function evaluateCoverage(coverage, play, traits, formationScore, evidence = null) {
+export function evaluateCoverage(coverage, play, traits, formationScore, evidence = null, situation = 'base') {
   if (!evidence) {
     return { ...coverage, sc: formationScore, matchup: unverifiedPlayAssessment(), ledger: [
       { id: 'play:unverified', label: 'Unverified assignments excluded', delta: 0,
@@ -110,7 +110,7 @@ export function evaluateCoverage(coverage, play, traits, formationScore, evidenc
   const matchup = assessPlay(play, threatProfile(traits));
   if (!matchup) return null;
   const assignmentRaw = formationScore + matchup.delta;
-  const concept = assessConceptMatchups(play, coverage.name, traits);
+  const concept = assessConceptMatchups(play, coverage.name, traits, situation);
   // Preserve formation/personnel context while allowing the concept pilot to
   // distinguish exact calls. The blend is provisional and fully ledgered.
   const blended = concept ? Math.round(assignmentRaw * 0.55 + concept.utility * 0.45) : assignmentRaw;
@@ -119,7 +119,7 @@ export function evaluateCoverage(coverage, play, traits, formationScore, evidenc
   const sc = Math.max(0, Math.min(matchup.scoreCap, raw));
   return { ...coverage, sc, matchup: { ...matchup, status: 'verified', verification: evidence, concept }, ledger: [...matchup.factors,
     ...(concept ? [{ id: 'concept:blend', label: `Threat/complement assessment (${concept.utility}/100)`, delta: conceptDelta,
-      reason: `Weighted scenarios include a ${Math.round(concept.riskWeight * 100)}% bad-case component.`,
+      reason: `The ${situation} situation weights the scouted threats and includes a ${Math.round(concept.riskWeight * 100)}% bad-case component.`,
       basis: concept.evidence }] : []),
     { id: 'play:bounds', label: matchup.scoreCap < 100 ? 'Deep-shot exposure cap (35)' : 'Play score bounds', delta: sc - raw }] };
 }

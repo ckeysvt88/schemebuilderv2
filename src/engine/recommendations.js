@@ -30,7 +30,7 @@ export function recommend({ traits = [], book = 'All', runPass = 4, familyId = n
     const baseline = rankCoveragesForSituation({ ...f, coverages: eligible }, sit, f.effectiveTraits);
     const rankedCoverages = baseline.map((c, index) => {
       const evidence = getPlayAssignmentEvidence(f.name, c.name);
-      const evaluated = evaluateCoverage(c, plays.find(p => p.n === c.name), f.effectiveTraits, f.sc, evidence);
+      const evaluated = evaluateCoverage(c, plays.find(p => p.n === c.name), f.effectiveTraits, f.sc, evidence, sit);
       return evaluated && { ...evaluated, baselineOrder: index };
     }).filter(c => c && c.sc > 0).sort((a, b) => b.sc - a.sc || a.baselineOrder - b.baselineOrder);
     if (!rankedCoverages.length) return [];

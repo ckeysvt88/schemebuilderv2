@@ -116,6 +116,7 @@ function CoverageCard({ call, index, flat, recommended = false, playerChoice = f
         <p><strong>This call protects:</strong> {guidance.takesAway}</p>
         <p><strong>Your job:</strong> {guidance.userKey}</p>
         <p><strong>Change the call when:</strong> {guidance.getOut}</p>
+        {call.matchup?.concept && <p><strong>Biggest matchup risk:</strong> {call.matchup.concept.badCase.label}. {call.matchup.concept.mainConcession}</p>}
       </details>
       {onLogCall && <button onClick={() => onLogCall({ call: call.name })} style={{ marginTop: 9, padding: "6px 9px", background: "transparent", border: "1px solid var(--color-gold-border)", borderRadius: 5, color: "var(--color-gold)", fontSize: 10, fontWeight: 700, cursor: "pointer" }}>Test this call</button>}
     </div>

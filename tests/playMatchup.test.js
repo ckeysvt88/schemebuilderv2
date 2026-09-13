@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import { assessPlay, evaluateCoverage, threatProfile, validPlayStructure } from '../src/engine/playMatchup.js';
 import { recommend } from '../src/engine/recommendations.js';
 import { PLAYS } from '../src/data/plays.js';
+import { VERIFIED_PLAY_ASSIGNMENTS, getPlayAssignmentEvidence } from '../src/data/playEvidence.js';
 
 const zone = { n: 'Fixture', badge: 'ZONE', rush: 4, cont: 0, spy: 0, deep: 3, shell: 3, und: 4, man: 0 };
 const zero = { n: 'Zero fixture', badge: 'BLITZ', rush: 6, cont: 0, spy: 0, deep: 0, shell: 0, und: 0, man: 5 };
@@ -85,4 +86,37 @@ test('catalogued counts satisfy the evaluator and remain unchanged', () => {
     assert.equal(f.sc, f.ledger.reduce((sum, item) => sum + item.delta, 0));
   }
   assert.equal(JSON.stringify(PLAYS), before);
+});
+
+test('the first verified formation menu is complete and auditable', () => {
+  const expected = ['Cover 3 Match', 'Cover 4 Quarters', 'Cover 2 Invert Hard Flat', 'Cover 3 Sky Wk', 'FS Blitz', 'Hammer 0 Blast'];
+  assert.equal(Object.keys(VERIFIED_PLAY_ASSIGNMENTS).length, expected.length);
+  for (const call of expected) {
+    const evidence = getPlayAssignmentEvidence('4-3 Over Solid', call);
+    const play = PLAYS['4-3 Over Solid'].find(item => item.n === call);
+    assert.ok(evidence, call);
+    assert.match(evidence.source, /^https:\/\/cfb\.fan\/27\/playbooks\//);
+    assert.ok(validPlayStructure(play), call);
+  }
+});
+
+test('verified 4-3 Over Solid uses situation-aware exact-call scoring', () => {
+  const result = recommend({
+    traits: ['p11', 'inside_run', 'mobile_qb', 'quick_game', 'deep_shots'],
+    book: 'Multiple', familyId: 'p11_gun', down: 3, distance: 'long',
+  });
+  const formation = result.formations.find(item => item.name === '4-3 Over Solid');
+  assert.ok(formation);
+  assert.equal(formation.matchup.status, 'verified');
+  assert.equal(formation.matchup.concept.situation, '3lg');
+  assert.equal(formation.matchup.concept.riskWeight, 0.40);
+  assert.equal(formation.sc, formation.ledger.reduce((sum, item) => sum + item.delta, 0));
+});
+
+test('verified technique changes the recommended call for distinct problems', () => {
+  const selected = traits => recommend({ traits: ['p11', ...traits], book: 'Multiple' })
+    .formations.find(item => item.name === '4-3 Over Solid')?.recommendedCoverage;
+  assert.equal(selected(['quick_game']), 'Cover 2 Invert Hard Flat');
+  assert.equal(selected(['deep_shots']), 'Cover 4 Quarters');
+  assert.equal(selected(['inside_run']), 'Cover 4 Quarters');
 });

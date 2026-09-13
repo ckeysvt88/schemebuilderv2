@@ -6,6 +6,7 @@ import { recommend } from '../src/engine/recommendations.js';
 const quarters = { n: 'Cover 4 Quarters', badge: 'MATCH', rush: 4, cont: 0, spy: 0, deep: 4, shell: 4, und: 3, man: 0 };
 const zero = { n: 'Zero Blitz', badge: 'BLITZ', rush: 6, cont: 0, spy: 0, deep: 0, shell: 0, und: 0, man: 5 };
 const contain = { n: 'Cover 1 Contain', badge: 'MAN', rush: 4, cont: 2, spy: 0, deep: 1, shell: 1, und: 0, man: 6 };
+const hardFlat = { n: 'Cover 2 Invert Hard Flat', badge: 'ZONE', rush: 4, cont: 0, spy: 0, deep: 2, shell: 2, und: 5, man: 0 };
 
 test('formation structure alone does not invent concept scenarios', () => {
   assert.deepEqual(buildConceptScenarios(['p11', 'empty', 'trips', 'bunch']), []);
@@ -30,11 +31,37 @@ test('bad-case weighting prefers balanced vertical protection over a catastrophi
   assert.match(exposed.mainConcession, /deep help/);
 });
 
+test('verified coverage technique separates calls with similar assignment counts', () => {
+  const quickAnswer = assessConceptMatchups(hardFlat, hardFlat.n, ['quick_game']);
+  const ordinaryZone = assessConceptMatchups(quarters, quarters.n, ['quick_game']);
+  assert.ok(quickAnswer.utility > ordinaryZone.utility);
+  assert.match(quickAnswer.scenarios[0].support, /Hard-flat/);
+
+  const verticalAnswer = assessConceptMatchups(quarters, quarters.n, ['deep_shots']);
+  assert.equal(verticalAnswer.scenarios[0].grade, 88);
+});
+
 test('contain improves the narrow QB-run assessment but states its remaining concession', () => {
   const withContain = assessConceptMatchups(contain, contain.n, ['mobile_qb']);
   const without = assessConceptMatchups(quarters, quarters.n, ['mobile_qb']);
   assert.ok(withContain.utility > without.utility);
   assert.match(withContain.mainConcession, /interior draw|option phase/);
+});
+
+test('live situation changes threat priority and bad-case protection', () => {
+  const traits = ['inside_run', 'mobile_qb', 'quick_game', 'deep_shots'];
+  const long = buildConceptScenarios(traits, '3lg');
+  const short = buildConceptScenarios(traits, '3sh');
+  const weight = (items, id) => items.find(item => item.id === id).normalizedWeight;
+  assert.ok(weight(long, 'vertical') > weight(short, 'vertical'));
+  assert.ok(weight(short, 'inside-run') > weight(long, 'inside-run'));
+  assert.ok(weight(short, 'qb-run') > weight(long, 'qb-run'));
+
+  const longAssessment = assessConceptMatchups(quarters, quarters.n, traits, '3lg');
+  const baseAssessment = assessConceptMatchups(quarters, quarters.n, traits, 'base');
+  assert.equal(longAssessment.riskWeight, 0.40);
+  assert.equal(baseAssessment.riskWeight, 0.25);
+  assert.equal(longAssessment.situation, '3lg');
 });
 
 test('unverified catalog calls stay available but withhold scenario claims for the six acceptance looks', () => {
@@ -50,6 +77,11 @@ test('unverified catalog calls stay available but withhold scenario claims for t
     const result = recommend(input);
     assert.ok(result.formations.length);
     for (const formation of result.formations.slice(0, 3)) {
+      if (formation.name === '4-3 Over Solid') {
+        assert.equal(formation.matchup.status, 'verified');
+        assert.ok(formation.matchup.concept);
+        continue;
+      }
       assert.equal(formation.matchup.status, 'unverified', `${input.familyId}: ${formation.name}`);
       assert.equal(formation.matchup.concept, null);
       assert.equal(formation.matchup.facts, null);

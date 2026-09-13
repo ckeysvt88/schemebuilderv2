@@ -43,7 +43,9 @@ test('missing distance is neutral; red zone does not prescribe heavy personnel o
   assert.equal(normalizeSituation(4, '').key, 'base');
   const base = recommend({ traits });
   assert.deepEqual(recommend({ traits, down: 4 }).formations.map(shape), base.formations.map(shape));
-  assert.deepEqual(recommend({ traits, down: 'rz' }).formations.map(shape), base.formations.map(shape));
+  const redZone = recommend({ traits, down: 'rz' });
+  assert.deepEqual(redZone.formations.map(f => f.name).sort(), base.formations.map(f => f.name).sort());
+  assert.ok(redZone.formations.every(f => f.personnel !== 'Prevent'));
   assert.ok(base.formations.every(f => f.personnel !== 'Prevent'));
 });
 
