@@ -19,14 +19,14 @@ const DIRECT_SCENARIOS = Object.freeze([
 export const SITUATION_CONCEPT_WEIGHTS = Object.freeze({
   base: Object.freeze({}),
   '3lg': Object.freeze({
-    'inside-run': 0.55, 'edge-run': 0.55, 'run-choice': 0.60, 'qb-run': 0.80,
-    rpo: 0.80, quick: 0.85, screen: 1.00, crossers: 1.15, sideline: 1.30,
-    vertical: 1.75, 'play-action': 1.25,
+    'inside-run': 0.30, 'edge-run': 0.30, 'run-choice': 0.45, 'qb-run': 0.60,
+    rpo: 0.70, quick: 0.75, screen: 0.95, crossers: 1.35, sideline: 1.50,
+    vertical: 2.00, 'play-action': 1.35,
   }),
   '3sh': Object.freeze({
-    'inside-run': 1.55, 'edge-run': 1.40, 'run-choice': 1.45, 'qb-run': 1.60,
-    rpo: 1.50, quick: 1.40, screen: 1.00, crossers: 0.85, sideline: 0.85,
-    vertical: 0.85, 'play-action': 1.15,
+    'inside-run': 1.80, 'edge-run': 1.60, 'run-choice': 1.65, 'qb-run': 1.75,
+    rpo: 1.65, quick: 1.60, screen: 1.05, crossers: 0.85, sideline: 0.80,
+    vertical: 0.65, 'play-action': 1.10,
   }),
   rz: Object.freeze({
     'inside-run': 1.30, 'edge-run': 1.10, 'run-choice': 1.25, 'qb-run': 1.45,
@@ -75,6 +75,27 @@ export function buildConceptScenarios(traits = [], situation = 'base') {
       'A conservative answer when the defense protects the shot.');
   }
 
+  // Down and distance create real threats even when the scout has not tagged a
+  // matching tendency. These are labelled as situation-driven, not observed.
+  if (situation === '3lg') {
+    addScenario(scenarios, 'vertical', 'Throw beyond the sticks', 0.75, 'situation',
+      'Long yardage makes the deep and intermediate conversion throw a live threat.');
+    addScenario(scenarios, 'sideline', 'Sideline route at the sticks', 0.45, 'situation',
+      'Long yardage commonly attacks the line to gain near the sideline.');
+  }
+  if (situation === '3sh') {
+    addScenario(scenarios, 'inside-run', 'Short-yardage run', 0.65, 'situation',
+      'Short yardage keeps the direct run live even without a run tendency tag.');
+    addScenario(scenarios, 'quick', 'Quick throw at the sticks', 0.55, 'situation',
+      'Short yardage keeps hitches, slants, outs, and access throws live.');
+  }
+  if (situation === 'rz') {
+    addScenario(scenarios, 'inside-run', 'Run at the goal line', 0.45, 'situation',
+      'The compressed field keeps a direct run threat live.');
+    addScenario(scenarios, 'quick', 'Quick red-zone throw', 0.45, 'situation',
+      'The compressed field favors throws that win immediately.');
+  }
+
   const multipliers = SITUATION_CONCEPT_WEIGHTS[situation] || SITUATION_CONCEPT_WEIGHTS.base;
   const result = [...scenarios.values()].map(scenario => ({
     ...scenario,
@@ -101,7 +122,7 @@ function coverageStructure(play) {
 function gradeScenario(play, coverageName, scenario) {
   const structure = coverageStructure(play);
   const fit = COVERAGE_FLAGS[coverageName] || {};
-  const base = { grade: 55, support: 'Assignment totals provide a neutral starting point.', concession: 'The decisive leverage is not catalogued.' };
+  const base = { grade: 55, support: 'The call has a neutral starting point against this threat.', concession: 'Be ready to help the defender the offense puts in conflict.' };
 
   if (scenario.id === 'vertical' || scenario.id === 'play-action') {
     const grades = [12, 35, 60, 72, 82];
@@ -113,20 +134,20 @@ function gradeScenario(play, coverageName, scenario) {
   }
   if (scenario.id === 'qb-run') {
     if (play.spy > 0) return { grade: 78, support: 'A true spy is reserved for the quarterback.', concession: 'Removing a defender from coverage can expose an outlet.' };
-    if (play.cont > 0) return { grade: 68, support: 'Contain is assigned on the rush edges.', concession: 'Contain does not account for the interior draw or every option phase.' };
-    return { grade: 38, support: 'No spy or contain assignment is catalogued.', concession: 'The quarterback can escape if ordinary rush lanes separate.' };
+    if (play.cont > 0) return { grade: 68, support: 'Contain is assigned on the rush edges.', concession: 'The quarterback can still hit an inside lane or make the next option read.' };
+    return { grade: 38, support: 'No spy or contain assignment is catalogued.', concession: 'Use the Linebacker to close the quarterback lane if the rush opens a crease.' };
   }
   if (scenario.id === 'inside-run' || scenario.id === 'run-choice') {
     const authoredFit = fit.fitIn;
-    if (authoredFit === 2) return { grade: 66, support: 'This exact coverage family has authored interior support.', concession: 'Gap ownership and read-side conflict remain unverified.' };
-    if (authoredFit === 1) return { grade: 59, support: 'This exact coverage family has limited authored interior support.', concession: 'The interior fit still depends on the front and safety trigger.' };
-    return { ...base, grade: 50, support: 'No verified gap-level run fit is stored for this call.', concession: 'An interior crease cannot be ruled out from rusher count.' };
+    if (authoredFit === 2) return { grade: 66, support: 'This call has help built toward the inside run.', concession: 'Hold your gap and do not chase the first fake; one defender leaving early can open the middle.' };
+    if (authoredFit === 1) return { grade: 59, support: 'This call has some support inside.', concession: 'The front must hold its gaps and the force defender cannot arrive late.' };
+    return { ...base, grade: 50, support: 'This call is not a proven inside-run answer.', concession: 'Be ready to fill the first open inside lane with your user.' };
   }
   if (scenario.id === 'edge-run') {
     const authoredFit = fit.fitOut;
-    if (authoredFit === 2) return { grade: 66, support: 'This exact coverage family has authored edge support.', concession: 'Force, alley and cutback ownership remain unverified.' };
-    if (authoredFit === 1) return { grade: 59, support: 'This exact coverage family has limited authored edge support.', concession: 'The perimeter fit still depends on alignment and leverage.' };
-    return { ...base, grade: 50, support: 'No verified force/alley fit is stored for this call.', concession: 'The edge can be lost even when the rush count looks sound.' };
+    if (authoredFit === 2) return { grade: 66, support: 'This call has help built toward the outside run.', concession: 'Set the edge first, then rally inside-out so the runner cannot cut back.' };
+    if (authoredFit === 1) return { grade: 59, support: 'This call has some support on the edge.', concession: 'The force defender must keep outside leverage or the runner can turn the corner.' };
+    return { ...base, grade: 50, support: 'This call is not a proven edge-run answer.', concession: 'Watch the widest blocker and use your defender to keep the ball from reaching the sideline.' };
   }
   if (scenario.id === 'quick' || scenario.id === 'rpo') {
     if (/hard flat/i.test(coverageName)) return {
@@ -137,16 +158,16 @@ function gradeScenario(play, coverageName, scenario) {
     if (play.rush >= 5 && play.und <= 3) return { grade: 38, support: 'Pressure reduces the underneath resources available before the rush arrives.', concession: 'The immediate outlet can beat pressure timing.' };
     if (play.und >= 4) return { grade: 68, support: `${play.und} underneath defenders can rally to an immediate throw.`, concession: 'Spacing or leverage can still create a clean catch.' };
     if (structure === 'two-man') return { grade: 58, support: 'Two deep helpers cap a lost man matchup.', concession: 'Traffic and quick separation can win before help arrives.' };
-    return { grade: 50, support: 'The catalog does not establish the immediate throw leverage.', concession: 'The conflict defender or hot answer remains unresolved.' };
+    return { grade: 50, support: 'The call does not clearly take away the immediate throw.', concession: 'Stay inside the quick route and rally to the flat after the ball is thrown.' };
   }
   if (scenario.id === 'screen') {
     if (play.rush >= 5) return { grade: 40, support: 'Five or more rushers can create disruption if they diagnose the screen.', concession: 'A completed screen can release behind the pressure.' };
     if (play.und >= 4) return { grade: 70, support: `${play.und} underneath defenders remain available to diagnose and rally.`, concession: 'Blocking angles and user pursuit still decide the gain.' };
-    return { grade: 52, support: 'The call does not overcommit the rush, but pursuit roles are unknown.', concession: 'Screen blocking and recognition are not represented.' };
+    return { grade: 52, support: 'The call does not overcommit the rush.', concession: 'If the linemen release early, stop rushing and run to the screen immediately.' };
   }
   if (scenario.id === 'crossers') {
     if (play.man >= 4) return { grade: play.und > 0 ? 50 : 42, support: play.und > 0 ? 'An underneath helper can disrupt one crossing window.' : 'No underneath helper is assigned to crossing traffic.', concession: 'Man defenders can be screened or lose leverage through traffic.' };
-    if (play.und >= 4) return { grade: 64, support: 'Four or more underneath zones can pass off crossing traffic.', concession: 'The exact match/zone exchange rules remain unverified.' };
+    if (play.und >= 4) return { grade: 64, support: 'Four or more underneath zones can pass off crossing traffic.', concession: 'Do not chase a crosser out of your area and open the next window behind you.' };
     return { grade: 52, support: 'The call avoids a full man-traffic answer.', concession: 'Too few documented underneath defenders can open a crossing lane.' };
   }
   if (scenario.id === 'sideline') {
@@ -164,11 +185,14 @@ export function assessConceptMatchups(play, coverageName, traits = [], situation
   const grades = scenarios.map(scenario => ({ ...scenario, ...gradeScenario(play, coverageName, scenario) }));
   const weightedMean = grades.reduce((sum, item) => sum + item.grade * item.normalizedWeight, 0);
   const badCase = grades.reduce((worst, item) => item.grade < worst.grade ? item : worst, grades[0]);
+  const priorityRisk = grades
+    .map(item => ({ ...item, exposure: item.normalizedWeight * (100 - item.grade) }))
+    .reduce((priority, item) => item.exposure > priority.exposure ? item : priority);
   const utility = Math.round((1 - riskWeight) * weightedMean + riskWeight * badCase.grade);
   return {
-    utility, weightedMean: Math.round(weightedMean), riskWeight, situation, badCase,
+    utility, weightedMean: Math.round(weightedMean), riskWeight, situation, badCase, priorityRisk,
     scenarios: grades,
-    mainConcession: badCase.concession,
+    mainConcession: priorityRisk.concession,
     confidence: grades.some(item => item.id === 'rpo' || item.id === 'run-choice' || item.id.includes('run')) ? 'Limited' : 'Moderate',
     evidence: 'Ordinal football rubric applied to transcribed assignments; requires CFB 27 gameplay calibration',
   };

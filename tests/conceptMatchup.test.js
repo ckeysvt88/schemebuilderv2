@@ -45,7 +45,7 @@ test('contain improves the narrow QB-run assessment but states its remaining con
   const withContain = assessConceptMatchups(contain, contain.n, ['mobile_qb']);
   const without = assessConceptMatchups(quarters, quarters.n, ['mobile_qb']);
   assert.ok(withContain.utility > without.utility);
-  assert.match(withContain.mainConcession, /interior draw|option phase/);
+  assert.match(withContain.mainConcession, /inside lane|option read/);
 });
 
 test('live situation changes threat priority and bad-case protection', () => {
@@ -62,6 +62,18 @@ test('live situation changes threat priority and bad-case protection', () => {
   assert.equal(longAssessment.riskWeight, 0.40);
   assert.equal(baseAssessment.riskWeight, 0.25);
   assert.equal(longAssessment.situation, '3lg');
+});
+
+test('the visible concern follows the down instead of the lowest raw grade', () => {
+  const long = assessConceptMatchups(hardFlat, hardFlat.n, [], '3lg');
+  const short = assessConceptMatchups(hardFlat, hardFlat.n, [], '3sh');
+
+  assert.equal(long.priorityRisk.id, 'vertical');
+  assert.equal(short.priorityRisk.id, 'inside-run');
+  assert.notEqual(long.priorityRisk.label, short.priorityRisk.label);
+  assert.doesNotMatch(short.mainConcession, /unverified|catalog|assignment/i);
+  assert.ok(long.scenarios.every(scenario => scenario.source === 'situation'));
+  assert.ok(short.scenarios.every(scenario => scenario.source === 'situation'));
 });
 
 test('unverified catalog calls stay available but withhold scenario claims for the six acceptance looks', () => {
