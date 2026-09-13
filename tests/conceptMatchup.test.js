@@ -77,6 +77,7 @@ test('the visible concern follows the down instead of the lowest raw grade', () 
 });
 
 test('unverified catalog calls stay available but withhold scenario claims for the six acceptance looks', () => {
+  const verifiedFormations = new Set(['4-3 Over Solid', '3-4 Tite']);
   const cases = [
     { traits: ['p11', 'empty', 'mobile_qb', 'option_run', 'quick_game'], familyId: 'p11_empty' },
     { traits: ['p10', 'inside_run', 'outside_run', 'rpo'], familyId: 'p10_gun' },
@@ -89,7 +90,7 @@ test('unverified catalog calls stay available but withhold scenario claims for t
     const result = recommend(input);
     assert.ok(result.formations.length);
     for (const formation of result.formations.slice(0, 3)) {
-      if (formation.name === '4-3 Over Solid') {
+      if (verifiedFormations.has(formation.name)) {
         assert.equal(formation.matchup.status, 'verified');
         assert.ok(formation.matchup.concept);
         continue;

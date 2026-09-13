@@ -56,18 +56,26 @@ export default function DriveLogger({ defaults = {}, onClose }) {
   };
 
   return (
-    <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.92)', zIndex: 300, display: 'flex', flexDirection: 'column', maxWidth: 720, margin: '0 auto' }}>
-      <div style={{ background: 'linear-gradient(135deg, var(--color-surface-1), var(--color-surface-2))', borderBottom: '2px solid var(--color-gold)', padding: '12px 15px', paddingTop: 'calc(env(safe-area-inset-top) + 12px)', flexShrink: 0 }}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
+    <div
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="call-test-title"
+      onClick={onClose}
+      style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.85)', zIndex: 500, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }}
+    >
+      <div onClick={event => event.stopPropagation()} style={{ background: 'var(--color-surface-2)', border: '1px solid var(--color-gold)', borderRadius: 'var(--r-lg)', padding: '20px 22px 16px', width: '100%', maxWidth: 600, maxHeight: '80dvh', display: 'flex', flexDirection: 'column' }}>
+      <div style={{ marginBottom: 14, flexShrink: 0 }}>
+        <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 8 }}>
           <div>
-            <div style={{ fontSize: 10, color: 'var(--color-gold-dim)', letterSpacing: '2px', textTransform: 'uppercase', fontFamily: 'var(--font-mono)' }}>CFB 27 · Device testing</div>
-            <div style={{ fontSize: 17, fontWeight: 700, color: 'var(--color-text-1)', fontFamily: 'var(--font-mono)' }}>Log This Call</div>
+            <div style={{ fontSize: 10, color: 'var(--color-gold-dim)', letterSpacing: '2px', textTransform: 'uppercase', fontFamily: 'var(--font-mono)', marginBottom: 2 }}>On-Device Review</div>
+            <div id="call-test-title" style={{ fontSize: 17, fontWeight: 700, color: 'var(--color-text-1)', fontFamily: 'var(--font-mono)' }}>Test This Call</div>
+            <div style={{ fontSize: 11, color: 'var(--color-text-3)', marginTop: 3 }}>Record what happened after the snap</div>
           </div>
-          <button onClick={onClose} style={buttonStyle}>✕ Close</button>
+          <button onClick={onClose} style={{ ...buttonStyle, minHeight: 32, padding: '0 12px', flexShrink: 0 }}>Close</button>
         </div>
       </div>
 
-      <div style={{ flex: 1, overflowY: 'auto', padding: '12px 14px 30px' }}>
+      <div style={{ flex: 1, overflowY: 'auto', paddingRight: 2 }}>
         <div style={{ background: 'var(--color-gold-surface)', border: '1px solid var(--color-gold-border)', borderRadius: 7, padding: '10px 12px', marginBottom: 11 }}>
           <strong style={{ display: 'block', fontSize: 13 }}>{form.defensiveFormation || 'Formation not selected'}</strong>
           <span style={{ color: 'var(--color-gold)', fontSize: 12, fontWeight: 700 }}>{form.defensiveCall || 'Call not selected'}</span>
@@ -111,6 +119,7 @@ export default function DriveLogger({ defaults = {}, onClose }) {
             {entries.map(entry => <div key={entry.id} style={{ background: 'var(--color-surface-1)', border: '1px solid var(--color-border-subtle)', borderRadius: 6, padding: '8px 10px', marginTop: 8, fontSize: 11 }}><div style={{ display: 'flex', justifyContent: 'space-between', gap: 8 }}><strong>{labels[entry.result]}</strong><button onClick={() => deleteEntry(entry.id)} style={{ background: 'none', border: 'none', color: 'var(--color-text-3)', cursor: 'pointer' }}>✕</button></div><div style={{ color: 'var(--color-text-3)', marginTop: 3 }}>{entry.defensiveFormation} · {entry.defensiveCall}{entry.problem !== 'none' ? ` · ${labels[entry.problem]}` : ''}</div></div>)}
           </details>
         )}
+      </div>
       </div>
     </div>
   );

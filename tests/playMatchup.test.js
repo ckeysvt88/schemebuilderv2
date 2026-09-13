@@ -88,16 +88,34 @@ test('catalogued counts satisfy the evaluator and remain unchanged', () => {
   assert.equal(JSON.stringify(PLAYS), before);
 });
 
-test('the first verified formation menu is complete and auditable', () => {
-  const expected = ['Cover 3 Match', 'Cover 4 Quarters', 'Cover 2 Invert Hard Flat', 'Cover 3 Sky Wk', 'FS Blitz', 'Hammer 0 Blast'];
-  assert.equal(Object.keys(VERIFIED_PLAY_ASSIGNMENTS).length, expected.length);
-  for (const call of expected) {
-    const evidence = getPlayAssignmentEvidence('4-3 Over Solid', call);
-    const play = PLAYS['4-3 Over Solid'].find(item => item.n === call);
-    assert.ok(evidence, call);
-    assert.match(evidence.source, /^https:\/\/cfb\.fan\/27\/playbooks\//);
-    assert.ok(validPlayStructure(play), call);
+test('verified formation menus are complete and auditable', () => {
+  const menus = {
+    '4-3 Over Solid': ['Cover 3 Match', 'Cover 4 Quarters', 'Cover 2 Invert Hard Flat', 'Cover 3 Sky Wk', 'FS Blitz', 'Hammer 0 Blast'],
+    '3-4 Tite': ['Cover 3 Sky', 'Cover 4 Quarters', 'Cover 6', 'Saw Blitz 3', 'Cover 3 Match', 'Tampa 2'],
+  };
+  assert.equal(Object.keys(VERIFIED_PLAY_ASSIGNMENTS).length, Object.values(menus).flat().length);
+  for (const [formation, calls] of Object.entries(menus)) {
+    for (const call of calls) {
+      const evidence = getPlayAssignmentEvidence(formation, call);
+      const play = PLAYS[formation].find(item => item.n === call);
+      assert.ok(evidence, `${formation}: ${call}`);
+      assert.match(evidence.source, /^https:\/\/cfb\.fan\/27\/playbooks\//);
+      assert.ok(validPlayStructure(play), `${formation}: ${call}`);
+    }
   }
+});
+
+test('verified 3-4 Tite uses exact call assignments rather than its five-man front appearance', () => {
+  const result = recommend({
+    traits: ['p11', 'inside_run', 'rpo', 'option_run', 'deep_shots'],
+    book: 'Multiple', familyId: 'p11_gun', down: 3, distance: 'short',
+  });
+  const formation = result.formations.find(item => item.name === '3-4 Tite');
+  assert.ok(formation);
+  assert.equal(formation.matchup.status, 'verified');
+  assert.equal(formation.rankedCoverages.length, 6);
+  assert.ok(formation.rankedCoverages.every(call => call.matchup.status === 'verified'));
+  assert.equal(formation.sc, formation.ledger.reduce((sum, item) => sum + item.delta, 0));
 });
 
 test('verified 4-3 Over Solid uses situation-aware exact-call scoring', () => {
