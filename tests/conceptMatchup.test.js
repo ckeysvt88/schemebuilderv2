@@ -96,7 +96,8 @@ test('unverified catalog calls stay available but withhold scenario claims for t
         continue;
       }
       assert.equal(formation.matchup.status, 'unverified', `${input.familyId}: ${formation.name}`);
-      assert.equal(formation.matchup.concept, null);
+      assert.equal(formation.matchup.concept.confidence, 'Limited');
+      assert.ok(formation.matchup.concept.scenarios.every(s => s.grade === 50 || ['inside-run', 'edge-run'].includes(s.id)));
       assert.equal(formation.matchup.facts, null);
       assert.equal(formation.sc, formation.ledger.reduce((sum, entry) => sum + entry.delta, 0));
     }

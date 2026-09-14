@@ -1,4 +1,4 @@
-# Combined in-app review — updates 13–16
+# Combined in-app review — updates 13–18
 
 This is one review of:
 - **fa4133b:** selected-threat scoring and context-aware Test This Call logs.
@@ -7,7 +7,9 @@ This is one review of:
 
 - **Update 16:** personalized-call safety and verified QB-control labels.
 
-Allow about 30–40 minutes. You do not need to read code. Mark each numbered check Pass, Fail, or Not tested.
+- **Updates 17–18:** common scoring scale and assignment-bound verification.
+
+Allow about 35–45 minutes. You do not need to read code. Mark each numbered check Pass, Fail, or Not tested.
 
 ## 1. Update your existing preview
 
@@ -25,7 +27,7 @@ git log -1 --oneline
 npm run dev
 ```
 
-The latest commit message should be **Guard personalized calls and track remaining engine priorities**. Compare its short number with the one in my delivery message.
+The latest commit message should be **Normalize call scoring and bind verification to reviewed assignments**. Compare its short number with the one in my delivery message.
 
 If Git says local changes would be overwritten, stop and send that message; do not discard files or use a force/reset command. If fetch only asks whether to retry deleting the old worktree folders from earlier, answer **n**.
 
@@ -275,6 +277,44 @@ The current verified menus do not contain a confirmed spy/contain assignment. Th
 - [ ] Repeat Check 9: short/long-yardage priorities still change.
 - [ ] Best For You may share Best Overall. A different user preference does not have to produce a different call when it sacrifices too much against the scout.
 
+## 8. Common scoring and assignment evidence
+
+### Check 22 — Review ranking changes without expecting scores to stay fixed
+
+Use **11p**, **Multiple**, **11p Gun**, **Base**, balanced run/pass and **Linebacker / Balanced**.
+
+- [ ] With no additional tendencies, recommendations load normally. Scores may be lower than before; they are not success percentages.
+- [ ] Add **Deep Shots / Verticals**. Open **4-3 Over Solid**: Best Overall remains **Cover 4 Quarters**.
+- [ ] Replace that with **Quick Game / Bubble Screens**: Best Overall becomes **Cover 2 Invert Hard Flat**.
+- [ ] Other formations may move in the list. Check that their football advice fits the selected threat; a less-documented play should not promise specific spy, contain or coverage assignments.
+
+Every call now uses the same formation/threat blend. Unknown assignment-dependent threats start neutral. This fixes the old scale mismatch; it does not prove equally accurate predictions for every call.
+
+### Check 23 — Run-support credit survives the scoring change
+
+Repeat Checks 2–4 with their **3rd & Short** setup:
+- [ ] Quarters remains the inside Run-Fit Answer.
+- [ ] Tampa 2 remains the outside Run-Fit Answer in 3-4 Tite.
+- [ ] Cover 6 remains the mixed-direction Run-Fit Answer.
+- [ ] Coaching still describes safety/corner support without claiming complete front-gap ownership.
+
+### Check 24 — Existing verified calls still work
+
+Open **3-4 Tite** and **4-3 Over Solid**:
+- [ ] Coverage cards, coaching and Test This Call still open normally.
+- [ ] Previously saved observations remain after refreshing.
+- [ ] No verification failure or developer-only assignment message has appeared on the main card.
+
+Behind the scenes, automated checks change each assignment field in all 12 verified records and confirm the altered record loses verification. You do not need to edit files or reproduce those mutations. The stored snapshots preserve the prior reviewed records; they do not count as a new gameplay test.
+
+### Check 25 — Updated scores stay consistent across views
+
+Using one unchanged scout/situation/user setup:
+- [ ] Expanded and collapsed cards agree on Best For You.
+- [ ] The Call Sheet uses that same personalized call.
+- [ ] Shared results and the live list agree on formation fit scores.
+- [ ] Reopen Test This Call: formation, call and situation match what you selected.
+
 ## What to send back
 
 For a failure, send:
@@ -284,7 +324,7 @@ For a failure, send:
 - what you expected and what happened.
 
 You can reply compactly:
-“Checks 1–7 passed. Check 8: [problem]. Checks 9–21 passed.”
+“Checks 1–7 passed. Check 8: [problem]. Checks 9–25 passed.”
 
 A ranking you disagree with is valuable football feedback even when the app behaves as coded. Include the offensive threat and the call you believe should be favored.
 

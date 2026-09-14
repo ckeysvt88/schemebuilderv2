@@ -119,7 +119,20 @@ function coverageStructure(play) {
 }
 
 function gradeScenario(play, coverageName, scenario) {
-  const structure = coverageStructure(play);
+  if (!play && !['inside-run', 'edge-run', 'run-choice'].includes(scenario.id)) {
+    return { grade: 50, support: 'Use the coverage coaching to plan your response.',
+      concession: ({
+        vertical: 'Keep help over the top; do not chase the short throw and give up the shot.',
+        'play-action': 'Read the handoff before attacking downhill; do not lose the receiver behind you.',
+        'qb-run': 'Keep your coverage responsibility while watching for the QB to leave the pocket.',
+        quick: 'Close on the catch and tackle; do not give a short completion extra yards.',
+        crossers: 'Watch the next receiver crossing behind the first one.',
+        screen: 'Read the blockers releasing and rally to the ball.',
+        sideline: 'Watch the short route with a second receiver breaking behind it.',
+        rpo: 'Do not abandon your pass responsibility just because the QB shows a handoff.',
+      })[scenario.id] || 'Read your assignment before chasing the ball.' };
+  }
+  const structure = coverageStructure(play || {});
   const fit = getCoverageRunSupport(coverageName);
   const base = { grade: 55, support: 'The call has a neutral starting point against this threat.', concession: 'Be ready to help the defender the offense puts in conflict.' };
 
@@ -202,7 +215,7 @@ export function assessConceptMatchups(play, coverageName, traits = [], situation
     utility, weightedMean: Math.round(weightedMean), riskWeight, situation, badCase, priorityRisk,
     scenarios: grades,
     mainConcession: priorityRisk.concession,
-    confidence: grades.some(item => item.id === 'rpo' || item.id === 'run-choice' || item.id.includes('run')) ? 'Limited' : 'Moderate',
-    evidence: 'Ordinal football rubric applied to transcribed assignments; requires CFB 27 gameplay calibration',
+    confidence: !play || grades.some(item => item.id === 'rpo' || item.id === 'run-choice' || item.id.includes('run')) ? 'Limited' : 'Moderate',
+    evidence: play ? 'Ordinal football rubric applied to transcribed assignments; requires CFB 27 gameplay calibration' : 'Coverage-family run support with neutral grades for unknown exact assignments; not gameplay probability',
   };
 }

@@ -38,11 +38,11 @@ test('deep-shot exposure caps a highly rated zero call despite formation bonuses
 
 test('unverified play-art counts are withheld and cannot change a recommendation score', () => {
   const a = evaluateCoverage({ name: zero.n, rating: 5 }, zero, ['deep_shots'], 73);
-  assert.equal(a.sc, 73);
+  assert.equal(a.sc, 58);
   assert.equal(a.matchup.status, 'unverified');
   assert.equal(a.matchup.facts, null);
-  assert.equal(a.matchup.concept, null);
-  assert.equal(a.ledger.reduce((sum, item) => sum + item.delta, 0), 0);
+  assert.equal(a.matchup.concept.utility, 50);
+  assert.equal(73 + a.ledger.reduce((sum, item) => sum + item.delta, 0), a.sc);
 });
 
 test('quick/RPO/screen tags do not triple-charge the same thin-pressure risk', () => {
@@ -137,4 +137,42 @@ test('verified technique changes the recommended call for distinct problems', ()
   assert.equal(selected(['quick_game']), 'Cover 2 Invert Hard Flat');
   assert.equal(selected(['deep_shots']), 'Cover 4 Quarters');
   assert.equal(selected(['inside_run']), 'Cover 4 Quarters');
+});
+
+
+test('unknown and verified calls share a neutral baseline without scouted threats', () => {
+  const coverage = { name: 'Cover 3 Sky' };
+  const unknown = evaluateCoverage(coverage, zone, [], 80);
+  const verified = evaluateCoverage(coverage, zone, [], 80, { source: 'fixture' });
+  assert.equal(unknown.sc, verified.sc);
+  assert.equal(unknown.sc, 61);
+});
+
+test('unknown assignment changes cannot change score or claim facts', () => {
+  const coverage = { name: 'Cover 3 Sky' };
+  const a = evaluateCoverage(coverage, zone, ['quick_game', 'mobile_qb'], 80);
+  const b = evaluateCoverage(coverage, zero, ['quick_game', 'mobile_qb'], 80);
+  assert.equal(a.sc, b.sc);
+  assert.equal(a.matchup.facts, null);
+});
+
+test('unverified exact assignments retain established coverage-family run support', () => {
+  const quarters = evaluateCoverage({ name: 'Cover 4 Quarters' }, null, ['inside_run'], 70);
+  const cover2 = evaluateCoverage({ name: 'Cover 2' }, null, ['inside_run'], 70);
+  assert.ok(quarters.sc > cover2.sc);
+  assert.equal(quarters.matchup.facts, null);
+  assert.equal(quarters.matchup.concept.scenarios.find(s => s.id === 'inside-run').grade, 66);
+});
+
+test('assignment evidence expires when the reviewed play structure changes', () => {
+  for (const key of Object.keys(VERIFIED_PLAY_ASSIGNMENTS)) {
+    const [formation, name] = key.split('::');
+    const play = PLAYS[formation].find(p => p.n === name);
+    assert.ok(getPlayAssignmentEvidence(formation, name, play));
+    for (const field of ['rush', 'deep', 'und', 'man', 'spy', 'cont', 'badge', 'shell', 'n']) {
+      const changed = { ...play, [field]: typeof play[field] === 'number' ? play[field] + 1 : 'changed' };
+      assert.equal(getPlayAssignmentEvidence(formation, name, changed), null, `${key}: ${field}`);
+    }
+    assert.ok(Object.isFrozen(VERIFIED_PLAY_ASSIGNMENTS[key].assignments));
+  }
 });
