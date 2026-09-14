@@ -87,14 +87,17 @@ function bestRunFit(calls, traits) {
   const { inside, outside } = getRunDirections(traits);
   if (!inside && !outside) return null;
 
-  const fitValue = call => {
-    const flags = getCoverageRunSupport(call.name);
-    return (inside ? flags.fitIn || 0 : 0) + (outside ? flags.fitOut || 0 : 0);
-  };
   return calls
-    .map((call, order) => ({ call, order, fit: fitValue(call) }))
-    .filter(item => item.fit > 0)
-    .sort((a, b) => b.fit - a.fit || a.order - b.order)[0]?.call || null;
+    .map((call, order) => {
+      const support = getCoverageRunSupport(call.name);
+      const values = [inside ? support.fitIn : null, outside ? support.fitOut : null]
+        .filter(value => value !== null);
+      return { call, order, weakest: Math.min(...values), total: values.reduce((sum, value) => sum + value, 0) };
+    })
+    .filter(item => item.total > 0)
+    // With two observed run directions, cover the weaker one before adding
+    // support totals. Two inside fits cannot stand in for an outside fit.
+    .sort((a, b) => b.weakest - a.weakest || b.total - a.total || a.order - b.order)[0]?.call || null;
 }
 
 // Builds a short, evidence-gated call menu. These labels describe authored
@@ -138,11 +141,18 @@ export function buildCallOptions(rankedCalls = [], traits = [], situation = 'bas
   const runFit = bestRunFit(rankedCalls, traits);
   if (runFit) {
     const { inside, outside } = getRunDirections(traits);
-    const direction = inside && outside ? 'inside and outside runs' : inside ? 'inside runs' : 'outside runs';
+    const support = getCoverageRunSupport(runFit.name);
+    const helpsInside = inside && support.fitIn > 0;
+    const helpsOutside = outside && support.fitOut > 0;
+    const direction = helpsInside && helpsOutside ? 'inside and outside runs' : helpsInside ? 'inside runs' : 'outside runs';
+    const uncovered = inside && !helpsInside ? 'Inside runs still depend on your front and linebackers.'
+      : outside && !helpsOutside ? 'Outside runs still depend on your front and overhang defenders.' : '';
+    const help = [helpsInside ? support.inside : '', helpsOutside ? support.outside : '', uncovered]
+      .filter(Boolean).join(' ');
     addRole(options, runFit, {
       id: 'run',
       label: 'RUN-FIT ANSWER',
-      reason: `Use it against ${direction}. ${[inside ? getCoverageRunSupport(runFit.name).inside : '', outside ? getCoverageRunSupport(runFit.name).outside : ''].filter(Boolean).join(' ')}`,
+      reason: `Use it against ${direction}. ${help}`,
     });
   }
 

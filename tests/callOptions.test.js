@@ -75,3 +75,47 @@ test('situational objectives change the personalized alternative and remain full
     assert.match(choice.personalFit.basis, /not a gameplay success probability/);
   }
 });
+
+test('mixed run scouting favors support in both directions over a one-direction total', () => {
+  const mixedCalls = [
+    { name: 'Cover 4 Quarters', tag: 'Base' },
+    { name: 'Cover 2', tag: 'Base' },
+    { name: 'Cover 6', tag: 'Base' },
+  ];
+  const runChoice = traits => buildCallOptions(mixedCalls, traits, '3sh', 6)
+    .find(call => call.optionRoles.some(role => role.id === 'run'));
+  assert.equal(runChoice(['inside_run']).name, 'Cover 4 Quarters');
+  assert.equal(runChoice(['outside_run']).name, 'Cover 2');
+  assert.equal(runChoice(['inside_run', 'outside_run']).name, 'Cover 6');
+  assert.equal(runChoice(['counter_trap', 'hb_stretch']).name, 'Cover 6');
+});
+
+test('mixed-run choice keeps Best Overall and explains its split support', () => {
+  const options = buildCallOptions([
+    { name: 'Cover 4 Quarters', tag: 'Base' }, { name: 'Cover 6', tag: 'Base' },
+  ], ['inside_run', 'outside_run'], '3sh', 4, { position: 'middle', callStyle: 'balanced' });
+  assert.equal(options[0].name, 'Cover 4 Quarters');
+  assert.ok(options[0].optionRoles.some(role => role.id === 'overall'));
+  const run = options.find(call => call.optionRoles.some(role => role.id === 'run'));
+  assert.equal(run.name, 'Cover 6');
+  assert.equal(run.isPlayerChoice, true);
+  const reason = run.optionRoles.find(role => role.id === 'run').reason;
+  assert.match(reason, /quarters-side safety/i);
+  assert.match(reason, /Cover 2-side corner/);
+});
+
+test('a one-direction fallback does not claim it supplies support in both directions', () => {
+  const options = buildCallOptions([{ name: 'Cover 4 Quarters', tag: 'Base' }],
+    ['inside_run', 'outside_run'], '3sh', 4);
+  const reason = options[0].optionRoles.find(role => role.id === 'run').reason;
+  assert.match(reason, /Use it against inside runs/);
+  assert.match(reason, /Outside runs still depend/);
+  assert.doesNotMatch(reason, /Use it against inside and outside runs/);
+});
+
+test('mixed-run support never invents a call outside the available menu', () => {
+  const menu = [{ name: 'Cover 3 Sky', tag: 'Base' }, { name: 'Cover 2', tag: 'Base' }];
+  const options = buildCallOptions(menu, ['inside_run', 'outside_run'], 'base', 4);
+  assert.ok(options.every(option => menu.some(call => call.name === option.name)));
+  assert.ok(!options.some(option => option.name === 'Cover 6'));
+});
