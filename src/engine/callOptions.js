@@ -1,4 +1,5 @@
 import { COVERAGE_FLAGS } from '../data/coverageFlags.js';
+import { getCoverageRunSupport, getRunDirections } from './coverageRunSupport.js';
 import { normalizeUserProfile } from '../data/userProfile.js';
 
 const QUICK_TRAITS = new Set(['rpo', 'quick_game', 'west_coast', 'screens', 'flat_attack', 'slant_heavy', 'qb_checkdown']);
@@ -83,12 +84,11 @@ function addRole(options, call, role) {
 }
 
 function bestRunFit(calls, traits) {
-  const inside = traits.includes('inside_run');
-  const outside = traits.includes('outside_run') || traits.includes('hb_stretch');
+  const { inside, outside } = getRunDirections(traits);
   if (!inside && !outside) return null;
 
   const fitValue = call => {
-    const flags = COVERAGE_FLAGS[call.name] || {};
+    const flags = getCoverageRunSupport(call.name);
     return (inside ? flags.fitIn || 0 : 0) + (outside ? flags.fitOut || 0 : 0);
   };
   return calls
@@ -137,13 +137,12 @@ export function buildCallOptions(rankedCalls = [], traits = [], situation = 'bas
 
   const runFit = bestRunFit(rankedCalls, traits);
   if (runFit) {
-    const inside = traits.includes('inside_run');
-    const outside = traits.includes('outside_run') || traits.includes('hb_stretch');
+    const { inside, outside } = getRunDirections(traits);
     const direction = inside && outside ? 'inside and outside runs' : inside ? 'inside runs' : 'outside runs';
     addRole(options, runFit, {
       id: 'run',
       label: 'RUN-FIT ANSWER',
-      reason: `Use it when ${direction} are the offense's best answer.`,
+      reason: `Use it against ${direction}. ${[inside ? getCoverageRunSupport(runFit.name).inside : '', outside ? getCoverageRunSupport(runFit.name).outside : ''].filter(Boolean).join(' ')}`,
     });
   }
 

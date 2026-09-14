@@ -1,4 +1,4 @@
-import { COVERAGE_FLAGS } from '../data/coverageFlags.js';
+import { getCoverageRunSupport } from './coverageRunSupport.js';
 
 // Phase 3 pilot: ordinal matchup grades, not probabilities or measured outcomes.
 // The catalog proves only the assignments it contains. These rules therefore stay
@@ -54,19 +54,18 @@ export function buildConceptScenarios(traits = [], situation = 'base') {
     }
   }
 
-  const hasRun = ['inside-run', 'edge-run', 'qb-run'].some(id => scenarios.has(id));
   const hasRunAction = ['inside-run', 'edge-run'].some(id => scenarios.has(id));
   if (scenarios.has('rpo')) {
     addScenario(scenarios, 'quick', 'Quick game / access throw', 0.45, 'complement',
       'Credible outlet paired with an observed RPO tendency.');
-    if (!hasRun) addScenario(scenarios, 'run-choice', 'RPO handoff path', 0.45, 'complement',
+    if (!hasRunAction) addScenario(scenarios, 'run-choice', 'RPO handoff path', 0.45, 'complement',
       'An RPO retains a handoff answer even when its exact run scheme is unknown.');
   }
   if (hasRunAction && !scenarios.has('play-action')) {
     addScenario(scenarios, 'play-action', 'Play-action complement', 0.35, 'complement',
       'A credible complement to an observed run tendency; not an observed frequency.');
   }
-  if (scenarios.has('play-action') && !hasRun) {
+  if (scenarios.has('play-action') && !hasRunAction) {
     addScenario(scenarios, 'run-choice', 'Run action underneath play action', 0.45, 'complement',
       'The defense must honor the run action that gives play action its conflict.');
   }
@@ -90,7 +89,7 @@ export function buildConceptScenarios(traits = [], situation = 'base') {
       'Short yardage keeps hitches, slants, outs, and access throws live.');
   }
   if (situation === 'rz') {
-    addScenario(scenarios, 'inside-run', 'Run at the goal line', 0.45, 'situation',
+    addScenario(scenarios, 'inside-run', 'Red-zone run', 0.45, 'situation',
       'The compressed field keeps a direct run threat live.');
     addScenario(scenarios, 'quick', 'Quick red-zone throw', 0.45, 'situation',
       'The compressed field favors throws that win immediately.');
@@ -121,7 +120,7 @@ function coverageStructure(play) {
 
 function gradeScenario(play, coverageName, scenario) {
   const structure = coverageStructure(play);
-  const fit = COVERAGE_FLAGS[coverageName] || {};
+  const fit = getCoverageRunSupport(coverageName);
   const base = { grade: 55, support: 'The call has a neutral starting point against this threat.', concession: 'Be ready to help the defender the offense puts in conflict.' };
 
   if (scenario.id === 'vertical' || scenario.id === 'play-action') {
@@ -137,19 +136,29 @@ function gradeScenario(play, coverageName, scenario) {
     if (play.cont > 0) return { grade: 68, support: 'Contain is assigned on the rush edges.', concession: 'The quarterback can still hit an inside lane or make the next option read.' };
     return { grade: 38, support: 'No spy or contain assignment is catalogued.', concession: 'Use the Linebacker to close the quarterback lane if the rush opens a crease.' };
   }
-  if (scenario.id === 'inside-run' || scenario.id === 'run-choice') {
-    const authoredFit = fit.fitIn;
-    if (authoredFit === 2) return { grade: 66, support: 'This call has help built toward the inside run.', concession: 'Hold your gap and do not chase the first fake; one defender leaving early can open the middle.' };
-    if (authoredFit === 1) return { grade: 59, support: 'This call has some support inside.', concession: 'The front must hold its gaps and the force defender cannot arrive late.' };
-    return { ...base, grade: 50, support: 'This call is not a proven inside-run answer.', concession: 'Be ready to fill the first open inside lane with your user.' };
+  if (scenario.id === 'inside-run') {
+    return { grade: fit.fitIn === 2 ? 66 : fit.fitIn === 1 ? 59 : 50,
+      support: fit.inside, concession: fit.watch };
   }
   if (scenario.id === 'edge-run') {
-    const authoredFit = fit.fitOut;
-    if (authoredFit === 2) return { grade: 66, support: 'This call has help built toward the outside run.', concession: 'Set the edge first, then rally inside-out so the runner cannot cut back.' };
-    if (authoredFit === 1) return { grade: 59, support: 'This call has some support on the edge.', concession: 'The force defender must keep outside leverage or the runner can turn the corner.' };
-    return { ...base, grade: 50, support: 'This call is not a proven edge-run answer.', concession: 'Watch the widest blocker and use your defender to keep the ball from reaching the sideline.' };
+    return { grade: fit.fitOut === 2 ? 66 : fit.fitOut === 1 ? 59 : 50,
+      support: fit.outside, concession: fit.watch };
   }
-  if (scenario.id === 'quick' || scenario.id === 'rpo') {
+  if (scenario.id === 'run-choice') {
+    return { grade: 50, support: 'The handoff remains live; identify whether the run attacks inside or outside.',
+      concession: 'Keep a defender responsible for the handoff when you react to the throw.' };
+  }
+  if (scenario.id === 'rpo') {
+    const throwAnswer = gradeScenario(play, coverageName, { id: 'quick' });
+    // Coverage run support matters, but it does not identify the read-side
+    // conflict defender. Do not treat a bubble answer as a complete RPO stop.
+    return { grade: Math.min(50, throwAnswer.grade),
+      support: /hard flat/i.test(coverageName)
+        ? 'Hard flats can challenge the bubble; the handoff still needs a run defender.'
+        : 'Keep the handoff and quick throw covered by separate defenders.',
+      concession: 'If one defender must stop the run and cover the throw, the QB can attack whichever job he leaves.' };
+  }
+  if (scenario.id === 'quick') {
     if (/hard flat/i.test(coverageName)) return {
       grade: 80,
       support: 'Hard-flat defenders are assigned to drive immediately on the outside access throw.',

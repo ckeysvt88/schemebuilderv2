@@ -1,6 +1,7 @@
 import { FDB } from '../data/formations.js';
 import { FAMILY_ADJUSTMENTS } from '../data/personnel.js';
 import { contextTraits } from './context.js';
+import { groupScoutThreats } from './scoutThreats.js';
 
 const PKG_TAGS = new Set(['p00','p01','p02','p10','p11','p12','p13','p20','p21','p22','p23']);
 const BIAS_MAP = { 1: -1, 2: -0.65, 3: -0.30, 4: 0, 5: 0.30, 6: 0.65, 7: 1 };
@@ -16,13 +17,11 @@ export function formationThreatCoverage(d, flat = []) {
   const core = new Set(d.coreTags || []);
   const support = new Set(d.suppTags || []);
   const weight = tag => PKG_TAGS.has(tag) ? 3 : 2;
-  const demand = selected.reduce((sum, tag) => sum + weight(tag), 0);
-  const matched = selected.reduce((sum, tag) => {
-    if (core.has(tag)) return sum + weight(tag);
-    if (support.has(tag)) return sum + weight(tag) * 0.5;
-    return sum;
-  }, 0);
-  return { selected, demand, matched, value: demand ? Math.round(100 * matched / demand) : 0 };
+  const groups = groupScoutThreats(selected);
+  const demand = groups.reduce((sum, tags) => sum + Math.max(...tags.map(weight)), 0);
+  const matched = groups.reduce((sum, tags) => sum + Math.max(...tags.map(tag =>
+    core.has(tag) ? weight(tag) : support.has(tag) ? weight(tag) * 0.5 : 0)), 0);
+  return { selected, groups, demand, matched, value: demand ? Math.round(100 * matched / demand) : 0 };
 }
 
 export function blitzBreakdown(f, flat = []) {
@@ -61,7 +60,8 @@ export function scoreAll(traits = [], book = 'All', runPass = 4, familyId = null
     if (d.priority === 'run') runPassDelta = Math.round(bias * (bias > 0 ? 15 : 10));
     if (d.priority === 'pass') runPassDelta = Math.round(-bias * (bias < 0 ? 15 : 10));
     const avoidHits = (d.avoidTags || []).filter(t => flat.includes(t));
-    const avoid = avoidHits.length ? -Math.min(40, 15 + (avoidHits.length - 1) * 8) : 0;
+    const avoidGroups = groupScoutThreats(avoidHits);
+    const avoid = avoidGroups.length ? -Math.min(40, 15 + (avoidGroups.length - 1) * 8) : 0;
     const idx = preferred.indexOf(name);
     // An expert preference cannot revive a matchup suppressed to zero.
     const family = base + runPassDelta + avoid > 0 && idx >= 0 ? (FAMILY_BONUS[idx] ?? 3) : 0;

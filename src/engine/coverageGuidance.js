@@ -1,3 +1,5 @@
+import { getCoverageRunSupport, getRunDirections } from './coverageRunSupport.js';
+
 export const COVERAGE_TRAIT_GROUPS = {
   run: ['outside_run', 'inside_run', 'hb_stretch', 'option_run', 'counter_trap', 'fb_lead', 'strong_oline', 'run_heavy_1st', 'short_yardage_run'],
   quick: ['rpo', 'quick_game', 'west_coast', 'no_deep', 'screens', 'flat_attack', 'slant_heavy', 'qb_checkdown', 'elite_rb'],
@@ -160,5 +162,18 @@ export function getCoverageGuidance(name, tag = '', traits = []) {
   const guidance = ({
     quarters, split, tampa2, twoMan, cover2, cover3, cover1, pressure, changeup,
   })[family](p);
+  const runs = getRunDirections(traits);
+  const support = getCoverageRunSupport(name);
+  if ((runs.inside && support.fitIn) || (runs.outside && support.fitOut)) {
+    guidance.takesAway = [
+      runs.inside && support.fitIn ? support.inside : '',
+      runs.outside && support.fitOut ? support.outside : '',
+    ].filter(Boolean).join(' ');
+    guidance.offenseAnswer = support.watch;
+    if (name === 'Cover 4 Quarters' && !p.vertical) {
+      guidance.bestSpot = 'Inside-run looks when you want both safeties involved after they read run.';
+      guidance.userKey = 'Read the slot or tight end. Fill on a run read; carry his route if he releases vertically.';
+    }
+  }
   return { family, ...guidance };
 }

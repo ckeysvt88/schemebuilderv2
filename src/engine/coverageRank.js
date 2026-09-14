@@ -1,4 +1,5 @@
 import { COVERAGE_FLAGS } from '../data/coverageFlags.js';
+import { getRunDirections } from './coverageRunSupport.js';
 
 // Transitional coverage ordering. Authored ratings are not success probabilities.
 // No blanket trips/mesh modifier or automatic short-yardage blitz promotion:
@@ -14,7 +15,7 @@ export function rankCoverages(covs, { longOKEligible, fitDirection } = {}) {
   return ranked;
 }
 export function rankCoveragesForSituation(fm, situation = 'base', flat = []) {
-  const inside = flat.includes('inside_run'), outside = flat.includes('outside_run');
+  const { inside, outside } = getRunDirections(flat);
   const fitDirection = inside === outside ? null : inside ? 'fitIn' : 'fitOut';
   return rankCoverages(fm?.coverages, { longOKEligible: situation === '3lg', fitDirection });
 }
