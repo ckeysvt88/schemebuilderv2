@@ -90,6 +90,7 @@ export default function GamePlanScreen({
       down: situDown === 'base' ? '' : situDown,
       distance: situDist || '',
       defensiveFormation: fm.name,
+      book: myBook,
       defensiveCall: selection.call || fm.personalizedCoverage || fm.recommendedCoverage,
       userPosition: profileLabels.position,
       objective: plan?.objective?.label || '',

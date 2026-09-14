@@ -111,9 +111,10 @@ export function evaluateCoverage(coverage, play, traits, formationScore, evidenc
   if (!matchup) return null;
   const assignmentRaw = formationScore + matchup.delta;
   const concept = assessConceptMatchups(play, coverage.name, traits, situation);
-  // Preserve formation/personnel context while allowing the concept pilot to
-  // distinguish exact calls. The blend is provisional and fully ledgered.
-  const blended = concept ? Math.round(assignmentRaw * 0.55 + concept.utility * 0.45) : assignmentRaw;
+  // Formation gets the defense on the field; the exact call must decide which
+  // coverage wins. Weight the verified threat matchup more heavily so a strong
+  // formation grade cannot hide a poor call against the selected concept.
+  const blended = concept ? Math.round(assignmentRaw * 0.35 + concept.utility * 0.65) : assignmentRaw;
   const conceptDelta = blended - assignmentRaw;
   const raw = assignmentRaw + conceptDelta;
   const sc = Math.max(0, Math.min(matchup.scoreCap, raw));

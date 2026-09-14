@@ -25,23 +25,30 @@ const problemIds = new Set(CALL_TEST_PROBLEMS.map(item => item.id));
 const cleanText = (value, max = 160) => String(value ?? '').trim().slice(0, max);
 
 export function normalizeCalibrationEntry(input = {}) {
+  if (!input || typeof input !== 'object') return null;
   const result = resultIds.has(input.result) ? input.result : '';
   if (!result) return null;
   return {
-    schemaVersion: 1,
-    id: Number.isFinite(input.id) ? input.id : Date.now(),
+    schemaVersion: 2,
+    id: typeof input.id === 'string' || Number.isFinite(input.id) ? input.id : Date.now(),
     recordedAt: cleanText(input.recordedAt, 40) || new Date().toISOString(),
     down: ['1', '2', '3', '4', 'rz'].includes(String(input.down)) ? String(input.down) : '',
     distance: ['short', 'mid', 'long'].includes(input.distance) ? input.distance : '',
     defensiveFormation: cleanText(input.defensiveFormation, 100),
     defensiveCall: cleanText(input.defensiveCall, 100),
     userPosition: cleanText(input.userPosition, 60),
+    book: cleanText(input.book, 100),
+    gameVersion: cleanText(input.gameVersion, 80),
+    platform: cleanText(input.platform, 40),
+    difficulty: cleanText(input.difficulty, 40),
+    mode: cleanText(input.mode, 60),
+    setupConfirmed: input.setupConfirmed === true,
     objective: cleanText(input.objective, 120),
     setup: Array.isArray(input.setup) ? input.setup.map(value => cleanText(value, 120)).filter(Boolean).slice(0, 6) : [],
     opponentLook: cleanText(input.opponentLook, 120),
     result,
     problem: problemIds.has(input.problem) ? input.problem : 'none',
-    yards: input.yards !== '' && Number.isFinite(Number(input.yards)) ? Math.max(-99, Math.min(999, Number(input.yards))) : null,
+    yards: input.yards != null && String(input.yards).trim() !== '' && Number.isFinite(Number(input.yards)) ? Math.max(-99, Math.min(999, Number(input.yards))) : null,
     notes: cleanText(input.notes, 300),
   };
 }
@@ -51,7 +58,19 @@ export function summarizeCalibrationEntries(entries = []) {
   entries.forEach(raw => {
     const entry = normalizeCalibrationEntry(raw);
     if (!entry || !entry.defensiveCall) return;
-    const current = byCall.get(entry.defensiveCall) || {
+    const testedSetup = entry.setupConfirmed ? [...new Set(entry.setup)].sort() : [];
+    const key = JSON.stringify([entry.defensiveFormation, entry.defensiveCall, entry.book,
+      entry.down, entry.distance, entry.userPosition, entry.gameVersion, entry.platform,
+      entry.difficulty, entry.mode, entry.opponentLook, entry.setupConfirmed,
+      testedSetup]);
+    const downLabel = ({ 1: '1st', 2: '2nd', 3: '3rd', 4: '4th', rz: 'Red zone' })[entry.down];
+    const situation = downLabel && entry.down !== 'rz'
+      ? `${downLabel}${entry.distance ? ` & ${entry.distance}` : ' down'}`
+      : downLabel;
+    const current = byCall.get(key) || {
+      key, formation: entry.defensiveFormation,
+      context: [situation, entry.book, entry.platform, entry.difficulty, entry.mode, entry.gameVersion,
+        entry.setupConfirmed && 'listed setup used'].filter(Boolean).join(' · '),
       call: entry.defensiveCall, tests: 0, stops: 0, sacks: 0, turnovers: 0,
       firstDowns: 0, explosives: 0, touchdowns: 0, problems: {},
     };
@@ -63,7 +82,7 @@ export function summarizeCalibrationEntries(entries = []) {
     if (entry.result === 'explosive') current.explosives += 1;
     if (entry.result === 'touchdown') current.touchdowns += 1;
     if (entry.problem !== 'none') current.problems[entry.problem] = (current.problems[entry.problem] || 0) + 1;
-    byCall.set(entry.defensiveCall, current);
+    byCall.set(key, current);
   });
   return [...byCall.values()].sort((a, b) => b.tests - a.tests || a.call.localeCompare(b.call));
 }

@@ -16,6 +16,7 @@ function saveEntries(entries) {
 
 const emptyDefaults = {
   down: '', distance: '', defensiveFormation: '', defensiveCall: '', userPosition: '',
+  book: '', gameVersion: '', platform: '', difficulty: '', mode: '', setupConfirmed: false,
   objective: '', setup: [], opponentLook: '', result: '', problem: 'none', yards: '', notes: '',
 };
 
@@ -48,7 +49,7 @@ export default function DriveLogger({ defaults = {}, onClose }) {
   };
 
   const exportLog = async () => {
-    const text = JSON.stringify({ exportedAt: new Date().toISOString(), entries }, null, 2);
+    const text = JSON.stringify({ schemaVersion: 2, exportedAt: new Date().toISOString(), entries }, null, 2);
     try {
       await navigator.clipboard.writeText(text);
       window.alert('Call-test data copied. Paste it into a message when you are ready to review calibration.');
@@ -104,6 +105,19 @@ export default function DriveLogger({ defaults = {}, onClose }) {
               <div><label style={labelStyle}>Distance</label><select value={form.distance} onChange={event => update('distance', event.target.value)} style={inputStyle}><option value="">—</option><option value="short">Short</option><option value="mid">Medium</option><option value="long">Long</option></select></div>
             </div>
             <div style={{ marginTop: 9 }}><label style={labelStyle}>Yards gained</label><input type="number" value={form.yards} onChange={event => update('yards', event.target.value)} style={inputStyle} /></div>
+            <div style={{ marginTop: 12, paddingTop: 10, borderTop: '1px solid var(--color-border-subtle)' }}>
+              <div style={{ fontSize: 10, color: 'var(--color-text-3)', fontWeight: 800, marginBottom: 7 }}>TEST ENVIRONMENT</div>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
+                <div><label style={labelStyle}>Platform</label><select value={form.platform} onChange={event => update('platform', event.target.value)} style={inputStyle}><option value="">—</option><option value="PS5">PS5</option><option value="Xbox Series X|S">Xbox Series X|S</option></select></div>
+                <div><label style={labelStyle}>Difficulty</label><select value={form.difficulty} onChange={event => update('difficulty', event.target.value)} style={inputStyle}><option value="">—</option><option value="Varsity">Varsity</option><option value="All-American">All-American</option><option value="Heisman">Heisman</option></select></div>
+                <div><label style={labelStyle}>Mode</label><select value={form.mode} onChange={event => update('mode', event.target.value)} style={inputStyle}><option value="">—</option><option value="Dynasty">Dynasty</option><option value="Play Now">Play Now</option><option value="Ultimate Team">Ultimate Team</option><option value="Practice">Practice</option></select></div>
+                <div><label style={labelStyle}>Game update</label><input value={form.gameVersion} onChange={event => update('gameVersion', event.target.value)} placeholder="Example: Sept update" style={inputStyle} /></div>
+              </div>
+              <label style={{ display: 'flex', alignItems: 'flex-start', gap: 8, color: 'var(--color-text-2)', fontSize: 11, lineHeight: 1.4, marginTop: 10, cursor: 'pointer' }}>
+                <input type="checkbox" checked={form.setupConfirmed} onChange={event => update('setupConfirmed', event.target.checked)} style={{ marginTop: 2 }} />
+                I used the listed pre-snap setup. This keeps setup tests separate from base-call tests.
+              </label>
+            </div>
             <div style={{ marginTop: 9 }}><label style={labelStyle}>Notes</label><input value={form.notes} onChange={event => update('notes', event.target.value)} placeholder="Anything the categories missed" style={inputStyle} /></div>
           </div>
         </details>
@@ -114,7 +128,7 @@ export default function DriveLogger({ defaults = {}, onClose }) {
           <details style={{ marginTop: 18 }}>
             <summary style={{ cursor: 'pointer', color: 'var(--color-gold)', fontSize: 12, fontWeight: 700 }}>Saved evidence ({entries.length})</summary>
             <div style={{ fontSize: 10, color: 'var(--color-text-3)', lineHeight: 1.5, margin: '8px 0' }}>These observations do not change recommendation scores yet. Review them before calibrating the engine.</div>
-            {summary.map(item => <div key={item.call} style={{ padding: '7px 0', borderTop: '1px solid var(--color-border-subtle)', fontSize: 11 }}><strong>{item.call}</strong><div style={{ color: 'var(--color-text-3)', marginTop: 2 }}>{item.tests} test{item.tests === 1 ? '' : 's'} · {item.stops} stops · {item.sacks} sacks · {item.turnovers} turnovers · {item.explosives} explosives</div></div>)}
+            {summary.map(item => <div key={item.key} style={{ padding: '7px 0', borderTop: '1px solid var(--color-border-subtle)', fontSize: 11 }}><strong>{item.formation ? `${item.formation} · ` : ''}{item.call}</strong>{item.context && <div style={{ color: 'var(--color-text-2)', marginTop: 2 }}>{item.context}</div>}<div style={{ color: 'var(--color-text-3)', marginTop: 2 }}>{item.tests} test{item.tests === 1 ? '' : 's'} · {item.stops} stops · {item.sacks} sacks · {item.turnovers} turnovers · {item.explosives} explosives</div></div>)}
             <div style={{ display: 'flex', gap: 7, marginTop: 10 }}><button onClick={exportLog} style={buttonStyle}>Copy Test Data</button><button onClick={clearAll} style={{ ...buttonStyle, color: 'var(--color-danger)' }}>Clear All</button></div>
             {entries.map(entry => <div key={entry.id} style={{ background: 'var(--color-surface-1)', border: '1px solid var(--color-border-subtle)', borderRadius: 6, padding: '8px 10px', marginTop: 8, fontSize: 11 }}><div style={{ display: 'flex', justifyContent: 'space-between', gap: 8 }}><strong>{labels[entry.result]}</strong><button onClick={() => deleteEntry(entry.id)} style={{ background: 'none', border: 'none', color: 'var(--color-text-3)', cursor: 'pointer' }}>✕</button></div><div style={{ color: 'var(--color-text-3)', marginTop: 3 }}>{entry.defensiveFormation} · {entry.defensiveCall}{entry.problem !== 'none' ? ` · ${labels[entry.problem]}` : ''}</div></div>)}
           </details>

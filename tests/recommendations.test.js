@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { contextTraits, normalizeSituation } from '../src/engine/context.js';
-import { scoreAll, scoreForFamily } from '../src/engine/scoring.js';
+import { formationThreatCoverage, scoreAll, scoreForFamily } from '../src/engine/scoring.js';
 import { recommend, buildRecommendationShareText } from '../src/engine/recommendations.js';
 import { buildCallSheetData } from '../src/engine/buildCallSheet.js';
 import { FDB } from '../src/data/formations.js';
@@ -37,6 +37,15 @@ test('family scorer honors both playbook and run/pass preference', () => {
   const selected = scoreForFamily('p11_gun', traits, book, 7);
   assert.ok(selected.length);
   assert.ok(selected.every(f => f.books.includes(book) || f.books.includes('All')));
+});
+
+test('formation scoring measures selected threats, not the amount of authored formation data', () => {
+  const selected = ['p11', 'quick_game', 'inside_run'];
+  const concise = { coreTags: ['p11', 'quick_game'], suppTags: ['inside_run'] };
+  const richlyDocumented = { coreTags: ['p11', 'quick_game', 'deep_shots', 'crossers'], suppTags: ['inside_run', 'screens', 'outside_run'] };
+  assert.equal(formationThreatCoverage(concise, selected).value, formationThreatCoverage(richlyDocumented, selected).value);
+  assert.ok(formationThreatCoverage(concise, selected).value > formationThreatCoverage({ coreTags: ['p11'], suppTags: [] }, selected).value);
+  assert.ok(formationThreatCoverage({ coreTags: selected, suppTags: [] }, selected).value > formationThreatCoverage({ coreTags: [], suppTags: selected }, selected).value);
 });
 
 test('missing distance is neutral; red zone does not prescribe heavy personnel or Prevent', () => {
