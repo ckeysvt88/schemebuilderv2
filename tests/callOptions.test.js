@@ -8,7 +8,7 @@ const calls = [
   { name: 'Cover 2 Hard Flat', tag: 'vs Quick Game' },
   { name: 'Cover 4 Quarters', tag: 'Deep Shots' },
   { name: 'Sam Edge 3', tag: 'Zone Pressure' },
-  { name: 'Cover 1 Contain Spy', tag: 'vs Mobile QB' },
+  { name: 'Cover 1 Contain Spy', tag: 'vs Mobile QB', matchup: { status: 'verified', facts: { spy: 1, contain: 0, deep: 1 } } },
 ];
 
 test('call menu keeps the current winner and adds only supported alternatives', () => {
@@ -118,4 +118,47 @@ test('mixed-run support never invents a call outside the available menu', () => 
   const options = buildCallOptions(menu, ['inside_run', 'outside_run'], 'base', 4);
   assert.ok(options.every(option => menu.some(call => call.name === option.name)));
   assert.ok(!options.some(option => option.name === 'Cover 6'));
+});
+
+
+test('QB-control labels require verified assignments, not names or unverified counts', () => {
+  for (const matchup of [undefined, { status: 'unverified', facts: { spy: 1, contain: 2 } }]) {
+    const options = buildCallOptions([{ name: 'Cover 3 Sky' },
+      { name: 'Contain Spy', tag: 'vs Mobile QB', matchup }], ['mobile_qb']);
+    assert.ok(options.every(call => call.optionRoles.every(role => role.id !== 'mobile')));
+  }
+});
+
+test('verified contain explains its inside-escape limitation', () => {
+  const options = buildCallOptions([{ name: 'Contain', matchup: { status: 'verified', facts: { contain: 1 } } }], ['mobile_qb']);
+  assert.match(options[0].optionRoles.find(role => role.id === 'mobile').reason, /inside escape/);
+});
+
+test('personal preference cannot override a substantially stronger matchup', () => {
+  const options = buildCallOptions([{ name: 'Cover 4 Quarters', sc: 80 },
+    { name: 'FS Blitz', tag: 'Pressure', sc: 55 }], ['deep_shots'], 'base', 4,
+  { position: 'line', callStyle: 'pressure' });
+  const player = options.find(call => call.isPlayerChoice);
+  assert.equal(player.name, 'Cover 4 Quarters');
+  assert.match(player.playerChoiceReason, /gives up too much/);
+  assert.ok(options.some(call => call.name === 'FS Blitz'));
+});
+
+test('competitive preference preserves both overall and personalized cards even at limit one', () => {
+  const options = buildCallOptions([{ name: 'Cover 3 Sky', sc: 80 },
+    { name: 'FS Blitz', tag: 'Pressure', sc: 73 }], [], 'base', 1,
+  { position: 'line', callStyle: 'pressure' });
+  assert.equal(options[0].name, 'Cover 3 Sky');
+  assert.equal(options.find(call => call.isPlayerChoice).name, 'FS Blitz');
+  assert.equal(options.length, 2);
+});
+
+test('known zero-deep exposure is blocked despite a close score on deep threats or long yardage', () => {
+  for (const [traits, situation] of [[['deep_shots'], 'base'], [[], '3lg'], [['seam_routes'], 'base']]) {
+    const options = buildCallOptions([{ name: 'Cover 4 Quarters', sc: 40 },
+      { name: 'Zero Blitz', tag: 'Pressure', sc: 35,
+        matchup: { status: 'verified', facts: { deep: 0 } } }], traits, situation, 4,
+    { position: 'line', callStyle: 'pressure' });
+    assert.equal(options.find(call => call.isPlayerChoice).name, 'Cover 4 Quarters');
+  }
 });

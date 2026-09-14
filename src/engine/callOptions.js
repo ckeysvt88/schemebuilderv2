@@ -1,3 +1,4 @@
+import { assessPersonalChoice, hasVerifiedQbControl } from './personalizationSafety.js';
 import { COVERAGE_FLAGS } from '../data/coverageFlags.js';
 import { getCoverageRunSupport, getRunDirections } from './coverageRunSupport.js';
 import { normalizeUserProfile } from '../data/userProfile.js';
@@ -130,11 +131,13 @@ export function buildCallOptions(rankedCalls = [], traits = [], situation = 'bas
   });
 
   if (hasAny(traits, MOBILE_TRAITS)) {
-    const mobile = rankedCalls.find(call => /spy|contain|vs mobile qb/i.test(`${call.tag || ''} ${call.name || ''}`));
+    const mobile = rankedCalls.find(hasVerifiedQbControl);
     addRole(options, mobile, {
       id: 'mobile',
       label: 'QB CONTROL',
-      reason: 'Use it when quarterback keeps, scrambles, or extended plays are the problem.',
+      reason: mobile?.matchup?.facts?.spy > 0
+        ? 'A defender is assigned to track the QB. Keep your coverage job covered rather than sending a second defender after him.'
+        : 'The call includes edge contain. Watch for an inside escape; contain does not cover every option read.',
     });
   }
 
@@ -167,8 +170,11 @@ export function buildCallOptions(rankedCalls = [], traits = [], situation = 'bas
 
   const profile = normalizeUserProfile(userProfile);
   const fitted = options.map((option, order) => personalFit(option, profile, situation, order));
-  const playerFit = fitted.sort((a, b) => b.total - a.total || a.order - b.order)[0];
-  const maxVisible = Math.max(1, limit);
+  const ordered = fitted.sort((a, b) => b.total - a.total || a.order - b.order);
+  const safetyFor = fit => assessPersonalChoice(fit.option, rankedCalls[0], traits, situation);
+  const playerFit = ordered.find(fit => safetyFor(fit).eligible);
+  const guardReason = !safetyFor(ordered[0]).eligible ? safetyFor(ordered[0]).reason : '';
+  const maxVisible = Math.max(playerFit && playerFit.option.name !== rankedCalls[0].name ? 2 : 1, limit);
   const visible = options.slice(0, maxVisible);
   if (playerFit && !visible.some(option => option.name === playerFit.option.name)) {
     visible.splice(visible.length - 1, 1, playerFit.option);
@@ -177,7 +183,7 @@ export function buildCallOptions(rankedCalls = [], traits = [], situation = 'bas
   return visible.map(option => ({
     ...option,
     isPlayerChoice: option.name === playerFit?.option.name,
-    playerChoiceReason: option.name === playerFit?.option.name ? personalReason(playerFit, profile) : '',
+    playerChoiceReason: option.name === playerFit?.option.name ? (guardReason || personalReason(playerFit, profile)) : '',
     personalFit: option.name === playerFit?.option.name ? {
       style: playerFit.styleFit,
       userPosition: playerFit.positionFit,

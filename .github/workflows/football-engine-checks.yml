@@ -19,4 +19,4 @@ jobs:
       - run: npm ci
       - run: npm test
       - run: npm run build
-      - run: npx eslint src/engine/coverageRunSupport.js src/engine/scoutThreats.js src/engine/scoring.js src/engine/conceptMatchup.js src/engine/coverageRank.js src/engine/coverageGuidance.js src/engine/callOptions.js tests/runSupport.test.js
+      - run: npx eslint src/engine/coverageRunSupport.js src/engine/scoutThreats.js src/engine/scoring.js src/engine/conceptMatchup.js src/engine/coverageRank.js src/engine/coverageGuidance.js src/engine/callOptions.js tests/runSupport.test.js src/engine/personalizationSafety.js tests/callOptions.test.js

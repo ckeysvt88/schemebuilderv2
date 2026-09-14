@@ -1,11 +1,13 @@
-# Combined in-app review — updates 13, 14, and 15
+# Combined in-app review — updates 13–16
 
 This is one review of:
 - **fa4133b:** selected-threat scoring and context-aware Test This Call logs.
 - **399860f:** coverage run support, RPO handoff/conflict logic, and overlapping scout traits.
-- **This update:** balanced run-support choices when inside and outside threats are both selected.
+- **ab668fd:** balanced run-support choices when inside and outside threats are both selected.
 
-Allow about 25–35 minutes. You do not need to read code. Mark each numbered check Pass, Fail, or Not tested.
+- **Update 16:** personalized-call safety and verified QB-control labels.
+
+Allow about 30–40 minutes. You do not need to read code. Mark each numbered check Pass, Fail, or Not tested.
 
 ## 1. Update your existing preview
 
@@ -23,7 +25,7 @@ git log -1 --oneline
 npm run dev
 ```
 
-The latest commit message should be **Balance mixed run support and add combined review checklist**. Compare its short number with the one in my delivery message.
+The latest commit message should be **Guard personalized calls and track remaining engine priorities**. Compare its short number with the one in my delivery message.
 
 If Git says local changes would be overwritten, stop and send that message; do not discard files or use a force/reset command. If fetch only asks whether to retry deleting the old worktree folders from earlier, answer **n**.
 
@@ -231,6 +233,48 @@ Opening **Test this call** from a coverage card does not automatically mean the 
 - [ ] Generate the **Call Sheet** for the same situation. Its current recommended formation/call agrees with the live personalized choice.
 - [ ] If a comparison fails, first confirm the playbook, family, down/distance, and My Defensive User settings match.
 
+## 7. New personalized-call safeguards
+
+### Check 18 — Pressure preference must respect the matchup
+
+Reset the traits. Select **11p + Deep Shots / Verticals** only. Choose **4-3 Press Quarters**, **11p Gun**, and **Base** down. Set **My Defensive User → Defensive Line → Create Pressure**.
+
+Open **4-3 Over Solid**:
+- [ ] **Cover 4 Quarters** is both Best Overall and Best For You.
+- [ ] The personal explanation says the preferred alternative gives up too much against this matchup.
+- [ ] **FS Blitz** remains available as a pressure alternative, but is not Best For You.
+- [ ] Collapse the formation. It still shows the same recommended call.
+
+The app should help you choose pressure when it fits, not force a blitz just because you prefer it.
+
+### Check 19 — Pressure preference still works when calls are competitive
+
+Keep that setup, but replace Deep Shots / Verticals with **Stays in Pocket**.
+
+In **4-3 Over Solid**:
+- [ ] **Cover 3 Match** is Best Overall.
+- [ ] **FS Blitz** is Best For You.
+- [ ] Both calls remain visible. The personal explanation relates the choice to your Defensive Line/Create Pressure settings.
+- [ ] Generate the Call Sheet and confirm it follows the same personalized choice.
+
+These are expected results for this exact setup, not a claim that FS Blitz always beats a pocket passer.
+
+### Check 20 — No QB-control promise from a play name
+
+Replace Stays in Pocket with **Mobile / Scrambling QB**. Change your defensive user to **Linebacker / Balanced**.
+
+- [ ] In 4-3 Over Solid, no call receives **QB CONTROL** without a verified spy or contain assignment.
+- [ ] Best For You still appears and the QB-escape concern remains available in coaching.
+- [ ] If you see a Spy or Contain play name in another formation, its name alone is not used to promise QB control.
+
+The current verified menus do not contain a confirmed spy/contain assignment. This does not mean those assignments are absent from the game. Positive verified-spy/contain behavior is covered by automated fixtures until more play art is verified.
+
+### Check 21 — The previous football improvements remain
+
+- [ ] Repeat Checks 2–4: Quarters inside support, Cover 2 outside support, and Cover 6 mixed support remain.
+- [ ] Repeat Check 9: short/long-yardage priorities still change.
+- [ ] Best For You may share Best Overall. A different user preference does not have to produce a different call when it sacrifices too much against the scout.
+
 ## What to send back
 
 For a failure, send:
@@ -240,7 +284,7 @@ For a failure, send:
 - what you expected and what happened.
 
 You can reply compactly:
-“Checks 1–7 passed. Check 8: [problem]. Checks 9–17 passed.”
+“Checks 1–7 passed. Check 8: [problem]. Checks 9–21 passed.”
 
 A ranking you disagree with is valuable football feedback even when the app behaves as coded. Include the offensive threat and the call you believe should be favored.
 
@@ -249,3 +293,7 @@ A ranking you disagree with is valuable football feedback even when the app beha
 The branch workflow runs the Node tests, production build, and focused lint. Regression tests cover score-ledger consistency, no catalog mutation, exact menu availability, overlapping traits, RPO branches, coverage support mappings, mixed-run choice/fallback behavior, and saved-context grouping.
 
 You do not need to validate those internals manually. This checklist verifies the experience and football usefulness in the actual app.
+
+## Items this review cannot close by itself
+
+See [Critical/high roadmap status](CRITICAL_HIGH_ROADMAP_STATUS.md). Play-art verification, full gap/RPO assignment ownership, broader offensive concepts, clock/score objectives, and gameplay-based scoring calibration remain open or partial. Passing these UI checks does not mark them complete.
