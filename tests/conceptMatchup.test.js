@@ -76,8 +76,7 @@ test('the visible concern follows the down instead of the lowest raw grade', () 
   assert.ok(short.scenarios.every(scenario => scenario.source === 'situation'));
 });
 
-test('unverified catalog calls stay available but withhold scenario claims for the six acceptance looks', () => {
-  const verifiedFormations = new Set(['4-3 Over Solid', '3-4 Tite']);
+test('owner-validated calls use assignment-aware scenarios for all six acceptance looks', () => {
   const cases = [
     { traits: ['p11', 'empty', 'mobile_qb', 'option_run', 'quick_game'], familyId: 'p11_empty' },
     { traits: ['p10', 'inside_run', 'outside_run', 'rpo'], familyId: 'p10_gun' },
@@ -90,15 +89,9 @@ test('unverified catalog calls stay available but withhold scenario claims for t
     const result = recommend(input);
     assert.ok(result.formations.length);
     for (const formation of result.formations.slice(0, 3)) {
-      if (verifiedFormations.has(formation.name)) {
-        assert.equal(formation.matchup.status, 'verified');
-        assert.ok(formation.matchup.concept);
-        continue;
-      }
-      assert.equal(formation.matchup.status, 'unverified', `${input.familyId}: ${formation.name}`);
-      assert.equal(formation.matchup.concept.confidence, 'Limited');
-      assert.ok(formation.matchup.concept.scenarios.every(s => s.grade === 50 || ['inside-run', 'edge-run'].includes(s.id)));
-      assert.equal(formation.matchup.facts, null);
+      assert.equal(formation.matchup.status, 'verified');
+      assert.ok(formation.matchup.concept);
+      assert.ok(formation.matchup.facts);
       assert.equal(formation.sc, formation.ledger.reduce((sum, entry) => sum + entry.delta, 0));
     }
   }

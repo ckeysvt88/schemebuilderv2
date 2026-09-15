@@ -93,7 +93,7 @@ test('verified formation menus are complete and auditable', () => {
     '4-3 Over Solid': ['Cover 3 Match', 'Cover 4 Quarters', 'Cover 2 Invert Hard Flat', 'Cover 3 Sky Wk', 'FS Blitz', 'Hammer 0 Blast'],
     '3-4 Tite': ['Cover 3 Sky', 'Cover 4 Quarters', 'Cover 6', 'Saw Blitz 3', 'Cover 3 Match', 'Tampa 2'],
   };
-  assert.equal(Object.keys(VERIFIED_PLAY_ASSIGNMENTS).length, Object.values(menus).flat().length);
+  assert.equal(Object.keys(VERIFIED_PLAY_ASSIGNMENTS).length, Object.values(PLAYS).flat().length);
   for (const [formation, calls] of Object.entries(menus)) {
     for (const call of calls) {
       const evidence = getPlayAssignmentEvidence(formation, call);
@@ -175,4 +175,43 @@ test('assignment evidence expires when the reviewed play structure changes', () 
     }
     assert.ok(Object.isFrozen(VERIFIED_PLAY_ASSIGNMENTS[key].assignments));
   }
+});
+
+
+test('owner validation covers every catalog record and enables its exact assignment facts', () => {
+  let count = 0;
+  for (const [formation, plays] of Object.entries(PLAYS)) {
+    assert.equal(new Set(plays.map(p => p.n)).size, plays.length);
+    for (const play of plays) {
+      const evidence = getPlayAssignmentEvidence(formation, play.n, play);
+      assert.ok(evidence, `${formation}: ${play.n}`);
+      assert.equal(evidence.validationMethod, 'Owner-confirmed catalog assignments');
+      const call = evaluateCoverage({ name: play.n }, play, ['mobile_qb'], 70, evidence);
+      assert.equal(call.matchup.status, 'verified');
+      assert.deepEqual([call.matchup.facts.rushers, call.matchup.facts.contain, call.matchup.facts.spy,
+        call.matchup.facts.deep, call.matchup.facts.underneath, call.matchup.facts.man],
+      [play.rush, play.cont, play.spy, play.deep, play.und, play.man]);
+      count++;
+    }
+  }
+  assert.equal(count, 1245);
+  assert.equal(Object.keys(PLAYS).length, 71);
+});
+
+test('owner-validated spy and contain enable the real Nickel Over Jack QB-control choice', () => {
+  const result = recommend({ traits: ['p11', 'mobile_qb'], book: '3-3-5', familyId: 'p11_gun',
+    userProfile: { position: 'middle', callStyle: 'balanced' } });
+  const formation = result.formations.find(f => f.name === 'Nickel 3-3 Over Jack');
+  assert.ok(formation);
+  const call = formation.callOptions.find(c => c.name === 'Cover 1 Contain');
+  assert.equal(call.matchup.facts.spy, 1);
+  assert.equal(call.matchup.facts.contain, 2);
+  assert.ok(call.optionRoles.some(role => role.id === 'mobile'));
+  assert.equal(formation.personalizedCoverage, 'Cover 1 Contain');
+});
+
+test('new or edited catalog records cannot borrow the owner validation of the snapshot', () => {
+  assert.equal(getPlayAssignmentEvidence('New formation', 'Cover 3 Sky', zone), null);
+  const p = PLAYS['Nickel 3-3 Over Jack'].find(p => p.n === 'Cover 1 Contain');
+  assert.equal(getPlayAssignmentEvidence('Nickel 3-3 Over Jack', p.n, { ...p, spy: 0, und: p.und + 1 }), null);
 });

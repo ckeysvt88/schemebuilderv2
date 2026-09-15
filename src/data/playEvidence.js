@@ -1,7 +1,9 @@
+import { VALIDATED_PLAY_SNAPSHOT } from './validatedPlaySnapshot.js';
+
 // Exact play-art assignments affect scoring only after a formation + play record
 // has been checked against CFB 27. Keep this registry intentionally explicit.
-// Value shape: { source, checkedOn, patch, platform, notes }
-export const VERIFIED_PLAY_ASSIGNMENTS = Object.freeze({
+// Existing external corroboration is retained alongside the owner-confirmed snapshot.
+const EXTERNAL_PLAY_EVIDENCE = Object.freeze({
   '4-3 Over Solid::Cover 3 Match': Object.freeze({
     assignments: Object.freeze({"n":"Cover 3 Match","rush":4,"deep":3,"und":4,"man":0,"spy":0,"cont":0,"badge":"MATCH","shell":3}),
     source: 'https://cfb.fan/27/playbooks/4-3-press-quarters-def/4--3-over-solid/cover-3-match/',
@@ -75,6 +77,27 @@ export const VERIFIED_PLAY_ASSIGNMENTS = Object.freeze({
     notes: 'Artwork shows four rushers, two deep halves plus the linebacker pole, two cloud flats, and two underneath hooks.',
   }),
 });
+
+// The owner confirmed every current plays.js assignment record on 2026-09-15.
+// Use a static snapshot, not live PLAYS, so later catalog edits lose verification.
+const ASSIGNMENT_FIELDS = ['n', 'rush', 'deep', 'und', 'man', 'spy', 'cont', 'badge', 'shell'];
+export const VERIFIED_PLAY_ASSIGNMENTS = Object.freeze(Object.fromEntries(
+  Object.entries(VALIDATED_PLAY_SNAPSHOT).flatMap(([formation, rows]) => rows.map(row => {
+    const assignments = Object.freeze(Object.fromEntries(ASSIGNMENT_FIELDS.map((field, i) => [field, row[i]])));
+    const key = formation + '::' + assignments.n;
+    const external = EXTERNAL_PLAY_EVIDENCE[key];
+    return [key, Object.freeze({
+      ...(external || {}), assignments,
+      source: external?.source || 'https://github.com/ckeysvt88/schemebuilderv2/blob/8baebc0d48896b248bcd4f62e980fbc4f28ca395/src/data/plays.js',
+      validationMethod: 'Owner-confirmed catalog assignments',
+      confirmedOn: '2026-09-15',
+      checkedOn: external?.checkedOn || '2026-09-15',
+      patch: external?.patch || 'Owner-validated CFB 27 catalog; exact patch unspecified',
+      platform: external?.platform || 'Owner validation; platform unspecified',
+      notes: external?.notes || 'Use the validated assignment counts. Exact player identities, run-gap ownership and gameplay outcomes are not inferred from counts.',
+    })];
+  })),
+));
 
 export const playEvidenceKey = (formationName, playName) => `${formationName}::${playName}`;
 

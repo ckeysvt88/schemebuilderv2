@@ -1,4 +1,4 @@
-# Combined in-app review — updates 13–19
+# Combined in-app review — updates 13–20
 
 This is one review of:
 - **fa4133b:** selected-threat scoring and context-aware Test This Call logs.
@@ -11,7 +11,9 @@ This is one review of:
 
 - **Update 19:** complete personal-selection safeguards, including rejected-call fallback handling.
 
-Allow about 40–50 minutes. You do not need to read code. Mark each numbered check Pass, Fail, or Not tested.
+- **Update 20:** use owner-validated assignments for all 1,245 plays across 71 formations.
+
+Allow about 45–55 minutes. You do not need to read code. Mark each numbered check Pass, Fail, or Not tested.
 
 ## 1. Update your existing preview
 
@@ -29,7 +31,7 @@ git log -1 --oneline
 npm run dev
 ```
 
-The latest commit message should be **Close unsafe recommendation fallbacks across call selection**. Compare its short number with the one in my delivery message.
+The latest commit message should be **Use owner-validated assignments across the full play catalog**. Compare its short number with the one in my delivery message.
 
 If Git says local changes would be overwritten, stop and send that message; do not discard files or use a force/reset command. If fetch only asks whether to retry deleting the old worktree folders from earlier, answer **n**.
 
@@ -269,9 +271,9 @@ Replace Stays in Pocket with **Mobile / Scrambling QB**. Change your defensive u
 
 - [ ] In 4-3 Over Solid, no call receives **QB CONTROL** without a verified spy or contain assignment.
 - [ ] Best For You still appears and the QB-escape concern remains available in coaching.
-- [ ] If you see a Spy or Contain play name in another formation, its name alone is not used to promise QB control.
+- [ ] A Spy or Contain play name alone does not establish QB control; its validated counts decide the label.
 
-The current verified menus do not contain a confirmed spy/contain assignment. This does not mean those assignments are absent from the game. Positive verified-spy/contain behavior is covered by automated fixtures until more play art is verified.
+Update 20 enables owner-validated spy/contain counts throughout plays.js. Four-three Over Solid still has no spy/contain call in its recommendation menu, but other formations do. Check 29 below verifies a positive QB-control example.
 
 ### Check 21 — The previous football improvements remain
 
@@ -288,7 +290,7 @@ Use **11p**, **Multiple**, **11p Gun**, **Base**, balanced run/pass and **Lineba
 - [ ] With no additional tendencies, recommendations load normally. Scores may be lower than before; they are not success percentages.
 - [ ] Add **Deep Shots / Verticals**. Open **4-3 Over Solid**: Best Overall remains **Cover 4 Quarters**.
 - [ ] Replace that with **Quick Game / Bubble Screens**: Best Overall becomes **Cover 2 Invert Hard Flat**.
-- [ ] Other formations may move in the list. Check that their football advice fits the selected threat; a less-documented play should not promise specific spy, contain or coverage assignments.
+- [ ] Other formations may move in the list. Check that their football advice fits the selected threat; spy, contain and coverage claims should follow the validated play counts.
 
 Every call now uses the same formation/threat blend. Unknown assignment-dependent threats start neutral. This fixes the old scale mismatch; it does not prove equally accurate predictions for every call.
 
@@ -307,7 +309,7 @@ Open **3-4 Tite** and **4-3 Over Solid**:
 - [ ] Previously saved observations remain after refreshing.
 - [ ] No verification failure or developer-only assignment message has appeared on the main card.
 
-Behind the scenes, automated checks change each assignment field in all 12 verified records and confirm the altered record loses verification. You do not need to edit files or reproduce those mutations. The stored snapshots preserve the prior reviewed records; they do not count as a new gameplay test.
+Behind the scenes, automated checks now change each assignment field in all 1,245 validated records and confirm the altered record loses verification. You do not need to edit files or reproduce those mutations. The stored snapshots preserve the prior reviewed records; they do not count as a new gameplay test.
 
 ### Check 25 — Updated scores stay consistent across views
 
@@ -350,6 +352,43 @@ Return to the Deep Shots setup in Check 26 and select **4th & Long**:
 
 The all-rejected-menu case is tested automatically with controlled candidates. It returns no recommendation rather than restoring a rejected call. You do not need to alter the catalog to trigger it. If you encounter an empty result naturally, the app should say no recommended call fits the scout, situation and playbook; report your setup rather than clearing valid scouting traits to force a result.
 
+## 10. Full-catalog assignment scoring
+
+### Check 29 — QB control now uses the validated catalog
+
+Reset traits. Select **11p + Mobile / Scrambling QB** only. Choose **3-3-5**, **11p Gun**, **Base**, balanced run/pass, and **Linebacker / Stay Balanced**.
+
+Open **Nickel 3-3 Over Jack**:
+- [ ] **Cover 1 Contain** is Best Overall and Best For You.
+- [ ] It has the **QB CONTROL** label.
+- [ ] The reason explains that a defender tracks the QB.
+- [ ] Call coaching no longer treats this call as having no spy or contain assignment.
+
+Its validated record has one spy and two contain rushers. Contain is already included in the rush total; it is not two additional defenders. Counts do not need to be displayed on the main card for this check to pass.
+
+### Check 30 — Change the threat, change the answer
+
+Keep the Check 29 setup. Replace Mobile / Scrambling QB with **Deep Shots / Verticals**.
+
+In **Nickel 3-3 Over Jack**:
+- [ ] Best Overall changes to **Cover 3 Match**.
+- [ ] Best For You is also Cover 3 Match with Linebacker / Stay Balanced.
+- [ ] QB CONTROL is not promoted when the mobile-QB concern is no longer selected.
+- [ ] Change to 3rd & Long, then 4th & Long. The selected calls retain deep help.
+
+Rankings elsewhere may change too: those formations now receive the same assignment-aware evaluation previously limited to two formations.
+
+### Check 31 — Existing functions still follow the selected call
+
+Return to the mobile-QB setup in Check 29:
+- [ ] Expanded and collapsed cards show Cover 1 Contain as Best For You.
+- [ ] The Call Sheet and shared plan select the same call for Nickel 3-3 Over Jack.
+- [ ] Test This Call opens for Cover 1 Contain with the current formation/situation.
+- [ ] Saved observations survive a refresh.
+- [ ] Repeat Checks 2–4: coverage-family run support still works.
+
+Every catalog record is covered by automated total/count/snapshot tests; you do not need to manually check 1,245 plays. Future new or edited assignments will need validation. Current recommendation menus remain curated; enabling the full catalog's evidence does not put every play into the short recommendation list.
+
 ## What to send back
 
 For a failure, send:
@@ -359,7 +398,7 @@ For a failure, send:
 - what you expected and what happened.
 
 You can reply compactly:
-“Checks 1–7 passed. Check 8: [problem]. Checks 9–28 passed.”
+“Checks 1–7 passed. Check 8: [problem]. Checks 9–31 passed.”
 
 A ranking you disagree with is valuable football feedback even when the app behaves as coded. Include the offensive threat and the call you believe should be favored.
 
@@ -371,4 +410,4 @@ You do not need to validate those internals manually. This checklist verifies th
 
 ## Items this review cannot close by itself
 
-See [Critical/high roadmap status](CRITICAL_HIGH_ROADMAP_STATUS.md). Play-art verification, full gap/RPO assignment ownership, broader offensive concepts, clock/score objectives, and gameplay-based scoring calibration remain open or partial. Passing these UI checks does not mark them complete.
+See [Critical/high roadmap status](CRITICAL_HIGH_ROADMAP_STATUS.md). Current plays.js count verification is complete based on owner confirmation. Full gap/RPO assignment ownership, broader offensive concepts, clock/score objectives, and gameplay-based scoring calibration remain open or partial. Passing these UI checks does not mark them complete.

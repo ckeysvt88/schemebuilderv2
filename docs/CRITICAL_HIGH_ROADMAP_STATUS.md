@@ -1,11 +1,11 @@
 # Critical and high-priority roadmap status
 
-Status after update 19. **Not all critical and high-priority requirements are implemented.** “Implemented” below means working code with regression checks, not proven CFB 27 effectiveness. The combined device review remains pending.
+Status after update 20. **Not all critical and high-priority requirements are implemented.** “Implemented” below means working code with regression checks, not proven CFB 27 effectiveness. The combined device review remains pending.
 
 | Priority | Requirement | Status and next work |
 | --- | --- | --- |
 | Critical | Personal preferences must respect matchup risk | Implementation complete in update 19. Overall and personal selection share the known-risk gate; preference loss is capped at 10 points relative to the eligible overall call. Rejected candidates cannot re-enter through fallback, and all-rejected menus produce no recommendation. A rejected pressure call cannot hide an eligible pressure alternative. Regression coverage includes all 12 position/style combinations over four situations plus exported selections. Gameplay calibration of the provisional budget remains part of the separate validation item; this is not a guarantee against unknown vulnerabilities. |
-| Critical | Exact defensive-play evidence across all formations | Partial. Current verified menus cover 4-3 Over Solid and 3-4 Tite. Update 18 binds those 12 records to immutable reviewed assignment snapshots; edits invalidate the corresponding evidence. No additional menu has been certified. Expand with exact formation/call play art and game-version provenance; do not invent assignments from names. |
+| Critical | Exact defensive-play evidence across all formations | Complete for the current catalog: the owner confirmed all 1,245 plays across 71 formations in plays.js. Update 20 enables these counts in assignment/concept scoring and QB-control selection. Static snapshots preserve validation across updates; changed/new records require validation. Existing external sources remain as corroboration. This closes count verification, not exact run-gap ownership or measured gameplay behavior. |
 | Critical | Run fits and RPO conflict ownership | Coverage-family support is implemented: Quarters inside safety fits, Cover 2 outside corner fits, Cover 6 split support, Sky rotated-safety inside support. Exact gap ownership, option keys and RPO conflict assignments are still incomplete. Preserve family support while adding exact assignments. |
 | Critical | Comparable call scores under uneven evidence | Common scale implemented in update 17: 35% formation/known assignment adjustment plus 65% threat utility, with neutral 50 for unknown assignment-dependent grades. Coverage-family run support remains scored. Uneven predictive confidence and gameplay calibration remain open; equal scale does not mean equal certainty. |
 | Critical | Gameplay and patch-specific validation | Partial. Test This Call records context and observations. Scores are not calibrated from those observations. Collect repeatable comparable tests before changing weights or claiming success probabilities. |
@@ -19,10 +19,10 @@ Status after update 19. **Not all critical and high-priority requirements are im
 ## Next implementation order
 
 1. Calibrate the common scoring baseline and risk weights using comparable gameplay observations; preserve the automated evidence-invariance checks.
-2. Expand exact play evidence and gap/conflict responsibilities, prioritizing frequently used formations. Record sources and game context; unresolved assignments stay unclaimed.
+2. Add gap/conflict responsibilities beyond the validated counts, prioritizing frequently used formations. Counts are established; exact run/option/RPO ownership still needs explicit data.
 3. Add a compact situational objective for clock/score needs, then targeted offensive-concept distinctions.
 4. Calibrate with comparable practice observations and repeat the consolidated UI review before merging to main.
 
 These are remaining engineering tasks as well as evidence tasks. They are not all blocked on the user. Gameplay-only conclusions require actual gameplay observations.
 
-[Combined validation checks 1–28](COMBINED_REVIEW_PHASES_13_TO_15.md)
+[Combined validation checks 1–31](COMBINED_REVIEW_PHASES_13_TO_15.md)
