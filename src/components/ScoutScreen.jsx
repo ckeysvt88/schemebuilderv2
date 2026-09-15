@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { TRAITS } from '../data/traits.js';
-import { PLAYBOOKS } from '../data/playbooks.js';
+import PlaybookModal from './PlaybookModal.jsx';
 import { FDB } from '../data/formations.js';
 
 const ICONS = {
@@ -166,7 +166,7 @@ export default function ScoutScreen({
         <div style={{ display: "flex", gap: 6 }}>
           <button onClick={() => { setOnboardingPage(0); setShowOnboarding(true); }} style={{ minHeight: 32, padding: "0 10px", background: "transparent", border: "1px solid var(--color-border)", borderRadius: "var(--r-md)", color: "var(--color-text-2)", fontSize: 11, fontWeight: 700, cursor: "pointer" }}>Guide</button>
           <button
-            onClick={() => setShowPB(v => !v)}
+            aria-haspopup="dialog" onClick={() => setShowPB(true)}
             style={{
               minHeight: 32, padding: "0 12px",
               background: (myBook !== "All" || showPB) ? "var(--color-gold-surface)" : "transparent",
@@ -183,27 +183,7 @@ export default function ScoutScreen({
         </div>
       </div>
 
-      {/* Playbook selector dropdown */}
-      {showPB && (
-        <div style={{ background: "linear-gradient(135deg, var(--color-surface-1), var(--color-surface-2))", borderBottom: "1px solid var(--color-border-subtle)", padding: "10px 16px", position: "sticky", top: "calc(40px + env(safe-area-inset-top))", zIndex: 79 }}>
-          <div style={{ fontSize: 9, color: "var(--color-gold-dim)", letterSpacing: "1.5px", textTransform: "uppercase", fontFamily: "var(--font-mono)", marginBottom: 8 }}>
-            My Defensive Playbook
-          </div>
-          <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
-            {["All", ...Object.keys(PLAYBOOKS)].map(b => (
-              <button key={b} onClick={() => { changeBook(b); setShowPB(false); }} style={{
-                minHeight: 32, padding: "0 12px",
-                borderRadius: "var(--r-sm)", fontSize: 10,
-                background: myBook === b ? "var(--color-gold-surface)" : "transparent",
-                border: `1px solid ${myBook === b ? "var(--color-gold)" : "var(--color-border)"}`,
-                color: myBook === b ? "var(--color-gold)" : "var(--color-text-2)",
-                cursor: "pointer", fontFamily: "var(--font-mono)",
-                transition: "all 120ms ease",
-              }}>{b}</button>
-            ))}
-          </div>
-        </div>
-      )}
+      {showPB && <PlaybookModal value={myBook} onChange={changeBook} onClose={() => setShowPB(false)} />}
 
       {/* ── XO Hero ── */}
       <div className="xo-hero">

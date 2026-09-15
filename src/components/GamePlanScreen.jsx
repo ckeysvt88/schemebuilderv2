@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { PLAYBOOKS } from '../data/playbooks.js';
+import PlaybookModal from './PlaybookModal.jsx';
 import { CONFERENCES } from '../data/teams.js';
 import { FDB } from '../data/formations.js';
 import { TRAITS } from '../data/traits.js';
@@ -233,49 +233,14 @@ export default function GamePlanScreen({
             {recBook.book} — {recBook.confidence.toLowerCase()} fit, {recBook.count}/{recBook.total} top formations
           </div>
         )}
-        <div
-          onClick={() => setPbOpen(v => !v)}
-          style={{
-            display: "flex", alignItems: "center", justifyContent: "space-between",
-            background: "var(--color-surface-1)", border: "1px solid var(--color-border-subtle)",
-            borderRadius: pbOpen ? "var(--r-md) var(--r-md) 0 0" : "var(--r-md)",
-            padding: "10px 13px", marginBottom: pbOpen ? 0 : 12, cursor: "pointer",
-          }}
-        >
-          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-            <span style={{ fontSize: 9, color: "var(--color-text-3)", letterSpacing: "1.5px", textTransform: "uppercase", fontFamily: "var(--font-mono)" }}>Playbook</span>
-            <span style={{ fontSize: 13, color: "var(--color-gold-bright)", fontWeight: "700", fontFamily: "var(--font-mono)" }}>
-              {myBook === "All" ? "All Books" : myBook}
-            </span>
-          </div>
-          <span style={{ color: "var(--color-gold)", fontSize: 13, transition: "transform 150ms ease", transform: pbOpen ? "rotate(180deg)" : "none", display: "inline-block" }}>▾</span>
-        </div>
-        {pbOpen && (
-          <div style={{ background: "var(--color-surface-2)", border: "1px solid var(--color-border-subtle)", borderTop: "none", borderRadius: "0 0 var(--r-md) var(--r-md)", maxHeight: 280, overflowY: "auto", marginBottom: 12 }}>
-            {["All", ...Object.keys(PLAYBOOKS)].map(k => {
-              const isCur = myBook === k;
-              const isRec = recBook && recBook.book === k;
-              return (
-                <div
-                  key={k}
-                  onClick={() => { changeBook(k); setPbOpen(false); }}
-                  style={{
-                    display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8,
-                    padding: "10px 13px", borderBottom: "1px solid var(--color-border-subtle)", cursor: "pointer",
-                  }}
-                >
-                  <span style={{ fontSize: 12.5, fontFamily: "var(--font-mono)", color: isCur ? "var(--color-gold-bright)" : "var(--color-text-1)", fontWeight: isCur ? "700" : "400" }}>
-                    {k === "All" ? "All Books" : k}
-                  </span>
-                  <span style={{ display: "flex", gap: 5 }}>
-                    {isRec && <span style={{ fontSize: 9, background: "var(--color-surface-success)", border: "1px solid var(--color-success)", color: "var(--color-success)", padding: "2px 7px", borderRadius: 9, fontFamily: "var(--font-mono)", fontWeight: "700" }}>Recommended</span>}
-                    {isCur && <span style={{ fontSize: 9, background: "var(--color-gold-surface)", border: "1px solid var(--color-gold)", color: "var(--color-gold)", padding: "2px 7px", borderRadius: 9, fontFamily: "var(--font-mono)", fontWeight: "700" }}>Current</span>}
-                  </span>
-                </div>
-              );
-            })}
-          </div>
-        )}
+        <button aria-haspopup="dialog" onClick={() => setPbOpen(true)} style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: 'var(--color-surface-1)', border: '1px solid var(--color-border-subtle)', borderRadius: 'var(--r-md)', padding: '10px 13px', marginBottom: 12, cursor: 'pointer', textAlign: 'left' }}>
+          <span style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <span style={{ fontSize: 9, color: 'var(--color-text-3)', letterSpacing: '1.5px', textTransform: 'uppercase', fontFamily: 'var(--font-mono)' }}>Playbook</span>
+            <span style={{ fontSize: 13, color: 'var(--color-gold-bright)', fontWeight: 700, fontFamily: 'var(--font-mono)' }}>{myBook === 'All' ? 'All Books' : myBook}</span>
+          </span>
+          <span style={{ color: 'var(--color-gold)', fontSize: 11 }}>Change</span>
+        </button>
+        {pbOpen && <PlaybookModal value={myBook} recommended={recBook?.book} onChange={changeBook} onClose={() => setPbOpen(false)} />}
 
         <button onClick={() => setUserProfileOpen(true)} style={{ width: "100%", display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, background: "linear-gradient(100deg, var(--color-gold-surface), var(--color-surface-1))", border: "1px solid var(--color-gold)", borderLeft: "4px solid var(--color-gold)", borderRadius: "var(--r-md)", padding: "11px 12px", marginBottom: 12, cursor: "pointer", textAlign: "left" }}>
           <span>

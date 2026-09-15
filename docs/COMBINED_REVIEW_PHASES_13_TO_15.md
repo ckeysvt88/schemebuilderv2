@@ -1,4 +1,4 @@
-# Combined in-app review — updates 13–20
+# Combined in-app review — updates 13–21
 
 This is one review of:
 - **fa4133b:** selected-threat scoring and context-aware Test This Call logs.
@@ -31,7 +31,7 @@ git log -1 --oneline
 npm run dev
 ```
 
-The latest commit message should be **Use owner-validated assignments across the full play catalog**. Compare its short number with the one in my delivery message.
+The latest commit message should be **Unify playbook selection in a shared popup**. Compare its short number with the one in my delivery message.
 
 If Git says local changes would be overwritten, stop and send that message; do not discard files or use a force/reset command. If fetch only asks whether to retry deleting the old worktree folders from earlier, answer **n**.
 
@@ -389,6 +389,21 @@ Return to the mobile-QB setup in Check 29:
 
 Every catalog record is covered by automated total/count/snapshot tests; you do not need to manually check 1,245 plays. Future new or edited assignments will need validation. Current recommendation menus remain curated; enabling the full catalog's evidence does not put every play into the short recommendation list.
 
+## 11. Playbook popup
+
+### Check 32 — Same popup on both screens
+
+- [ ] On the scouting screen, tap the playbook button. A centered **My Defensive Playbook** popup opens over a dimmed background.
+- [ ] The current book is highlighted. Scroll the list; the Done button stays visible.
+- [ ] Select another book. The popup closes and the selected book updates.
+- [ ] Open the selector on the game-plan screen. It uses the same popup, highlights the same book, and retains the Recommended label when applicable.
+- [ ] Select a book and confirm the game plan refreshes for that book.
+- [ ] Reopen, then tap Done or outside the popup. The selection does not change.
+- [ ] On desktop, Escape closes it; Tab stays within the popup while it is open.
+- [ ] On a narrow phone screen and in both themes, the list scrolls without moving the background and all book names remain readable.
+
+This update changes playbook selection presentation only. Your saved playbook and recommendation logic still use the existing selection handler.
+
 ## What to send back
 
 For a failure, send:
@@ -398,7 +413,7 @@ For a failure, send:
 - what you expected and what happened.
 
 You can reply compactly:
-“Checks 1–7 passed. Check 8: [problem]. Checks 9–31 passed.”
+“Checks 1–7 passed. Check 8: [problem]. Checks 9–32 passed.”
 
 A ranking you disagree with is valuable football feedback even when the app behaves as coded. Include the offensive threat and the call you believe should be favored.
 
