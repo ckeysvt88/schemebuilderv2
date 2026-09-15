@@ -1,3 +1,4 @@
+import { getGameObjective } from '../data/gameObjectives.js';
 import { getCoverageRunSupport } from './coverageRunSupport.js';
 
 // Phase 3 pilot: ordinal matchup grades, not probabilities or measured outcomes.
@@ -44,7 +45,7 @@ function addScenario(map, id, label, weight, source, reason) {
   }
 }
 
-export function buildConceptScenarios(traits = [], situation = 'base') {
+export function buildConceptScenarios(traits = [], situation = 'base', gameObjective = 'balanced') {
   const selected = new Set(traits);
   const scenarios = new Map();
   for (const scenario of DIRECT_SCENARIOS) {
@@ -95,12 +96,26 @@ export function buildConceptScenarios(traits = [], situation = 'base') {
       'The compressed field favors throws that win immediately.');
   }
 
+  const objective = getGameObjective(gameObjective).id;
+  if (objective === 'no_quick_td') {
+    addScenario(scenarios, 'vertical', 'Prevent the quick touchdown', 1.5, 'objective', 'The player explicitly prioritizes avoiding a quick touchdown.');
+  }
+  if (objective === 'get_stop') {
+    if (situation === '3lg') {
+      addScenario(scenarios, 'vertical', 'Conversion throw', 1, 'objective', 'The player needs a stop at the line to gain.');
+      addScenario(scenarios, 'sideline', 'Sideline conversion', 0.65, 'objective', 'Protect the sideline at the sticks.');
+    } else {
+      addScenario(scenarios, 'inside-run', 'Run for a first down', 0.8, 'objective', 'Keep the run fit when the offense can sustain the drive.');
+      addScenario(scenarios, 'quick', 'Quick conversion throw', 0.8, 'objective', 'Challenge the short completion that sustains the drive.');
+    }
+  }
   const multipliers = SITUATION_CONCEPT_WEIGHTS[situation] || SITUATION_CONCEPT_WEIGHTS.base;
   const result = [...scenarios.values()].map(scenario => ({
     ...scenario,
     baseWeight: scenario.weight,
     situationMultiplier: multipliers[scenario.id] || 1,
-    weight: scenario.weight * (multipliers[scenario.id] || 1),
+    objectiveMultiplier: objective === 'no_quick_td' && ['vertical', 'play-action'].includes(scenario.id) ? 2 : 1,
+    weight: scenario.weight * (multipliers[scenario.id] || 1) * (objective === 'no_quick_td' && ['vertical', 'play-action'].includes(scenario.id) ? 2 : 1),
   }));
   const total = result.reduce((sum, scenario) => sum + scenario.weight, 0);
   return result.map(scenario => ({ ...scenario, normalizedWeight: total ? scenario.weight / total : 0 }));
@@ -200,10 +215,10 @@ function gradeScenario(play, coverageName, scenario) {
   return base;
 }
 
-export function assessConceptMatchups(play, coverageName, traits = [], situation = 'base') {
-  const scenarios = buildConceptScenarios(traits, situation);
+export function assessConceptMatchups(play, coverageName, traits = [], situation = 'base', gameObjective = 'balanced') {
+  const scenarios = buildConceptScenarios(traits, situation, gameObjective);
   if (!scenarios.length) return null;
-  const riskWeight = SITUATION_RISK_WEIGHTS[situation] ?? SITUATION_RISK_WEIGHTS.base;
+  const riskWeight = Math.max(SITUATION_RISK_WEIGHTS[situation] ?? SITUATION_RISK_WEIGHTS.base, getGameObjective(gameObjective).id === 'no_quick_td' ? 0.45 : 0);
   const grades = scenarios.map(scenario => ({ ...scenario, ...gradeScenario(play, coverageName, scenario) }));
   const weightedMean = grades.reduce((sum, item) => sum + item.grade * item.normalizedWeight, 0);
   const badCase = grades.reduce((worst, item) => item.grade < worst.grade ? item : worst, grades[0]);

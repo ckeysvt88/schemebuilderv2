@@ -23,6 +23,7 @@ const ONBOARDING_PAGES = [
     points: [
       'Start with two or three clear traits—you can add more later.',
       'Set the live down and distance because short and long yardage require different answers.',
+      'Game Objective changes the priority: Balanced, No Quick TD, or Get a Stop. Use Get a Stop if a field goal can beat you.',
     ],
   },
   {

@@ -1,3 +1,4 @@
+import { GAME_OBJECTIVES } from '../data/gameObjectives.js';
 import { useState, useEffect } from 'react';
 import PlaybookModal from './PlaybookModal.jsx';
 import { CONFERENCES } from '../data/teams.js';
@@ -71,7 +72,7 @@ export default function GamePlanScreen({
   shareToast, handleShare,
   toggle,
   compareA, setCompareA, compareB, setCompareB,
-  situDown, setSituDown, situDist, setSituDist,
+  situDown, setSituDown, situDist, setSituDist, gameObjective, setGameObjective,
   setStep,
   selectedTeam,
   userProfile, setUserProfile,
@@ -93,7 +94,7 @@ export default function GamePlanScreen({
       book: myBook,
       defensiveCall: selection.call || fm.personalizedCoverage || fm.recommendedCoverage,
       userPosition: profileLabels.position,
-      objective: plan?.objective?.label || '',
+      objective: recommendation.gameObjective.id === 'balanced' ? (plan?.objective?.label || '') : recommendation.gameObjective.label,
       setup: plan?.settings?.map(item => `${item.setting}: ${item.value}`) || [],
     });
   };
@@ -309,6 +310,14 @@ export default function GamePlanScreen({
             })}
           </div>
         </div>
+
+        <fieldset style={{ border: '1px solid var(--color-border-subtle)', borderRadius: 'var(--r-md)', padding: '10px 12px', margin: '0 0 12px' }}>
+          <legend style={{ fontSize: 11, color: 'var(--color-gold)', fontWeight: 700 }}>Game Objective</legend>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+            {GAME_OBJECTIVES.map(item => <button key={item.id} aria-pressed={gameObjective === item.id} onClick={() => setGameObjective(item.id)} style={{ flex: 1, minHeight: 36, padding: '6px 9px', borderRadius: 'var(--r-sm)', border: `1px solid ${gameObjective === item.id ? 'var(--color-gold)' : 'var(--color-border)'}`, background: gameObjective === item.id ? 'var(--color-gold-surface)' : 'var(--color-surface-1)', color: 'var(--color-text-1)', cursor: 'pointer', fontSize: 11 }}>{item.label}</button>)}
+          </div>
+          <p style={{ fontSize: 11, color: 'var(--color-text-2)', lineHeight: 1.45, margin: '8px 0 0' }}>{recommendation.gameObjective.text}</p>
+        </fieldset>
 
         <p style={{ fontSize: 11, color: "var(--color-text-3)" }}>
           {recommendation.familyLabel} · {recommendation.context.label}. Fit scores are rankings, not success probabilities.

@@ -64,7 +64,7 @@ export function buildCallSheetData({ input, sel = {} }) {
   const situationMatrix = SITUATIONS.map(sit => {
     const ranked = recommend({ ...input, down: sit.down, distance: sit.distance }).formations;
     return { ...sit, primary: pluck(ranked[0]), secondary: pluck(ranked[1]),
-      dcTip: getSituationTip(sit.down, sit.distance) };
+      dcTip: current.gameObjective.id === 'balanced' ? getSituationTip(sit.down, sit.distance) : current.gameObjective.text };
   });
   // These labels alone do not specify an objective or the offensive alignment.
   // Do not manufacture a Goal Line / Prevent recommendation from the label.
@@ -78,7 +78,7 @@ export function buildCallSheetData({ input, sel = {} }) {
     profile, situationMatrix,
     topFormations: current.formations.slice(0, 4).map(pluck),
     situationGuide: situationMatrix.map(row => ({ ...row, likelyPersonnel: '' })),
-    contextLabel: `${current.familyLabel} · ${current.context.label}`,
+    contextLabel: `${current.familyLabel} · ${current.context.label}${current.gameObjective.id === 'balanced' ? '' : ' · ' + current.gameObjective.label}`,
     myBook: current.book,
     runPassLabel: RUN_PASS_LABELS[current.runPass] || 'Balanced',
     date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),

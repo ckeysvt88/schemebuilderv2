@@ -1,4 +1,4 @@
-# Combined in-app review — updates 13–21
+# Combined in-app review — updates 13–22
 
 This is one review of:
 - **fa4133b:** selected-threat scoring and context-aware Test This Call logs.
@@ -31,7 +31,7 @@ git log -1 --oneline
 npm run dev
 ```
 
-The latest commit message should be **Unify playbook selection in a shared popup**. Compare its short number with the one in my delivery message.
+The latest commit message should be **Add explicit game objectives throughout the recommendation flow**. Compare its short number with the one in my delivery message.
 
 If Git says local changes would be overwritten, stop and send that message; do not discard files or use a force/reset command. If fetch only asks whether to retry deleting the old worktree folders from earlier, answer **n**.
 
@@ -51,6 +51,7 @@ Before each scenario below:
 - Choose the **Multiple** defensive playbook.
 - In the game plan, select **11p Gun**.
 - Set **My Defensive User → Linebacker**, with the balanced calling style.
+- Set **Game Objective → Balanced** unless a check explicitly says otherwise.
 - Set **3rd down → Short**, unless the scenario says otherwise.
 
 Open the named defensive formation and its **Coverages** tab. Expand **More calls in this formation** if the requested call is not one of the first cards. Expand **Call coaching** to see **This call protects**, **Your job**, and **Main concern on this down**.
@@ -404,6 +405,39 @@ Every catalog record is covered by automated total/count/snapshot tests; you do 
 
 This update changes playbook selection presentation only. Your saved playbook and recommendation logic still use the existing selection handler.
 
+## 12. Game Objective
+
+### Check 33 — Your objective changes the call
+
+Use **11p + Quick Game / Bubble Screens**, **4-3 Press Quarters**, **11p Gun**, **Base**, balanced run/pass and **Linebacker / Stay Balanced**.
+
+The new **Game Objective** control is below down/distance. Open **4-3 Over Solid**:
+- [ ] **Balanced** selects Cover 2 Invert Hard Flat as Best Overall.
+- [ ] **No Quick TD** changes Best Overall to Cover 3 Match.
+- [ ] The No Quick TD description explains that short gains may be conceded and says to use Get a Stop if a field goal can beat you.
+- [ ] **Get a Stop** returns the recommendation to Cover 2 Invert Hard Flat in this setup.
+- [ ] Return to Balanced. The original ranking and scores return.
+
+These are explicit priorities you choose. The app does not read the scoreboard or calculate whether a field goal can beat you.
+
+### Check 34 — Adjustments and long yardage respect the objective
+
+Select **No Quick TD**:
+- [ ] Open the formation's Adjustments tab. Its objective reads No Quick TD and prioritizes keeping deep help.
+- [ ] It does not simultaneously tell you to play short routes or use aggressive underneath coverage.
+- [ ] Change My Defensive User to **Defensive Line / Create Pressure**. Neither winner becomes a call with fewer than two validated deep defenders.
+- [ ] Select **Get a Stop**, then **4th & Long**. The adjustments protect the line to gain; Get a Stop does not force a blitz or recommend underneath coverage on long yardage.
+
+### Check 35 — Export, logging and reset behavior
+
+- [ ] With No Quick TD selected, generate the Call Sheet and share/copy the plan. Both identify the objective and match the live personal calls.
+- [ ] Open Test This Call from a coverage card. The popup shows **Objective: No Quick TD**.
+- [ ] If recording sample tests, save the same call/situation once with No Quick TD and once with Get a Stop. Saved evidence keeps them in separate groups. Delete sample entries individually afterward.
+- [ ] Open a different saved scouting profile or build a fresh plan. Game Objective resets to Balanced, so an old late-game priority does not carry into a new game.
+- [ ] Refreshing the page also resets the live objective to Balanced; saved observations remain.
+- [ ] Reopen the introductory guide. The scouting step mentions Game Objective.
+- [ ] On a narrow screen, all three buttons and the selected explanation remain readable.
+
 ## What to send back
 
 For a failure, send:
@@ -413,7 +447,7 @@ For a failure, send:
 - what you expected and what happened.
 
 You can reply compactly:
-“Checks 1–7 passed. Check 8: [problem]. Checks 9–32 passed.”
+“Checks 1–7 passed. Check 8: [problem]. Checks 9–35 passed.”
 
 A ranking you disagree with is valuable football feedback even when the app behaves as coded. Include the offensive threat and the call you believe should be favored.
 

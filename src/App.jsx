@@ -44,6 +44,7 @@ export default function App() {
   const [mainTab, setMainTab]           = useState("personnel");
   const [quickAdjOpen, setQuickAdjOpen] = useState(false);
   const [shareToast, setShareToast]     = useState(null);
+  const [gameObjective, setGameObjective] = useState('balanced');
   const [situDown, setSituDown] = useState("base");
   const [situDist, setSituDist] = useState("");
 
@@ -83,8 +84,8 @@ export default function App() {
   const activeFamily = availableFamilies.includes(activeP) ? activeP : (availableFamilies[0] || null);
   const familyId = mainTab === 'personnel' ? activeFamily : null;
   const scored = useMemo(() => scoreAll(flat, myBook, runPass), [flat, myBook, runPass]);
-  const recommendationInput = useMemo(() => ({ traits: flat, book: myBook, runPass, familyId, down: situDown, distance: situDist, userProfile }),
-    [flat, myBook, runPass, familyId, situDown, situDist, userProfile]);
+  const recommendationInput = useMemo(() => ({ traits: flat, book: myBook, runPass, familyId, down: situDown, distance: situDist, userProfile, gameObjective }),
+    [flat, myBook, runPass, familyId, situDown, situDist, userProfile, gameObjective]);
   const recommendation = useMemo(() => recommend(recommendationInput), [recommendationInput]);
 
   // ── Navigation — cleans up plan-specific UI when leaving plan/notes ───────────
@@ -125,7 +126,7 @@ export default function App() {
     setSelFm(null);
     setActiveP(null);
     setSelectedTeam(null);
-    setSituDown("base"); setSituDist("");
+    setSituDown("base"); setSituDist(""); setGameObjective("balanced");
   }, []);
 
   const toggle = useCallback((g, t) =>
@@ -139,7 +140,7 @@ export default function App() {
     setSelFm(null);
     setMainTab("personnel");
     setSelectedTeam(null);
-    setSituDown("base"); setSituDist("");
+    setSituDown("base"); setSituDist(""); setGameObjective("balanced");
     navigate("plan");
     document.getElementById('root')?.scrollTo(0, 0);
   };
@@ -198,7 +199,7 @@ export default function App() {
     toggle, build,
     compareA, setCompareA,
     compareB, setCompareB,
-    situDown, setSituDown, situDist, setSituDist,
+    situDown, setSituDown, situDist, setSituDist, gameObjective, setGameObjective,
     setStep: navigate,
     navigateToNotes: (profileName) => { setNotesInitProfile(profileName); navigate("notes"); },
     selectedTeam,
@@ -216,7 +217,7 @@ export default function App() {
         setActiveP(teamFams[0] || "p11_gun");
         setSelFm(null); setMainTab("personnel");
         setSelectedTeam(team);
-        setSituDown("base"); setSituDist("");
+        setSituDown("base"); setSituDist(""); setGameObjective("balanced");
         navigate("plan");
         document.getElementById('root')?.scrollTo(0, 0);
       }} />}

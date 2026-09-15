@@ -1,3 +1,4 @@
+import { getGameObjective } from '../data/gameObjectives.js';
 import { getCoverageFamily } from './coverageGuidance.js';
 import { normalizeSituation, coverageSituation } from './context.js';
 
@@ -152,6 +153,15 @@ export function buildAdjustmentPlan(fm, traits = [], situation = {}) {
   const family = getCoverageFamily(activeCoverage, selectedCall?.tag);
   const isZone = ZONE_FAMILIES.has(family);
   const { context, key: situationKey } = situationContext(situation);
+  const gameObjective = getGameObjective(fm?.gameObjective);
+  if (gameObjective.id === 'no_quick_td') return {
+    objective: { ...gameObjective, situation: context.label },
+    settings: isZone ? [{ setting: 'Zone Strategy', value: 'Conservative', why: 'Keep zone defenders above developing routes before driving on the short throw.', tradeoff: 'Short gains may be available. Reconsider this objective if those gains put the offense in winning field-goal range.' }] : [],
+    tools: shellTool(family) ? [shellTool(family)] : [],
+    preset: null,
+    alerts: [{ when: 'A field goal can beat you', action: 'Choose Get a Stop and defend the line to gain instead of conceding short gains.' }],
+    userKey: { title: 'Keep the deep help intact', text: 'Leave the deep defenders in coverage. Play your own assignment first, then rally after the throw; do not pull a deep defender down to chase a short route.' },
+  };
   const settings = [];
   const tools = [];
   const alerts = [];
@@ -329,7 +339,7 @@ export function buildAdjustmentPlan(fm, traits = [], situation = {}) {
   });
 
   return {
-    objective: { ...objectiveFor(situationKey), situation: context.label },
+    objective: { ...(gameObjective.id === 'balanced' ? objectiveFor(situationKey) : gameObjective), situation: context.label },
     settings: settings.slice(0, 3).map(publicAdjustment),
     tools: tools.slice(0, 8).map(publicAdjustment),
     preset: presetMacroFor(traits, situationKey),

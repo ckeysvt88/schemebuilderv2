@@ -62,14 +62,14 @@ export function summarizeCalibrationEntries(entries = []) {
     const key = JSON.stringify([entry.defensiveFormation, entry.defensiveCall, entry.book,
       entry.down, entry.distance, entry.userPosition, entry.gameVersion, entry.platform,
       entry.difficulty, entry.mode, entry.opponentLook, entry.setupConfirmed,
-      testedSetup]);
+      testedSetup, ...(entry.objective ? [entry.objective] : [])]);
     const downLabel = ({ 1: '1st', 2: '2nd', 3: '3rd', 4: '4th', rz: 'Red zone' })[entry.down];
     const situation = downLabel && entry.down !== 'rz'
       ? `${downLabel}${entry.distance ? ` & ${entry.distance}` : ' down'}`
       : downLabel;
     const current = byCall.get(key) || {
       key, formation: entry.defensiveFormation,
-      context: [situation, entry.book, entry.platform, entry.difficulty, entry.mode, entry.gameVersion,
+      context: [situation, entry.objective, entry.book, entry.platform, entry.difficulty, entry.mode, entry.gameVersion,
         entry.setupConfirmed && 'listed setup used'].filter(Boolean).join(' · '),
       call: entry.defensiveCall, tests: 0, stops: 0, sacks: 0, turnovers: 0,
       firstDowns: 0, explosives: 0, touchdowns: 0, problems: {},

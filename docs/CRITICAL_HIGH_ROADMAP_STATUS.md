@@ -1,6 +1,6 @@
 # Critical and high-priority roadmap status
 
-Status after update 20. **Not all critical and high-priority requirements are implemented.** “Implemented” below means working code with regression checks, not proven CFB 27 effectiveness. The combined device review remains pending.
+Status after update 22. **Not all critical and high-priority requirements are implemented.** “Implemented” below means working code with regression checks, not proven CFB 27 effectiveness. The combined device review remains pending.
 
 | Priority | Requirement | Status and next work |
 | --- | --- | --- |
@@ -12,7 +12,8 @@ Status after update 20. **Not all critical and high-priority requirements are im
 | High | Wider offensive-concept coverage | Partial. Existing threat buckets do not fully distinguish duo/power/zone, flood/sail, mesh/drive, and route combinations. Add only distinctions supported by simple inputs and call evidence. |
 | High | Alignment, field/boundary, motion and match checks | Partial. Personnel and broad traits are available; exact distribution, hash and matchup checks need richer verified data. Avoid assuming a match check from a coverage label. |
 | High | Personalized assignments and user help | Partial. Position/style choices and matchup guardrails work. Exact user responsibility, help defenders and skill burden still need call-level evidence. |
-| High | Situational objectives | Down/distance and broad red-zone logic implemented. Score, clock, precise field position, and two-/four-minute objectives remain incomplete. |
+| High | Explicit game-objective selection | Complete in update 22: Balanced, No Quick TD, and Get a Stop flow through UI, scenario weights, selection safeguards, adjustments, share/PDF and objective-separated call tests. New profile/scout builds reset to Balanced. Device checks 33–35 pending. |
+| High | Automatic clock/score and field-position interpretation | Remaining future scope. The player now supplies the objective directly; numeric score, clock, timeout and field-position inputs are not implemented. Do not claim the app computes win probability, timeout usage or field-goal range. |
 | High | Fast coaching and adjustments | Implemented improvements with regression coverage; device usability and game-menu verification remain part of review. Continue auditing old narrative claims and contradictory advice. |
 | High | Consistent recommendations and logs | Shared call-sheet/live results, context-separated logs and mixed-run alternatives implemented. Review persistence, mobile presentation and exports using the combined checklist. |
 
@@ -20,9 +21,9 @@ Status after update 20. **Not all critical and high-priority requirements are im
 
 1. Calibrate the common scoring baseline and risk weights using comparable gameplay observations; preserve the automated evidence-invariance checks.
 2. Add gap/conflict responsibilities beyond the validated counts, prioritizing frequently used formations. Counts are established; exact run/option/RPO ownership still needs explicit data.
-3. Add a compact situational objective for clock/score needs, then targeted offensive-concept distinctions.
+3. Add targeted offensive-concept distinctions. Manual objective selection is complete; consider numeric clock/score/field-position inputs separately if useful without slowing the UI.
 4. Calibrate with comparable practice observations and repeat the consolidated UI review before merging to main.
 
 These are remaining engineering tasks as well as evidence tasks. They are not all blocked on the user. Gameplay-only conclusions require actual gameplay observations.
 
-[Combined validation checks 1–31](COMBINED_REVIEW_PHASES_13_TO_15.md)
+[Combined validation checks 1–35](COMBINED_REVIEW_PHASES_13_TO_15.md)

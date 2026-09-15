@@ -1,3 +1,4 @@
+import { getGameObjective } from '../data/gameObjectives.js';
 import { scoreAll } from './scoring.js';
 import { applyDownDistance } from './downDistance.js';
 import { normalizeSituation, coverageSituation } from './context.js';
@@ -12,7 +13,8 @@ import { PERSONNEL_FAMILIES } from '../data/personnel.js';
 import { normalizeUserProfile, userProfileLabels } from '../data/userProfile.js';
 
 // The single entry point for live cards, details, sharing and PDF rows.
-export function recommend({ traits = [], book = 'All', runPass = 4, familyId = null, down = 'base', distance = '', userProfile = {} } = {}) {
+export function recommend({ traits = [], book = 'All', runPass = 4, familyId = null, down = 'base', distance = '', userProfile = {}, gameObjective = 'balanced' } = {}) {
+  const objective = getGameObjective(gameObjective);
   const normalizedUserProfile = normalizeUserProfile(userProfile);
   const context = normalizeSituation(down, distance);
   const sit = coverageSituation(context);
@@ -30,7 +32,7 @@ export function recommend({ traits = [], book = 'All', runPass = 4, familyId = n
     const baseline = rankCoveragesForSituation({ ...f, coverages: eligible }, sit, f.effectiveTraits);
     const rankedCoverages = baseline.map((c, index) => {
       const evidence = getPlayAssignmentEvidence(f.name, c.name, plays.find(p => p.n === c.name));
-      const evaluated = evaluateCoverage(c, plays.find(p => p.n === c.name), f.effectiveTraits, f.sc, evidence, sit);
+      const evaluated = evaluateCoverage(c, plays.find(p => p.n === c.name), f.effectiveTraits, f.sc, evidence, sit, objective.id);
       return evaluated && { ...evaluated, baselineOrder: index };
     }).filter(c => c && c.sc > 0).sort((a, b) => b.sc - a.sc || a.baselineOrder - b.baselineOrder);
     if (!rankedCoverages.length) return [];
@@ -38,7 +40,7 @@ export function recommend({ traits = [], book = 'All', runPass = 4, familyId = n
     if (!selection) return [];
     const { best, callOptions, playerCall } = selection;
     const playerRole = playerCall?.optionRoles?.find(role => role.id !== 'overall') || playerCall?.optionRoles?.[0];
-    return [{ ...f, formationScore: f.sc, sc: best.sc, ledger: [...f.ledger, ...best.ledger],
+    return [{ ...f, gameObjective: objective.id, formationScore: f.sc, sc: best.sc, ledger: [...f.ledger, ...best.ledger],
       matchup: best.matchup, rankedCoverages, callOptions, recommendedCoverage: best.name,
       personalizedCoverage: playerCall.name,
       personalizedRole: playerRole?.label || 'BEST OVERALL',
@@ -47,12 +49,13 @@ export function recommend({ traits = [], book = 'All', runPass = 4, familyId = n
       inventoryOmissions: f.coverages.length - verified.length }];
   });
   formations.sort((a, b) => b.sc - a.sc || a.name.localeCompare(b.name));
-  return { context, familyId, familyLabel: PERSONNEL_FAMILIES[familyId]?.label || 'All scouted looks', book, runPass,
+  return { context, gameObjective: objective, familyId, familyLabel: PERSONNEL_FAMILIES[familyId]?.label || 'All scouted looks', book, runPass,
     userProfile: normalizedUserProfile, userProfileLabels: userProfileLabels(normalizedUserProfile), formations };
 }
 
 export function buildRecommendationShareText(result, traits = []) {
   const lines = ['CFB 27 — DEFENSIVE GAME PLAN', `${result.familyLabel} · ${result.context.label} · ${result.book}`, ''];
+  if (result.gameObjective?.id !== 'balanced') lines.push(`Game objective: ${result.gameObjective.label}`, '');
   if (traits.length) lines.push('Scouted: ' + traits.map(t => TRAIT_LABELS[t] || t).join(', '), '');
   for (const [i, f] of result.formations.slice(0, 4).entries()) {
     lines.push(`#${i + 1} ${f.name} — fit ${f.sc}/100`, `Best for you: ${f.personalizedCoverage}`);

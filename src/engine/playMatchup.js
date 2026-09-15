@@ -99,11 +99,11 @@ export function unverifiedPlayAssessment() {
   };
 }
 
-export function evaluateCoverage(coverage, play, traits, formationScore, evidence = null, situation = 'base') {
+export function evaluateCoverage(coverage, play, traits, formationScore, evidence = null, situation = 'base', gameObjective = 'balanced') {
   if (!evidence) {
-    const concept = assessConceptMatchups(null, coverage.name, traits, situation);
+    const concept = assessConceptMatchups(null, coverage.name, traits, situation, gameObjective);
     const sc = Math.max(0, Math.min(100, Math.round(formationScore * 0.35 + (concept?.utility ?? 50) * 0.65)));
-    return { ...coverage, sc, matchup: { ...unverifiedPlayAssessment(), concept }, ledger: [
+    return { ...coverage, sc, gameObjective, matchup: { ...unverifiedPlayAssessment(), concept }, ledger: [
       { id: 'play:unverified', label: 'Coverage fit with unknown assignments', delta: sc - formationScore,
         reason: 'The same formation/threat blend applies to every call. Unknown assignments receive a neutral grade; coverage-family run support is retained.',
         basis: 'Common ordinal scoring scale; unknown does not mean safe' },
@@ -112,7 +112,7 @@ export function evaluateCoverage(coverage, play, traits, formationScore, evidenc
   const matchup = assessPlay(play, threatProfile(traits));
   if (!matchup) return null;
   const assignmentRaw = formationScore + matchup.delta;
-  const concept = assessConceptMatchups(play, coverage.name, traits, situation);
+  const concept = assessConceptMatchups(play, coverage.name, traits, situation, gameObjective);
   // Formation gets the defense on the field; the exact call must decide which
   // coverage wins. Weight the verified threat matchup more heavily so a strong
   // formation grade cannot hide a poor call against the selected concept.
@@ -120,9 +120,9 @@ export function evaluateCoverage(coverage, play, traits, formationScore, evidenc
   const conceptDelta = blended - assignmentRaw;
   const raw = assignmentRaw + conceptDelta;
   const sc = Math.max(0, Math.min(matchup.scoreCap, raw));
-  return { ...coverage, sc, matchup: { ...matchup, status: 'verified', verification: evidence, concept }, ledger: [...matchup.factors,
+  return { ...coverage, sc, gameObjective, matchup: { ...matchup, status: 'verified', verification: evidence, concept }, ledger: [...matchup.factors,
     ...([{ id: 'concept:blend', label: `Threat/complement assessment (${concept?.utility ?? 50}/100)`, delta: conceptDelta,
-      reason: `The ${situation} situation weights the scouted threats and includes a ${Math.round((concept?.riskWeight ?? 0) * 100)}% bad-case component.`,
+      reason: `Game objective: ${gameObjective}. The ${situation} situation weights the scouted threats and includes a ${Math.round((concept?.riskWeight ?? 0) * 100)}% bad-case component.`,
       basis: concept?.evidence || 'Neutral threat baseline when no scenario is selected' }]),
     { id: 'play:bounds', label: matchup.scoreCap < 100 ? 'Deep-shot exposure cap (35)' : 'Play score bounds', delta: sc - raw }] };
 }
