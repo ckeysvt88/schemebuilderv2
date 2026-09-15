@@ -1,4 +1,4 @@
-import { assessPersonalChoice, hasVerifiedQbControl } from './personalizationSafety.js';
+import { assessPersonalChoice, assessCallRisk, hasVerifiedQbControl, selectOverallCall } from './personalizationSafety.js';
 import { COVERAGE_FLAGS } from '../data/coverageFlags.js';
 import { getCoverageRunSupport, getRunDirections } from './coverageRunSupport.js';
 import { normalizeUserProfile } from '../data/userProfile.js';
@@ -106,15 +106,18 @@ function bestRunFit(calls, traits) {
 // from the formation shell.
 export function buildCallOptions(rankedCalls = [], traits = [], situation = 'base', limit = 4, userProfile = {}) {
   if (!rankedCalls.length) return [];
+  const overall = selectOverallCall(rankedCalls, traits, situation);
+  if (!overall) return [];
   const options = [];
 
-  addRole(options, rankedCalls[0], {
+  addRole(options, overall, {
     id: 'overall',
     label: 'BEST OVERALL',
     reason: 'Best current fit in this formation for the scout and game situation.',
   });
 
-  const deepHelp = rankedCalls.find(call => COVERAGE_FLAGS[call.name]?.longOK && !isPressureOption(call));
+  const deepHelp = rankedCalls.find(call => COVERAGE_FLAGS[call.name]?.longOK && !isPressureOption(call)
+    && (call.matchup?.status !== 'verified' || call.matchup.facts?.deep > 0));
   addRole(options, deepHelp, {
     id: 'safe',
     label: situation === '3lg' ? 'PROTECT THE STICKS' : 'DEEP HELP',
@@ -123,7 +126,8 @@ export function buildCallOptions(rankedCalls = [], traits = [], situation = 'bas
       : 'Use it when preventing the explosive pass matters more than squeezing the short throw.',
   });
 
-  const pressure = rankedCalls.find(isPressureOption);
+  const pressure = rankedCalls.find(call => isPressureOption(call) && assessCallRisk(call, traits, situation).eligible)
+    || rankedCalls.find(isPressureOption);
   addRole(options, pressure, {
     id: 'pressure',
     label: 'PRESSURE',
@@ -171,10 +175,10 @@ export function buildCallOptions(rankedCalls = [], traits = [], situation = 'bas
   const profile = normalizeUserProfile(userProfile);
   const fitted = options.map((option, order) => personalFit(option, profile, situation, order));
   const ordered = fitted.sort((a, b) => b.total - a.total || a.order - b.order);
-  const safetyFor = fit => assessPersonalChoice(fit.option, rankedCalls[0], traits, situation);
+  const safetyFor = fit => assessPersonalChoice(fit.option, overall, traits, situation);
   const playerFit = ordered.find(fit => safetyFor(fit).eligible);
   const guardReason = !safetyFor(ordered[0]).eligible ? safetyFor(ordered[0]).reason : '';
-  const maxVisible = Math.max(playerFit && playerFit.option.name !== rankedCalls[0].name ? 2 : 1, limit);
+  const maxVisible = Math.max(playerFit && playerFit.option.name !== overall.name ? 2 : 1, limit);
   const visible = options.slice(0, maxVisible);
   if (playerFit && !visible.some(option => option.name === playerFit.option.name)) {
     visible.splice(visible.length - 1, 1, playerFit.option);

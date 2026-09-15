@@ -348,7 +348,7 @@ export default function GamePlanScreen({
         <p style={{ fontSize: 11, color: "var(--color-text-3)" }}>
           {recommendation.familyLabel} · {recommendation.context.label}. Fit scores are rankings, not success probabilities.
         </p>
-        {!planList.length && <p role="status">No catalogued calls match this profile and playbook. Adjust the scout or playbook.</p>}
+        {!planList.length && <p role="status">No recommended call fits this scout, situation and playbook. Check the current offensive look or choose another defensive playbook.</p>}
         {/* ── Tempo warning ── */}
         {(flat.includes("hurry_up") || flat.includes("tempo_shift")) && (
           <div style={{ background: "var(--color-gold-surface)", border: "1px solid var(--color-gold-border)", borderLeft: "4px solid var(--color-gold)", borderRadius: "var(--r-md)", padding: "12px 14px", marginBottom: 16 }}>

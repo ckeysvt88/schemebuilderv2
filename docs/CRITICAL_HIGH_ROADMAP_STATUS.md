@@ -1,10 +1,10 @@
 # Critical and high-priority roadmap status
 
-Status after updates 17–18. **Not all critical and high-priority requirements are implemented.** “Implemented” below means working code with regression checks, not proven CFB 27 effectiveness. The combined device review remains pending.
+Status after update 19. **Not all critical and high-priority requirements are implemented.** “Implemented” below means working code with regression checks, not proven CFB 27 effectiveness. The combined device review remains pending.
 
 | Priority | Requirement | Status and next work |
 | --- | --- | --- |
-| Critical | Personal preferences must respect matchup risk | Safeguards implemented in update 16: reject alternatives over 10 score points behind overall; reject known zero-deep exposure on long yardage or selected deep/seam threats. Validate the provisional budget with gameplay. Unknown responsibilities remain unknown. |
+| Critical | Personal preferences must respect matchup risk | Implementation complete in update 19. Overall and personal selection share the known-risk gate; preference loss is capped at 10 points relative to the eligible overall call. Rejected candidates cannot re-enter through fallback, and all-rejected menus produce no recommendation. A rejected pressure call cannot hide an eligible pressure alternative. Regression coverage includes all 12 position/style combinations over four situations plus exported selections. Gameplay calibration of the provisional budget remains part of the separate validation item; this is not a guarantee against unknown vulnerabilities. |
 | Critical | Exact defensive-play evidence across all formations | Partial. Current verified menus cover 4-3 Over Solid and 3-4 Tite. Update 18 binds those 12 records to immutable reviewed assignment snapshots; edits invalidate the corresponding evidence. No additional menu has been certified. Expand with exact formation/call play art and game-version provenance; do not invent assignments from names. |
 | Critical | Run fits and RPO conflict ownership | Coverage-family support is implemented: Quarters inside safety fits, Cover 2 outside corner fits, Cover 6 split support, Sky rotated-safety inside support. Exact gap ownership, option keys and RPO conflict assignments are still incomplete. Preserve family support while adding exact assignments. |
 | Critical | Comparable call scores under uneven evidence | Common scale implemented in update 17: 35% formation/known assignment adjustment plus 65% threat utility, with neutral 50 for unknown assignment-dependent grades. Coverage-family run support remains scored. Uneven predictive confidence and gameplay calibration remain open; equal scale does not mean equal certainty. |
@@ -25,4 +25,4 @@ Status after updates 17–18. **Not all critical and high-priority requirements 
 
 These are remaining engineering tasks as well as evidence tasks. They are not all blocked on the user. Gameplay-only conclusions require actual gameplay observations.
 
-[Combined validation checks 1–25](COMBINED_REVIEW_PHASES_13_TO_15.md)
+[Combined validation checks 1–28](COMBINED_REVIEW_PHASES_13_TO_15.md)

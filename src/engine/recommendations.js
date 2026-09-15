@@ -2,7 +2,7 @@ import { scoreAll } from './scoring.js';
 import { applyDownDistance } from './downDistance.js';
 import { normalizeSituation, coverageSituation } from './context.js';
 import { rankCoveragesForSituation } from './coverageRank.js';
-import { buildCallOptions } from './callOptions.js';
+import { selectFormationCalls } from './callSelection.js';
 import { evaluateCoverage } from './playMatchup.js';
 import { PLAYS } from '../data/plays.js';
 import { getPlayAssignmentEvidence } from '../data/playEvidence.js';
@@ -34,13 +34,13 @@ export function recommend({ traits = [], book = 'All', runPass = 4, familyId = n
       return evaluated && { ...evaluated, baselineOrder: index };
     }).filter(c => c && c.sc > 0).sort((a, b) => b.sc - a.sc || a.baselineOrder - b.baselineOrder);
     if (!rankedCoverages.length) return [];
-    const best = rankedCoverages[0];
-    const callOptions = buildCallOptions(rankedCoverages, f.effectiveTraits, sit, 4, normalizedUserProfile);
-    const playerCall = callOptions.find(call => call.isPlayerChoice) || callOptions[0];
+    const selection = selectFormationCalls(rankedCoverages, f.effectiveTraits, sit, normalizedUserProfile);
+    if (!selection) return [];
+    const { best, callOptions, playerCall } = selection;
     const playerRole = playerCall?.optionRoles?.find(role => role.id !== 'overall') || playerCall?.optionRoles?.[0];
     return [{ ...f, formationScore: f.sc, sc: best.sc, ledger: [...f.ledger, ...best.ledger],
       matchup: best.matchup, rankedCoverages, callOptions, recommendedCoverage: best.name,
-      personalizedCoverage: playerCall?.name || best.name,
+      personalizedCoverage: playerCall.name,
       personalizedRole: playerRole?.label || 'BEST OVERALL',
       personalizedReason: playerCall?.playerChoiceReason || '',
       personalizedFit: playerCall?.personalFit || null,

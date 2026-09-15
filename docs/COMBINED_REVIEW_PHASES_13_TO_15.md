@@ -1,4 +1,4 @@
-# Combined in-app review — updates 13–18
+# Combined in-app review — updates 13–19
 
 This is one review of:
 - **fa4133b:** selected-threat scoring and context-aware Test This Call logs.
@@ -9,7 +9,9 @@ This is one review of:
 
 - **Updates 17–18:** common scoring scale and assignment-bound verification.
 
-Allow about 35–45 minutes. You do not need to read code. Mark each numbered check Pass, Fail, or Not tested.
+- **Update 19:** complete personal-selection safeguards, including rejected-call fallback handling.
+
+Allow about 40–50 minutes. You do not need to read code. Mark each numbered check Pass, Fail, or Not tested.
 
 ## 1. Update your existing preview
 
@@ -27,7 +29,7 @@ git log -1 --oneline
 npm run dev
 ```
 
-The latest commit message should be **Normalize call scoring and bind verification to reviewed assignments**. Compare its short number with the one in my delivery message.
+The latest commit message should be **Close unsafe recommendation fallbacks across call selection**. Compare its short number with the one in my delivery message.
 
 If Git says local changes would be overwritten, stop and send that message; do not discard files or use a force/reset command. If fetch only asks whether to retry deleting the old worktree folders from earlier, answer **n**.
 
@@ -315,6 +317,39 @@ Using one unchanged scout/situation/user setup:
 - [ ] Shared results and the live list agree on formation fit scores.
 - [ ] Reopen Test This Call: formation, call and situation match what you selected.
 
+## 9. Completed selection safeguards
+
+### Check 26 — Protect deep help across user preferences
+
+Use **11p + Deep Shots / Verticals**, **4-3 Press Quarters**, **11p Gun**, and **Base** down.
+
+In **4-3 Over Solid**:
+- [ ] Set **Defensive Line / Create Pressure**. Quarters remains both Best Overall and Best For You in this exact setup.
+- [ ] Try Linebacker, Safety, Slot / Corner, and Defensive Line with each of the three calling styles. There is exactly one Best For You choice per formation; it may share Best Overall.
+- [ ] **Hammer 0 Blast** does not become either winner while Deep Shots is selected.
+- [ ] Change to **3rd & Long**, then **4th & Long**. The recommended calls retain deep help, even with Create Pressure selected.
+
+The safeguard covers known zero-deep exposure. It does not promise every selected coverage wins against every deep route.
+
+### Check 27 — A safe choice does not mean pressure is disabled
+
+Return to **Base**. Replace Deep Shots with **Stays in Pocket**. Keep **Defensive Line / Create Pressure**.
+
+In **4-3 Over Solid**:
+- [ ] Best Overall is **Cover 3 Match**, and Best For You is **FS Blitz**.
+- [ ] Both expanded and collapsed cards agree.
+- [ ] Open **Adjustments** and **Log this setup after the snap**. The selected call is FS Blitz, not the overall call.
+- [ ] Close without saving if this was only a UI check.
+
+### Check 28 — Recommended calls stay consistent when the situation changes
+
+Return to the Deep Shots setup in Check 26 and select **4th & Long**:
+- [ ] Generate the Call Sheet. Its Best For You calls agree with the live cards.
+- [ ] Share/copy the plan. The selected personal calls agree with the live cards.
+- [ ] Return to Base or change your user profile. The current cards update without retaining a recommendation from the previous situation.
+
+The all-rejected-menu case is tested automatically with controlled candidates. It returns no recommendation rather than restoring a rejected call. You do not need to alter the catalog to trigger it. If you encounter an empty result naturally, the app should say no recommended call fits the scout, situation and playbook; report your setup rather than clearing valid scouting traits to force a result.
+
 ## What to send back
 
 For a failure, send:
@@ -324,7 +359,7 @@ For a failure, send:
 - what you expected and what happened.
 
 You can reply compactly:
-“Checks 1–7 passed. Check 8: [problem]. Checks 9–25 passed.”
+“Checks 1–7 passed. Check 8: [problem]. Checks 9–28 passed.”
 
 A ranking you disagree with is valuable football feedback even when the app behaves as coded. Include the offensive threat and the call you believe should be favored.
 
