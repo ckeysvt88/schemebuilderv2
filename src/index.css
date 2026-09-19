@@ -202,8 +202,9 @@ button, label { user-select: none; -webkit-user-select: none; }
   }
 }
 
-/* Shared compact toolbar: centered selections, green situation, gold formation. */
+/* Shared compact toolbar: centered selections, green situation, blue formation. */
 .plan-toolbar {
+  --toolbar-blue: #8bb9eb;
   margin-bottom: 12px;
   border: 1px solid var(--color-border);
   border-radius: var(--r-md);
@@ -218,8 +219,8 @@ button, label { user-select: none; -webkit-user-select: none; }
   justify-content: center;
   gap: 5px;
   min-width: 0;
-  min-height: 88px;
-  padding: 10px 22px;
+  min-height: 76px;
+  padding: 7px 20px;
   border: 0;
   color: var(--color-text-1);
   text-align: center;
@@ -230,13 +231,13 @@ button, label { user-select: none; -webkit-user-select: none; }
   border-radius: var(--r-md) 0 0 var(--r-md);
 }
 .plan-toolbar__formation {
-  background: var(--color-gold-surface);
+  background: linear-gradient(120deg, color-mix(in srgb, var(--toolbar-blue) 12%, var(--color-surface-1)), color-mix(in srgb, var(--toolbar-blue) 5%, var(--color-surface-1)));
   border-left: 1px solid var(--color-border);
   border-radius: 0 var(--r-md) var(--r-md) 0;
 }
 .plan-toolbar__label { font: 700 12px/1.3 var(--font-sans); }
 .plan-toolbar__situation .plan-toolbar__label { color: var(--color-success); }
-.plan-toolbar__formation .plan-toolbar__label { color: var(--color-gold-bright); }
+.plan-toolbar__formation .plan-toolbar__label { color: var(--toolbar-blue); }
 .plan-toolbar__value { font: 800 15px/1.3 var(--font-sans); overflow-wrap: anywhere; }
 .plan-toolbar__composition { display: block; font: 600 12px/1.4 var(--font-sans); color: var(--color-text-2); }
 .plan-toolbar__chevron { position: absolute; right: 7px; top: 50%; margin-top: -8px; font-size: 16px; color: var(--color-text-2); transition: transform 320ms ease; }
@@ -258,13 +259,19 @@ button, label { user-select: none; -webkit-user-select: none; }
   font: 700 13px/1.4 var(--font-sans);
   cursor: pointer;
 }
-.plan-toolbar__options button[aria-pressed="true"] { border-color: var(--color-gold); background: var(--color-gold-surface); }
+.plan-toolbar__options button[aria-pressed="true"] { border-color: var(--toolbar-blue); background: color-mix(in srgb, var(--toolbar-blue) 12%, var(--color-surface-1)); }
 .plan-toolbar__situations button[aria-pressed="true"] { border-color: var(--color-success); background: var(--color-surface-success); }
-.plan-toolbar button:focus-visible { outline: 2px solid var(--color-gold); outline-offset: -3px; }
+.plan-toolbar button:focus-visible { outline: 2px solid var(--toolbar-blue); outline-offset: -3px; }
 @media (max-width: 400px) {
-  .plan-toolbar__trigger { padding: 9px 18px; }
+  .plan-toolbar__trigger { padding: 7px 18px; }
   .plan-toolbar__value { font-size: 14px; }
 }
 @media (prefers-reduced-motion: reduce) {
   .plan-toolbar__reveal, .plan-toolbar__chevron { transition: none; }
 }
+
+[data-theme="light"] .plan-toolbar { --toolbar-blue: #315f8e; }
+.plan-toolbar__choice-column { display: grid; align-content: start; gap: 6px; min-width: 0; }
+.plan-toolbar__column-title { text-align: center; font: 700 12px/1.4 var(--font-sans); color: var(--color-text-1); }
+.plan-toolbar__options button:disabled { opacity: .45; cursor: default; }
+.plan-toolbar__distance-hint { text-align: center; font: 400 12px/1.4 var(--font-sans); color: var(--color-text-2); }

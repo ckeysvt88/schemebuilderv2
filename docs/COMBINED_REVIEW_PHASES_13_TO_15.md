@@ -31,7 +31,7 @@ git log -1 --oneline
 npm run dev
 ```
 
-The latest commit message should be **Combine situation and formation in a readable compact toolbar**. Compare its short number with the one in my delivery message.
+The latest commit message should be **Simplify down and distance and refine toolbar colors**. Compare its short number with the one in my delivery message.
 
 If Git says local changes would be overwritten, stop and send that message; do not discard files or use a force/reset command. If fetch only asks whether to retry deleting the old worktree folders from earlier, answer **n**.
 
@@ -511,7 +511,14 @@ Checks 40–44 above now describe the new problem-only workflow; prior base-call
 
 ### Check 52 — Compact toolbar readability
 
-- [ ] Down & Distance and Formation & Personnel occupy one row beneath the setup buttons. Both labels and selections are centered and bold; the green and gold accents remain readable in light and dark themes.
+- [ ] Down & Distance and Formation & Personnel occupy one row beneath the setup buttons. Both labels and selections are centered and bold; the green and blue accents remain readable in light and dark themes.
 - [ ] Open each control. Only its choices should be available for keyboard interaction. Both lists open and close smoothly, with no duplicate selector farther down the page.
 - [ ] Choose 3rd & Short, then 3rd & Long. Recommendations should update and the toolbar should show the correct selection. Base and Red Zone clear distance; Any keeps the down without assuming a distance.
 - [ ] Check seven or more formation options on a phone-width screen. Long labels wrap rather than overlap the arrow or get cut off. Selecting a formation updates its label and personnel beneath it.
+
+### Check 53 — Separate down and distance choices
+
+- [ ] Toolbar is slightly shorter; Formation & Personnel is muted blue rather than gold. Labels remain centered and bold in both themes.
+- [ ] Open Down & Distance: Down choices are on the left; Any, Short, Mid and Long are on the right. There is no full list of combinations.
+- [ ] Choose 3rd, then Long. The panel stays open after choosing the down and closes smoothly after choosing distance. The header reads 3rd & Long.
+- [ ] Reopen and switch to 4th: Long is preserved until you change it. Base and Red Zone clear distance. Their distance controls are disabled until a numbered down is chosen.
