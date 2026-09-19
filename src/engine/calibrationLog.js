@@ -1,3 +1,4 @@
+import { RUN_PASS_LABELS } from '../data/runPassBias.js';
 export const CALL_TEST_RESULTS = [
   { id: 'stop', label: 'Stopped them' },
   { id: 'sack', label: 'Sack' },
@@ -29,7 +30,8 @@ export function normalizeCalibrationEntry(input = {}) {
   const result = resultIds.has(input.result) ? input.result : '';
   if (!result) return null;
   return {
-    schemaVersion: 2,
+    schemaVersion: 3,
+    runPass: [1,2,3,4,5,6,7].includes(input.runPass) ? input.runPass : null,
     id: typeof input.id === 'string' || Number.isFinite(input.id) ? input.id : Date.now(),
     recordedAt: cleanText(input.recordedAt, 40) || new Date().toISOString(),
     down: ['1', '2', '3', '4', 'rz'].includes(String(input.down)) ? String(input.down) : '',
@@ -62,14 +64,14 @@ export function summarizeCalibrationEntries(entries = []) {
     const key = JSON.stringify([entry.defensiveFormation, entry.defensiveCall, entry.book,
       entry.down, entry.distance, entry.userPosition, entry.gameVersion, entry.platform,
       entry.difficulty, entry.mode, entry.opponentLook, entry.setupConfirmed,
-      testedSetup, ...(entry.objective ? [entry.objective] : [])]);
+      testedSetup, ...(entry.objective ? [entry.objective] : []), ...(entry.runPass ? [`bias:${entry.runPass}`] : [])]);
     const downLabel = ({ 1: '1st', 2: '2nd', 3: '3rd', 4: '4th', rz: 'Red zone' })[entry.down];
     const situation = downLabel && entry.down !== 'rz'
       ? `${downLabel}${entry.distance ? ` & ${entry.distance}` : ' down'}`
       : downLabel;
     const current = byCall.get(key) || {
       key, formation: entry.defensiveFormation,
-      context: [situation, entry.objective, entry.book, entry.platform, entry.difficulty, entry.mode, entry.gameVersion,
+      context: [situation, entry.objective, entry.runPass && RUN_PASS_LABELS[entry.runPass], entry.book, entry.platform, entry.difficulty, entry.mode, entry.gameVersion,
         entry.setupConfirmed && 'listed setup used'].filter(Boolean).join(' · '),
       call: entry.defensiveCall, tests: 0, stops: 0, sacks: 0, turnovers: 0,
       firstDowns: 0, explosives: 0, touchdowns: 0, problems: {},

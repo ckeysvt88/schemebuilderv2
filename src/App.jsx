@@ -1,3 +1,4 @@
+import { normalizeOpponentProfile } from './data/opponentProfile.js';
 import { useState, useCallback, useEffect, useMemo } from 'react';
 import { recommend, buildRecommendationShareText } from './engine/recommendations.js';
 import { scoreAll } from './engine/scoring.js';
@@ -122,7 +123,9 @@ export default function App() {
 
 
   const loadProfile = useCallback((profileTags) => {
-    setSel(profileTags);
+    const saved = normalizeOpponentProfile(profileTags);
+    setSel(saved.traits);
+    setRunPass(saved.runPass);
     setSelFm(null);
     setActiveP(null);
     setSelectedTeam(null);
@@ -158,10 +161,10 @@ export default function App() {
 
   const exportProfiles = () => {
     if (!Object.keys(profiles).length) return;
-    const blob = new Blob([JSON.stringify({ version: 1, profiles }, null, 2)], { type: "application/json" });
+    const blob = new Blob([JSON.stringify({ version: 2, profiles }, null, 2)], { type: "application/json" });
     const url  = URL.createObjectURL(blob);
     const a    = document.createElement("a");
-    a.href = url; a.download = "cfb26-dc-profiles.json"; a.click();
+    a.href = url; a.download = "cfb27-dc-profiles.json"; a.click();
     URL.revokeObjectURL(url);
   };
 
@@ -224,7 +227,7 @@ export default function App() {
       {step === "scout"   && <ScoutScreen   key="scout"   {...sharedProps} />}
       {step === "plan"    && <GamePlanScreen key="plan"    {...sharedProps} />}
       {step === "compare" && <CompareScreen  key="compare" compareA={compareA} setCompareA={setCompareA} compareB={compareB} setCompareB={setCompareB} setStep={navigate} />}
-      {step === "macros"  && <MacroBuilder key="macros" />}
+      {step === "macros"  && <MacroBuilder key="macros" book={myBook} />}
       {step === "info"    && <FormationInfo key="info" />}
       {step === "notes"   && <NotesScreen    key={"notes" + (notesInitProfile || "")}   profiles={profiles} setStep={navigate} initProfile={notesInitProfile} handleShare={handleShare} shareToast={shareToast} />}
 

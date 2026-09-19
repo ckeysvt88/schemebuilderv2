@@ -1,3 +1,4 @@
+import { runPassBias, conceptBiasMultiplier } from '../data/runPassBias.js';
 import { getGameObjective } from '../data/gameObjectives.js';
 import { getCoverageRunSupport } from './coverageRunSupport.js';
 
@@ -45,7 +46,7 @@ function addScenario(map, id, label, weight, source, reason) {
   }
 }
 
-export function buildConceptScenarios(traits = [], situation = 'base', gameObjective = 'balanced') {
+export function buildConceptScenarios(traits = [], situation = 'base', gameObjective = 'balanced', runPass = 4) {
   const selected = new Set(traits);
   const scenarios = new Map();
   for (const scenario of DIRECT_SCENARIOS) {
@@ -109,13 +110,22 @@ export function buildConceptScenarios(traits = [], situation = 'base', gameObjec
       addScenario(scenarios, 'quick', 'Quick conversion throw', 0.8, 'objective', 'Challenge the short completion that sustains the drive.');
     }
   }
+  // A non-neutral slider is explicit scouting evidence about run/pass emphasis,
+  // not evidence of a particular scheme, alignment, or quarterback mobility.
+  if (runPassBias(runPass) !== 0) {
+    if (![...scenarios.keys()].some(id => ['inside-run', 'edge-run', 'qb-run', 'run-choice'].includes(id)))
+      addScenario(scenarios, 'run-choice', 'Run — direction not scouted', 0.6, 'tendency', 'Keep a run answer; the slider does not identify the run scheme.');
+    if (![...scenarios.keys()].some(id => !['inside-run', 'edge-run', 'qb-run', 'run-choice', 'rpo'].includes(id)))
+      addScenario(scenarios, 'pass-choice', 'Pass — routes not scouted', 0.6, 'tendency', 'Balance short coverage and deep help until the routes are scouted.');
+  }
   const multipliers = SITUATION_CONCEPT_WEIGHTS[situation] || SITUATION_CONCEPT_WEIGHTS.base;
   const result = [...scenarios.values()].map(scenario => ({
     ...scenario,
     baseWeight: scenario.weight,
+    tendencyMultiplier: conceptBiasMultiplier(scenario.id, runPass),
     situationMultiplier: multipliers[scenario.id] || 1,
     objectiveMultiplier: objective === 'no_quick_td' && ['vertical', 'play-action'].includes(scenario.id) ? 2 : 1,
-    weight: scenario.weight * (multipliers[scenario.id] || 1) * (objective === 'no_quick_td' && ['vertical', 'play-action'].includes(scenario.id) ? 2 : 1),
+    weight: scenario.weight * conceptBiasMultiplier(scenario.id, runPass) * (multipliers[scenario.id] || 1) * (objective === 'no_quick_td' && ['vertical', 'play-action'].includes(scenario.id) ? 2 : 1),
   }));
   const total = result.reduce((sum, scenario) => sum + scenario.weight, 0);
   return result.map(scenario => ({ ...scenario, normalizedWeight: total ? scenario.weight / total : 0 }));
@@ -158,6 +168,11 @@ function gradeScenario(play, coverageName, scenario) {
       : grades[Math.min(play.deep, 4)];
     return { grade, support: `${play.deep} deep defender${play.deep === 1 ? '' : 's'} remain assigned against the developing shot.`,
       concession: play.deep >= 3 ? 'The underneath outlet may be available if the defense rallies and tackles.' : 'A won matchup can escape limited deep help.' };
+  }
+  if (scenario.id === 'pass-choice') {
+    return { grade: Math.round((gradeScenario(play, coverageName, { id: 'quick' }).grade + gradeScenario(play, coverageName, { id: 'vertical' }).grade) / 2),
+      support: 'Weigh short coverage and deep help together until the passing concepts are scouted.',
+      concession: 'Watch which route wins before narrowing the coverage to stop it.' };
   }
   if (scenario.id === 'qb-run') {
     if (play.spy > 0) return { grade: 78, support: 'A true spy is reserved for the quarterback.', concession: 'Removing a defender from coverage can expose an outlet.' };
@@ -215,8 +230,8 @@ function gradeScenario(play, coverageName, scenario) {
   return base;
 }
 
-export function assessConceptMatchups(play, coverageName, traits = [], situation = 'base', gameObjective = 'balanced') {
-  const scenarios = buildConceptScenarios(traits, situation, gameObjective);
+export function assessConceptMatchups(play, coverageName, traits = [], situation = 'base', gameObjective = 'balanced', runPass = 4) {
+  const scenarios = buildConceptScenarios(traits, situation, gameObjective, runPass);
   if (!scenarios.length) return null;
   const riskWeight = Math.max(SITUATION_RISK_WEIGHTS[situation] ?? SITUATION_RISK_WEIGHTS.base, getGameObjective(gameObjective).id === 'no_quick_td' ? 0.45 : 0);
   const grades = scenarios.map(scenario => ({ ...scenario, ...gradeScenario(play, coverageName, scenario) }));

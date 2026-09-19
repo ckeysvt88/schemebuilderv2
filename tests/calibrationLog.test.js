@@ -10,7 +10,7 @@ test('call test entries keep football context and reject unknown outcomes', () =
     result: 'explosive', problem: 'deep_pass', yards: 44, setup: ['Safety Depth: 16'],
   });
   assert.deepEqual(entry, {
-    schemaVersion: 2, id: 7, recordedAt: '2026-09-13T12:00:00.000Z', down: '4', distance: 'long',
+    schemaVersion: 3, runPass: null, id: 7, recordedAt: '2026-09-13T12:00:00.000Z', down: '4', distance: 'long',
     defensiveFormation: 'Dollar Sugar 3-2', defensiveCall: 'Cover 3 Sky', userPosition: '',
     book: '', gameVersion: '', platform: '', difficulty: '', mode: '', setupConfirmed: false,
     objective: '', setup: ['Safety Depth: 16'], opponentLook: '', result: 'explosive',

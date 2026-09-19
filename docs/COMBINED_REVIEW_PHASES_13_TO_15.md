@@ -1,4 +1,4 @@
-# Combined in-app review — updates 13–22
+# Combined in-app review — updates 13–23
 
 This is one review of:
 - **fa4133b:** selected-threat scoring and context-aware Test This Call logs.
@@ -13,7 +13,7 @@ This is one review of:
 
 - **Update 20:** use owner-validated assignments for all 1,245 plays across 71 formations.
 
-Allow about 45–55 minutes. You do not need to read code. Mark each numbered check Pass, Fail, or Not tested.
+Allow about 60–75 minutes for the full review; the new update 23 checks take about 15–20 minutes plus game practice. You do not need to read code. Mark each numbered check Pass, Fail, or Not tested.
 
 ## 1. Update your existing preview
 
@@ -31,7 +31,7 @@ git log -1 --oneline
 npm run dev
 ```
 
-The latest commit message should be **Add explicit game objectives throughout the recommendation flow**. Compare its short number with the one in my delivery message.
+The latest commit message should be **Connect run-pass tendency and rebuild macros with full-catalog checks**. Compare its short number with the one in my delivery message.
 
 If Git says local changes would be overwritten, stop and send that message; do not discard files or use a force/reset command. If fetch only asks whether to retry deleting the old worktree folders from earlier, answer **n**.
 
@@ -460,3 +460,21 @@ You do not need to validate those internals manually. This checklist verifies th
 ## Items this review cannot close by itself
 
 See [Critical/high roadmap status](CRITICAL_HIGH_ROADMAP_STATUS.md). Current plays.js count verification is complete based on owner confirmation. Full gap/RPO assignment ownership, broader offensive concepts, clock/score objectives, and gameplay-based scoring calibration remain open or partial. Passing these UI checks does not mark them complete.
+
+
+## Update 23 — run/pass tendency, macros, and every formation
+
+You can review the new changes with checks 36–45. Your earlier pass/fail results remain useful. [Research and reasoning](BIAS_MACRO_AUDIT_PHASE23.md) · [Every formation and known inventory gap](FULL_FORMATION_COVERAGE_PHASE23.md).
+
+- [ ] **Check 36 — Slider meaning:** On Scout, find **Opponent Run / Pass Tendency**. Move through all seven buttons. The center says Balanced; the ends say Very pass-heavy and Very run-heavy. The short explanation describes the opponent, not your defensive style.
+- [ ] **Check 37 — Calls respond:** Choose 11 personnel, Inside Zone / Power, Outside Runs / Sweeps, Quick Game / Bubble Screens, and Deep Shots / Verticals. Use All playbooks, a normal down, and Balanced objective. Build once at Very pass-heavy and again at Very run-heavy. Compare scores and coverage choices across 3-4 Tite, a Nickel front and a Dime/Dollar front. Several scores or calls should change. Every adjacent click need not change every winner. The formation report contains a reproducible engine example with 25 changed winners; your selected offensive family can change the exact winners.
+- [ ] **Check 38 — Long-yardage protection:** With the same scout and Very run-heavy, set 4th & long. Best Overall and Best For You must retain deep help. Choose No Quick TD and a pressure preference: that combination must not select a zero-deep winner. Return to Balanced when finished.
+- [ ] **Check 39 — Saved opponents:** Save a temporary opponent profile at Run-heavy. Change the slider to Pass-heavy, then load the saved opponent. It should restore Run-heavy. Export/import that profile and repeat. An older profile without a saved tendency should load at Balanced, rather than inherit another opponent's setting.
+- [ ] **Check 40 — Macro base call:** Open Macro Builder. Choose 3-4 Tite and Cover 3 Sky if your selected book includes them; otherwise choose a familiar formation with a Cover 3 call. Select the inside-run problem. You should see Goal, Save these settings, Your job, and Watch for. The base call and assignment counts are behind Before using this package. There should be no Soft Squat edge instruction, automatic-trigger claim, or invented extra fitter.
+- [ ] **Check 41 — Macro situation and compatibility:** Select the quick-game problem with a zone call that has deep help. Normal down can offer Underneath. Change Situation to 3rd / 4th & long: Underneath must disappear and Overtop should appear. Change to a base call with no deep defenders: the long-yardage package must ask for a different call and must not be marked ready to save. Switching formations must clear the previous call until you choose one in the new formation.
+- [ ] **Check 42 — Search and browsing:** Search “read option,” “QB scramble,” and “bunch and mesh.” The leading answers should match the problems. “No screens” should not recommend a screen package; “no huddle” should find tempo help. Every category now includes all its problems, not just a few favorites.
+- [ ] **Check 43 — Loadout, limits and persistence:** Select a few problems, including a tempo/coaching reminder. Build Loadout. ACTIVE entries should match the settings shown on the cards; coaching-only entries should use no active slot. Copy All should copy the sheet, or explain how to copy manually if your browser blocks it. Reload: selected problems and the base-call selection should remain. Try adding an 11th plan: you should get a clear remove-one-first message.
+- [ ] **Check 44 — Other formations and playbooks:** Repeat one run and one pass macro check in a 4-3 front, a 3-4 front, Nickel, Dime/Dollar and Goal Line. Change the playbook in Scout and return: unavailable formations/calls must not remain selected. In Nickel 3-3 Single Mug, look for the corrected names Cov 2 Invert Hard Flat, Cov 3 Buzz Match Wk and Blitz Tex 3 Sim 3. Prevent 3-Deep is intentionally unavailable in the macro selector because there is no exact play inventory for it.
+- [ ] **Check 45 — Test log and game practice:** Save the same call outcome at two different tendency settings. The Test This Call summary should keep them separate and show the tendency. Then build one ACTIVE package in the actual game using the listed settings. Practice the target concept AND the listed counter. Confirm that the menu choices exist on your build, assignments display correctly, and the coaching is easy to use. Record the patch, difficulty and actual adjustment applied.
+
+The software checks cover all 71 inventories and every book, not just 4-3 Over Solid. These device checks assess presentation and actual game behavior; automated catalog checks cannot prove a macro defeats a concept in CFB 27. If a menu option is missing or a player reacts differently, send the formation, exact base call, package, game version and screenshot/video. Do not substitute a similarly named setting silently.

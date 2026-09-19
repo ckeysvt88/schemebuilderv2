@@ -1,3 +1,4 @@
+import { RUN_PASS_LABELS } from '../data/runPassBias.js';
 import { useMemo, useState } from 'react';
 import { CALL_TEST_PROBLEMS, CALL_TEST_RESULTS, normalizeCalibrationEntry, summarizeCalibrationEntries } from '../engine/calibrationLog.js';
 
@@ -17,7 +18,7 @@ function saveEntries(entries) {
 const emptyDefaults = {
   down: '', distance: '', defensiveFormation: '', defensiveCall: '', userPosition: '',
   book: '', gameVersion: '', platform: '', difficulty: '', mode: '', setupConfirmed: false,
-  objective: '', setup: [], opponentLook: '', result: '', problem: 'none', yards: '', notes: '',
+  runPass: null, objective: '', setup: [], opponentLook: '', result: '', problem: 'none', yards: '', notes: '',
 };
 
 export default function DriveLogger({ defaults = {}, onClose }) {
@@ -82,6 +83,7 @@ export default function DriveLogger({ defaults = {}, onClose }) {
           <span style={{ color: 'var(--color-gold)', fontSize: 12, fontWeight: 700 }}>{form.defensiveCall || 'Call not selected'}</span>
           {(form.down || form.distance) && <div style={{ color: 'var(--color-text-2)', fontSize: 11, marginTop: 4 }}>{form.down === 'rz' ? 'Red zone' : `${form.down || '—'} down`} · {form.distance || 'distance not set'}</div>}
           {form.userPosition && <div style={{ color: 'var(--color-text-3)', fontSize: 10, marginTop: 4 }}>Your user: {form.userPosition}</div>}
+          {form.runPass && <div style={{ color: 'var(--color-text-2)', fontSize: 11, marginTop: 4 }}>Opponent tendency: {RUN_PASS_LABELS[form.runPass]}</div>}
           {form.objective && <div style={{ color: 'var(--color-text-2)', fontSize: 11, marginTop: 4 }}>Objective: {form.objective}</div>}
           {form.setup?.length > 0 && <div style={{ color: 'var(--color-text-3)', fontSize: 10, lineHeight: 1.5, marginTop: 5 }}>{form.setup.join(' · ')}</div>}
         </div>

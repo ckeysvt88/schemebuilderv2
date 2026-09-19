@@ -227,6 +227,11 @@ export const COVERAGE_FLAGS = {
   "LB Blitz 6":   { shortOK: false, longOK: false },
 };
 
+// Exact abbreviated inventory labels used by Nickel 3-3 Single Mug.
+// These share the classification of the existing full spelling, not new counts.
+COVERAGE_FLAGS['Cov 2 Invert Hard Flat'] = { ...COVERAGE_FLAGS['Cover 2 Invert Hard Flat'] };
+COVERAGE_FLAGS['Cov 3 Buzz Match Wk'] = { ...COVERAGE_FLAGS['Cover 3 Buzz Match Wk'] };
+
 export const isShortYardageCall = name => COVERAGE_FLAGS[name]?.shortOK === true;
 export const isDeepSafeCall     = name => COVERAGE_FLAGS[name]?.longOK  === true;
 

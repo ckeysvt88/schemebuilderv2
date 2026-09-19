@@ -21,6 +21,7 @@ function profile(traits = []) {
 }
 
 function familyFor(name = '', tag = '') {
+  name = name.replace(/^Cov /, 'Cover ');
   if (/Cover 4|Quarters|Palms/.test(name)) return 'quarters';
   if (/Cover 6|Cover 9/.test(name)) return 'split';
   if (/Tampa/.test(name)) return 'tampa2';

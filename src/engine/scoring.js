@@ -1,10 +1,10 @@
+import { runPassBias } from '../data/runPassBias.js';
 import { FDB } from '../data/formations.js';
 import { FAMILY_ADJUSTMENTS } from '../data/personnel.js';
 import { contextTraits } from './context.js';
 import { groupScoutThreats } from './scoutThreats.js';
 
 const PKG_TAGS = new Set(['p00','p01','p02','p10','p11','p12','p13','p20','p21','p22','p23']);
-const BIAS_MAP = { 1: -1, 2: -0.65, 3: -0.30, 4: 0, 5: 0.30, 6: 0.65, 7: 1 };
 const FAMILY_BONUS = [20, 14, 9, 5, 3];
 const clamp = n => Math.max(0, Math.min(100, n));
 const AUTHORED_TAGS = new Set(Object.values(FDB).flatMap(d => [...d.coreTags, ...d.suppTags]));
@@ -47,7 +47,7 @@ export function blitzInfo(pct) {
 export function scoreAll(traits = [], book = 'All', runPass = 4, familyId = null) {
   if (!traits.length) return [];
   const flat = contextTraits(traits, familyId);
-  const bias = BIAS_MAP[runPass] || 0;
+  const bias = runPassBias(runPass);
   const preferred = FAMILY_ADJUSTMENTS[familyId]?.bias || [];
   return Object.entries(FDB).flatMap(([name, d]) => {
     if (book && book !== 'All' && !d.books.includes(book) && !d.books.includes('All')) return [];
@@ -71,7 +71,7 @@ export function scoreAll(traits = [], book = 'All', runPass = 4, familyId = null
     const sc = rawSc <= 0 ? 1 : clamp(rawSc);
     const ledger = [
       { id: 'tags', label: 'Scouted threat coverage', delta: base },
-      { id: 'runPass', label: 'Run/pass preference', delta: runPassDelta },
+      { id: 'runPass', label: 'Opponent run/pass tendency', delta: runPassDelta },
       { id: 'avoid', label: 'Matchup penalty', delta: avoid, tags: avoidHits },
       { id: 'family', label: 'Authored family preference', delta: family },
       { id: 'clamp', label: rawSc <= 0 ? 'Kept for matchup review' : 'Score bounds', delta: sc - rawSc },

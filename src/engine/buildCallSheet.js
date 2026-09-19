@@ -8,10 +8,7 @@ import { recommend } from './recommendations.js';
 import { TRAIT_LABELS, TRAITS } from '../data/traits.js';
 import { getFrontStructure } from './frontStructure.js';
 
-const RUN_PASS_LABELS = {
-  1: 'Full Pass', 2: 'Pass Heavy', 3: 'Pass Lean',
-  4: 'Balanced',  5: 'Run Lean',  6: 'Run Heavy', 7: 'Full Run',
-};
+import { RUN_PASS_LABELS } from '../data/runPassBias.js';
 
 // Down/distance seeds for each situation row in the matrix
 const SITUATIONS = [

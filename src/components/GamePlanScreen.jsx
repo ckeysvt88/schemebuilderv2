@@ -92,6 +92,7 @@ export default function GamePlanScreen({
       distance: situDist || '',
       defensiveFormation: fm.name,
       book: myBook,
+      runPass: recommendation.runPass,
       defensiveCall: selection.call || fm.personalizedCoverage || fm.recommendedCoverage,
       userPosition: profileLabels.position,
       objective: recommendation.gameObjective.id === 'balanced' ? (plan?.objective?.label || '') : recommendation.gameObjective.label,

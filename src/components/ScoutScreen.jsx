@@ -1,3 +1,5 @@
+import { saveOpponentProfile } from '../data/opponentProfile.js';
+import { RUN_PASS_LABELS } from '../data/runPassBias.js';
 import { useState, useRef, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { TRAITS } from '../data/traits.js';
@@ -17,18 +19,19 @@ const ICONS = {
 const ONBOARDING_PAGES = [
   {
     icon: '🔎',
-    eyebrow: 'Step 1 of 4',
+    eyebrow: 'Step 1 of 5',
     title: 'Scout what the offense shows',
     body: 'Select only the tendencies you have actually seen. Personnel tells the app who is on the field; the other traits describe how they are attacking you.',
     points: [
       'Start with two or three clear traits—you can add more later.',
+      'Run / Pass Tendency describes the opponent, not your defensive style. It changes formations and calls while keeping both threats live.',
       'Set the live down and distance because short and long yardage require different answers.',
       'Game Objective changes the priority: Balanced, No Quick TD, or Get a Stop. Use Get a Stop if a field goal can beat you.',
     ],
   },
   {
     icon: '📋',
-    eyebrow: 'Step 2 of 4',
+    eyebrow: 'Step 2 of 5',
     title: 'Read the call in game order',
     body: 'Open a recommended formation, then read the coverage cards from top to bottom. The first lines tell you when to use the call and what the offense is being forced to try next.',
     points: [
@@ -38,7 +41,7 @@ const ONBOARDING_PAGES = [
   },
   {
     icon: '🎮',
-    eyebrow: 'Step 3 of 4',
+    eyebrow: 'Step 3 of 5',
     title: 'Make it fit your defensive user',
     body: 'My Defensive User lets the app consider the defender you control and how you prefer to call the game—not just the theoretical best coverage.',
     points: [
@@ -48,12 +51,21 @@ const ONBOARDING_PAGES = [
   },
   {
     icon: '🧪',
-    eyebrow: 'Step 4 of 4',
+    eyebrow: 'Step 4 of 5',
     title: 'Adjust less, learn faster',
     body: 'Use Quick Setup first. The extra counters are responses to a problem you have already seen—not a checklist to apply before every snap.',
     points: [
       'Test This Call records the result and what beat it so you can validate recommendations on your game and settings.',
       'Return to the base call when an adjustment creates a new weakness or the offense changes its answer.',
+    ],
+  },
+  {
+    icon: '⚙️', eyebrow: 'Step 5 of 5', title: 'Build a setup you can call quickly',
+    body: 'In Macro Builder, choose the formation and base play from your playbook. Then pick the offensive problem you want to solve.',
+    points: [
+      'Save these settings lists what to enter in CFB 27 Custom Adjustments. Your job explains what to do after the snap.',
+      'Coaching notes do not need an active slot. The export marks which entries are ready to save.',
+      'Select the package manually in the game. Test it with your base call before relying on it under the play clock.',
     ],
   },
 ];
@@ -320,14 +332,14 @@ export default function ScoutScreen({
         })()}
 
         {/* ── ② Run / Pass Bias anchor ── */}
-        <SectionAnchor num="2" label="RUN / PASS BIAS" />
+        <SectionAnchor num="2" label="OPPONENT RUN / PASS TENDENCY" />
 
         {/* ── Run / Pass bias ── */}
         <div style={{ marginTop: 8 }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
             <span style={{ fontSize: 13, fontWeight: "700", color: "var(--color-pass)", fontFamily: "var(--font-mono)", letterSpacing: "1px" }}>PASS</span>
             <span style={{ fontSize: 14, fontWeight: "700", fontFamily: "var(--font-mono)", color: ["","#3a8fe8","#4a9ed4","#4aa890","#5a9860","#b89040","#d07028","#d84810"][runPass] }}>
-              {["","Full Pass","Pass","Pass Lean","Balanced","Run Lean","Run","Full Run"][runPass]}
+              {RUN_PASS_LABELS[runPass]}
             </span>
             <span style={{ fontSize: 13, fontWeight: "700", color: "var(--color-run)", fontFamily: "var(--font-mono)", letterSpacing: "1px" }}>RUN</span>
           </div>
@@ -344,6 +356,7 @@ export default function ScoutScreen({
                 <button
                   key={pos}
                   onClick={() => setRunPass(pos)}
+                  aria-label={RUN_PASS_LABELS[pos]} aria-pressed={isActive}
                   style={{
                     flex: 1, minHeight: 40, borderRadius: 8,
                     cursor: "pointer", transition: "all 120ms ease",
@@ -359,6 +372,8 @@ export default function ScoutScreen({
             })}
           </div>
         </div>
+
+        <p style={{ fontSize: 12, color: "var(--color-text-3)", lineHeight: 1.45 }}>What does your opponent favor? This changes formation and play selection. Even at either end, the defense keeps an answer for the other threat. Down and distance still matter.</p>
 
         {/* ── ③ Build anchor ── */}
         <SectionAnchor num="3" label="BUILD" />
@@ -482,7 +497,7 @@ export default function ScoutScreen({
             />
             <div style={{ display: "flex", gap: 10, marginTop: 14 }}>
               <button
-                onClick={() => { if (saveName.trim()) saveProfiles(p => ({ ...p, [saveName.trim()]: sel })); setModal(false); setSaveName(""); }}
+                onClick={() => { if (saveName.trim()) saveProfiles(p => ({ ...p, [saveName.trim()]: saveOpponentProfile(sel, runPass) })); setModal(false); setSaveName(""); }}
                 disabled={!saveName.trim()}
                 style={{ flex: 1, minHeight: 46, background: "var(--color-cta-bg)", border: "none", borderRadius: "var(--r-md)", color: "var(--color-cta-text)", fontWeight: "700", fontSize: 14, cursor: "pointer" }}
               >

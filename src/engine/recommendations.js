@@ -1,3 +1,4 @@
+import { normalizeRunPass, RUN_PASS_LABELS } from '../data/runPassBias.js';
 import { getGameObjective } from '../data/gameObjectives.js';
 import { scoreAll } from './scoring.js';
 import { applyDownDistance } from './downDistance.js';
@@ -14,6 +15,7 @@ import { normalizeUserProfile, userProfileLabels } from '../data/userProfile.js'
 
 // The single entry point for live cards, details, sharing and PDF rows.
 export function recommend({ traits = [], book = 'All', runPass = 4, familyId = null, down = 'base', distance = '', userProfile = {}, gameObjective = 'balanced' } = {}) {
+  runPass = normalizeRunPass(runPass);
   const objective = getGameObjective(gameObjective);
   const normalizedUserProfile = normalizeUserProfile(userProfile);
   const context = normalizeSituation(down, distance);
@@ -32,7 +34,7 @@ export function recommend({ traits = [], book = 'All', runPass = 4, familyId = n
     const baseline = rankCoveragesForSituation({ ...f, coverages: eligible }, sit, f.effectiveTraits);
     const rankedCoverages = baseline.map((c, index) => {
       const evidence = getPlayAssignmentEvidence(f.name, c.name, plays.find(p => p.n === c.name));
-      const evaluated = evaluateCoverage(c, plays.find(p => p.n === c.name), f.effectiveTraits, f.sc, evidence, sit, objective.id);
+      const evaluated = evaluateCoverage(c, plays.find(p => p.n === c.name), f.effectiveTraits, f.sc, evidence, sit, objective.id, runPass);
       return evaluated && { ...evaluated, baselineOrder: index };
     }).filter(c => c && c.sc > 0).sort((a, b) => b.sc - a.sc || a.baselineOrder - b.baselineOrder);
     if (!rankedCoverages.length) return [];
@@ -55,6 +57,7 @@ export function recommend({ traits = [], book = 'All', runPass = 4, familyId = n
 
 export function buildRecommendationShareText(result, traits = []) {
   const lines = ['CFB 27 — DEFENSIVE GAME PLAN', `${result.familyLabel} · ${result.context.label} · ${result.book}`, ''];
+  lines.push(`Opponent tendency: ${RUN_PASS_LABELS[normalizeRunPass(result.runPass)]}`, '');
   if (result.gameObjective?.id !== 'balanced') lines.push(`Game objective: ${result.gameObjective.label}`, '');
   if (traits.length) lines.push('Scouted: ' + traits.map(t => TRAIT_LABELS[t] || t).join(', '), '');
   for (const [i, f] of result.formations.slice(0, 4).entries()) {

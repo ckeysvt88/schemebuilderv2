@@ -99,9 +99,9 @@ export function unverifiedPlayAssessment() {
   };
 }
 
-export function evaluateCoverage(coverage, play, traits, formationScore, evidence = null, situation = 'base', gameObjective = 'balanced') {
+export function evaluateCoverage(coverage, play, traits, formationScore, evidence = null, situation = 'base', gameObjective = 'balanced', runPass = 4) {
   if (!evidence) {
-    const concept = assessConceptMatchups(null, coverage.name, traits, situation, gameObjective);
+    const concept = assessConceptMatchups(null, coverage.name, traits, situation, gameObjective, runPass);
     const sc = Math.max(0, Math.min(100, Math.round(formationScore * 0.35 + (concept?.utility ?? 50) * 0.65)));
     return { ...coverage, sc, gameObjective, matchup: { ...unverifiedPlayAssessment(), concept }, ledger: [
       { id: 'play:unverified', label: 'Coverage fit with unknown assignments', delta: sc - formationScore,
@@ -112,7 +112,7 @@ export function evaluateCoverage(coverage, play, traits, formationScore, evidenc
   const matchup = assessPlay(play, threatProfile(traits));
   if (!matchup) return null;
   const assignmentRaw = formationScore + matchup.delta;
-  const concept = assessConceptMatchups(play, coverage.name, traits, situation, gameObjective);
+  const concept = assessConceptMatchups(play, coverage.name, traits, situation, gameObjective, runPass);
   // Formation gets the defense on the field; the exact call must decide which
   // coverage wins. Weight the verified threat matchup more heavily so a strong
   // formation grade cannot hide a poor call against the selected concept.
