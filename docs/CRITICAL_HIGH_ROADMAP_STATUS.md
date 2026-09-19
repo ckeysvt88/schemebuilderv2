@@ -29,7 +29,7 @@ Status after update 25. **Not all critical and high-priority requirements are im
 
 These are remaining engineering tasks as well as evidence tasks. They are not all blocked on the user. Gameplay-only conclusions require actual gameplay observations.
 
-[Combined validation checks 1–51](COMBINED_REVIEW_PHASES_13_TO_15.md)
+[Combined validation checks 1–52](COMBINED_REVIEW_PHASES_13_TO_15.md)
 
 
 ## Update 23 inventory exceptions
@@ -45,3 +45,5 @@ Playbook, My Defensive User and Game Objective share one compact equal-width but
 ## Update 25
 
 [Problem-first macro changes and evidence](MACRO_RECIPES_PHASE25.md). Down & Distance now has a subtle green gradient. The owner selected Option B: a compact expandable formation/personnel selector with a 320ms height transition, stable selection header, keyboard support and reduced-motion handling. Device check 51 is pending.
+
+The approved compact toolbar combines situation and formation on one row, with centered bold text, theme-aware green/gold accents, and the same smooth dropdown behavior. Device check 52 is pending.

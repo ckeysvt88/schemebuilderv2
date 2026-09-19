@@ -202,63 +202,69 @@ button, label { user-select: none; -webkit-user-select: none; }
   }
 }
 
-/* Compact plan picker. Keep options mounted so closing gently moves the cards. */
-.personnel-picker {
-  margin-bottom: 16px;
-  padding: 12px;
-  border: 1px solid var(--color-border-subtle);
+/* Shared compact toolbar: centered selections, green situation, gold formation. */
+.plan-toolbar {
+  margin-bottom: 12px;
+  border: 1px solid var(--color-border);
   border-radius: var(--r-md);
   background: var(--color-surface-1);
 }
-.personnel-picker__title {
-  margin: 0 0 10px;
-  text-align: center;
-  font: 700 12px var(--font-mono);
-  color: var(--color-gold);
-  letter-spacing: 1px;
-}
-.personnel-picker__trigger, .personnel-picker__option {
-  width: 100%;
-  min-height: 44px;
+.plan-toolbar__row { display: grid; grid-template-columns: minmax(0, .9fr) minmax(0, 1.1fr); }
+.plan-toolbar__trigger {
+  position: relative;
   display: flex;
+  flex-direction: column;
   align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  padding: 9px 12px;
+  justify-content: center;
+  gap: 5px;
+  min-width: 0;
+  min-height: 88px;
+  padding: 10px 22px;
+  border: 0;
+  color: var(--color-text-1);
+  text-align: center;
+  cursor: pointer;
+}
+.plan-toolbar__situation {
+  background: linear-gradient(120deg, color-mix(in srgb, var(--color-success) 16%, var(--color-surface-1)), color-mix(in srgb, var(--color-success) 5%, var(--color-surface-1)));
+  border-radius: var(--r-md) 0 0 var(--r-md);
+}
+.plan-toolbar__formation {
+  background: var(--color-gold-surface);
+  border-left: 1px solid var(--color-border);
+  border-radius: 0 var(--r-md) var(--r-md) 0;
+}
+.plan-toolbar__label { font: 700 12px/1.3 var(--font-sans); }
+.plan-toolbar__situation .plan-toolbar__label { color: var(--color-success); }
+.plan-toolbar__formation .plan-toolbar__label { color: var(--color-gold-bright); }
+.plan-toolbar__value { font: 800 15px/1.3 var(--font-sans); overflow-wrap: anywhere; }
+.plan-toolbar__composition { display: block; font: 600 12px/1.4 var(--font-sans); color: var(--color-text-2); }
+.plan-toolbar__chevron { position: absolute; right: 7px; top: 50%; margin-top: -8px; font-size: 16px; color: var(--color-text-2); transition: transform 320ms ease; }
+.plan-toolbar__trigger[aria-expanded="true"] .plan-toolbar__chevron { transform: rotate(180deg); }
+.plan-toolbar__reveal { display: grid; grid-template-rows: 0fr; transition: grid-template-rows 320ms cubic-bezier(.4, 0, .2, 1); }
+.plan-toolbar__reveal[data-open="true"] { grid-template-rows: 1fr; }
+.plan-toolbar__clip { min-height: 0; overflow: hidden; }
+.plan-toolbar__options { display: grid; gap: 6px; padding: 10px; }
+.plan-toolbar__situations { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.plan-toolbar__options button {
+  min-width: 0;
+  min-height: 44px;
+  padding: 8px;
   border: 1px solid var(--color-border);
   border-radius: var(--r-sm);
   background: var(--color-surface-2);
   color: var(--color-text-1);
-  text-align: left;
+  text-align: center;
+  font: 700 13px/1.4 var(--font-sans);
   cursor: pointer;
 }
-.personnel-picker__trigger { border-color: var(--color-gold); }
-.personnel-picker__selection { display: grid; gap: 3px; min-width: 0; }
-.personnel-picker strong { font: 700 12px var(--font-mono); overflow-wrap: anywhere; }
-.personnel-picker__selection > span, .personnel-picker__composition {
-  display: block;
-  font-size: 11px;
-  color: var(--color-text-2);
-  line-height: 1.4;
+.plan-toolbar__options button[aria-pressed="true"] { border-color: var(--color-gold); background: var(--color-gold-surface); }
+.plan-toolbar__situations button[aria-pressed="true"] { border-color: var(--color-success); background: var(--color-surface-success); }
+.plan-toolbar button:focus-visible { outline: 2px solid var(--color-gold); outline-offset: -3px; }
+@media (max-width: 400px) {
+  .plan-toolbar__trigger { padding: 9px 18px; }
+  .plan-toolbar__value { font-size: 14px; }
 }
-.personnel-picker__composition { margin-top: 3px; }
-.personnel-picker__action { flex-shrink: 0; font-size: 11px; color: var(--color-gold); }
-.personnel-picker__chevron { display: inline-block; transition: transform 320ms ease; }
-.personnel-picker__trigger[aria-expanded="true"] .personnel-picker__chevron { transform: rotate(180deg); }
-.personnel-picker__reveal {
-  display: grid;
-  grid-template-rows: 0fr;
-  transition: grid-template-rows 320ms cubic-bezier(.4, 0, .2, 1);
-}
-.personnel-picker__reveal[data-open="true"] { grid-template-rows: 1fr; }
-.personnel-picker__clip { min-height: 0; overflow: hidden; }
-.personnel-picker__options { display: grid; gap: 6px; padding-top: 8px; }
-.personnel-picker__option[aria-pressed="true"] {
-  background: var(--color-gold-surface);
-  border-color: var(--color-gold);
-  color: var(--color-gold-bright);
-}
-.personnel-picker button:focus-visible { outline: 2px solid var(--color-gold); outline-offset: 2px; }
 @media (prefers-reduced-motion: reduce) {
-  .personnel-picker__reveal, .personnel-picker__chevron { transition: none; }
+  .plan-toolbar__reveal, .plan-toolbar__chevron { transition: none; }
 }

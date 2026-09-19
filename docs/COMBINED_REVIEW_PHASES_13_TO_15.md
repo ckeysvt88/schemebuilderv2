@@ -31,7 +31,7 @@ git log -1 --oneline
 npm run dev
 ```
 
-The latest commit message should be **Add smoothly expanding formation and personnel picker**. Compare its short number with the one in my delivery message.
+The latest commit message should be **Combine situation and formation in a readable compact toolbar**. Compare its short number with the one in my delivery message.
 
 If Git says local changes would be overwritten, stop and send that message; do not discard files or use a force/reset command. If fetch only asks whether to retry deleting the old worktree folders from earlier, answer **n**.
 
@@ -504,7 +504,14 @@ Checks 40–44 above now describe the new problem-only workflow; prior base-call
 ### Check 51 — Smooth formation/personnel selector
 
 - [ ] On the plan page, Formation & Personnel shows the current offensive look and composition in one compact selector.
-- [ ] Tap Change: all available options expand below it. Try a scout with seven or more options and a narrow phone screen. No labels should clip.
+- [ ] Tap Formation & Personnel: all available options expand below the toolbar. Try a scout with seven or more options and a narrow phone screen. No labels should clip.
 - [ ] Select another look: the header updates, recommendations update, and the list closes smoothly over about a third of a second, without disappearing in a flash.
-- [ ] Reopen and close rapidly: the animation should reverse naturally without a jump or stale selection. Escape closes it; keyboard focus returns to Change without scrolling the page.
+- [ ] Reopen and close rapidly: the animation should reverse naturally without a jump or stale selection. Escape closes it; keyboard focus returns to its toolbar control without scrolling the page.
 - [ ] When the device has reduced motion enabled, the selector opens/closes immediately. Closed options must not receive keyboard focus.
+
+### Check 52 — Compact toolbar readability
+
+- [ ] Down & Distance and Formation & Personnel occupy one row beneath the setup buttons. Both labels and selections are centered and bold; the green and gold accents remain readable in light and dark themes.
+- [ ] Open each control. Only its choices should be available for keyboard interaction. Both lists open and close smoothly, with no duplicate selector farther down the page.
+- [ ] Choose 3rd & Short, then 3rd & Long. Recommendations should update and the toolbar should show the correct selection. Base and Red Zone clear distance; Any keeps the down without assuming a distance.
+- [ ] Check seven or more formation options on a phone-width screen. Long labels wrap rather than overlap the arrow or get cut off. Selecting a formation updates its label and personnel beneath it.

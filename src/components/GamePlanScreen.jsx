@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import DefensiveSetupRow from './DefensiveSetupRow.jsx';
-import PersonnelPicker from './PersonnelPicker.jsx';
+import PlanToolbar from './PlanToolbar.jsx';
 import { CONFERENCES } from '../data/teams.js';
 import { FDB } from '../data/formations.js';
 import { TRAITS } from '../data/traits.js';
@@ -42,21 +42,6 @@ const PERS_COMP = {
   p22:"2RB, 2TE, 1WR", p23:"2RB, 3TE",
   trips:"Trips", empty:"Empty", option_run:"Option",
 };
-
-const DOWN_BTNS = [
-  { id: "base", label: "Base" },
-  { id: "1",   label: "1st" },
-  { id: "2",   label: "2nd" },
-  { id: "3",   label: "3rd" },
-  { id: "4",   label: "4th" },
-  { id: "rz",  label: "Red Zone" },
-];
-
-const DIST_BTNS = [
-  { id: "short", label: "Short" },
-  { id: "mid",   label: "Mid" },
-  { id: "long",  label: "Long" },
-];
 
 export default function GamePlanScreen({
   sel, setSel, flat,
@@ -226,66 +211,18 @@ export default function GamePlanScreen({
           userProfile={userProfile} setUserProfile={setUserProfile}
           gameObjective={gameObjective} setGameObjective={setGameObjective} />
 
-        {/* ── Down & Distance Situation ── */}
-        <div style={{ background: "linear-gradient(120deg, color-mix(in srgb, var(--color-success) 16%, var(--color-surface-1)), color-mix(in srgb, var(--color-success) 5%, var(--color-surface-1)))", border: "1px solid color-mix(in srgb, var(--color-success) 35%, var(--color-border))", borderLeft: "3px solid var(--color-success)", borderRadius: "var(--r-md)", padding: "8px 10px", marginBottom: 12 }}>
-          {/* Row 1: Down */}
-          <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
-            <span style={{ fontSize: 9, color: "var(--color-text-3)", letterSpacing: "2px", textTransform: "uppercase", fontFamily: "var(--font-mono)", flexShrink: 0, width: 32 }}>Down</span>
-            {DOWN_BTNS.map(btn => {
-              const isSelected = situDown === btn.id;
-              const isBase = btn.id === "base";
-              return (
-                <button
-                  key={btn.id}
-                  onClick={() => { setSituDown(situDown === btn.id ? "" : btn.id); if (btn.id === "base" || btn.id === "rz") setSituDist(""); }}
-                  style={{
-                    flex: 1, minHeight: 26, padding: "0 4px",
-                    borderRadius: 13,
-                    border: `1px solid ${isSelected ? (isBase ? "var(--color-border)" : "var(--color-situation-fill)") : "var(--color-border)"}`,
-                    background: isSelected ? (isBase ? "var(--color-situation-base-fill)" : "var(--color-situation-fill)") : "transparent",
-                    color: isSelected ? (isBase ? "var(--color-text-1)" : "var(--color-situation-text)") : "var(--color-text-3)",
-                    fontSize: 11, cursor: "pointer",
-                    fontFamily: "var(--font-mono)", fontWeight: isSelected ? "700" : "400",
-                    transition: "all 100ms ease",
-                  }}
-                >
-                  {btn.label}
-                </button>
-              );
-            })}
-            {situDown && (
-              <button onClick={() => { setSituDown("base"); setSituDist(""); }} style={{ background: "transparent", border: "none", color: "var(--color-text-3)", fontSize: 14, cursor: "pointer", padding: "0 2px", lineHeight: 1, flexShrink: 0 }}>×</button>
-            )}
-          </div>
-          {/* Row 2: Distance */}
-          <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-            <span style={{ fontSize: 9, color: "var(--color-text-3)", letterSpacing: "2px", textTransform: "uppercase", fontFamily: "var(--font-mono)", flexShrink: 0, width: 32 }}>Dist</span>
-            {DIST_BTNS.map(btn => {
-              const disabled = !situDown || situDown === "base" || situDown === "rz";
-              const active = !disabled && situDist === btn.id;
-              return (
-                <button
-                  key={btn.id}
-                  onClick={() => !disabled && setSituDist(situDist === btn.id ? "" : btn.id)}
-                  style={{
-                    flex: 1, minHeight: 26, padding: "0 4px",
-                    borderRadius: 13,
-                    border: `1px solid ${active ? "var(--color-situation-fill)" : "var(--color-border)"}`,
-                    background: active ? "var(--color-situation-fill)" : "transparent",
-                    color: disabled ? "var(--color-border)" : active ? "var(--color-situation-text)" : "var(--color-text-3)",
-                    fontSize: 11, cursor: disabled ? "default" : "pointer",
-                    fontFamily: "var(--font-mono)", fontWeight: active ? "700" : "400",
-                    opacity: disabled ? 0.4 : 1,
-                    transition: "all 100ms ease",
-                  }}
-                >
-                  {btn.label}
-                </button>
-              );
-            })}
-          </div>
-        </div>
-
+        <PlanToolbar
+          down={situDown}
+          distance={situDist}
+          onSituationChange={(down, distance) => { setSituDown(down); setSituDist(distance); }}
+          value={activeP}
+          fallbackLabel={PMAP[activeP]?.label}
+          options={getAvailableFamilies(flat, selectedTeam?.id).flatMap(id => {
+            const family = PERSONNEL_FAMILIES[id];
+            return family ? [{ id, label: family.label, personnel: PERS_COMP[family.base] || '' }] : [];
+          })}
+          onChange={id => { setActiveP(id); setSelFm(null); }}
+        />
 
         <p style={{ fontSize: 11, color: "var(--color-text-3)" }}>
           {recommendation.familyLabel} · {recommendation.context.label}. Fit scores are rankings, not success probabilities.
@@ -304,16 +241,6 @@ export default function GamePlanScreen({
         {/* ── PERSONNEL TAB ── */}
         {mainTab === "personnel" && (
           <div>
-            <PersonnelPicker
-              value={activeP}
-              fallbackLabel={PMAP[activeP]?.label}
-              options={getAvailableFamilies(flat, selectedTeam?.id).flatMap(id => {
-                const family = PERSONNEL_FAMILIES[id];
-                return family ? [{ id, label: family.label, personnel: PERS_COMP[family.base] || '' }] : [];
-              })}
-              onChange={id => { setActiveP(id); setSelFm(null); }}
-            />
-
             {activeP && (PERSONNEL_FAMILIES[activeP] || PMAP[activeP]) && (() => {
               const fam = PERSONNEL_FAMILIES[activeP];
               const pd  = fam ? PMAP[fam.base] : PMAP[activeP];
