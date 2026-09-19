@@ -201,3 +201,64 @@ button, label { user-select: none; -webkit-user-select: none; }
     grid-column: span 1 !important;
   }
 }
+
+/* Compact plan picker. Keep options mounted so closing gently moves the cards. */
+.personnel-picker {
+  margin-bottom: 16px;
+  padding: 12px;
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--r-md);
+  background: var(--color-surface-1);
+}
+.personnel-picker__title {
+  margin: 0 0 10px;
+  text-align: center;
+  font: 700 12px var(--font-mono);
+  color: var(--color-gold);
+  letter-spacing: 1px;
+}
+.personnel-picker__trigger, .personnel-picker__option {
+  width: 100%;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 9px 12px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--r-sm);
+  background: var(--color-surface-2);
+  color: var(--color-text-1);
+  text-align: left;
+  cursor: pointer;
+}
+.personnel-picker__trigger { border-color: var(--color-gold); }
+.personnel-picker__selection { display: grid; gap: 3px; min-width: 0; }
+.personnel-picker strong { font: 700 12px var(--font-mono); overflow-wrap: anywhere; }
+.personnel-picker__selection > span, .personnel-picker__composition {
+  display: block;
+  font-size: 11px;
+  color: var(--color-text-2);
+  line-height: 1.4;
+}
+.personnel-picker__composition { margin-top: 3px; }
+.personnel-picker__action { flex-shrink: 0; font-size: 11px; color: var(--color-gold); }
+.personnel-picker__chevron { display: inline-block; transition: transform 320ms ease; }
+.personnel-picker__trigger[aria-expanded="true"] .personnel-picker__chevron { transform: rotate(180deg); }
+.personnel-picker__reveal {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 320ms cubic-bezier(.4, 0, .2, 1);
+}
+.personnel-picker__reveal[data-open="true"] { grid-template-rows: 1fr; }
+.personnel-picker__clip { min-height: 0; overflow: hidden; }
+.personnel-picker__options { display: grid; gap: 6px; padding-top: 8px; }
+.personnel-picker__option[aria-pressed="true"] {
+  background: var(--color-gold-surface);
+  border-color: var(--color-gold);
+  color: var(--color-gold-bright);
+}
+.personnel-picker button:focus-visible { outline: 2px solid var(--color-gold); outline-offset: 2px; }
+@media (prefers-reduced-motion: reduce) {
+  .personnel-picker__reveal, .personnel-picker__chevron { transition: none; }
+}

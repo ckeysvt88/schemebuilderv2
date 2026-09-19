@@ -31,7 +31,7 @@ git log -1 --oneline
 npm run dev
 ```
 
-The latest commit message should be **Rebuild problem-first macros and highlight down and distance**. Compare its short number with the one in my delivery message.
+The latest commit message should be **Add smoothly expanding formation and personnel picker**. Compare its short number with the one in my delivery message.
 
 If Git says local changes would be overwritten, stop and send that message; do not discard files or use a force/reset command. If fetch only asks whether to retry deleting the old worktree folders from earlier, answer **n**.
 
@@ -499,4 +499,12 @@ Checks 40–44 above now describe the new problem-only workflow; prior base-call
 - [ ] **Check 47 — Run and option answers:** Compare Inside Power, Outside Zone, Counter/Trap, QB Sneak, Read Option and Speed Option. Look for pinch versus spread, patient versus downhill reaction, and separate read/pitch keys. These must not all show only Gap Integrity.
 - [ ] **Check 48 — RPO and quarterback answers:** Glance shows RPO Pass Key + Inside leverage; bubble shows the pass key + shallow flats with a zone condition. Scramble shows QB Contain and a conditional QB Spy instruction at the line. The elite-WR package tells you to choose the actual receiver for a double team.
 - [ ] **Check 49 — Readable cards:** The main card shows the adjustments, their conditions and the main counter. Your job & tradeoffs expands for more coaching. Compare the copied sheet with the card. Old saved macro formation/situation values must not hide these settings.
-- [ ] **Check 50 — Down & Distance:** In both light and dark themes, the box has a soft green gradient and readable controls. Change 3rd & short to long and verify the normal recommendations still update. Formation/personnel layout is unchanged pending your choice of design.
+- [ ] **Check 50 — Down & Distance:** In both light and dark themes, the box has a soft green gradient and readable controls. Change 3rd & short to long and verify the normal recommendations still update. Formation/personnel now uses the compact expandable selector (see Check 51).
+
+### Check 51 — Smooth formation/personnel selector
+
+- [ ] On the plan page, Formation & Personnel shows the current offensive look and composition in one compact selector.
+- [ ] Tap Change: all available options expand below it. Try a scout with seven or more options and a narrow phone screen. No labels should clip.
+- [ ] Select another look: the header updates, recommendations update, and the list closes smoothly over about a third of a second, without disappearing in a flash.
+- [ ] Reopen and close rapidly: the animation should reverse naturally without a jump or stale selection. Escape closes it; keyboard focus returns to Change without scrolling the page.
+- [ ] When the device has reduced motion enabled, the selector opens/closes immediately. Closed options must not receive keyboard focus.

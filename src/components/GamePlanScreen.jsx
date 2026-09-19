@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import DefensiveSetupRow from './DefensiveSetupRow.jsx';
+import PersonnelPicker from './PersonnelPicker.jsx';
 import { CONFERENCES } from '../data/teams.js';
 import { FDB } from '../data/formations.js';
 import { TRAITS } from '../data/traits.js';
@@ -303,36 +304,15 @@ export default function GamePlanScreen({
         {/* ── PERSONNEL TAB ── */}
         {mainTab === "personnel" && (
           <div>
-            <div style={{ fontSize: 10, letterSpacing: "2px", color: "var(--color-gold)", textTransform: "uppercase", marginBottom: 14, fontWeight: "700", fontFamily: "var(--font-mono)" }}>
-              Formation + Personnel
-            </div>
-
-            {/* Personnel family tabs */}
-            <div style={{ display: "flex", flexWrap: "wrap", gap: 7, marginBottom: 16 }}>
-              {getAvailableFamilies(flat, selectedTeam?.id).map(fid => {
-                const fam = PERSONNEL_FAMILIES[fid];
-                return fam ? (
-                  <button
-                    key={fid}
-                    onClick={() => { setActiveP(fid); setSelFm(null); }}
-                    style={{
-                      minHeight: 36, padding: "0 12px",
-                      background: activeP === fid ? "var(--color-gold-surface)" : "var(--color-surface-2)",
-                      border: `2px solid ${activeP === fid ? "var(--color-gold)" : "var(--color-border)"}`,
-                      borderRadius: "var(--r-sm)",
-                      color: activeP === fid ? "var(--color-gold)" : "var(--color-text-2)",
-                      fontSize: 11, fontWeight: activeP === fid ? "700" : "400",
-                      cursor: "pointer",
-                      fontFamily: "var(--font-mono)",
-                      transition: "all 150ms ease",
-                      whiteSpace: "nowrap",
-                    }}
-                  >
-                    {fam.label}{PERS_COMP[fam.base] ? ` (${PERS_COMP[fam.base]})` : ""}
-                  </button>
-                ) : null;
+            <PersonnelPicker
+              value={activeP}
+              fallbackLabel={PMAP[activeP]?.label}
+              options={getAvailableFamilies(flat, selectedTeam?.id).flatMap(id => {
+                const family = PERSONNEL_FAMILIES[id];
+                return family ? [{ id, label: family.label, personnel: PERS_COMP[family.base] || '' }] : [];
               })}
-            </div>
+              onChange={id => { setActiveP(id); setSelFm(null); }}
+            />
 
             {activeP && (PERSONNEL_FAMILIES[activeP] || PMAP[activeP]) && (() => {
               const fam = PERSONNEL_FAMILIES[activeP];
