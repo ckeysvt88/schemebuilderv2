@@ -1,6 +1,6 @@
 # Critical and high-priority roadmap status
 
-Status after update 23. **Not all critical and high-priority requirements are implemented.** “Implemented” below means working code with regression checks, not proven CFB 27 effectiveness. The combined device review remains pending.
+Status after update 24. **Not all critical and high-priority requirements are implemented.** “Implemented” below means working code with regression checks, not proven CFB 27 effectiveness. The combined device review remains pending.
 
 | Priority | Requirement | Status and next work |
 | --- | --- | --- |
@@ -12,7 +12,7 @@ Status after update 23. **Not all critical and high-priority requirements are im
 | High | Wider offensive-concept coverage | Partial. Existing threat buckets do not fully distinguish duo/power/zone, flood/sail, mesh/drive, and route combinations. Add only distinctions supported by simple inputs and call evidence. |
 | High | Alignment, field/boundary, motion and match checks | Partial. Personnel and broad traits are available; exact distribution, hash and matchup checks need richer verified data. Avoid assuming a match check from a coverage label. |
 | High | Personalized assignments and user help | Partial. Position/style choices and matchup guardrails work. Exact user responsibility, help defenders and skill burden still need call-level evidence. |
-| High | Explicit game-objective selection | Complete in update 22: Balanced, No Quick TD, and Get a Stop flow through UI, scenario weights, selection safeguards, adjustments, share/PDF and objective-separated call tests. New profile/scout builds reset to Balanced. Device checks 33–35 pending. |
+| High | Explicit game-objective selection | Complete in update 22: Balanced, No Quick TD, and Get a Stop flow through UI, scenario weights, selection safeguards, adjustments, share/PDF and objective-separated call tests. New profile/new scouting resets to Balanced; building preserves the objective selected on Scout. Device checks 33–35 pending. |
 | High | Automatic clock/score and field-position interpretation | Remaining future scope. The player now supplies the objective directly; numeric score, clock, timeout and field-position inputs are not implemented. Do not claim the app computes win probability, timeout usage or field-goal range. |
 | High | Run/pass tendency across calls and persistence | Implemented in update 23. Seven normalized levels reach concept weights, live/export/PDF, saved opponent profiles and separated test history. Opposite threats and situational risk gates remain. Weights still need gameplay calibration. |
 | High | Macro Builder correctness and catalog coverage | Implemented in update 23 for 56 problems and all 1,245 validated base plays. Formation/book/call filtering, compatibility checks, concise coaching, safe storage/search and consistent exports are covered. Exact package behavior and device presentation remain to be tested. |
@@ -29,7 +29,7 @@ Status after update 23. **Not all critical and high-priority requirements are im
 
 These are remaining engineering tasks as well as evidence tasks. They are not all blocked on the user. Gameplay-only conclusions require actual gameplay observations.
 
-[Combined validation checks 1–45](COMBINED_REVIEW_PHASES_13_TO_15.md)
+[Combined validation checks 1–46](COMBINED_REVIEW_PHASES_13_TO_15.md)
 
 
 ## Update 23 inventory exceptions
@@ -37,3 +37,7 @@ These are remaining engineering tasks as well as evidence tasks. They are not al
 Three Single Mug name mismatches are corrected using the validated inventory. Five other curated call references are absent from their formation's plays.js; Prevent 3-Deep has no inventory at all. They remain excluded, not inferred or newly “verified.” Reconcile them against actual game menus before enabling them. This is a catalog completeness item separate from the already-validated 1,245 counts.
 
 The macro builder currently evaluates a loadout against one selected base call at a time. Exact per-player package mappings and automatic switching among different base calls are future scope. [Audit and research](BIAS_MACRO_AUDIT_PHASE23.md). Device validation is pending; browser download was unavailable in the build environment.
+
+## Update 24 interface
+
+Playbook, My Defensive User and Game Objective share one equal-width button row on Scout and the plan. Each opens a popup; objective selection carries from Scout to the plan. Device check 46 remains pending.

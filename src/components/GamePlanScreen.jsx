@@ -1,6 +1,5 @@
-import { GAME_OBJECTIVES } from '../data/gameObjectives.js';
 import { useState, useEffect } from 'react';
-import PlaybookModal from './PlaybookModal.jsx';
+import DefensiveSetupRow from './DefensiveSetupRow.jsx';
 import { CONFERENCES } from '../data/teams.js';
 import { FDB } from '../data/formations.js';
 import { TRAITS } from '../data/traits.js';
@@ -10,10 +9,8 @@ import { getAvailableFamilies } from '../data/personnel.js';
 import FormationCard, { PC, PL } from './FormationCard.jsx';
 import FormationDetail from './FormationDetail.jsx';
 import { ExportPDFButton } from './CallSheetPDF.jsx';
-import UserProfileModal from './UserProfileModal.jsx';
 import DriveLogger from './DriveLogger.jsx';
 import { userProfileLabels } from '../data/userProfile.js';
-
 
 const STAR_PATH = "M12 2.5l2.95 6.4 6.85.6-5.2 4.6 1.6 6.9L12 17.1 5.8 20l1.6-6.9-5.2-4.6 6.85-.6z";
 
@@ -80,8 +77,6 @@ export default function GamePlanScreen({
   const [listOpacity, setListOpacity] = useState(1);
   const [showAlignment, setShowAlignment] = useState(false);
   const [showTeamInfo, setShowTeamInfo] = useState(false);
-  const [pbOpen, setPbOpen] = useState(false);
-  const [userProfileOpen, setUserProfileOpen] = useState(false);
   const [callTestDefaults, setCallTestDefaults] = useState(null);
   const profileLabels = userProfileLabels(userProfile);
 
@@ -118,7 +113,6 @@ export default function GamePlanScreen({
     }, 200);
     return () => clearTimeout(t);
   }, [selFm]);
-
 
   useEffect(() => {
     setListOpacity(0.6);
@@ -182,7 +176,6 @@ export default function GamePlanScreen({
     return { book: best, count: cnt[best] || 0, total: allScored.length, confidence, second, gap: Math.round(gapPct * 100) };
   })();
 
-
   return (
     <>
     <div className="screen-enter" style={{ fontFamily: "var(--font-sans)", background: "var(--color-bg)", minHeight: "100dvh", color: "var(--color-text-1)", maxWidth: 720, margin: "0 auto" }}>
@@ -225,32 +218,12 @@ export default function GamePlanScreen({
           </div>
         </div>
 
-
       </div>
 
       <div style={{ padding: "14px 16px" }}>
-        {recBook && myBook !== recBook.book && (
-          <div style={{ fontSize: 11, color: "var(--color-text-3)", marginBottom: 6, lineHeight: 1.5 }}>
-            <span style={{ color: "var(--color-success)", fontWeight: "700" }}>Recommended for this opponent:</span>{" "}
-            {recBook.book} — {recBook.confidence.toLowerCase()} fit, {recBook.count}/{recBook.total} top formations
-          </div>
-        )}
-        <button aria-haspopup="dialog" onClick={() => setPbOpen(true)} style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: 'var(--color-surface-1)', border: '1px solid var(--color-border-subtle)', borderRadius: 'var(--r-md)', padding: '10px 13px', marginBottom: 12, cursor: 'pointer', textAlign: 'left' }}>
-          <span style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-            <span style={{ fontSize: 9, color: 'var(--color-text-3)', letterSpacing: '1.5px', textTransform: 'uppercase', fontFamily: 'var(--font-mono)' }}>Playbook</span>
-            <span style={{ fontSize: 13, color: 'var(--color-gold-bright)', fontWeight: 700, fontFamily: 'var(--font-mono)' }}>{myBook === 'All' ? 'All Books' : myBook}</span>
-          </span>
-          <span style={{ color: 'var(--color-gold)', fontSize: 11 }}>Change</span>
-        </button>
-        {pbOpen && <PlaybookModal value={myBook} recommended={recBook?.book} onChange={changeBook} onClose={() => setPbOpen(false)} />}
-
-        <button onClick={() => setUserProfileOpen(true)} style={{ width: "100%", display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, background: "linear-gradient(100deg, var(--color-gold-surface), var(--color-surface-1))", border: "1px solid var(--color-gold)", borderLeft: "4px solid var(--color-gold)", borderRadius: "var(--r-md)", padding: "11px 12px", marginBottom: 12, cursor: "pointer", textAlign: "left" }}>
-          <span>
-            <span style={{ display: "block", fontSize: 11, color: "var(--color-gold-bright)", letterSpacing: "1.3px", textTransform: "uppercase", fontFamily: "var(--font-mono)", fontWeight: 800 }}>🎮 My Defensive User</span>
-            <span style={{ display: "block", fontSize: 10, color: "var(--color-text-3)", marginTop: 2 }}>Personalizes your recommended call</span>
-          </span>
-          <span style={{ fontSize: 11, color: "var(--color-text-1)", fontWeight: 800, textAlign: "right" }}>{profileLabels.position}<br/><span style={{ color: "var(--color-gold)" }}>{profileLabels.callStyle} ›</span></span>
-        </button>
+        <DefensiveSetupRow myBook={myBook} changeBook={changeBook} recommendedBook={recBook?.book}
+          userProfile={userProfile} setUserProfile={setUserProfile}
+          gameObjective={gameObjective} setGameObjective={setGameObjective} />
 
         {/* ── Down & Distance Situation ── */}
         <div style={{ background: "var(--color-surface-success)", border: "1px solid var(--color-border)", borderLeft: "3px solid var(--color-success)", borderRadius: "var(--r-md)", padding: "8px 10px", marginBottom: 12 }}>
@@ -312,13 +285,6 @@ export default function GamePlanScreen({
           </div>
         </div>
 
-        <fieldset style={{ border: '1px solid var(--color-border-subtle)', borderRadius: 'var(--r-md)', padding: '10px 12px', margin: '0 0 12px' }}>
-          <legend style={{ fontSize: 11, color: 'var(--color-gold)', fontWeight: 700 }}>Game Objective</legend>
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
-            {GAME_OBJECTIVES.map(item => <button key={item.id} aria-pressed={gameObjective === item.id} onClick={() => setGameObjective(item.id)} style={{ flex: 1, minHeight: 36, padding: '6px 9px', borderRadius: 'var(--r-sm)', border: `1px solid ${gameObjective === item.id ? 'var(--color-gold)' : 'var(--color-border)'}`, background: gameObjective === item.id ? 'var(--color-gold-surface)' : 'var(--color-surface-1)', color: 'var(--color-text-1)', cursor: 'pointer', fontSize: 11 }}>{item.label}</button>)}
-          </div>
-          <p style={{ fontSize: 11, color: 'var(--color-text-2)', lineHeight: 1.45, margin: '8px 0 0' }}>{recommendation.gameObjective.text}</p>
-        </fieldset>
 
         <p style={{ fontSize: 11, color: "var(--color-text-3)" }}>
           {recommendation.familyLabel} · {recommendation.context.label}. Fit scores are rankings, not success probabilities.
@@ -586,8 +552,6 @@ export default function GamePlanScreen({
           </div>
         </div>
       )}
-
-      {userProfileOpen && <UserProfileModal profile={userProfile} onChange={setUserProfile} onClose={() => setUserProfileOpen(false)} />}
 
     </>
   );

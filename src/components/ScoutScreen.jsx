@@ -3,7 +3,7 @@ import { RUN_PASS_LABELS } from '../data/runPassBias.js';
 import { useState, useRef, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { TRAITS } from '../data/traits.js';
-import PlaybookModal from './PlaybookModal.jsx';
+import DefensiveSetupRow from './DefensiveSetupRow.jsx';
 import { FDB } from '../data/formations.js';
 
 const ICONS = {
@@ -72,7 +72,7 @@ const ONBOARDING_PAGES = [
 
 export default function ScoutScreen({
   sel, setSel, flat, runPass, setRunPass,
-  myBook, changeBook,
+  myBook, changeBook, userProfile, setUserProfile, gameObjective, setGameObjective,
   scored,
   setSelFm,
   setActiveP,
@@ -83,7 +83,6 @@ export default function ScoutScreen({
   toggle, build,
   navigateToNotes,
 }) {
-  const [showPB, setShowPB] = useState(false);
   const [pendingDelete, setPendingDelete] = useState(null);
   const [profileAction, setProfileAction] = useState(null); // name of profile to act on
   const [openCard, setOpenCard] = useState(null);
@@ -178,30 +177,14 @@ export default function ScoutScreen({
         </div>
         <div style={{ display: "flex", gap: 6 }}>
           <button onClick={() => { setOnboardingPage(0); setShowOnboarding(true); }} style={{ minHeight: 32, padding: "0 10px", background: "transparent", border: "1px solid var(--color-border)", borderRadius: "var(--r-md)", color: "var(--color-text-2)", fontSize: 11, fontWeight: 700, cursor: "pointer" }}>Guide</button>
-          <button
-            aria-haspopup="dialog" onClick={() => setShowPB(true)}
-            style={{
-              minHeight: 32, padding: "0 12px",
-              background: (myBook !== "All" || showPB) ? "var(--color-gold-surface)" : "transparent",
-              border: `1px solid ${(myBook !== "All" || showPB) ? "var(--color-gold)" : "var(--color-border)"}`,
-              borderRadius: "var(--r-md)",
-              color: (myBook !== "All" || showPB) ? "var(--color-gold)" : "var(--color-text-2)",
-              fontSize: 11, fontWeight: "600", cursor: "pointer",
-              fontFamily: "var(--font-mono)", whiteSpace: "nowrap",
-              transition: "all 150ms ease",
-            }}
-          >
-            {myBook !== "All" ? myBook : "All Books"}
-          </button>
+
         </div>
       </div>
-
-      {showPB && <PlaybookModal value={myBook} onChange={changeBook} onClose={() => setShowPB(false)} />}
 
       {/* ── XO Hero ── */}
       <div className="xo-hero">
         <div className="xo-fades" />
-        <div style={{ position: "relative", zIndex: 2, padding: "42px 16px 32px" }}>
+        <div style={{ position: "relative", zIndex: 2, padding: "14px 16px 12px" }}>
           <div style={{ fontSize: 28, fontWeight: "700", color: "var(--color-text-1)", letterSpacing: "-0.5px", marginBottom: 5, lineHeight: 1.1, fontFamily: "var(--font-mono)" }}>
             Scheme <span style={{ color: "var(--color-gold)" }}>Builders</span>
           </div>
@@ -212,6 +195,10 @@ export default function ScoutScreen({
       </div>
 
       <div style={{ padding: "16px 16px 32px", position: "relative", zIndex: 1 }}>
+
+        <DefensiveSetupRow myBook={myBook} changeBook={changeBook}
+          userProfile={userProfile} setUserProfile={setUserProfile}
+          gameObjective={gameObjective} setGameObjective={setGameObjective} />
 
         {/* ── Saved Opponents ── */}
         {Object.keys(profiles).length > 0 && (

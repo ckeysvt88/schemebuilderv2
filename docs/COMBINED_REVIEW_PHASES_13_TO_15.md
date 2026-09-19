@@ -1,4 +1,4 @@
-# Combined in-app review — updates 13–23
+# Combined in-app review — updates 13–24
 
 This is one review of:
 - **fa4133b:** selected-threat scoring and context-aware Test This Call logs.
@@ -31,7 +31,7 @@ git log -1 --oneline
 npm run dev
 ```
 
-The latest commit message should be **Connect run-pass tendency and rebuild macros with full-catalog checks**. Compare its short number with the one in my delivery message.
+The latest commit message should be **Compact defensive setup into three popup buttons**. Compare its short number with the one in my delivery message.
 
 If Git says local changes would be overwritten, stop and send that message; do not discard files or use a force/reset command. If fetch only asks whether to retry deleting the old worktree folders from earlier, answer **n**.
 
@@ -433,7 +433,7 @@ Select **No Quick TD**:
 - [ ] With No Quick TD selected, generate the Call Sheet and share/copy the plan. Both identify the objective and match the live personal calls.
 - [ ] Open Test This Call from a coverage card. The popup shows **Objective: No Quick TD**.
 - [ ] If recording sample tests, save the same call/situation once with No Quick TD and once with Get a Stop. Saved evidence keeps them in separate groups. Delete sample entries individually afterward.
-- [ ] Open a different saved scouting profile or build a fresh plan. Game Objective resets to Balanced, so an old late-game priority does not carry into a new game.
+- [ ] Open a different saved scouting profile or start new scouting. Game Objective resets to Balanced. Choosing an objective on Scout and building the plan keeps that choice.
 - [ ] Refreshing the page also resets the live objective to Balanced; saved observations remain.
 - [ ] Reopen the introductory guide. The scouting step mentions Game Objective.
 - [ ] On a narrow screen, all three buttons and the selected explanation remain readable.
@@ -478,3 +478,16 @@ You can review the new changes with checks 36–45. Your earlier pass/fail resul
 - [ ] **Check 45 — Test log and game practice:** Save the same call outcome at two different tendency settings. The Test This Call summary should keep them separate and show the tendency. Then build one ACTIVE package in the actual game using the listed settings. Practice the target concept AND the listed counter. Confirm that the menu choices exist on your build, assignments display correctly, and the coaching is easy to use. Record the patch, difficulty and actual adjustment applied.
 
 The software checks cover all 71 inventories and every book, not just 4-3 Over Solid. These device checks assess presentation and actual game behavior; automated catalog checks cannot prove a macro defeats a concept in CFB 27. If a menu option is missing or a player reacts differently, send the formation, exact base call, package, game version and screenshot/video. Do not substitute a similarly named setting silently.
+
+
+## Update 24 — compact defensive setup
+
+### Check 46 — Three setup buttons, one row
+
+- [ ] Scout and the generated plan show **Playbook**, **My Defensive User**, and **Game Objective** in one evenly spaced row. Check desktop and phone-width screens: all three stay visible without horizontal scrolling.
+- [ ] Each button opens its own popup. Change the playbook, defender/call preference, and objective; the selected values appear on the buttons and still update recommendations.
+- [ ] Select **No Quick TD** on Scout, then build the plan. The objective remains **No Quick TD**.
+- [ ] Close each popup using Done, the outside backdrop, and Escape. Keyboard Tab stays in the popup; closing returns focus to its button. Long popup content scrolls without moving the underlying page.
+- [ ] The old stacked setup controls and inline objective description are gone. The plan's down/distance and formation information sit closer to the top.
+
+Build and automated checks cover integration; the responsive appearance and popup interaction checks above still require device review.

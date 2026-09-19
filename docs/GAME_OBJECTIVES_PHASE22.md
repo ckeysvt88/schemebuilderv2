@@ -18,7 +18,7 @@ These are provisional ordinal engineering choices, not measured CFB mechanics or
 
 No Quick TD provides a conservative zone plan for zone calls, keeps deep helpers intact and warns that conceding short gains is inappropriate if a field goal can win. It does not inherit a conflicting short-route preset from the scout. Get a Stop retains down/distance-aware adjustments.
 
-The objective remains a visible live-game setting and resets on new plan/profile and page reload. Existing saved observations are retained. Test This Call records the selected objective on both card and adjustment entry paths; distinct objectives form separate evidence groups. Older blank-objective groups retain their existing grouping keys.
+The objective remains a visible live-game setting and resets on new scouting/profile and page reload. Update 24 preserves the objective chosen on Scout when building the plan. Existing saved observations are retained. Test This Call records the selected objective on both card and adjustment entry paths; distinct objectives form separate evidence groups. Older blank-objective groups retain their existing grouping keys.
 
 Call sheets carry the objective in the header and situation-row guidance. Their rows continue to recompute each down/distance under the same explicitly selected objective. They do not fabricate goal-line or two-minute calls from a label alone.
 
