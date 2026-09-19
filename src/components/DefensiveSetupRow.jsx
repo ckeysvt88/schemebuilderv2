@@ -16,9 +16,9 @@ export default function DefensiveSetupRow({ myBook, changeBook, recommendedBook,
   ];
   return <>
     <div role="group" aria-label="Defensive setup" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, minmax(0, 1fr))', gap: 6, marginBottom: 8 }}>
-      {controls.map(control => <button key={control.id} type="button" aria-haspopup="dialog" aria-expanded={open === control.id} aria-label={`${control.label}: ${control.value}${control.detail ? `, ${control.detail}` : ''}`} onClick={() => setOpen(control.id)} style={{ minWidth: 0, minHeight: 44, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 2, padding: '4px 5px', background: 'var(--color-gold-surface)', border: '1px solid var(--color-gold)', borderRadius: 'var(--r-md)', cursor: 'pointer', textAlign: 'center', overflowWrap: 'anywhere' }}>
-        <span style={{ fontSize: 11, fontWeight: 800, color: 'var(--color-gold-bright)', lineHeight: 1.2 }}>{control.label}</span>
-        <span style={{ fontSize: 11, color: 'var(--color-text-1)', lineHeight: 1.3 }}>{control.value} <span aria-hidden="true" style={{ color: 'var(--color-gold)' }}>›</span></span>
+      {controls.map(control => <button key={control.id} type="button" aria-haspopup="dialog" aria-expanded={open === control.id} aria-label={`${control.label}: ${control.value}${control.detail ? `, ${control.detail}` : ''}`} onClick={() => setOpen(control.id)} style={{ minWidth: 0, minHeight: 44, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 2, padding: '4px 5px', background: open === control.id ? 'var(--color-gold-surface)' : '#ffffff', border: open === control.id ? '1px solid var(--color-gold)' : '1px solid #c9d2de', transition: 'background-color 180ms ease, border-color 180ms ease', borderRadius: 'var(--r-md)', cursor: 'pointer', textAlign: 'center', overflowWrap: 'anywhere' }}>
+        <span style={{ fontSize: 11, fontWeight: 800, color: open === control.id ? 'var(--color-gold-bright)' : '#253040', lineHeight: 1.2 }}>{control.label}</span>
+        <span style={{ fontSize: 11, color: open === control.id ? 'var(--color-text-1)' : '#475868', lineHeight: 1.3 }}>{control.value} <span aria-hidden="true" style={{ color: open === control.id ? 'var(--color-gold)' : '#475868' }}>›</span></span>
       </button>)}
     </div>
     {open === 'book' && <PlaybookModal value={myBook} recommended={recommendedBook} onChange={changeBook} onClose={() => setOpen(null)} />}

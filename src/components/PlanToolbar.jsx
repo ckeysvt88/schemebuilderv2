@@ -1,6 +1,6 @@
 import { useId, useRef, useState } from 'react';
 
-const DOWNS = [['base', 'Base'], ['1', '1st'], ['2', '2nd'], ['3', '3rd'], ['4', '4th'], ['rz', 'Red Zone']];
+const DOWNS = [['base', 'Base'], ['1', '1st'], ['2', '2nd'], ['3', '3rd'], ['4', '4th']];
 const DISTANCES = [['', 'Any'], ['short', 'Short'], ['mid', 'Mid'], ['long', 'Long']];
 
 export default function PlanToolbar({ options, value, fallbackLabel, onChange, down, distance, onSituationChange }) {
@@ -9,7 +9,7 @@ export default function PlanToolbar({ options, value, fallbackLabel, onChange, d
   const downTrigger = useRef(null);
   const formationTrigger = useRef(null);
   const selected = options.find(option => option.id === value);
-  const activeDown = DOWNS.find(([id]) => id === String(down)) || DOWNS[0];
+  const activeDown = down === 'rz' ? ['rz', 'Red Zone'] : (DOWNS.find(([id]) => id === String(down)) || DOWNS[0]);
   const distanceEnabled = ['1', '2', '3', '4'].includes(activeDown[0]);
   const activeDistance = distanceEnabled ? (DISTANCES.find(([id]) => id === distance) || DISTANCES[0]) : DISTANCES[0];
   const situationLabel = distanceEnabled ? `${activeDown[1]} & ${activeDistance[1]}` : activeDown[1];
@@ -52,8 +52,12 @@ export default function PlanToolbar({ options, value, fallbackLabel, onChange, d
               onSituationChange(activeDown[0], id);
               close();
             }}>{label}</button>)}
-            {!distanceEnabled && <span className="plan-toolbar__distance-hint">Choose 1st–4th to set distance.</span>}
+            <button type="button" aria-pressed={activeDown[0] === 'rz'} onClick={() => {
+              onSituationChange('rz', '');
+              close();
+            }}>Red Zone</button>
           </div>
+          {!distanceEnabled && <span className="plan-toolbar__distance-hint" style={{ gridColumn: '1 / -1', textAlign: 'center' }}>Choose 1st–4th to set distance.</span>}
         </div>
       </div>
     </div>

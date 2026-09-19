@@ -31,7 +31,7 @@ git log -1 --oneline
 npm run dev
 ```
 
-The latest commit message should be **Simplify down and distance and refine toolbar colors**. Compare its short number with the one in my delivery message.
+The latest commit message should be **Balance situation choices and soften plan controls**. Compare its short number with the one in my delivery message.
 
 If Git says local changes would be overwritten, stop and send that message; do not discard files or use a force/reset command. If fetch only asks whether to retry deleting the old worktree folders from earlier, answer **n**.
 
@@ -519,6 +519,13 @@ Checks 40–44 above now describe the new problem-only workflow; prior base-call
 ### Check 53 — Separate down and distance choices
 
 - [ ] Toolbar is slightly shorter; Formation & Personnel is muted blue rather than gold. Labels remain centered and bold in both themes.
-- [ ] Open Down & Distance: Down choices are on the left; Any, Short, Mid and Long are on the right. There is no full list of combinations.
+- [ ] Open Down & Distance: Base and 1st–4th are on the left; Any, Short, Mid, Long and Red Zone are on the right, with five buttons in each column. There is no full list of combinations.
 - [ ] Choose 3rd, then Long. The panel stays open after choosing the down and closes smoothly after choosing distance. The header reads 3rd & Long.
 - [ ] Reopen and switch to 4th: Long is preserved until you change it. Base and Red Zone clear distance. Their distance controls are disabled until a numbered down is chosen.
+
+
+### Check 54 — Team color and quieter setup buttons
+
+- [ ] Playbook, My Defensive User and Game Objective are white with readable dark text when closed. Open each popup: only its button turns gold/yellow. Closing returns it to white; saved choices remain visible.
+- [ ] Choose teams with different colors. Team Info uses the selected team's color as a soft background tint, including a lighter tint inside its expanded panel. Check readability in light and dark themes.
+- [ ] Red Zone is always available at the bottom of the right column, even from Base. Selecting it closes the panel, clears distance and displays Red Zone in the toolbar.

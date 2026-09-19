@@ -29,7 +29,7 @@ Status after update 25. **Not all critical and high-priority requirements are im
 
 These are remaining engineering tasks as well as evidence tasks. They are not all blocked on the user. Gameplay-only conclusions require actual gameplay observations.
 
-[Combined validation checks 1–53](COMBINED_REVIEW_PHASES_13_TO_15.md)
+[Combined validation checks 1–54](COMBINED_REVIEW_PHASES_13_TO_15.md)
 
 
 ## Update 23 inventory exceptions
@@ -49,3 +49,5 @@ Playbook, My Defensive User and Game Objective share one compact equal-width but
 The approved compact toolbar combines situation and formation on one row, with centered bold text, theme-aware green/blue accents, and the same smooth dropdown behavior. Device check 52 is pending.
 
 Toolbar refinement: separate down and distance columns replace the full combination list; the collapsed toolbar minimum height is 76px. Check 53 covers distance preservation, clearing and disabled states.
+
+Plan visual refinement: Check 54 covers team-color fills, white idle setup buttons with gold active states, and balanced five-choice situation columns.
