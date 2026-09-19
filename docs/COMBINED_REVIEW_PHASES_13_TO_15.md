@@ -1,4 +1,4 @@
-# Combined in-app review — updates 13–24
+# Combined in-app review — updates 13–25
 
 This is one review of:
 - **fa4133b:** selected-threat scoring and context-aware Test This Call logs.
@@ -31,7 +31,7 @@ git log -1 --oneline
 npm run dev
 ```
 
-The latest commit message should be **Keep compact setup buttons on the plan page only**. Compare its short number with the one in my delivery message.
+The latest commit message should be **Rebuild problem-first macros and highlight down and distance**. Compare its short number with the one in my delivery message.
 
 If Git says local changes would be overwritten, stop and send that message; do not discard files or use a force/reset command. If fetch only asks whether to retry deleting the old worktree folders from earlier, answer **n**.
 
@@ -470,11 +470,11 @@ You can review the new changes with checks 36–45. Your earlier pass/fail resul
 - [ ] **Check 37 — Calls respond:** Choose 11 personnel, Inside Zone / Power, Outside Runs / Sweeps, Quick Game / Bubble Screens, and Deep Shots / Verticals. Use All playbooks, a normal down, and Balanced objective. Build once at Very pass-heavy and again at Very run-heavy. Compare scores and coverage choices across 3-4 Tite, a Nickel front and a Dime/Dollar front. Several scores or calls should change. Every adjacent click need not change every winner. The formation report contains a reproducible engine example with 25 changed winners; your selected offensive family can change the exact winners.
 - [ ] **Check 38 — Long-yardage protection:** With the same scout and Very run-heavy, set 4th & long. Best Overall and Best For You must retain deep help. Choose No Quick TD and a pressure preference: that combination must not select a zero-deep winner. Return to Balanced when finished.
 - [ ] **Check 39 — Saved opponents:** Save a temporary opponent profile at Run-heavy. Change the slider to Pass-heavy, then load the saved opponent. It should restore Run-heavy. Export/import that profile and repeat. An older profile without a saved tendency should load at Balanced, rather than inherit another opponent's setting.
-- [ ] **Check 40 — Macro base call:** Open Macro Builder. Choose 3-4 Tite and Cover 3 Sky if your selected book includes them; otherwise choose a familiar formation with a Cover 3 call. Select the inside-run problem. You should see Goal, Save these settings, Your job, and Watch for. The base call and assignment counts are behind Before using this package. There should be no Soft Squat edge instruction, automatic-trigger claim, or invented extra fitter.
-- [ ] **Check 41 — Macro situation and compatibility:** Select the quick-game problem with a zone call that has deep help. Normal down can offer Underneath. Change Situation to 3rd / 4th & long: Underneath must disappear and Overtop should appear. Change to a base call with no deep defenders: the long-yardage package must ask for a different call and must not be marked ready to save. Switching formations must clear the previous call until you choose one in the new formation.
+- [ ] **Check 40 — Problem-first macros:** Open Macro Builder. The how-to panel, introductory description, formation, base call and situation selectors are gone. Select inside run: DL Alignment should say Pinch. Select outside zone: it should say Spread. Each package has a short Use with condition and concrete adjustments.
+- [ ] **Check 41 — Distinct coverage packages:** Compare quick game, deep shots, bunch and flood. Quick game uses short shading with a visible spot-drop/deep-help condition; deep shots use Overtop and deeper alignment; bunch uses Point Combo with a man-only condition; flood uses 25-yard flats, 5-yard curl flats and a separate underneath-player instruction. Do not apply the quick-game package on long yardage.
 - [ ] **Check 42 — Search and browsing:** Search “read option,” “QB scramble,” and “bunch and mesh.” The leading answers should match the problems. “No screens” should not recommend a screen package; “no huddle” should find tempo help. Every category now includes all its problems, not just a few favorites.
-- [ ] **Check 43 — Loadout, limits and persistence:** Select a few problems, including a tempo/coaching reminder. Build Loadout. ACTIVE entries should match the settings shown on the cards; coaching-only entries should use no active slot. Copy All should copy the sheet, or explain how to copy manually if your browser blocks it. Reload: selected problems and the base-call selection should remain. Try adding an 11th plan: you should get a clear remove-one-first message.
-- [ ] **Check 44 — Other formations and playbooks:** Repeat one run and one pass macro check in a 4-3 front, a 3-4 front, Nickel, Dime/Dollar and Goal Line. Change the playbook in Scout and return: unavailable formations/calls must not remain selected. In Nickel 3-3 Single Mug, look for the corrected names Cov 2 Invert Hard Flat, Cov 3 Buzz Match Wk and Blitz Tex 3 Sim 3. Prevent 3-Deep is intentionally unavailable in the macro selector because there is no exact play inventory for it.
+- [ ] **Check 43 — Loadout, limits and persistence:** Build and copy a loadout. Settings, prerequisites, at-line actions and tradeoffs must match the cards. Reload: selected problems remain; the obsolete base-call selection has no effect. An 11th problem gives a clear remove-one-first message. Apply one suitable package at a time, not the entire sheet.
+- [ ] **Check 44 — Other formations and playbooks:** Practice a suitable run and pass package in a 4-3 front, 3-4 front, Nickel and Dime/Dollar. Read Use with first: not every package fits every call. Verify the actual assignment after each change. Never apply the four-man stunt to a three-rusher call; do not apply man bunch checks to zone calls. Software coverage still includes all 71 inventories.
 - [ ] **Check 45 — Test log and game practice:** Save the same call outcome at two different tendency settings. The Test This Call summary should keep them separate and show the tendency. Then build one ACTIVE package in the actual game using the listed settings. Practice the target concept AND the listed counter. Confirm that the menu choices exist on your build, assignments display correctly, and the coaching is easy to use. Record the patch, difficulty and actual adjustment applied.
 
 The software checks cover all 71 inventories and every book, not just 4-3 Over Solid. These device checks assess presentation and actual game behavior; automated catalog checks cannot prove a macro defeats a concept in CFB 27. If a menu option is missing or a player reacts differently, send the formation, exact base call, package, game version and screenshot/video. Do not substitute a similarly named setting silently.
@@ -491,3 +491,12 @@ The software checks cover all 71 inventories and every book, not just 4-3 Over S
 - [ ] The old stacked setup controls and inline objective description are gone. The plan's down/distance and formation information sit closer to the top.
 
 Build and automated checks cover integration; the responsive appearance and popup interaction checks above still require device review.
+
+## Update 25 — revised macros and clearer situation panel
+
+Checks 40–44 above now describe the new problem-only workflow; prior base-call-selector instructions are superseded.
+
+- [ ] **Check 47 — Run and option answers:** Compare Inside Power, Outside Zone, Counter/Trap, QB Sneak, Read Option and Speed Option. Look for pinch versus spread, patient versus downhill reaction, and separate read/pitch keys. These must not all show only Gap Integrity.
+- [ ] **Check 48 — RPO and quarterback answers:** Glance shows RPO Pass Key + Inside leverage; bubble shows the pass key + shallow flats with a zone condition. Scramble shows QB Contain and a conditional QB Spy instruction at the line. The elite-WR package tells you to choose the actual receiver for a double team.
+- [ ] **Check 49 — Readable cards:** The main card shows the adjustments, their conditions and the main counter. Your job & tradeoffs expands for more coaching. Compare the copied sheet with the card. Old saved macro formation/situation values must not hide these settings.
+- [ ] **Check 50 — Down & Distance:** In both light and dark themes, the box has a soft green gradient and readable controls. Change 3rd & short to long and verify the normal recommendations still update. Formation/personnel layout is unchanged pending your choice of design.

@@ -530,23 +530,17 @@ export function exportLoadout(selected, context = {}) {
   const ready = entries.filter(e => e.plan.ready);
   const header = `SCHEME BUILDERS · CFB 27 CUSTOM ADJUSTMENTS
 ${ready.length}/10 active adjustments in this plan
-Create & Share → Custom Adjustments → Defense → Create Adjustment
-Save each named setup, then choose your active adjustments in the game.
-Select a package manually after choosing the play, or open L1/LB at the line.
-Wait for players to get set before applying another package.
-These instructions do not transfer settings into the game.
-Base call: ${entries[0]?.plan.base || 'Choose a formation and call.'}
-Practice situation: ${context.situation || 'base'}
+Apply one package that fits the current problem and coverage. Do not combine every package.
 `;
   let slot = 0;
   return header + entries.map(({macro, plan}) => `
-${plan.ready ? `ACTIVE ${++slot} — save as "${macro.name}"` : `COACHING NOTE — ${macro.name} (no active slot)`}
+${plan.ready ? `ACTIVE ${++slot} — save as "${macro.name}"` : `CALL CHANGE NEEDED — ${macro.name}`}
 PROBLEM: ${macro.label}
-GOAL: ${plan.goal}
-${plan.callout}
-${plan.settings.map(s => `SAVE: ${s.setting}: ${s.value} — ${s.why} Tradeoff: ${s.risk}`).join('\n')}
+USE WITH: ${plan.use}
+${plan.ready ? '' : plan.callout}
+${plan.settings.map(s => `SAVE: ${s.setting}: ${s.value} — ${s.why}${s.when ? ` Only when: ${s.when}` : ''} Tradeoff: ${s.risk}`).join('\n')}
+${plan.atLine.map(s => `AT THE LINE: ${s.setting}: ${s.value} — ${s.why} ${s.when}`).join('\n')}
 YOUR JOB: ${plan.user}
-${plan.manual.map(s => `AT THE LINE: ${s}`).join('\n')}
 WATCH FOR: ${plan.risk}
 `).join('');
 }

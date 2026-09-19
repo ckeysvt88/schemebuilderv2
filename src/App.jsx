@@ -227,7 +227,7 @@ export default function App() {
       {step === "scout"   && <ScoutScreen   key="scout"   {...sharedProps} />}
       {step === "plan"    && <GamePlanScreen key="plan"    {...sharedProps} />}
       {step === "compare" && <CompareScreen  key="compare" compareA={compareA} setCompareA={setCompareA} compareB={compareB} setCompareB={setCompareB} setStep={navigate} />}
-      {step === "macros"  && <MacroBuilder key="macros" book={myBook} />}
+      {step === "macros"  && <MacroBuilder key="macros" />}
       {step === "info"    && <FormationInfo key="info" />}
       {step === "notes"   && <NotesScreen    key={"notes" + (notesInitProfile || "")}   profiles={profiles} setStep={navigate} initProfile={notesInitProfile} handleShare={handleShare} shareToast={shareToast} />}
 

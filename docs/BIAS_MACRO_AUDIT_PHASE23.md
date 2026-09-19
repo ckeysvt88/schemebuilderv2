@@ -1,5 +1,7 @@
 # Run/pass tendency and Macro Builder audit — update 23
 
+Historical update-23 audit: its macro UI and generic rules are superseded by [update 25](MACRO_RECIPES_PHASE25.md).
+
 Reviewed September 15–19, 2026. Branch: `FootballEngineImprovements`.
 
 ## Findings and completed changes

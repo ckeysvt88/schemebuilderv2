@@ -1,8 +1,7 @@
 import { useState, useMemo, useEffect } from 'react';
 import { MACRO_LIBRARY, MACRO_CATS, matchMacros, exportLoadout, normalizeMacroSelection } from '../data/macros.js';
 
-import { buildMacroPlan, macroFormations, normalizeMacroContext } from '../engine/macroPlan.js';
-import { PLAYS } from '../data/plays.js';
+import { buildMacroPlan } from '../engine/macroPlan.js';
 
 const sectionLabel = { fontSize: 10, color: "var(--color-text-3)", fontFamily: "var(--font-mono)", letterSpacing: "1px", textTransform: "uppercase", margin: "16px 0 8px", fontWeight: 700 };
 const smallBtn = { fontSize: 11, minHeight: 28, padding: "0 10px", background: "transparent", border: "1px solid var(--color-border)", borderRadius: "var(--r-sm)", color: "var(--color-text-2)", cursor: "pointer", fontFamily: "var(--font-mono)" };
@@ -22,21 +21,13 @@ const ctaBtn = (enabled) => ({
 });
 const goldHead = { fontSize: 10, fontFamily: "var(--font-mono)", letterSpacing: "1px", textTransform: "uppercase", color: "var(--color-gold)", margin: "10px 0 4px", fontWeight: 700 };
 
-export default function MacroBuilder({ book = 'All' }) {
+export default function MacroBuilder() {
   const [query, setQuery] = useState("");
   const [cat, setCat] = useState(null);
   const [sel, setSel] = useState(() => {
     try { const s = localStorage.getItem('cfb27_macros'); return normalizeMacroSelection(s ? JSON.parse(s) : []); } catch { return []; }
   });
-  const [savedContext, setSavedContext] = useState(() => {
-    try { return JSON.parse(localStorage.getItem('cfb27_macro_context')) || {}; } catch { return {}; }
-  });
-  const context = normalizeMacroContext(savedContext, book);
   const [message, setMessage] = useState('');
-  useEffect(() => {
-    try { localStorage.setItem('cfb27_macro_context', JSON.stringify(savedContext)); }
-    catch { /* Context remains usable for this visit. */ }
-  }, [savedContext]);
   const [view, setView] = useState("build");
   const [copied, setCopied] = useState(false);
 
@@ -51,16 +42,17 @@ export default function MacroBuilder({ book = 'All' }) {
 
   const toggle = (id) => {
     setMessage('');
+    setCopied(false);
     if (sel.includes(id)) setSel(sel.filter(x => x !== id));
     else if (sel.length < 10) setSel([...sel, id]);
     else setMessage("Your plan has 10 entries. Remove one before adding another.");
   };
   const doCopy = async () => {
-    try { await navigator.clipboard.writeText(exportLoadout(selected, context)); setCopied(true); setTimeout(() => setCopied(false), 1600); }
+    try { await navigator.clipboard.writeText(exportLoadout(selected)); setCopied(true); setTimeout(() => setCopied(false), 1600); }
     catch { setMessage("Copy is unavailable. Select the loadout text below and copy it manually."); }
   };
 
-  const readyCount = selected.filter(m => buildMacroPlan(m, context).ready).length;
+  const readyCount = selected.filter(m => buildMacroPlan(m).ready).length;
 
   return (
     <div className="screen-enter" style={{ fontFamily: "var(--font-sans)", background: "var(--color-bg)", minHeight: "100dvh", color: "var(--color-text-1)", maxWidth: 720, margin: "0 auto" }}>
@@ -83,38 +75,6 @@ export default function MacroBuilder({ book = 'All' }) {
       </div>
 
       <div style={{ padding: "14px 16px 32px" }}>
-        <div style={{ fontSize: 12.5, color: "var(--color-text-3)", lineHeight: 1.55 }}>
-          Choose your base call, then pick what is beating you. Save the listed settings in the game and select that package before the snap. Your post-snap job stays separate.
-        </div>
-
-        <details style={{ fontSize: 12, lineHeight: 1.5, marginTop: 10 }}>
-          <summary style={{ cursor: 'pointer' }}>How to use this in CFB 27</summary>
-          <p>Open Create &amp; Share → Custom Adjustments → Defense. Create a package, tick only the listed settings, then save it by name. CFB 27 stores 20 per side; you can take 10 active into a game.</p>
-          <p>Choose the package after picking your play, or open L1/LB at the line. Wait for everyone to get set before applying another. Packages do not turn on automatically when the offense changes formation.</p>
-          <p>Practice each package with this base call. Check the play art after applying it, then test the threat and the counter. Changing a player's assignment can change the call's rush or coverage.</p>
-          <a href="https://help.ea.com/en/articles/ea-sports-college-football/custom-adjustments/" target="_blank" rel="noreferrer">EA setup guide</a>
-        </details>
-        <div style={sectionLabel}>Practice with this base call · {book}</div>
-        <p style={{ fontSize: 12, color: 'var(--color-text-3)' }}>These plans use the formation and call below. Change the playbook in Scout to change the available formations.</p>
-        <div style={{ display: 'grid', gap: 8 }}>
-          <label style={{ fontSize: 12 }}>Formation
-            <select aria-label="Macro formation" value={context.formation} onChange={e => { setSavedContext({ ...context, formation: e.target.value, call: '' }); setCopied(false); }} style={{ ...chip(false), width: '100%', marginTop: 4 }}>
-              <option value="">Choose formation</option>
-              {macroFormations(book).map(name => <option key={name}>{name}</option>)}
-            </select>
-          </label>
-          <label style={{ fontSize: 12 }}>Base call
-            <select aria-label="Macro base call" disabled={!context.formation} value={context.call} onChange={e => { setSavedContext({ ...context, call: e.target.value }); setCopied(false); }} style={{ ...chip(false), width: '100%', marginTop: 4 }}>
-              <option value="">Choose base call</option>
-              {(PLAYS[context.formation] || []).map(play => <option key={play.n}>{play.n}</option>)}
-            </select>
-          </label>
-          <label style={{ fontSize: 12 }}>Situation for this setup
-            <select aria-label="Macro situation" value={context.situation} onChange={e => { setSavedContext({ ...context, situation: e.target.value }); setCopied(false); }} style={{ ...chip(false), width: '100%', marginTop: 4 }}>
-              <option value="base">Normal down</option><option value="short">3rd / 4th &amp; short</option><option value="long">3rd / 4th &amp; long</option><option value="rz">Red zone</option>
-            </select>
-          </label>
-        </div>
         {message && <p role="status" style={{ fontSize: 12, color: 'var(--color-gold-bright)' }}>{message}</p>}
         {view === "build" && (<>
 
@@ -170,7 +130,7 @@ export default function MacroBuilder({ book = 'All' }) {
 
           {selected.length > 0 && <div style={sectionLabel}>Your Macros</div>}
           {selected.map((m, i) => {
-            const plan = buildMacroPlan(m, context);
+            const plan = buildMacroPlan(m);
             return (
             <div key={m.id} style={{
               background: "linear-gradient(135deg, var(--color-surface-1), var(--color-surface-2))",
@@ -183,35 +143,43 @@ export default function MacroBuilder({ book = 'All' }) {
               </div>
               <div style={{ fontFamily: "var(--font-mono)", fontSize: 16, fontWeight: "700", color: "var(--color-gold-bright)", margin: "5px 0 1px" }}>"{m.name}"</div>
               <div style={{ fontSize: 13, color: "var(--color-text-1)", fontWeight: 600, marginBottom: 4 }}>{m.label}</div>
-              <p style={{ fontSize: 13, lineHeight: 1.45 }}><strong>Goal:</strong> {plan.goal}</p>
-              <p style={{ fontSize: 12, color: plan.ready ? 'var(--color-success)' : 'var(--color-gold-bright)' }}>{plan.callout}</p>
-              {plan.settings.length > 0 && <div style={goldHead}>Save these settings</div>}
-              {plan.settings.map(setting => <div key={setting.setting} style={{ fontSize: 12.5, marginBottom: 8, lineHeight: 1.45 }}>
-                <strong>{setting.setting}: {setting.value}</strong><div>{setting.why}</div>
-              </div>)}
-              <p style={{ fontSize: 12.5, lineHeight: 1.45 }}><strong>Your job:</strong> {plan.user}</p>
+              <p style={{ fontSize: 12, lineHeight: 1.45, color: 'var(--color-text-2)' }}><strong>Use with:</strong> {plan.use}</p>
+              <div style={goldHead}>Set these adjustments</div>
+              <ol style={{ margin: '6px 0 12px', paddingLeft: 20 }}>
+                {plan.settings.map(setting => <li key={setting.setting} style={{ fontSize: 12.5, marginBottom: 8, lineHeight: 1.45 }}>
+                  <strong>{setting.setting}: {setting.value}</strong>
+                  <div>{setting.why}</div>
+                  {setting.when && <div style={{ color: 'var(--color-gold-bright)', fontSize: 11 }}>{setting.when}</div>}
+                </li>)}
+              </ol>
+              {plan.atLine.length > 0 && <>
+                <div style={goldHead}>At the line</div>
+                {plan.atLine.map(action => <div key={action.setting} style={{ fontSize: 12, lineHeight: 1.45, marginBottom: 8 }}>
+                  <strong>{action.setting}: {action.value}</strong>
+                  <div>{action.why}</div>
+                  <div style={{ color: 'var(--color-gold-bright)', fontSize: 11 }}>{action.when}</div>
+                </div>)}
+              </>}
               <p style={{ fontSize: 12.5, lineHeight: 1.45 }}><strong>Watch for:</strong> {plan.risk}</p>
               <details style={{ fontSize: 12, lineHeight: 1.5 }}>
-                <summary style={{ cursor: 'pointer' }}>Before using this package</summary>
-                <p><strong>Base call:</strong> {plan.base}<br />{plan.counts}</p>
-                {plan.manual.map(line => <p key={line}>{line}</p>)}
-                {plan.settings.map(setting => <p key={setting.setting}><strong>{setting.setting} tradeoff:</strong> {setting.risk}</p>)}
-                <p>Apply one package, check the play art, and let the defense get set. Test the counter too; no package shuts down every answer.</p>
+                <summary style={{ cursor: 'pointer' }}>Your job &amp; tradeoffs</summary>
+                <p><strong>Your job:</strong> {plan.user}</p>
+                {plan.settings.map(setting => <p key={setting.setting}><strong>{setting.setting}:</strong> {setting.risk}</p>)}
               </details>
             </div>
           ); })}
 
           <div style={{ textAlign: "center", fontSize: 13, color: "var(--color-text-2)", margin: "14px 0 10px" }}>
-            {readyCount} ready to save · {sel.length - readyCount} coaching notes or calls to change
+            {readyCount} problem packages selected
           </div>
           <button disabled={!selected.length} style={ctaBtn(selected.length > 0)} onClick={() => selected.length && setView("export")}>Build Loadout →</button>
         </>)}
 
         {view === "export" && (<>
           <div style={sectionLabel}>Game-Day Loadout</div>
-          <div style={{ fontSize: 12, color: "var(--color-text-3)", marginBottom: 8, lineHeight: 1.5 }}>Only entries marked ACTIVE use an in-game slot. Coaching notes are reminders, not saved adjustments. This export is an instruction sheet; it does not change the game.</div>
+          <div style={{ fontSize: 12, color: "var(--color-text-3)", marginBottom: 8, lineHeight: 1.5 }}>Each package answers a different problem. Apply one that fits the current play; do not stack all of them together.</div>
           <div style={{ background: "var(--color-surface-2)", border: "1px solid var(--color-border-subtle)", borderLeft: "3px solid var(--color-gold)", borderRadius: "var(--r-md)", padding: "13px 14px" }}>
-            <pre style={{ whiteSpace: "pre-wrap", fontFamily: "var(--font-mono)", fontSize: 11, color: "var(--color-text-1)", lineHeight: 1.5, userSelect: "all", margin: 0 }}>{exportLoadout(selected, context)}</pre>
+            <pre style={{ whiteSpace: "pre-wrap", fontFamily: "var(--font-mono)", fontSize: 11, color: "var(--color-text-1)", lineHeight: 1.5, userSelect: "all", margin: 0 }}>{exportLoadout(selected)}</pre>
           </div>
           <div style={{ display: "flex", gap: 8, marginTop: 10 }}>
             <button style={{ ...smallBtn, minHeight: 46, padding: "0 16px" }} onClick={() => setView("build")}>← Edit</button>

@@ -61,10 +61,10 @@ const ONBOARDING_PAGES = [
   },
   {
     icon: '⚙️', eyebrow: 'Step 5 of 5', title: 'Build a setup you can call quickly',
-    body: 'In Macro Builder, choose the formation and base play from your playbook. Then pick the offensive problem you want to solve.',
+    body: 'In Macro Builder, select the offensive problem. The app gives you a short adjustment package.',
     points: [
-      'Save these settings lists what to enter in CFB 27 Custom Adjustments. Your job explains what to do after the snap.',
-      'Coaching notes do not need an active slot. The export marks which entries are ready to save.',
+      'Set these adjustments lists the changes. Use with tells you which coverage or run look the package needs.',
+      'At the line separates receiver-specific changes from the saved settings. Your job and tradeoffs are there when you need more detail.',
       'Select the package manually in the game. Test it with your base call before relying on it under the play clock.',
     ],
   },

@@ -226,7 +226,7 @@ export default function GamePlanScreen({
           gameObjective={gameObjective} setGameObjective={setGameObjective} />
 
         {/* ── Down & Distance Situation ── */}
-        <div style={{ background: "var(--color-surface-success)", border: "1px solid var(--color-border)", borderLeft: "3px solid var(--color-success)", borderRadius: "var(--r-md)", padding: "8px 10px", marginBottom: 12 }}>
+        <div style={{ background: "linear-gradient(120deg, color-mix(in srgb, var(--color-success) 16%, var(--color-surface-1)), color-mix(in srgb, var(--color-success) 5%, var(--color-surface-1)))", border: "1px solid color-mix(in srgb, var(--color-success) 35%, var(--color-border))", borderLeft: "3px solid var(--color-success)", borderRadius: "var(--r-md)", padding: "8px 10px", marginBottom: 12 }}>
           {/* Row 1: Down */}
           <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
             <span style={{ fontSize: 9, color: "var(--color-text-3)", letterSpacing: "2px", textTransform: "uppercase", fontFamily: "var(--font-mono)", flexShrink: 0, width: 32 }}>Down</span>

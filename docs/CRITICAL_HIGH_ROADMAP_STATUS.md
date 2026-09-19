@@ -1,6 +1,6 @@
 # Critical and high-priority roadmap status
 
-Status after update 24. **Not all critical and high-priority requirements are implemented.** “Implemented” below means working code with regression checks, not proven CFB 27 effectiveness. The combined device review remains pending.
+Status after update 25. **Not all critical and high-priority requirements are implemented.** “Implemented” below means working code with regression checks, not proven CFB 27 effectiveness. The combined device review remains pending.
 
 | Priority | Requirement | Status and next work |
 | --- | --- | --- |
@@ -15,7 +15,7 @@ Status after update 24. **Not all critical and high-priority requirements are im
 | High | Explicit game-objective selection | Complete in update 22: Balanced, No Quick TD, and Get a Stop flow through UI, scenario weights, selection safeguards, adjustments, share/PDF and objective-separated call tests. New plan/profile/scouting resets to Balanced. Device checks 33–35 pending. |
 | High | Automatic clock/score and field-position interpretation | Remaining future scope. The player now supplies the objective directly; numeric score, clock, timeout and field-position inputs are not implemented. Do not claim the app computes win probability, timeout usage or field-goal range. |
 | High | Run/pass tendency across calls and persistence | Implemented in update 23. Seven normalized levels reach concept weights, live/export/PDF, saved opponent profiles and separated test history. Opposite threats and situational risk gates remain. Weights still need gameplay calibration. |
-| High | Macro Builder correctness and catalog coverage | Implemented in update 23 for 56 problems and all 1,245 validated base plays. Formation/book/call filtering, compatibility checks, concise coaching, safe storage/search and consistent exports are covered. Exact package behavior and device presentation remain to be tested. |
+| High | Macro Builder correctness and catalog coverage | Reworked in update 25: 56 problem-first packages with varied adjustments, visible prerequisites and separate at-line actions. No base-call input is required. Optional exact-call checks cover all 1,245 plays; device/gameplay validation remains pending. |
 | High | Full-formation regression coverage | Expanded in update 23 to all 31 books plus All, seven tendency levels, five situation selections, all user styles/objectives, and all macros × all inventory plays × four contexts. See FULL_FORMATION_COVERAGE_PHASE23.md for every row and explicit inventory exceptions. |
 | High | Fast coaching and adjustments | Implemented improvements with regression coverage; device usability and game-menu verification remain part of review. Continue auditing old narrative claims and contradictory advice. |
 | High | Consistent recommendations and logs | Shared call-sheet/live results, context-separated logs and mixed-run alternatives implemented. Review persistence, mobile presentation and exports using the combined checklist. |
@@ -29,15 +29,19 @@ Status after update 24. **Not all critical and high-priority requirements are im
 
 These are remaining engineering tasks as well as evidence tasks. They are not all blocked on the user. Gameplay-only conclusions require actual gameplay observations.
 
-[Combined validation checks 1–46](COMBINED_REVIEW_PHASES_13_TO_15.md)
+[Combined validation checks 1–50](COMBINED_REVIEW_PHASES_13_TO_15.md)
 
 
 ## Update 23 inventory exceptions
 
 Three Single Mug name mismatches are corrected using the validated inventory. Five other curated call references are absent from their formation's plays.js; Prevent 3-Deep has no inventory at all. They remain excluded, not inferred or newly “verified.” Reconcile them against actual game menus before enabling them. This is a catalog completeness item separate from the already-validated 1,245 counts.
 
-The macro builder currently evaluates a loadout against one selected base call at a time. Exact per-player package mappings and automatic switching among different base calls are future scope. [Audit and research](BIAS_MACRO_AUDIT_PHASE23.md). Device validation is pending; browser download was unavailable in the build environment.
+Update 25 supersedes the one-base-call macro UI with problem-first recipes. Role-specific changes remain conditional at-line instructions; no universal player mapping or automatic call switching is claimed. [Audit and research](BIAS_MACRO_AUDIT_PHASE23.md). Device validation is pending; browser download was unavailable in the build environment.
 
 ## Update 24 interface
 
 Playbook, My Defensive User and Game Objective share one compact equal-width button row on the plan page only. Each opens a popup. Scout retains its original top-bar playbook picker. Device check 46 remains pending.
+
+## Update 25
+
+[Problem-first macro changes and evidence](MACRO_RECIPES_PHASE25.md). Down & Distance now has a subtle green gradient. Formation/personnel alternatives are awaiting user review; that area remains unchanged.

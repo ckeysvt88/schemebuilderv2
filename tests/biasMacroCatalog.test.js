@@ -179,24 +179,25 @@ test('macro formation context respects every book; changing the book cannot reta
   }
   assert.equal(normalizeMacroContext({formation:'not real',call:'Cover 3 Sky'}).formation,'');
   assert.equal(normalizeMacroContext({formation:'3-4 Tite',call:'Cover 3 Sky'},'4-3').call,'');
-  assert.equal(buildMacroPlan(macro('inside_power'),{}).ready,false);
+  assert.equal(buildMacroPlan(macro('inside_power'),{}).ready,true);
 });
 
-test('loadout export exactly matches the displayed settings and separates coaching notes from active slots', () => {
-  const context={formation:'3-4 Tite',call:'Cover 3 Sky',situation:'base'};
-  const selected=['inside_power','tempo','screens'].map(macro);
-  const exported=exportLoadout(selected,context);
-  assert.match(exported,/2\/10 active/);
-  assert.match(exported,/COACHING NOTE — .*no active slot/);
+test('problem-only exports match the cards, including prerequisites and at-line actions', () => {
+  const selected=['inside_power','tempo','screens','alpha_wr'].map(macro);
+  const exported=exportLoadout(selected);
+  assert.match(exported,/4\/10 active/);
   for(const m of selected) {
-    const plan=buildMacroPlan(m,context);assert.ok(exported.includes(plan.goal));
-    for(const s of plan.settings)assert.ok(exported.includes(`SAVE: ${s.setting}: ${s.value}`));
+    const plan=buildMacroPlan(m);
+    assert.ok(exported.includes(plan.use));
+    for(const s of plan.settings) {
+      assert.ok(exported.includes(`SAVE: ${s.setting}: ${s.value}`));
+      if(s.when) assert.ok(exported.includes(s.when));
+    }
+    for(const s of plan.atLine) assert.ok(exported.includes(`AT THE LINE: ${s.setting}: ${s.value}`));
   }
-  assert.doesNotMatch(exported,/launch.week bug|Soft Squat|9th fitter/);
-  assert.match(exportLoadout(selected,{}),/0\/10 active/);
-  assert.match(exportLoadout(null,context),/0\/10 active/);
+  assert.doesNotMatch(exported,/Choose a formation|Practice situation|Base call:|launch.week bug|Smart Zone/);
+  assert.match(exportLoadout(null),/0\/10 active/);
 });
-
 
 test('Single Mug uses the exact validated abbreviated labels, with coverage coaching preserved', () => {
   const f = FDB['Nickel 3-3 Single Mug'];
