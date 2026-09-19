@@ -31,7 +31,7 @@ git log -1 --oneline
 npm run dev
 ```
 
-The latest commit message should be **Compact defensive setup into three popup buttons**. Compare its short number with the one in my delivery message.
+The latest commit message should be **Keep compact setup buttons on the plan page only**. Compare its short number with the one in my delivery message.
 
 If Git says local changes would be overwritten, stop and send that message; do not discard files or use a force/reset command. If fetch only asks whether to retry deleting the old worktree folders from earlier, answer **n**.
 
@@ -411,7 +411,7 @@ This update changes playbook selection presentation only. Your saved playbook an
 
 Use **11p + Quick Game / Bubble Screens**, **4-3 Press Quarters**, **11p Gun**, **Base**, balanced run/pass and **Linebacker / Stay Balanced**.
 
-The new **Game Objective** control is below down/distance. Open **4-3 Over Solid**:
+Open **Game Objective** in the setup row above down/distance. Open **4-3 Over Solid**:
 - [ ] **Balanced** selects Cover 2 Invert Hard Flat as Best Overall.
 - [ ] **No Quick TD** changes Best Overall to Cover 3 Match.
 - [ ] The No Quick TD description explains that short gains may be conceded and says to use Get a Stop if a field goal can beat you.
@@ -433,7 +433,7 @@ Select **No Quick TD**:
 - [ ] With No Quick TD selected, generate the Call Sheet and share/copy the plan. Both identify the objective and match the live personal calls.
 - [ ] Open Test This Call from a coverage card. The popup shows **Objective: No Quick TD**.
 - [ ] If recording sample tests, save the same call/situation once with No Quick TD and once with Get a Stop. Saved evidence keeps them in separate groups. Delete sample entries individually afterward.
-- [ ] Open a different saved scouting profile or start new scouting. Game Objective resets to Balanced. Choosing an objective on Scout and building the plan keeps that choice.
+- [ ] Open a different saved scouting profile, start new scouting, or build a fresh plan. Game Objective resets to Balanced.
 - [ ] Refreshing the page also resets the live objective to Balanced; saved observations remain.
 - [ ] Reopen the introductory guide. The scouting step mentions Game Objective.
 - [ ] On a narrow screen, all three buttons and the selected explanation remain readable.
@@ -484,9 +484,9 @@ The software checks cover all 71 inventories and every book, not just 4-3 Over S
 
 ### Check 46 — Three setup buttons, one row
 
-- [ ] Scout and the generated plan show **Playbook**, **My Defensive User**, and **Game Objective** in one evenly spaced row. Check desktop and phone-width screens: all three stay visible without horizontal scrolling.
+- [ ] Only the generated plan shows **Playbook**, **My Defensive User**, and **Game Objective** in one evenly spaced row. Check desktop and phone-width screens: all three stay visible without horizontal scrolling, with compact padding and at least 44px tap height.
 - [ ] Each button opens its own popup. Change the playbook, defender/call preference, and objective; the selected values appear on the buttons and still update recommendations.
-- [ ] Select **No Quick TD** on Scout, then build the plan. The objective remains **No Quick TD**.
+- [ ] Scout has no three-button setup row; its original playbook picker remains in the top bar. Build the plan and select **No Quick TD** using its Game Objective popup.
 - [ ] Close each popup using Done, the outside backdrop, and Escape. Keyboard Tab stays in the popup; closing returns focus to its button. Long popup content scrolls without moving the underlying page.
 - [ ] The old stacked setup controls and inline objective description are gone. The plan's down/distance and formation information sit closer to the top.
 

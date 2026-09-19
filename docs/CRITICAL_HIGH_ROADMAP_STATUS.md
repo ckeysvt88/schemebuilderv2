@@ -12,7 +12,7 @@ Status after update 24. **Not all critical and high-priority requirements are im
 | High | Wider offensive-concept coverage | Partial. Existing threat buckets do not fully distinguish duo/power/zone, flood/sail, mesh/drive, and route combinations. Add only distinctions supported by simple inputs and call evidence. |
 | High | Alignment, field/boundary, motion and match checks | Partial. Personnel and broad traits are available; exact distribution, hash and matchup checks need richer verified data. Avoid assuming a match check from a coverage label. |
 | High | Personalized assignments and user help | Partial. Position/style choices and matchup guardrails work. Exact user responsibility, help defenders and skill burden still need call-level evidence. |
-| High | Explicit game-objective selection | Complete in update 22: Balanced, No Quick TD, and Get a Stop flow through UI, scenario weights, selection safeguards, adjustments, share/PDF and objective-separated call tests. New profile/new scouting resets to Balanced; building preserves the objective selected on Scout. Device checks 33–35 pending. |
+| High | Explicit game-objective selection | Complete in update 22: Balanced, No Quick TD, and Get a Stop flow through UI, scenario weights, selection safeguards, adjustments, share/PDF and objective-separated call tests. New plan/profile/scouting resets to Balanced. Device checks 33–35 pending. |
 | High | Automatic clock/score and field-position interpretation | Remaining future scope. The player now supplies the objective directly; numeric score, clock, timeout and field-position inputs are not implemented. Do not claim the app computes win probability, timeout usage or field-goal range. |
 | High | Run/pass tendency across calls and persistence | Implemented in update 23. Seven normalized levels reach concept weights, live/export/PDF, saved opponent profiles and separated test history. Opposite threats and situational risk gates remain. Weights still need gameplay calibration. |
 | High | Macro Builder correctness and catalog coverage | Implemented in update 23 for 56 problems and all 1,245 validated base plays. Formation/book/call filtering, compatibility checks, concise coaching, safe storage/search and consistent exports are covered. Exact package behavior and device presentation remain to be tested. |
@@ -40,4 +40,4 @@ The macro builder currently evaluates a loadout against one selected base call a
 
 ## Update 24 interface
 
-Playbook, My Defensive User and Game Objective share one equal-width button row on Scout and the plan. Each opens a popup; objective selection carries from Scout to the plan. Device check 46 remains pending.
+Playbook, My Defensive User and Game Objective share one compact equal-width button row on the plan page only. Each opens a popup. Scout retains its original top-bar playbook picker. Device check 46 remains pending.

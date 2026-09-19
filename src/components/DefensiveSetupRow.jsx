@@ -15,8 +15,8 @@ export default function DefensiveSetupRow({ myBook, changeBook, recommendedBook,
     { id: 'objective', label: 'Game Objective', value: objective.label },
   ];
   return <>
-    <div role="group" aria-label="Defensive setup" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, minmax(0, 1fr))', gap: 8, marginBottom: 12 }}>
-      {controls.map(control => <button key={control.id} type="button" aria-haspopup="dialog" aria-expanded={open === control.id} aria-label={`${control.label}: ${control.value}${control.detail ? `, ${control.detail}` : ''}`} onClick={() => setOpen(control.id)} style={{ minWidth: 0, minHeight: 68, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 5, padding: '8px 5px', background: 'var(--color-gold-surface)', border: '1px solid var(--color-gold)', borderRadius: 'var(--r-md)', cursor: 'pointer', textAlign: 'center', overflowWrap: 'anywhere' }}>
+    <div role="group" aria-label="Defensive setup" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, minmax(0, 1fr))', gap: 6, marginBottom: 8 }}>
+      {controls.map(control => <button key={control.id} type="button" aria-haspopup="dialog" aria-expanded={open === control.id} aria-label={`${control.label}: ${control.value}${control.detail ? `, ${control.detail}` : ''}`} onClick={() => setOpen(control.id)} style={{ minWidth: 0, minHeight: 44, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 2, padding: '4px 5px', background: 'var(--color-gold-surface)', border: '1px solid var(--color-gold)', borderRadius: 'var(--r-md)', cursor: 'pointer', textAlign: 'center', overflowWrap: 'anywhere' }}>
         <span style={{ fontSize: 11, fontWeight: 800, color: 'var(--color-gold-bright)', lineHeight: 1.2 }}>{control.label}</span>
         <span style={{ fontSize: 11, color: 'var(--color-text-1)', lineHeight: 1.3 }}>{control.value} <span aria-hidden="true" style={{ color: 'var(--color-gold)' }}>›</span></span>
       </button>)}

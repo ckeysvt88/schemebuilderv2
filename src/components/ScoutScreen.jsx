@@ -3,7 +3,7 @@ import { RUN_PASS_LABELS } from '../data/runPassBias.js';
 import { useState, useRef, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { TRAITS } from '../data/traits.js';
-import DefensiveSetupRow from './DefensiveSetupRow.jsx';
+import PlaybookModal from './PlaybookModal.jsx';
 import { FDB } from '../data/formations.js';
 
 const ICONS = {
@@ -26,7 +26,7 @@ const ONBOARDING_PAGES = [
       'Start with two or three clear traits—you can add more later.',
       'Run / Pass Tendency describes the opponent, not your defensive style. It changes formations and calls while keeping both threats live.',
       'Set the live down and distance because short and long yardage require different answers.',
-      'Game Objective changes the priority: Balanced, No Quick TD, or Get a Stop. Use Get a Stop if a field goal can beat you.',
+      'On the plan page, Game Objective changes the priority: Balanced, No Quick TD, or Get a Stop. Use Get a Stop if a field goal can beat you.',
     ],
   },
   {
@@ -72,7 +72,7 @@ const ONBOARDING_PAGES = [
 
 export default function ScoutScreen({
   sel, setSel, flat, runPass, setRunPass,
-  myBook, changeBook, userProfile, setUserProfile, gameObjective, setGameObjective,
+  myBook, changeBook,
   scored,
   setSelFm,
   setActiveP,
@@ -83,6 +83,7 @@ export default function ScoutScreen({
   toggle, build,
   navigateToNotes,
 }) {
+  const [showPB, setShowPB] = useState(false);
   const [pendingDelete, setPendingDelete] = useState(null);
   const [profileAction, setProfileAction] = useState(null); // name of profile to act on
   const [openCard, setOpenCard] = useState(null);
@@ -177,9 +178,13 @@ export default function ScoutScreen({
         </div>
         <div style={{ display: "flex", gap: 6 }}>
           <button onClick={() => { setOnboardingPage(0); setShowOnboarding(true); }} style={{ minHeight: 32, padding: "0 10px", background: "transparent", border: "1px solid var(--color-border)", borderRadius: "var(--r-md)", color: "var(--color-text-2)", fontSize: 11, fontWeight: 700, cursor: "pointer" }}>Guide</button>
-
+          <button aria-haspopup="dialog" aria-expanded={showPB} onClick={() => setShowPB(true)} style={{ minHeight: 32, padding: '0 10px', background: myBook !== 'All' ? 'var(--color-gold-surface)' : 'transparent', border: '1px solid var(--color-border)', borderRadius: 'var(--r-md)', color: 'var(--color-gold)', fontSize: 11, fontWeight: 600, cursor: 'pointer' }}>
+            {myBook === 'All' ? 'All Books' : myBook}
+          </button>
         </div>
       </div>
+
+      {showPB && <PlaybookModal value={myBook} onChange={changeBook} onClose={() => setShowPB(false)} />}
 
       {/* ── XO Hero ── */}
       <div className="xo-hero">
@@ -195,10 +200,6 @@ export default function ScoutScreen({
       </div>
 
       <div style={{ padding: "16px 16px 32px", position: "relative", zIndex: 1 }}>
-
-        <DefensiveSetupRow myBook={myBook} changeBook={changeBook}
-          userProfile={userProfile} setUserProfile={setUserProfile}
-          gameObjective={gameObjective} setGameObjective={setGameObjective} />
 
         {/* ── Saved Opponents ── */}
         {Object.keys(profiles).length > 0 && (

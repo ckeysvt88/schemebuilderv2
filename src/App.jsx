@@ -143,8 +143,7 @@ export default function App() {
     setSelFm(null);
     setMainTab("personnel");
     setSelectedTeam(null);
-    setSituDown("base"); setSituDist("");
-    // Keep the objective chosen in Scout when opening the plan.
+    setSituDown("base"); setSituDist(""); setGameObjective("balanced");
     navigate("plan");
     document.getElementById('root')?.scrollTo(0, 0);
   };
