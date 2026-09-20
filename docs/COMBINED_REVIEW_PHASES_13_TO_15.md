@@ -31,7 +31,7 @@ git log -1 --oneline
 npm run dev
 ```
 
-The latest commit message should be **Keep setup selections highlighted and improve plan visibility**. Compare its short number with the one in my delivery message.
+The latest commit message should be **Clarify toolbar borders and track actual user changes**. Compare its short number with the one in my delivery message.
 
 If Git says local changes would be overwritten, stop and send that message; do not discard files or use a force/reset command. If fetch only asks whether to retry deleting the old worktree folders from earlier, answer **n**.
 
@@ -536,3 +536,11 @@ Checks 40–44 above now describe the new problem-only workflow; prior base-call
 - [ ] Compare Akron, Alabama and Appalachian State in both themes. Team Info has a visible outline on all sides when collapsed and around the full panel when expanded; the fill still follows the team color.
 - [ ] Formation & Personnel opens in two equal columns, including with seven choices (four rows). Long labels wrap on a phone without overlapping. Selecting a look still updates recommendations and closes smoothly.
 - [ ] Choose All Books or Balanced explicitly: these count as selections too and stay highlighted. Returning from another app tab preserves the selected highlights.
+
+
+### Check 56 — Toolbar dividers and actual user changes
+
+- [ ] Open either toolbar dropdown: a visible line separates the two header boxes from the choices. Down and Distance column headings also have a divider.
+- [ ] Team Info borders are softer and the left edge slightly thinner, while remaining visible for Akron, Alabama and Appalachian State in both themes.
+- [ ] An old saved default Linebacker profile alone must not make My Defensive User gold. Opening and closing the popup or tapping the unchanged default must not mark it changed.
+- [ ] Change Linebacker to Safety: the top button stays gold after closing. Change back to Linebacker: it stays gold. Refresh: this actual change history is remembered. Changing call priority also counts.

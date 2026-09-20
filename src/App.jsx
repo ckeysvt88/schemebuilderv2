@@ -48,7 +48,7 @@ export default function App() {
   const [gameObjective, setGameObjective] = useState('balanced');
   const [setupSelections, setSetupSelections] = useState(() => {
     try {
-      return { book: localStorage.getItem('cfb26_myBook') !== null, user: localStorage.getItem('sb_user_profile') !== null, objective: false };
+      return { book: localStorage.getItem('cfb26_myBook') !== null, user: localStorage.getItem('sb_user_profile_changed') === 'true', objective: false };
     } catch { return { book: false, user: false, objective: false }; }
   });
   const chooseGameObjective = value => {
@@ -125,12 +125,14 @@ export default function App() {
   };
 
   const setUserProfile = (updater) => {
+    const next = normalizeUserProfile(typeof updater === 'function' ? updater(userProfile) : updater);
+    if (next.position === userProfile.position && next.callStyle === userProfile.callStyle) return;
     setSetupSelections(current => ({ ...current, user: true }));
-    setUserProfileState(current => {
-      const next = normalizeUserProfile(typeof updater === 'function' ? updater(current) : updater);
-      try { localStorage.setItem('sb_user_profile', JSON.stringify(next)); } catch { /* storage may be unavailable */ }
-      return next;
-    });
+    setUserProfileState(next);
+    try {
+      localStorage.setItem('sb_user_profile', JSON.stringify(next));
+      localStorage.setItem('sb_user_profile_changed', 'true');
+    } catch { /* storage may be unavailable */ }
   };
 
 

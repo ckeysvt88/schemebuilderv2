@@ -29,7 +29,7 @@ Status after update 25. **Not all critical and high-priority requirements are im
 
 These are remaining engineering tasks as well as evidence tasks. They are not all blocked on the user. Gameplay-only conclusions require actual gameplay observations.
 
-[Combined validation checks 1–55](COMBINED_REVIEW_PHASES_13_TO_15.md)
+[Combined validation checks 1–56](COMBINED_REVIEW_PHASES_13_TO_15.md)
 
 
 ## Update 23 inventory exceptions
@@ -53,3 +53,5 @@ Toolbar refinement: separate down and distance columns replace the full combinat
 Plan visual refinement: Check 54 covers team-color fills, white idle setup buttons with gold active states, and balanced five-choice situation columns.
 
 Check 55 covers contrasting team outlines and two-column formation choices. Setup highlights now track explicit selections, not only open popups.
+
+Check 56 covers toolbar dividers, softer team borders and user highlights based on actual changes rather than the presence of a saved default profile.
