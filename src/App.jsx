@@ -1,4 +1,4 @@
-import { normalizeOpponentProfile } from './data/opponentProfile.js';
+import { normalizeOpponentProfile, readOpponentProfiles, writeOpponentProfiles } from './data/opponentProfile.js';
 import { useState, useCallback, useEffect, useMemo } from 'react';
 import { recommend, buildRecommendationShareText } from './engine/recommendations.js';
 import { scoreAll } from './engine/scoring.js';
@@ -74,7 +74,7 @@ export default function App() {
 
   // ── Opponent profiles ─────────────────────────────────────────────────────────
   const [profiles, setProfiles] = useState(() => {
-    try { const s = localStorage.getItem('cfb26_profiles'); return s ? JSON.parse(s) : {}; } catch(e) { return {}; }
+    try { return readOpponentProfiles(localStorage); } catch { return {}; }
   });
   const [modal, setModal]       = useState(false);
   const [saveName, setSaveName] = useState("");
@@ -112,7 +112,7 @@ export default function App() {
   const saveProfiles = (updater) => {
     setProfiles(prev => {
       const next = typeof updater === 'function' ? updater(prev) : updater;
-      try { localStorage.setItem('cfb26_profiles', JSON.stringify(next)); } catch(e) {}
+      try { writeOpponentProfiles(localStorage, next); } catch { /* Keep unsaved profiles available for export. */ }
       return next;
     });
   };

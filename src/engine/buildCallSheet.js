@@ -29,10 +29,10 @@ function pluck(f) {
   if (!f) return null;
   return {
     name:       f.name,
-    matchup:    f.matchup,
-    coverage:   f.personalizedCoverage || f.recommendedCoverage,
+    matchup:    f.personalizedCall.matchup,
+    coverage:   f.personalizedCall.name,
     bestOverall: f.recommendedCoverage,
-    sc:         f.sc,
+    sc:         f.personalizedCall.sc,
     priority:   f.priority,
     personnel:  f.personnel,
     front:      getFrontStructure(f.name),
