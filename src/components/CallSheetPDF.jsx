@@ -1,5 +1,6 @@
-import { memo } from 'react';
-import { Document, Page, Text, View, StyleSheet, PDFDownloadLink } from '@react-pdf/renderer';
+import { memo, useEffect, useRef, useState } from 'react';
+import SetupDialog from './SetupDialog.jsx';
+import { Document, Page, Text, View, StyleSheet, pdf } from '@react-pdf/renderer';
 import { buildCallSheetData } from '../engine/buildCallSheet.js';
 
 // ── Print-friendly light theme ────────────────────────────────────────────────
@@ -417,75 +418,50 @@ export function CallSheetDocument({ data }) {
 // variant="compact"  →  small header button (default)
 // variant="full"     →  wide, prominent banner button for top-of-page placement
 export const ExportPDFButton = memo(function ExportPDFButton({ input, sel, variant = 'compact', label }) {
+  const [open, setOpen] = useState(false);
+  const [status, setStatus] = useState('idle');
+  const [url, setUrl] = useState(null);
+  const generation = useRef(0);
+  const objectUrl = useRef(null);
+  useEffect(() => () => {
+    generation.current += 1;
+    if (objectUrl.current) URL.revokeObjectURL(objectUrl.current);
+  }, []);
+  const close = () => { generation.current += 1; setOpen(false); };
+  const generate = async () => {
+    const id = ++generation.current;
+    setOpen(true); setStatus('loading'); setUrl(null);
+    // Let the dialog paint before calculating the situation matrix.
+    await new Promise(resolve => setTimeout(resolve, 30));
+    if (id !== generation.current) return;
+    try {
+      const data = buildCallSheetData({ input, sel });
+      const blob = await pdf(<CallSheetDocument data={data} />).toBlob();
+      if (id !== generation.current) return;
+      if (objectUrl.current) URL.revokeObjectURL(objectUrl.current);
+      objectUrl.current = URL.createObjectURL(blob);
+      setUrl(objectUrl.current); setStatus('ready');
+    } catch {
+      if (id === generation.current) setStatus('error');
+    }
+  };
   if (!input?.traits?.length) return null;
-
-  const data     = buildCallSheetData({ input, sel });
-  const fileName = `call-sheet-${new Date().toISOString().slice(0, 10)}.pdf`;
-  const isFull   = variant === 'full';
-
-  return (
-    <PDFDownloadLink
-      document={<CallSheetDocument data={data} />}
-      fileName={fileName}
-      style={{ textDecoration: 'none', display: 'block', width: '100%' }}
-    >
-      {({ loading }) =>
-        isFull ? (
-          // ── Full-width banner button ──────────────────────────────────────
-          <button
-            disabled={loading}
-            style={{
-              width: '100%',
-              minHeight: 40,
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: 8,
-              background: loading ? 'transparent' : 'rgba(200,150,12,0.07)',
-              border: '1px solid var(--color-gold-border, #4a3808)',
-              borderRadius: 'var(--r-sm)',
-              color: loading ? 'var(--color-text-3)' : 'var(--color-gold)',
-              fontSize: 12,
-              fontWeight: '700',
-              letterSpacing: '0.5px',
-              cursor: loading ? 'wait' : 'pointer',
-              fontFamily: 'var(--font-mono)',
-              transition: 'all 150ms ease',
-              opacity: loading ? 0.55 : 1,
-            }}
-          >
-            {loading
-              ? 'Building Call Sheet…'
-              : 'Export Defensive Call Sheet  ↓  PDF  (2 pages)'}
-          </button>
-        ) : (
-          // ── Compact header button ─────────────────────────────────────────
-          // Keep the static label/appearance regardless of PDFDownloadLink's
-          // loading state — that flips true→false on every fresh mount (e.g.
-          // navigating in from Team Picker), which otherwise flashes this
-          // button and only this button, since it's the only async one here.
-          <button
-            disabled={loading}
-            style={{
-              minHeight: 28,
-              width: '100%',
-              boxSizing: 'border-box',
-              padding: '0 10px',
-              background: 'transparent',
-              border: '1px solid var(--color-border)',
-              borderRadius: 'var(--r-sm)',
-              color: 'var(--color-text-2)',
-              fontSize: 11,
-              cursor: loading ? 'wait' : 'pointer',
-              fontFamily: 'var(--font-mono)',
-              whiteSpace: 'nowrap',
-              transition: 'all 150ms ease',
-            }}
-          >
-            {label || 'PDF'}
-          </button>
-        )
-      }
-    </PDFDownloadLink>
-  );
+  const linkStyle = { display: 'block', padding: '12px 16px', marginTop: 12, border: '1px solid var(--color-gold-border)', borderRadius: 'var(--r-sm)', color: 'var(--color-text-1)', textAlign: 'center', textDecoration: 'none' };
+  return <>
+    <button type="button" onClick={generate} style={{ width: '100%', minHeight: variant === 'full' ? 40 : 32, padding: '0 10px', background: 'transparent', border: '1px solid var(--color-border)', borderRadius: 'var(--r-sm)', color: 'var(--color-text-2)', cursor: 'pointer', fontFamily: 'var(--font-mono)', fontSize: 11 }}>
+      {label || 'Call Sheet'}
+    </button>
+    {open && <SetupDialog title="Your Call Sheet" description="Open the PDF in a separate tab, or save a copy. Your game plan stays here." onClose={close}>
+      <div role="status" aria-live="polite" style={{ color: 'var(--color-text-1)', lineHeight: 1.5 }}>
+        {status === 'loading' && 'Building your call sheet…'}
+        {status === 'error' && 'The PDF could not be created. Your scouting is safe. Please try again.'}
+        {status === 'ready' && 'Your call sheet is ready.'}
+      </div>
+      {status === 'error' && <button type="button" onClick={generate} style={linkStyle}>Try again</button>}
+      {url && <>
+        <a href={url} target="_blank" rel="noopener noreferrer" style={linkStyle}>Open PDF in a new tab</a>
+        <a href={url} target="_blank" rel="noopener noreferrer" download={`call-sheet-${new Date().toISOString().slice(0, 10)}.pdf`} style={linkStyle}>Save PDF</a>
+      </>}
+    </SetupDialog>}
+  </>;
 });

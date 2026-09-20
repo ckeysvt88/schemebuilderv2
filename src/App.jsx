@@ -1,3 +1,4 @@
+import { readActiveSession, writeActiveSession } from './data/activeSession.js';
 import { normalizeOpponentProfile, readOpponentProfiles, writeOpponentProfiles } from './data/opponentProfile.js';
 import { useState, useCallback, useEffect, useMemo } from 'react';
 import { recommend, buildRecommendationShareText } from './engine/recommendations.js';
@@ -15,8 +16,11 @@ import MacroBuilder from './components/MacroBuilder.jsx';
 import FormationInfo from './components/FormationInfo.jsx';
 
 export default function App() {
+  const [restored] = useState(() => {
+    try { return readActiveSession(sessionStorage); } catch { return readActiveSession(null); }
+  });
   // ── Navigation ──────────────────────────────────────────────────────────────
-  const [step, setStep] = useState("scout");
+  const [step, setStep] = useState(restored.step);
 
   // ── Theme ────────────────────────────────────────────────────────────────────
   const [isDark, setIsDark] = useState(() => {
@@ -36,28 +40,28 @@ export default function App() {
   }, [isDark]);
 
   // ── Scout state ─────────────────────────────────────────────────────────────
-  const [sel, setSel]         = useState({});
-  const [runPass, setRunPass] = useState(4);
+  const [sel, setSel]         = useState(restored.sel);
+  const [runPass, setRunPass] = useState(restored.runPass);
 
   // ── Game plan state ──────────────────────────────────────────────────────────
-  const [activeP, setActiveP]           = useState(null);
-  const [selFm, setSelFm]               = useState(null);
-  const [mainTab, setMainTab]           = useState("personnel");
+  const [activeP, setActiveP]           = useState(restored.activeP);
+  const [selFm, setSelFm]               = useState(restored.selFm);
+  const [mainTab, setMainTab]           = useState(restored.mainTab);
   const [quickAdjOpen, setQuickAdjOpen] = useState(false);
   const [shareToast, setShareToast]     = useState(null);
-  const [gameObjective, setGameObjective] = useState('balanced');
+  const [gameObjective, setGameObjective] = useState(restored.gameObjective);
   const [setupSelections, setSetupSelections] = useState(() => {
     try {
-      return { book: localStorage.getItem('cfb26_myBook') !== null, user: localStorage.getItem('sb_user_profile_changed') === 'true', objective: false };
-    } catch { return { book: false, user: false, objective: false }; }
+      return { book: localStorage.getItem('cfb26_myBook') !== null, user: localStorage.getItem('sb_user_profile_changed') === 'true', objective: restored.objectiveSelected };
+    } catch { return { book: false, user: false, objective: restored.objectiveSelected }; }
   });
   const chooseGameObjective = value => {
     setGameObjective(value);
     setSetupSelections(current => ({ ...current, objective: true }));
   };
 
-  const [situDown, setSituDown] = useState("base");
-  const [situDist, setSituDist] = useState("");
+  const [situDown, setSituDown] = useState(restored.situDown);
+  const [situDist, setSituDist] = useState(restored.situDist);
 
   // ── Human defensive profile ─────────────────────────────────────────────────
   const [userProfile, setUserProfileState] = useState(() => {
@@ -86,7 +90,12 @@ export default function App() {
   const [compareB, setCompareB] = useState("4-3 Multiple");
 
   // ── Selected team (Team Picker → Plan) ────────────────────────────────────────
-  const [selectedTeam, setSelectedTeam] = useState(null);
+  const [selectedTeam, setSelectedTeam] = useState(restored.selectedTeam);
+
+  useEffect(() => {
+    try { writeActiveSession(sessionStorage, { step, sel, runPass, activeP, selFm, mainTab, situDown, situDist, gameObjective, selectedTeam, objectiveSelected: setupSelections.objective }); }
+    catch { /* Session restoration is optional when storage is blocked. */ }
+  }, [step, sel, runPass, activeP, selFm, mainTab, situDown, situDist, gameObjective, selectedTeam, setupSelections.objective]);
 
   // ── Derived ──────────────────────────────────────────────────────────────────
   const flat = useMemo(() => Object.values(sel).flat(), [sel]);
