@@ -1,15 +1,18 @@
 import { useState, useEffect } from 'react';
-import { PLAYBOOKS } from '../data/playbooks.js';
+import DefensiveSetupRow from './DefensiveSetupRow.jsx';
+import PlanToolbar from './PlanToolbar.jsx';
 import { CONFERENCES } from '../data/teams.js';
 import { FDB } from '../data/formations.js';
 import { TRAITS } from '../data/traits.js';
+import { RUN_PASS_LABELS } from '../data/runPassBias.js';
 import { PMAP, PERSONNEL_FAMILIES, FAMILY_ADJUSTMENTS } from '../data/personnel.js';
-import { scoreAll, scoreForPersonnel, scoreForFamily, groupByPersonnel } from '../engine/scoring.js';
+import { scoreAll, groupByPersonnel } from '../engine/scoring.js';
 import { getAvailableFamilies } from '../data/personnel.js';
 import FormationCard, { PC, PL } from './FormationCard.jsx';
 import FormationDetail from './FormationDetail.jsx';
 import { ExportPDFButton } from './CallSheetPDF.jsx';
-
+import DriveLogger from './DriveLogger.jsx';
+import { userProfileLabels } from '../data/userProfile.js';
 
 const STAR_PATH = "M12 2.5l2.95 6.4 6.85.6-5.2 4.6 1.6 6.9L12 17.1 5.8 20l1.6-6.9-5.2-4.6 6.85-.6z";
 
@@ -41,68 +44,10 @@ const PERS_COMP = {
   trips:"Trips", empty:"Empty", option_run:"Option",
 };
 
-const DOWN_BTNS = [
-  { id: "base", label: "Base" },
-  { id: "1",   label: "1st" },
-  { id: "2",   label: "2nd" },
-  { id: "3",   label: "3rd" },
-  { id: "4",   label: "4th" },
-  { id: "rz",  label: "Red Zone" },
-];
-
-const DIST_BTNS = [
-  { id: "short", label: "Short" },
-  { id: "mid",   label: "Mid" },
-  { id: "long",  label: "Long" },
-];
-
-const SIT_LABELS_GPS = { base:"Base", "2md":"2nd & Mid", "3lg":"3rd & Long", "3sh":"3rd & Short", rz:"Red Zone" };
-
-function deriveSituation(down, dist) {
-  if (!down || down === "base") return "base";
-  if (down === "rz") return "rz";
-  if (dist === "short") return "3sh";
-  if (dist === "long")  return "3lg";
-  if (dist === "mid") return down === "1" ? "base" : "2md";
-  // No distance selected — down-only defaults
-  if (down === "1") return "base";
-  if (down === "2") return "2md";
-  if (down === "3") return "3lg";
-  if (down === "4") return "3sh";
-  return "base";
-}
-
-function applySituationSort(fmList, sit) {
-  if (!sit || sit === "base") return [...fmList].sort((a, b) => b.sc - a.sc);
-  return fmList.map(fm => {
-    let adj = 0;
-    const pers = fm.personnel || "Base";
-    if (sit === "2md") {
-      if (fm.priority === "hybrid") adj += 10;
-      if (fm.priority === "run") adj -= 8;
-      if (pers === "Heavy" || pers === "Goal Line") adj -= 15;
-    } else if (sit === "3lg") {
-      if (fm.priority === "pass" || fm.priority === "pressure") adj += 15;
-      if (fm.priority === "run") adj -= 20;
-      if (fm.coreTags?.some(t => t === "p22" || t === "p21") ||
-          fm.suppTags?.some(t => t === "p22" || t === "p21") ||
-          pers === "Heavy" || pers === "Goal Line") adj -= 25;
-    } else if (sit === "3sh") {
-      if (fm.priority === "run" || pers === "Heavy" || pers === "Goal Line") adj += 15;
-      if (fm.priority === "pass" || pers === "Dime") adj -= 20;
-      if (fm.books?.includes("3-2-6")) adj -= 20;
-    } else if (sit === "rz") {
-      if (pers === "Nickel" || pers === "Dime") adj -= 25;
-      if (pers === "Base" || pers === "Heavy" || pers === "Goal Line" || pers === "Prevent") adj += 15;
-    }
-    return { ...fm, sc: Math.max(0, Math.min(100, fm.sc + adj)), _situationAdj: adj };
-  }).filter(f => f.sc > 0).sort((a, b) => b.sc - a.sc);
-}
-
 export default function GamePlanScreen({
-  sel, setSel, flat, personnelSel,
+  sel, setSel, flat,
   runPass, myBook,
-  scored, rawScored, setScored,
+  recommendation, recommendationInput,
   activeP, setActiveP,
   selFm, setSelFm,
   mainTab, setMainTab,
@@ -111,17 +56,31 @@ export default function GamePlanScreen({
   shareToast, handleShare,
   toggle,
   compareA, setCompareA, compareB, setCompareB,
-  ddDown, setDdDown, ddDistance, setDdDistance,
+  situDown, setSituDown, situDist, setSituDist, gameObjective, setGameObjective, setupSelections,
   setStep,
   selectedTeam,
+  userProfile, setUserProfile,
 }) {
-  const [personnelSel2] = useState(personnelSel.length ? personnelSel : ["p11"]);
-  const [situDown, setSituDown] = useState("base");
-  const [situDist, setSituDist] = useState("");
   const [listOpacity, setListOpacity] = useState(1);
   const [showAlignment, setShowAlignment] = useState(false);
   const [showTeamInfo, setShowTeamInfo] = useState(false);
-  const [pbOpen, setPbOpen] = useState(false);
+  const [callTestDefaults, setCallTestDefaults] = useState(null);
+  const profileLabels = userProfileLabels(userProfile);
+
+  const openCallTest = (fm, selection = {}) => {
+    const plan = selection.plan;
+    setCallTestDefaults({
+      down: situDown === 'base' ? '' : situDown,
+      distance: situDist || '',
+      defensiveFormation: fm.name,
+      book: myBook,
+      runPass: recommendation.runPass,
+      defensiveCall: selection.call || fm.personalizedCoverage || fm.recommendedCoverage,
+      userPosition: profileLabels.position,
+      objective: recommendation.gameObjective.id === 'balanced' ? (plan?.objective?.label || '') : recommendation.gameObjective.label,
+      setup: plan?.settings?.map(item => `${item.setting}: ${item.value}`) || [],
+    });
+  };
 
   useEffect(() => { setShowAlignment(false); }, [activeP]);
 
@@ -129,7 +88,7 @@ export default function GamePlanScreen({
     if (!selFm) return;
     const t = setTimeout(() => {
       // Wait past the 150ms card transition before measuring position
-      const el = document.querySelector(`[data-fm-name="${selFm.name.replace(/"/g, '\\"')}"]`);
+      const el = document.querySelector(`[data-fm-name="${selFm.replace(/"/g, '\\"')}"]`);
       const scroller = document.getElementById('root');
       if (!el || !scroller) return;
       const headerEl = document.querySelector('[data-sticky-header]');
@@ -142,26 +101,17 @@ export default function GamePlanScreen({
     return () => clearTimeout(t);
   }, [selFm]);
 
-  const situation = deriveSituation(situDown, situDist);
-
   useEffect(() => {
     setListOpacity(0.6);
     const t = setTimeout(() => setListOpacity(1), 150);
     return () => clearTimeout(t);
   }, [situDown, situDist]);
 
-  const situationScored = applySituationSort(scored, situation);
-  const groupedPersonnel = groupByPersonnel(situationScored);
-
-  // Plan-tab list: hide Prevent and low-relevance noise (<20). If a thin scout
-  // leaves nothing above the floor, fall back to the top 5 so the tab never blanks.
-  const planPool = situationScored.filter(f => f.name !== "Prevent 3-Deep");
-  const aboveFloor = planPool.filter(f => f.sc >= 20);
-  const planList = aboveFloor.length > 0 ? aboveFloor : planPool.slice(0, 5);
+  const planList = recommendation.formations;
 
   // ── Recommended playbook ──────────────────────────────────────────────────────
   const recBook = (() => {
-    const allScored = scoreAll(flat, "All");
+    const allScored = scoreAll(flat, "All", runPass);
     if (!allScored.length) return null;
     const BOOKS = ["4-3","4-3 Multiple","3-4","3-4 Multiple","4-2-5","3-3-5","3-3-5 Tite","3-2-6"];
     const RUN_T    = ["inside_run","outside_run","strong_oline","p21","p22","fb_lead","short_yardage_run","run_heavy_1st","option_run","triple_option"];
@@ -213,7 +163,6 @@ export default function GamePlanScreen({
     return { book: best, count: cnt[best] || 0, total: allScored.length, confidence, second, gap: Math.round(gapPct * 100) };
   })();
 
-
   return (
     <>
     <div className="screen-enter" style={{ fontFamily: "var(--font-sans)", background: "var(--color-bg)", minHeight: "100dvh", color: "var(--color-text-1)", maxWidth: 720, margin: "0 auto" }}>
@@ -229,7 +178,7 @@ export default function GamePlanScreen({
               Defensive Gameplan
             </div>
             <div style={{ fontSize: 15, fontWeight: "600", color: "var(--color-text-3)", fontFamily: "var(--font-mono)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
-              {scored.length} Formation{scored.length !== 1 ? "s" : ""}{myBook !== "All" ? " · " + myBook : ""}
+              {planList.length} Formation{planList.length !== 1 ? "s" : ""}{myBook !== "All" ? " · " + myBook : ""}
             </div>
           </div>
           <div style={{ display: "flex", gap: 6, alignItems: "flex-start", flexShrink: 0 }}>
@@ -239,7 +188,7 @@ export default function GamePlanScreen({
               </button>
             )}
             <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-              <ExportPDFButton variant="compact" label="Call Sheet" rawScored={rawScored} sel={sel} myBook={myBook} runPass={runPass} />
+              <ExportPDFButton variant="compact" label="Call Sheet" input={recommendationInput} sel={sel} />
               <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 6 }}>
                 <button onClick={() => setStep("notes")} style={hdrBtn} aria-label="Notes">
                   Notes
@@ -256,120 +205,30 @@ export default function GamePlanScreen({
           </div>
         </div>
 
-
       </div>
 
       <div style={{ padding: "14px 16px" }}>
-        {recBook && myBook !== recBook.book && (
-          <div style={{ fontSize: 11, color: "var(--color-text-3)", marginBottom: 6, lineHeight: 1.5 }}>
-            <span style={{ color: "var(--color-success)", fontWeight: "700" }}>Recommended for this opponent:</span>{" "}
-            {recBook.book} — {recBook.confidence.toLowerCase()} fit, {recBook.count}/{recBook.total} top formations
-          </div>
-        )}
-        <div
-          onClick={() => setPbOpen(v => !v)}
-          style={{
-            display: "flex", alignItems: "center", justifyContent: "space-between",
-            background: "var(--color-surface-1)", border: "1px solid var(--color-border-subtle)",
-            borderRadius: pbOpen ? "var(--r-md) var(--r-md) 0 0" : "var(--r-md)",
-            padding: "10px 13px", marginBottom: pbOpen ? 0 : 12, cursor: "pointer",
-          }}
-        >
-          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-            <span style={{ fontSize: 9, color: "var(--color-text-3)", letterSpacing: "1.5px", textTransform: "uppercase", fontFamily: "var(--font-mono)" }}>Playbook</span>
-            <span style={{ fontSize: 13, color: "var(--color-gold-bright)", fontWeight: "700", fontFamily: "var(--font-mono)" }}>
-              {myBook === "All" ? "All Books" : myBook}
-            </span>
-          </div>
-          <span style={{ color: "var(--color-gold)", fontSize: 13, transition: "transform 150ms ease", transform: pbOpen ? "rotate(180deg)" : "none", display: "inline-block" }}>▾</span>
-        </div>
-        {pbOpen && (
-          <div style={{ background: "var(--color-surface-2)", border: "1px solid var(--color-border-subtle)", borderTop: "none", borderRadius: "0 0 var(--r-md) var(--r-md)", maxHeight: 280, overflowY: "auto", marginBottom: 12 }}>
-            {["All", ...Object.keys(PLAYBOOKS)].map(k => {
-              const isCur = myBook === k;
-              const isRec = recBook && recBook.book === k;
-              return (
-                <div
-                  key={k}
-                  onClick={() => { changeBook(k); setPbOpen(false); }}
-                  style={{
-                    display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8,
-                    padding: "10px 13px", borderBottom: "1px solid var(--color-border-subtle)", cursor: "pointer",
-                  }}
-                >
-                  <span style={{ fontSize: 12.5, fontFamily: "var(--font-mono)", color: isCur ? "var(--color-gold-bright)" : "var(--color-text-1)", fontWeight: isCur ? "700" : "400" }}>
-                    {k === "All" ? "All Books" : k}
-                  </span>
-                  <span style={{ display: "flex", gap: 5 }}>
-                    {isRec && <span style={{ fontSize: 9, background: "var(--color-surface-success)", border: "1px solid var(--color-success)", color: "var(--color-success)", padding: "2px 7px", borderRadius: 9, fontFamily: "var(--font-mono)", fontWeight: "700" }}>Recommended</span>}
-                    {isCur && <span style={{ fontSize: 9, background: "var(--color-gold-surface)", border: "1px solid var(--color-gold)", color: "var(--color-gold)", padding: "2px 7px", borderRadius: 9, fontFamily: "var(--font-mono)", fontWeight: "700" }}>Current</span>}
-                  </span>
-                </div>
-              );
-            })}
-          </div>
-        )}
+        <DefensiveSetupRow myBook={myBook} changeBook={changeBook} recommendedBook={recBook?.book}
+          userProfile={userProfile} setUserProfile={setUserProfile}
+          gameObjective={gameObjective} setGameObjective={setGameObjective} selections={setupSelections} />
 
-        {/* ── Down & Distance Situation ── */}
-        <div style={{ background: "var(--color-surface-success)", border: "1px solid var(--color-border)", borderLeft: "3px solid var(--color-success)", borderRadius: "var(--r-md)", padding: "8px 10px", marginBottom: 12 }}>
-          {/* Row 1: Down */}
-          <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
-            <span style={{ fontSize: 9, color: "var(--color-text-3)", letterSpacing: "2px", textTransform: "uppercase", fontFamily: "var(--font-mono)", flexShrink: 0, width: 32 }}>Down</span>
-            {DOWN_BTNS.map(btn => {
-              const isSelected = situDown === btn.id;
-              const isBase = btn.id === "base";
-              return (
-                <button
-                  key={btn.id}
-                  onClick={() => { setSituDown(situDown === btn.id ? "" : btn.id); if (btn.id === "base" || btn.id === "rz") setSituDist(""); }}
-                  style={{
-                    flex: 1, minHeight: 26, padding: "0 4px",
-                    borderRadius: 13,
-                    border: `1px solid ${isSelected ? (isBase ? "var(--color-border)" : "var(--color-situation-fill)") : "var(--color-border)"}`,
-                    background: isSelected ? (isBase ? "var(--color-situation-base-fill)" : "var(--color-situation-fill)") : "transparent",
-                    color: isSelected ? (isBase ? "var(--color-text-1)" : "var(--color-situation-text)") : "var(--color-text-3)",
-                    fontSize: 11, cursor: "pointer",
-                    fontFamily: "var(--font-mono)", fontWeight: isSelected ? "700" : "400",
-                    transition: "all 100ms ease",
-                  }}
-                >
-                  {btn.label}
-                </button>
-              );
-            })}
-            {situDown && (
-              <button onClick={() => { setSituDown("base"); setSituDist(""); }} style={{ background: "transparent", border: "none", color: "var(--color-text-3)", fontSize: 14, cursor: "pointer", padding: "0 2px", lineHeight: 1, flexShrink: 0 }}>×</button>
-            )}
-          </div>
-          {/* Row 2: Distance */}
-          <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-            <span style={{ fontSize: 9, color: "var(--color-text-3)", letterSpacing: "2px", textTransform: "uppercase", fontFamily: "var(--font-mono)", flexShrink: 0, width: 32 }}>Dist</span>
-            {DIST_BTNS.map(btn => {
-              const disabled = !situDown || situDown === "base" || situDown === "rz";
-              const active = !disabled && situDist === btn.id;
-              return (
-                <button
-                  key={btn.id}
-                  onClick={() => !disabled && setSituDist(situDist === btn.id ? "" : btn.id)}
-                  style={{
-                    flex: 1, minHeight: 26, padding: "0 4px",
-                    borderRadius: 13,
-                    border: `1px solid ${active ? "var(--color-situation-fill)" : "var(--color-border)"}`,
-                    background: active ? "var(--color-situation-fill)" : "transparent",
-                    color: disabled ? "var(--color-border)" : active ? "var(--color-situation-text)" : "var(--color-text-3)",
-                    fontSize: 11, cursor: disabled ? "default" : "pointer",
-                    fontFamily: "var(--font-mono)", fontWeight: active ? "700" : "400",
-                    opacity: disabled ? 0.4 : 1,
-                    transition: "all 100ms ease",
-                  }}
-                >
-                  {btn.label}
-                </button>
-              );
-            })}
-          </div>
-        </div>
+        <PlanToolbar
+          down={situDown}
+          distance={situDist}
+          onSituationChange={(down, distance) => { setSituDown(down); setSituDist(distance); }}
+          value={activeP}
+          fallbackLabel={PMAP[activeP]?.label}
+          options={getAvailableFamilies(flat, selectedTeam?.id).flatMap(id => {
+            const family = PERSONNEL_FAMILIES[id];
+            return family ? [{ id, label: family.label, personnel: PERS_COMP[family.base] || '' }] : [];
+          })}
+          onChange={id => { setActiveP(id); setSelFm(null); }}
+        />
 
+        <p style={{ fontSize: 11, color: "var(--color-text-3)" }}>
+          {recommendation.familyLabel} · {recommendation.context.label} · Opponent: <strong>{RUN_PASS_LABELS[recommendation.runPass]}</strong>. Fit scores are rankings, not success probabilities.
+        </p>
+        {!planList.length && <p role="status">No recommended call fits this scout, situation and playbook. Check the current offensive look or choose another defensive playbook.</p>}
         {/* ── Tempo warning ── */}
         {(flat.includes("hurry_up") || flat.includes("tempo_shift")) && (
           <div style={{ background: "var(--color-gold-surface)", border: "1px solid var(--color-gold-border)", borderLeft: "4px solid var(--color-gold)", borderRadius: "var(--r-md)", padding: "12px 14px", marginBottom: 16 }}>
@@ -383,48 +242,11 @@ export default function GamePlanScreen({
         {/* ── PERSONNEL TAB ── */}
         {mainTab === "personnel" && (
           <div>
-            <div style={{ fontSize: 10, letterSpacing: "2px", color: "var(--color-gold)", textTransform: "uppercase", marginBottom: 14, fontWeight: "700", fontFamily: "var(--font-mono)" }}>
-              Formation + Personnel
-            </div>
-
-            {/* Personnel family tabs */}
-            <div style={{ display: "flex", flexWrap: "wrap", gap: 7, marginBottom: 16 }}>
-              {getAvailableFamilies(flat, selectedTeam?.id).map(fid => {
-                const fam = PERSONNEL_FAMILIES[fid];
-                return fam ? (
-                  <button
-                    key={fid}
-                    onClick={() => { setActiveP(fid); setSelFm(null); }}
-                    style={{
-                      minHeight: 36, padding: "0 12px",
-                      background: activeP === fid ? "var(--color-gold-surface)" : "var(--color-surface-2)",
-                      border: `2px solid ${activeP === fid ? "var(--color-gold)" : "var(--color-border)"}`,
-                      borderRadius: "var(--r-sm)",
-                      color: activeP === fid ? "var(--color-gold)" : "var(--color-text-2)",
-                      fontSize: 11, fontWeight: activeP === fid ? "700" : "400",
-                      cursor: "pointer",
-                      fontFamily: "var(--font-mono)",
-                      transition: "all 150ms ease",
-                      whiteSpace: "nowrap",
-                    }}
-                  >
-                    {fam.label}{PERS_COMP[fam.base] ? ` (${PERS_COMP[fam.base]})` : ""}
-                  </button>
-                ) : null;
-              })}
-            </div>
-
             {activeP && (PERSONNEL_FAMILIES[activeP] || PMAP[activeP]) && (() => {
               const fam = PERSONNEL_FAMILIES[activeP];
               const pd  = fam ? PMAP[fam.base] : PMAP[activeP];
               const adj = FAMILY_ADJUSTMENTS[activeP];
-              const persMatchesRaw = fam ? scoreForFamily(activeP, flat) : scoreForPersonnel(activeP, flat);
-              const persMatches = applySituationSort(
-                myBook && myBook !== "All"
-                  ? persMatchesRaw.filter(f => f.books && (f.books.includes(myBook) || f.books.includes("All")))
-                  : persMatchesRaw,
-                situation
-              ).slice(0, 10);
+              const persMatches = recommendation.formations.slice(0, 10);
 
               return (
                 <div>
@@ -434,14 +256,14 @@ export default function GamePlanScreen({
                       onClick={() => setShowTeamInfo(v => !v)}
                       style={{
                         width: "100%", display: "flex", alignItems: "center", justifyContent: "space-between",
-                        background: "var(--color-surface-1)", border: "1px solid var(--color-border-subtle)",
-                        borderLeft: `4px solid ${selectedTeam.color || "#507890"}`,
+                        background: `color-mix(in srgb, ${selectedTeam.color || "#507890"} 18%, var(--color-surface-1))`, border: "1px solid color-mix(in srgb, var(--color-text-3) 65%, var(--color-surface-1))",
+                        borderLeft: "3px solid color-mix(in srgb, var(--color-text-3) 65%, var(--color-surface-1))",
                         borderRadius: showTeamInfo ? "var(--r-md) var(--r-md) 0 0" : "var(--r-md)",
                         padding: "9px 14px", marginBottom: showTeamInfo ? 0 : 12,
                         cursor: "pointer", textAlign: "left",
                       }}
                     >
-                      <span style={{ fontSize: 16, color: "var(--color-gold-dim)", letterSpacing: "0.5px", fontFamily: "var(--font-mono)", fontWeight: "700" }}>
+                      <span style={{ fontSize: 16, color: "var(--color-text-1)", letterSpacing: "0.5px", fontFamily: "var(--font-mono)", fontWeight: "700" }}>
                         Team Info — {selectedTeam.name}
                       </span>
                       <span style={{ fontSize: 11, color: "var(--color-text-3)", fontFamily: "var(--font-mono)", flexShrink: 0, marginLeft: 8 }}>
@@ -449,7 +271,7 @@ export default function GamePlanScreen({
                       </span>
                     </button>
                     {showTeamInfo && (
-                      <div style={{ background: "var(--color-surface-1)", border: "1px solid var(--color-border-subtle)", borderLeft: `4px solid ${selectedTeam.color || "#507890"}`, borderTop: "none", borderRadius: "0 0 var(--r-md) var(--r-md)", padding: "12px 14px", marginBottom: 12 }}>
+                      <div style={{ background: `color-mix(in srgb, ${selectedTeam.color || "#507890"} 8%, var(--color-surface-1))`, border: "1px solid color-mix(in srgb, var(--color-text-3) 65%, var(--color-surface-1))", borderLeft: "3px solid color-mix(in srgb, var(--color-text-3) 65%, var(--color-surface-1))", borderTop: "none", borderRadius: "0 0 var(--r-md) var(--r-md)", padding: "12px 14px", marginBottom: 12 }}>
                         {selectedTeam.notes && (
                           <div style={{ marginBottom: 10, paddingBottom: 10, borderBottom: "1px solid var(--color-border-subtle)" }}>
                             <div style={{ fontSize: 10, color: "var(--color-text-2)", letterSpacing: "2px", textTransform: "uppercase", marginBottom: 4, fontFamily: "var(--font-mono)" }}>Scouting Report</div>
@@ -508,7 +330,7 @@ export default function GamePlanScreen({
                       )}
                       {adj && (
                         <div style={{ marginBottom: 10, paddingBottom: 10, borderBottom: "1px solid var(--color-border-subtle)" }}>
-                          <div style={{ fontSize: 10, color: "var(--color-gold)", letterSpacing: "2px", textTransform: "uppercase", marginBottom: 5, fontFamily: "var(--font-mono)" }}>Alignment DC Rule</div>
+                          <div style={{ fontSize: 10, color: "var(--color-gold)", letterSpacing: "2px", textTransform: "uppercase", marginBottom: 5, fontFamily: "var(--font-mono)" }}>Read the alignment</div>
                           <div style={{ fontSize: 13, color: "var(--color-text-1)", lineHeight: 1.65, marginBottom: 8 }}>{adj.extra}</div>
                           <div style={{ display: "flex", flexWrap: "wrap", gap: 5 }}>
                             {adj.bias && adj.bias.map(b => (
@@ -539,8 +361,8 @@ export default function GamePlanScreen({
                   <div style={{ opacity: listOpacity, transition: "opacity 150ms ease" }}>
                   {persMatches.map(fm => (
                     <div key={fm.name} data-fm-name={fm.name}>
-                      <FormationCard fm={fm} onSelect={f => setSelFm(selFm?.name === f.name ? null : f)} isSelected={selFm?.name === fm.name} myBook={myBook} />
-                      {selFm?.name === fm.name && <FormationDetail fm={selFm} flat={flat} situation={situation} runPass={runPass} />}
+                      <FormationCard fm={fm} onSelect={f => setSelFm(selFm === f.name ? null : f.name)} isSelected={selFm === fm.name} myBook={myBook} />
+                      {selFm === fm.name && <FormationDetail fm={fm} flat={fm.effectiveTraits} situation={{ down: situDown, distance: situDist }} onLogCall={selection => openCallTest(fm, selection)} />}
                     </div>
                   ))}
                   </div>
@@ -551,7 +373,7 @@ export default function GamePlanScreen({
         )}
 
         {/* ── ALL FORMATIONS TAB ── */}
-        {mainTab === "all" && (
+        {(mainTab === "all" || !activeP) && (
           <div style={{ opacity: listOpacity, transition: "opacity 150ms ease" }}>
             {groupByPersonnel(planList).map(group => (
               <div key={group.label} style={{ marginBottom: 28 }}>
@@ -560,8 +382,8 @@ export default function GamePlanScreen({
                 </div>
                 {group.formations.map(fm => (
                   <div key={fm.name} data-fm-name={fm.name}>
-                    <FormationCard fm={fm} onSelect={f => setSelFm(selFm?.name === f.name ? null : f)} isSelected={selFm?.name === fm.name} myBook={myBook} />
-                    {selFm?.name === fm.name && <FormationDetail fm={selFm} flat={flat} situation={situation} runPass={runPass} />}
+                    <FormationCard fm={fm} onSelect={f => setSelFm(selFm === f.name ? null : f.name)} isSelected={selFm === fm.name} myBook={myBook} />
+                    {selFm === fm.name && <FormationDetail fm={fm} flat={fm.effectiveTraits} situation={{ down: situDown, distance: situDist }} onLogCall={selection => openCallTest(fm, selection)} />}
                   </div>
                 ))}
               </div>
@@ -571,6 +393,8 @@ export default function GamePlanScreen({
       </div>
 
     </div>
+
+      {callTestDefaults && <DriveLogger defaults={callTestDefaults} onClose={() => setCallTestDefaults(null)} />}
 
       {/* ── Quick Adjust modal — outside screen-enter to avoid transform stacking context ── */}
       {quickAdjOpen && (
@@ -613,7 +437,6 @@ export default function GamePlanScreen({
                             const newSel = { ...sel };
                             const cur = newSel[group.id] || [];
                             newSel[group.id] = cur.includes(item.id) ? cur.filter(x => x !== item.id) : [...cur, item.id];
-                            setScored(scoreAll(Object.values(newSel).flat(), myBook));
                             setSelFm(null);
                           }}
                           style={{

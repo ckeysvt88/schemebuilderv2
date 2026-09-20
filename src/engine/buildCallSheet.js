@@ -1,17 +1,14 @@
 // ── Call Sheet Data Builder ───────────────────────────────────────────────────
-// Takes the full offensive profile (sel, rawScored, myBook, runPass) and
+// Takes the same recommendation input as the live plan and
 // assembles a structured data object consumed by CallSheetPDF.jsx.
 // Pure JS — no JSX, no React.
 
-import { applyDownDistance, getSituationTip, getLikelyPersonnel } from './downDistance.js';
+import { getSituationTip } from './downDistance.js';
+import { recommend } from './recommendations.js';
 import { TRAIT_LABELS, TRAITS } from '../data/traits.js';
-import { blitzInfo } from './scoring.js';
-import { rankCoverages } from './coverageRank.js';
+import { getFrontStructure } from './frontStructure.js';
 
-const RUN_PASS_LABELS = {
-  1: 'Full Pass', 2: 'Pass Heavy', 3: 'Pass Lean',
-  4: 'Balanced',  5: 'Run Lean',  6: 'Run Heavy', 7: 'Full Run',
-};
+import { RUN_PASS_LABELS } from '../data/runPassBias.js';
 
 // Down/distance seeds for each situation row in the matrix
 const SITUATIONS = [
@@ -28,43 +25,21 @@ const SITUATIONS = [
   { label: '4TH & LONG',    down: 4, distance: 7  },
 ];
 
-// Select the most situationally correct coverage for this formation + down/distance.
-// Distance >=7 searches longOK — every eligible name gives help over the top, on any down.
-// Distance <=3 searches shortOK — assignment man, all-out zero, goal-line calls, and
-// pressure calls that carry no coverage token in the name, on any down.
-// Everything else falls through to the formation's #1-rated coverage.
-//
-// Coverage-eligibility reasoning lives with the algorithm now — see rankCoverages in coverageRank.js.
-function selectCoverage(f, down, distance, flat) {
-  const covs = f?.coverages;
-  if (!covs || covs.length === 0) return '—';
-  if (covs.length === 1) return covs[0].name;
-
-  const longOKEligible  = distance >= 7;
-  const shortOKEligible = distance <= 3;
-  const hasInside  = flat?.includes('inside_run');
-  const hasOutside = flat?.includes('outside_run');
-  const fitDirection = hasInside === hasOutside ? null : (hasInside ? 'fitIn' : 'fitOut');
-
-  return rankCoverages(covs, { longOKEligible, shortOKEligible, fitDirection, flat })[0].name;
-}
-
-function pluck(f, down, distance, flat) {
+function pluck(f) {
   if (!f) return null;
-  const bi = blitzInfo(f.blitz);
   return {
     name:       f.name,
-    coverage:   selectCoverage(f, down, distance, flat),
-    sc:         f.sc,
-    blitz:      f.blitz,
-    blitzLabel: bi.label,
-    blitzColor: bi.color,
+    matchup:    f.personalizedCall.matchup,
+    coverage:   f.personalizedCall.name,
+    bestOverall: f.recommendedCoverage,
+    sc:         f.personalizedCall.sc,
     priority:   f.priority,
     personnel:  f.personnel,
+    front:      getFrontStructure(f.name),
     // Detailed fields for formation cards
     desc:       f.desc || '',
     dcNote:     f.dcNote || '',
-    coverages:  (f.coverages || []),
+    coverages:  (f.rankedCoverages || []),
     preSnap:    (f.preSnap  || []).slice(0, 4),
     callsheet:  (f.callsheet || []),
     // Translate raw tag IDs → human-readable labels for PDF display
@@ -73,82 +48,37 @@ function pluck(f, down, distance, flat) {
   };
 }
 
-export function buildCallSheetData({ rawScored, sel, myBook, runPass }) {
-  const flat = Object.values(sel).flat();
-
-  // 1. Offensive profile — scouted traits grouped by their UI category
+export function buildCallSheetData({ input, sel = {} }) {
+  const current = recommend(input);
+  const selected = new Set(input?.traits || Object.values(sel).flat());
   const profile = TRAITS.map(group => {
-    const ids    = sel[group.id] || [];
-    const traits = ids.map(id => TRAIT_LABELS[id] || id);
+    const traits = group.items.filter(item => selected.has(item.id)).map(item => TRAIT_LABELS[item.id] || item.label);
     return traits.length ? { group: group.label, traits } : null;
   }).filter(Boolean);
-
-  // 2. Down & distance situation matrix
+  const groupedIds = new Set(TRAITS.flatMap(group => group.items.map(item => item.id)));
+  const remaining = [...selected].filter(id => !groupedIds.has(id)).map(id => TRAIT_LABELS[id] || id);
+  if (remaining.length) profile.push({ group: "Other scouted traits", traits: remaining });
   const situationMatrix = SITUATIONS.map(sit => {
-    const ranked = applyDownDistance(rawScored, sit.down, sit.distance);
-    return {
-      label:     sit.label,
-      primary:   pluck(ranked[0], sit.down, sit.distance, flat),
-      secondary: pluck(ranked[1], sit.down, sit.distance, flat),
-      dcTip:     getSituationTip(sit.down, sit.distance) || null,
-    };
+    const ranked = recommend({ ...input, down: sit.down, distance: sit.distance }).formations;
+    return { ...sit, primary: pluck(ranked[0]), secondary: pluck(ranked[1]),
+      dcTip: current.gameObjective.id === 'balanced' ? getSituationTip(sit.down, sit.distance) : current.gameObjective.text };
   });
-
-  // Goal Line — personnel-filtered, not score-adjusted; 4th & 1 seeds coverage logic
-  const glForms = rawScored.filter(f => f.personnel === 'Goal Line');
-  situationMatrix.push({
-    label:     'GOAL LINE',
-    primary:   pluck(glForms[0], 4, 1, flat),
-    secondary: pluck(glForms[1], 4, 1, flat),
-    dcTip:     'Sub into Goal Line 5-3, 5-2, or 46 Bear immediately. All gaps assigned pre-snap. Cover 0 viable — make them earn every inch.',
-  });
-
-  // 2-Minute defense — treat as 3rd & long for coverage selection
-  const pvForms = rawScored.filter(f => f.personnel === 'Prevent');
-  situationMatrix.push({
-    label:     '2-MINUTE DEF',
-    primary:   pluck(pvForms[0], 3, 10, flat),
-    secondary: pluck(pvForms[1], 3, 10, flat),
-    dcTip:     'Allow the short throw — attack the tackle. Clock is your ally. Three-deep eliminates the explosive play.',
-  });
-
-  // 3. Top 4 formations for detail cards — no situation context, use default coverage
-  const topFormations = rawScored.slice(0, 4).map(f => pluck(f, undefined, undefined, flat));
-
-  // 4. Situational coaching guide — DC tips + likely personnel + best call per situation
-  const situationGuide = SITUATIONS.map(sit => {
-    const ranked = applyDownDistance(rawScored, sit.down, sit.distance);
-    return {
-      label:           sit.label,
-      dcTip:           getSituationTip(sit.down, sit.distance) || '',
-      likelyPersonnel: getLikelyPersonnel(sit.down, sit.distance)
-        .slice(0, 4)
-        .map(p => TRAIT_LABELS[p] || p)
-        .join(' · '),
-      primary: pluck(ranked[0], sit.down, sit.distance, flat),
-    };
-  });
-  situationGuide.push({
-    label:           'GOAL LINE',
-    dcTip:           'Sub into Goal Line 5-3, 5-2, or 46 Bear immediately. All gaps assigned pre-snap. Cover 0 viable — make them earn every inch.',
-    likelyPersonnel: '22p (2 RB, 2 TE, 1 WR) · 23p (2 RB, 3 TE — Jumbo) · 13p (1 RB, 3 TE, 1 WR)',
-    primary: pluck(glForms[0], 4, 1, flat),
-  });
-  situationGuide.push({
-    label:           '2-MINUTE DEF',
-    dcTip:           'Allow the short throw — attack the tackle. Clock is your ally. NEVER press from Prevent. Three-deep eliminates the explosive play. Do NOT deploy before 2:00 remaining.',
-    likelyPersonnel: '10p (1 RB, 4 WR) · 11p (1 RB, 1 TE, 3 WR) · Empty Backfield',
-    primary: pluck(pvForms[0], 3, 10, flat),
-  });
-
+  // These labels alone do not specify an objective or the offensive alignment.
+  // Do not manufacture a Goal Line / Prevent recommendation from the label.
+  situationMatrix.push(
+    { label: 'GOAL LINE', primary: null, secondary: null,
+      dcTip: 'Match the actual offensive personnel. Account for QB run and immediate throws; goal-line location alone does not require Goal Line personnel.' },
+    { label: '2-MINUTE DEF', primary: null, secondary: null,
+      dcTip: 'Use down, distance, score, clock and timeouts to set the objective. Two minutes alone does not justify Prevent or conceding short throws.' }
+  );
   return {
-    profile,
-    situationMatrix,
-    topFormations,
-    situationGuide,
-    myBook:          myBook || 'All',
-    runPassLabel:    RUN_PASS_LABELS[runPass] || 'Balanced',
-    date:            new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
-    totalFormations: rawScored.length,
+    profile, situationMatrix,
+    topFormations: current.formations.slice(0, 4).map(pluck),
+    situationGuide: situationMatrix.map(row => ({ ...row, likelyPersonnel: '' })),
+    contextLabel: `${current.familyLabel} · ${current.context.label}${current.gameObjective.id === 'balanced' ? '' : ' · ' + current.gameObjective.label}`,
+    myBook: current.book,
+    runPassLabel: RUN_PASS_LABELS[current.runPass] || 'Balanced',
+    date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
+    totalFormations: current.formations.length,
   };
 }

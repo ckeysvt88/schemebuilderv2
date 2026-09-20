@@ -1,6 +1,5 @@
 import { useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
-import { blitzInfo } from '../engine/scoring.js';
 
 const PC = { run: "#c07040", pass: "#3a80e0", hybrid: "#7858a0", pressure: "#bb5050" };
 const PL = { run: "RUN STOP", pass: "PASS DEF", hybrid: "HYBRID", pressure: "PRESSURE" };
@@ -119,7 +118,6 @@ function BooksSheet({ fm, books, active, onClose }) {
 }
 
 export default function FormationCard({ fm, onSelect, isSelected, myBook }) {
-  const bi = blitzInfo(fm.blitz);
   const [sheetOpen, setSheetOpen] = useState(false);
   const ordered = orderBooks(fm.books, myBook);
   const visible = ordered.slice(0, 3);
@@ -221,13 +219,18 @@ export default function FormationCard({ fm, onSelect, isSelected, myBook }) {
             color: "var(--color-gold)",
             fontFamily: "var(--font-mono)",
           }}>
-            {fm.sc}%
-          </span>
-          <span style={{ fontSize: 11, fontWeight: "600", color: bi.color, fontFamily: "var(--font-mono)" }}>
-            {fm.blitz}% blitz
+            {fm.sc}/100
           </span>
         </div>
       </div>
+
+      {fm.recommendedCoverage && <div style={{ fontSize: 12, color: "var(--color-text-2)", marginTop: 6, lineHeight: 1.45 }}>
+        <div><strong>Best overall:</strong> {fm.recommendedCoverage}</div>
+        <div style={{ color: "var(--color-gold)", display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap" }}>
+          <span><strong>Best for you:</strong> {fm.personalizedCoverage || fm.recommendedCoverage}</span>
+          {fm.personalizedRole && <span style={{ fontSize: 9, padding: "1px 5px", border: "1px solid var(--color-gold)", borderRadius: 4, fontFamily: "var(--font-mono)", fontWeight: 800 }}>{fm.personalizedRole}</span>}
+        </div>
+      </div>}
 
       {/* Score progress bar */}
       <div style={{ height: 3, borderRadius: 2, background: "var(--color-border-subtle)", marginTop: 8, marginBottom: 6 }}>

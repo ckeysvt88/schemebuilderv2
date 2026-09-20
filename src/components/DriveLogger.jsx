@@ -1,207 +1,149 @@
-import { useState, useEffect } from 'react';
+import { RUN_PASS_LABELS } from '../data/runPassBias.js';
+import { useMemo, useState } from 'react';
+import { CALL_TEST_PROBLEMS, CALL_TEST_RESULTS, normalizeCalibrationEntry, summarizeCalibrationEntries } from '../engine/calibrationLog.js';
 
-const STORAGE_KEY = 'cfb26_drive_log';
+const STORAGE_KEY = 'cfb27_call_tests';
 
-function loadLog() {
+function loadEntries() {
   try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    return raw ? JSON.parse(raw) : [];
-  } catch (e) { return []; }
+    const parsed = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+    return Array.isArray(parsed) ? parsed.map(normalizeCalibrationEntry).filter(Boolean) : [];
+  } catch { return []; }
 }
 
-function saveLog(entries) {
-  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(entries)); } catch (e) {}
+function saveEntries(entries) {
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(entries)); } catch { /* storage may be unavailable */ }
 }
 
-const RESULTS = ['TD', 'FG', 'Punt', 'Turnover', 'Turnover on Downs', 'Safety', 'Missed FG', 'End of Half'];
-const DOWNS   = [1, 2, 3, 4];
+const emptyDefaults = {
+  down: '', distance: '', defensiveFormation: '', defensiveCall: '', userPosition: '',
+  book: '', gameVersion: '', platform: '', difficulty: '', mode: '', setupConfirmed: false,
+  runPass: null, objective: '', setup: [], opponentLook: '', result: '', problem: 'none', yards: '', notes: '',
+};
 
-export default function DriveLogger({ onClose }) {
-  const [entries, setEntries] = useState(loadLog);
-  const [form, setForm] = useState({
-    down: '', distance: '', formation: '', call: '', result: '', notes: '',
-  });
-  const [showForm, setShowForm] = useState(false);
-
-  useEffect(() => { saveLog(entries); }, [entries]);
+export default function DriveLogger({ defaults = {}, onClose }) {
+  const [entries, setEntries] = useState(loadEntries);
+  const [form, setForm] = useState(() => ({ ...emptyDefaults, ...defaults }));
+  const summary = useMemo(() => summarizeCalibrationEntries(entries), [entries]);
+  const labels = Object.fromEntries([...CALL_TEST_RESULTS, ...CALL_TEST_PROBLEMS].map(item => [item.id, item.label]));
+  const update = (key, value) => setForm(previous => ({ ...previous, [key]: value }));
 
   const addEntry = () => {
-    if (!form.result) return;
-    const entry = {
-      id: Date.now(),
-      ts: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-      ...form,
-    };
-    setEntries(prev => [entry, ...prev]);
-    setForm({ down: '', distance: '', formation: '', call: '', result: '', notes: '' });
-    setShowForm(false);
+    const entry = normalizeCalibrationEntry(form);
+    if (!entry) return;
+    const next = [entry, ...entries];
+    setEntries(next);
+    saveEntries(next);
+    setForm(previous => ({ ...previous, result: '', problem: 'none', yards: '', opponentLook: '', notes: '' }));
   };
 
-  const deleteEntry = (id) => setEntries(prev => prev.filter(e => e.id !== id));
+  const deleteEntry = id => {
+    const next = entries.filter(entry => entry.id !== id);
+    setEntries(next);
+    saveEntries(next);
+  };
 
   const clearAll = () => {
-    if (window.confirm('Clear all drive log entries?')) setEntries([]);
+    if (!window.confirm('Clear every saved call test?')) return;
+    setEntries([]);
+    saveEntries([]);
   };
 
-  const exportLog = () => {
-    const lines = ['CFB 27 DRIVE LOG', '═'.repeat(36), ''];
-    entries.forEach((e, i) => {
-      lines.push(`#${entries.length - i}  ${e.ts}`);
-      if (e.down && e.distance) lines.push(`  Down: ${e.down} & ${e.distance}`);
-      if (e.formation) lines.push(`  Formation: ${e.formation}`);
-      if (e.call) lines.push(`  Call: ${e.call}`);
-      lines.push(`  Result: ${e.result}`);
-      if (e.notes) lines.push(`  Notes: ${e.notes}`);
-      lines.push('');
-    });
-    const text = lines.join('\n');
+  const exportLog = async () => {
+    const text = JSON.stringify({ schemaVersion: 2, exportedAt: new Date().toISOString(), entries }, null, 2);
     try {
-      navigator.clipboard.writeText(text);
-      alert('Drive log copied to clipboard!');
-    } catch (e) {
-      alert(text);
-    }
-  };
-
-  const resultColor = (r) => {
-    if (r === 'TD') return '#aa5050';
-    if (r === 'FG') return '#a06030';
-    if (r === 'Punt' || r === 'Missed FG' || r === 'End of Half') return '#508860';
-    if (r === 'Turnover' || r === 'Turnover on Downs') return '#6090b8';
-    if (r === 'Safety') return '#aa5050';
-    return '#7858a0';
+      await navigator.clipboard.writeText(text);
+      window.alert('Call-test data copied. Paste it into a message when you are ready to review calibration.');
+    } catch { window.alert(text); }
   };
 
   return (
-    <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.92)', zIndex: 300, display: 'flex', flexDirection: 'column', maxWidth: 720, margin: '0 auto' }}>
-      {/* Header */}
-      <div style={{ background: 'linear-gradient(135deg, var(--color-surface-1), var(--color-surface-2))', borderBottom: '2px solid var(--color-gold)', padding: '12px 15px', paddingTop: 'calc(env(safe-area-inset-top) + 12px)', flexShrink: 0 }}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+    <div
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="call-test-title"
+      onClick={onClose}
+      style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.85)', zIndex: 500, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }}
+    >
+      <div onClick={event => event.stopPropagation()} style={{ background: 'var(--color-surface-2)', border: '1px solid var(--color-gold)', borderRadius: 'var(--r-lg)', padding: '20px 22px 16px', width: '100%', maxWidth: 600, maxHeight: '80dvh', display: 'flex', flexDirection: 'column' }}>
+      <div style={{ marginBottom: 14, flexShrink: 0 }}>
+        <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 8 }}>
           <div>
-            <div style={{ fontSize: 10, color: 'var(--color-gold-dim)', letterSpacing: '2px', textTransform: 'uppercase', fontFamily: "'IBM Plex Mono', monospace" }}>CFB 27 · Game Day</div>
-            <div style={{ fontSize: 17, fontWeight: 700, color: 'var(--color-text-1)', fontFamily: "'IBM Plex Mono', monospace" }}>Drive Logger</div>
+            <div style={{ fontSize: 10, color: 'var(--color-gold-dim)', letterSpacing: '2px', textTransform: 'uppercase', fontFamily: 'var(--font-mono)', marginBottom: 2 }}>On-Device Review</div>
+            <div id="call-test-title" style={{ fontSize: 17, fontWeight: 700, color: 'var(--color-text-1)', fontFamily: 'var(--font-mono)' }}>Test This Call</div>
+            <div style={{ fontSize: 11, color: 'var(--color-text-3)', marginTop: 3 }}>Record what happened after the snap</div>
           </div>
-          <div style={{ display: 'flex', gap: 6 }}>
-            {entries.length > 0 && (
-              <>
-                <button onClick={exportLog} style={btnStyle('var(--color-surface-success)','var(--color-success)','var(--color-success)')}>⬆ Export</button>
-                <button onClick={clearAll} style={btnStyle('var(--color-surface-danger)','var(--color-danger)','var(--color-danger)')}>Clear</button>
-              </>
-            )}
-            <button onClick={onClose} style={btnStyle('var(--color-surface-1)','var(--color-border)','var(--color-text-2)')}>✕ Close</button>
-          </div>
+          <button onClick={onClose} style={{ ...buttonStyle, minHeight: 32, padding: '0 12px', flexShrink: 0 }}>Close</button>
         </div>
       </div>
 
-      {/* Add play button */}
-      <div style={{ padding: '10px 14px', flexShrink: 0, borderBottom: '1px solid var(--color-border-subtle)' }}>
-        <button
-          onClick={() => setShowForm(v => !v)}
-          style={{ width: '100%', padding: '10px', background: showForm ? 'var(--color-gold-surface)' : 'linear-gradient(135deg, var(--color-gold-surface), var(--color-gold-border), var(--color-gold-surface))', border: `2px solid ${showForm ? 'var(--color-gold-border)' : 'var(--color-gold)'}`, borderRadius: 9, color: showForm ? 'var(--color-gold)' : 'var(--color-bg)', fontWeight: 'bold', fontSize: 12, cursor: 'pointer', fontFamily: "'IBM Plex Mono', monospace", letterSpacing: '1px' }}
-        >
-          {showForm ? '▲ Cancel' : '+ Log Drive Result'}
-        </button>
-      </div>
-
-      {/* Add form */}
-      {showForm && (
-        <div style={{ padding: '12px 14px 8px', background: 'var(--color-surface-1)', borderBottom: '1px solid var(--color-border)', flexShrink: 0 }}>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginBottom: 8 }}>
-            <div>
-              <label style={labelStyle}>Down</label>
-              <select value={form.down} onChange={e => setForm(p => ({ ...p, down: e.target.value }))} style={inputStyle}>
-                <option value="">—</option>
-                {DOWNS.map(d => <option key={d} value={d}>{d}</option>)}
-              </select>
-            </div>
-            <div>
-              <label style={labelStyle}>Distance</label>
-              <input type="number" min="1" max="99" placeholder="e.g. 10" value={form.distance}
-                onChange={e => setForm(p => ({ ...p, distance: e.target.value }))} style={inputStyle} />
-            </div>
-          </div>
-          <div style={{ marginBottom: 8 }}>
-            <label style={labelStyle}>Formation Called</label>
-            <input placeholder="e.g. Nickel 3-3 Over" value={form.formation}
-              onChange={e => setForm(p => ({ ...p, formation: e.target.value }))} style={inputStyle} />
-          </div>
-          <div style={{ marginBottom: 8 }}>
-            <label style={labelStyle}>Coverage / Call</label>
-            <input placeholder="e.g. Cover 3 Sky" value={form.call}
-              onChange={e => setForm(p => ({ ...p, call: e.target.value }))} style={inputStyle} />
-          </div>
-          <div style={{ marginBottom: 8 }}>
-            <label style={labelStyle}>Result *</label>
-            <select value={form.result} onChange={e => setForm(p => ({ ...p, result: e.target.value }))} style={inputStyle}>
-              <option value="">Select result…</option>
-              {RESULTS.map(r => <option key={r} value={r}>{r}</option>)}
-            </select>
-          </div>
-          <div style={{ marginBottom: 10 }}>
-            <label style={labelStyle}>Notes</label>
-            <input placeholder="What happened? Adjustment needed?" value={form.notes}
-              onChange={e => setForm(p => ({ ...p, notes: e.target.value }))} style={inputStyle} />
-          </div>
-          <button onClick={addEntry} disabled={!form.result} style={{
-            width: '100%', padding: 10, background: form.result ? 'var(--color-gold)' : 'var(--color-surface-3)',
-            border: 'none', borderRadius: 7, color: form.result ? 'var(--color-bg)' : 'var(--color-text-3)',
-            fontWeight: 'bold', fontSize: 12, cursor: form.result ? 'pointer' : 'not-allowed',
-            fontFamily: "'IBM Plex Mono', monospace",
-          }}>
-            Log Entry
-          </button>
+      <div style={{ flex: 1, overflowY: 'auto', paddingRight: 2 }}>
+        <div style={{ background: 'var(--color-gold-surface)', border: '1px solid var(--color-gold-border)', borderRadius: 7, padding: '10px 12px', marginBottom: 11 }}>
+          <strong style={{ display: 'block', fontSize: 13 }}>{form.defensiveFormation || 'Formation not selected'}</strong>
+          <span style={{ color: 'var(--color-gold)', fontSize: 12, fontWeight: 700 }}>{form.defensiveCall || 'Call not selected'}</span>
+          {(form.down || form.distance) && <div style={{ color: 'var(--color-text-2)', fontSize: 11, marginTop: 4 }}>{form.down === 'rz' ? 'Red zone' : `${form.down || '—'} down`} · {form.distance || 'distance not set'}</div>}
+          {form.userPosition && <div style={{ color: 'var(--color-text-3)', fontSize: 10, marginTop: 4 }}>Your user: {form.userPosition}</div>}
+          {form.runPass && <div style={{ color: 'var(--color-text-2)', fontSize: 11, marginTop: 4 }}>Opponent tendency: {RUN_PASS_LABELS[form.runPass]}</div>}
+          {form.objective && <div style={{ color: 'var(--color-text-2)', fontSize: 11, marginTop: 4 }}>Objective: {form.objective}</div>}
+          {form.setup?.length > 0 && <div style={{ color: 'var(--color-text-3)', fontSize: 10, lineHeight: 1.5, marginTop: 5 }}>{form.setup.join(' · ')}</div>}
         </div>
-      )}
 
-      {/* Log list */}
-      <div style={{ flex: 1, overflowY: 'auto', padding: '10px 14px 30px' }}>
-        {entries.length === 0 && (
-          <div style={{ textAlign: 'center', color: 'var(--color-text-3)', padding: 40, fontSize: 12, fontStyle: 'italic' }}>
-            No drives logged yet. Tap "Log Drive Result" to start tracking.
-          </div>
-        )}
-        {entries.map((e, i) => (
-          <div key={e.id} style={{ background: 'var(--color-surface-2)', border: '1px solid var(--color-border-subtle)', borderLeft: `3px solid ${resultColor(e.result)}`, borderRadius: 7, padding: '10px 13px', marginBottom: 10 }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 5 }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                <span style={{ fontSize: 10, color: 'var(--color-text-3)', fontFamily: "'IBM Plex Mono', monospace" }}>#{entries.length - i} · {e.ts}</span>
-                {e.down && e.distance && (
-                  <span style={{ fontSize: 10, color: 'var(--color-gold-dim)', fontFamily: "'IBM Plex Mono', monospace" }}>{e.down} & {e.distance}</span>
-                )}
+        <div style={{ fontSize: 12, fontWeight: 800, marginBottom: 7 }}>What happened?</div>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 7, marginBottom: 11 }}>
+          {CALL_TEST_RESULTS.map(item => <button key={item.id} onClick={() => update('result', item.id)} style={{ ...choiceStyle, ...(form.result === item.id ? activeChoiceStyle : {}) }}>{item.label}</button>)}
+        </div>
+
+        <label style={labelStyle}>What caused the problem?</label>
+        <select value={form.problem} onChange={event => update('problem', event.target.value)} style={inputStyle}>
+          {CALL_TEST_PROBLEMS.map(item => <option key={item.id} value={item.id}>{item.label}</option>)}
+        </select>
+
+        <details style={{ background: 'var(--color-surface-1)', border: '1px solid var(--color-border-subtle)', borderRadius: 7, padding: '9px 11px', marginTop: 10 }}>
+          <summary style={{ cursor: 'pointer', color: 'var(--color-gold)', fontSize: 11, fontWeight: 700 }}>Optional details</summary>
+          <div style={{ marginTop: 10 }}>
+            <label style={labelStyle}>What did the offense show?</label>
+            <input value={form.opponentLook} onChange={event => update('opponentLook', event.target.value)} placeholder="Example: Trips, mesh, QB draw" style={inputStyle} />
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginTop: 9 }}>
+              <div><label style={labelStyle}>Down</label><select value={form.down} onChange={event => update('down', event.target.value)} style={inputStyle}><option value="">—</option><option value="1">1st</option><option value="2">2nd</option><option value="3">3rd</option><option value="4">4th</option><option value="rz">Red zone</option></select></div>
+              <div><label style={labelStyle}>Distance</label><select value={form.distance} onChange={event => update('distance', event.target.value)} style={inputStyle}><option value="">—</option><option value="short">Short</option><option value="mid">Medium</option><option value="long">Long</option></select></div>
+            </div>
+            <div style={{ marginTop: 9 }}><label style={labelStyle}>Yards gained</label><input type="number" value={form.yards} onChange={event => update('yards', event.target.value)} style={inputStyle} /></div>
+            <div style={{ marginTop: 12, paddingTop: 10, borderTop: '1px solid var(--color-border-subtle)' }}>
+              <div style={{ fontSize: 10, color: 'var(--color-text-3)', fontWeight: 800, marginBottom: 7 }}>TEST ENVIRONMENT</div>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
+                <div><label style={labelStyle}>Platform</label><select value={form.platform} onChange={event => update('platform', event.target.value)} style={inputStyle}><option value="">—</option><option value="PS5">PS5</option><option value="Xbox Series X|S">Xbox Series X|S</option></select></div>
+                <div><label style={labelStyle}>Difficulty</label><select value={form.difficulty} onChange={event => update('difficulty', event.target.value)} style={inputStyle}><option value="">—</option><option value="Varsity">Varsity</option><option value="All-American">All-American</option><option value="Heisman">Heisman</option></select></div>
+                <div><label style={labelStyle}>Mode</label><select value={form.mode} onChange={event => update('mode', event.target.value)} style={inputStyle}><option value="">—</option><option value="Dynasty">Dynasty</option><option value="Play Now">Play Now</option><option value="Ultimate Team">Ultimate Team</option><option value="Practice">Practice</option></select></div>
+                <div><label style={labelStyle}>Game update</label><input value={form.gameVersion} onChange={event => update('gameVersion', event.target.value)} placeholder="Example: Sept update" style={inputStyle} /></div>
               </div>
-              <button onClick={() => deleteEntry(e.id)} style={{ background: 'transparent', border: 'none', color: 'var(--color-text-3)', fontSize: 14, cursor: 'pointer', padding: '0 2px' }}>✕</button>
+              <label style={{ display: 'flex', alignItems: 'flex-start', gap: 8, color: 'var(--color-text-2)', fontSize: 11, lineHeight: 1.4, marginTop: 10, cursor: 'pointer' }}>
+                <input type="checkbox" checked={form.setupConfirmed} onChange={event => update('setupConfirmed', event.target.checked)} style={{ marginTop: 2 }} />
+                I used the listed pre-snap setup. This keeps setup tests separate from base-call tests.
+              </label>
             </div>
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginBottom: e.notes ? 6 : 0 }}>
-              <span style={{ fontSize: 12, fontWeight: 'bold', color: resultColor(e.result), background: `${resultColor(e.result)}18`, border: `1px solid ${resultColor(e.result)}55`, padding: '2px 8px', borderRadius: 5, fontFamily: "'IBM Plex Mono', monospace" }}>
-                {e.result}
-              </span>
-              {e.formation && (
-                <span style={{ fontSize: 11, color: 'var(--color-text-2)', fontFamily: "'IBM Plex Mono', monospace" }}>{e.formation}</span>
-              )}
-              {e.call && (
-                <span style={{ fontSize: 11, color: 'var(--color-text-2)' }}>· {e.call}</span>
-              )}
-            </div>
-            {e.notes && (
-              <div style={{ fontSize: 11, color: 'var(--color-text-3)', fontStyle: 'italic', marginTop: 4 }}>{e.notes}</div>
-            )}
+            <div style={{ marginTop: 9 }}><label style={labelStyle}>Notes</label><input value={form.notes} onChange={event => update('notes', event.target.value)} placeholder="Anything the categories missed" style={inputStyle} /></div>
           </div>
-        ))}
+        </details>
+
+        <button onClick={addEntry} disabled={!form.result} style={{ width: '100%', marginTop: 11, padding: 11, border: 'none', borderRadius: 7, background: form.result ? 'var(--color-gold)' : 'var(--color-surface-3)', color: form.result ? 'var(--color-bg)' : 'var(--color-text-3)', fontWeight: 800, cursor: form.result ? 'pointer' : 'not-allowed' }}>Save Call Test</button>
+
+        {entries.length > 0 && (
+          <details style={{ marginTop: 18 }}>
+            <summary style={{ cursor: 'pointer', color: 'var(--color-gold)', fontSize: 12, fontWeight: 700 }}>Saved evidence ({entries.length})</summary>
+            <div style={{ fontSize: 10, color: 'var(--color-text-3)', lineHeight: 1.5, margin: '8px 0' }}>These observations do not change recommendation scores yet. Review them before calibrating the engine.</div>
+            {summary.map(item => <div key={item.key} style={{ padding: '7px 0', borderTop: '1px solid var(--color-border-subtle)', fontSize: 11 }}><strong>{item.formation ? `${item.formation} · ` : ''}{item.call}</strong>{item.context && <div style={{ color: 'var(--color-text-2)', marginTop: 2 }}>{item.context}</div>}<div style={{ color: 'var(--color-text-3)', marginTop: 2 }}>{item.tests} test{item.tests === 1 ? '' : 's'} · {item.stops} stops · {item.sacks} sacks · {item.turnovers} turnovers · {item.explosives} explosives</div></div>)}
+            <div style={{ display: 'flex', gap: 7, marginTop: 10 }}><button onClick={exportLog} style={buttonStyle}>Copy Test Data</button><button onClick={clearAll} style={{ ...buttonStyle, color: 'var(--color-danger)' }}>Clear All</button></div>
+            {entries.map(entry => <div key={entry.id} style={{ background: 'var(--color-surface-1)', border: '1px solid var(--color-border-subtle)', borderRadius: 6, padding: '8px 10px', marginTop: 8, fontSize: 11 }}><div style={{ display: 'flex', justifyContent: 'space-between', gap: 8 }}><strong>{labels[entry.result]}</strong><button onClick={() => deleteEntry(entry.id)} style={{ background: 'none', border: 'none', color: 'var(--color-text-3)', cursor: 'pointer' }}>✕</button></div><div style={{ color: 'var(--color-text-3)', marginTop: 3 }}>{entry.defensiveFormation} · {entry.defensiveCall}{entry.problem !== 'none' ? ` · ${labels[entry.problem]}` : ''}</div></div>)}
+          </details>
+        )}
+      </div>
       </div>
     </div>
   );
 }
 
-const btnStyle = (bg, border, color) => ({
-  background: bg, border: `1px solid ${border}`, borderRadius: 6,
-  padding: '5px 10px', color, fontSize: 11, cursor: 'pointer',
-  fontFamily: "'IBM Plex Mono', monospace", whiteSpace: 'nowrap',
-});
-
-const labelStyle = { display: 'block', fontSize: 10, color: 'var(--color-text-3)', fontFamily: "'IBM Plex Mono', monospace", letterSpacing: '1px', textTransform: 'uppercase', marginBottom: 4 };
-
-const inputStyle = {
-  width: '100%', padding: '8px 10px', background: 'var(--color-surface-1)', border: '1px solid var(--color-border-subtle)',
-  borderRadius: 6, color: 'var(--color-text-1)', fontSize: 12, boxSizing: 'border-box',
-  fontFamily: "'IBM Plex Mono', monospace", outline: 'none',
-};
+const buttonStyle = { background: 'var(--color-surface-1)', border: '1px solid var(--color-border)', borderRadius: 6, padding: '6px 9px', color: 'var(--color-text-2)', fontSize: 11, cursor: 'pointer', fontFamily: 'var(--font-mono)' };
+const choiceStyle = { minHeight: 43, padding: '7px 8px', background: 'var(--color-surface-1)', border: '1px solid var(--color-border-subtle)', borderRadius: 7, color: 'var(--color-text-2)', fontSize: 11, fontWeight: 700, cursor: 'pointer' };
+const activeChoiceStyle = { background: 'var(--color-gold-surface)', borderColor: 'var(--color-gold)', color: 'var(--color-gold-bright)' };
+const labelStyle = { display: 'block', fontSize: 10, color: 'var(--color-text-3)', fontFamily: 'var(--font-mono)', letterSpacing: '1px', textTransform: 'uppercase', marginBottom: 4 };
+const inputStyle = { width: '100%', padding: '9px 10px', background: 'var(--color-surface-1)', border: '1px solid var(--color-border-subtle)', borderRadius: 6, color: 'var(--color-text-1)', fontSize: 12, boxSizing: 'border-box', fontFamily: 'var(--font-mono)', outline: 'none' };

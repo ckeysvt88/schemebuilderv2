@@ -1,7 +1,9 @@
+import { saveOpponentProfile } from '../data/opponentProfile.js';
+import { RUN_PASS_LABELS } from '../data/runPassBias.js';
 import { useState, useRef, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { TRAITS } from '../data/traits.js';
-import { PLAYBOOKS } from '../data/playbooks.js';
+import PlaybookModal from './PlaybookModal.jsx';
 import { FDB } from '../data/formations.js';
 
 const ICONS = {
@@ -14,10 +16,64 @@ const ICONS = {
   situation:  '📋',
 };
 
+const ONBOARDING_PAGES = [
+  {
+    icon: '🔎',
+    eyebrow: 'Step 1 of 5',
+    title: 'Scout what the offense shows',
+    body: 'Select only the tendencies you have actually seen. Personnel tells the app who is on the field; the other traits describe how they are attacking you.',
+    points: [
+      'Start with two or three clear traits—you can add more later.',
+      'Run / Pass Tendency describes the opponent, not your defensive style. It changes formations and calls while keeping both threats live.',
+      'Set the live down and distance because short and long yardage require different answers.',
+      'On the plan page, Game Objective changes the priority: Balanced, No Quick TD, or Get a Stop. Use Get a Stop if a field goal can beat you.',
+    ],
+  },
+  {
+    icon: '📋',
+    eyebrow: 'Step 2 of 5',
+    title: 'Read the call in game order',
+    body: 'Open a recommended formation, then read the coverage cards from top to bottom. The first lines tell you when to use the call and what the offense is being forced to try next.',
+    points: [
+      'Best Overall is the strongest matchup for the current scout and situation.',
+      'Open Call Coaching only when you need your assignment or the call’s main weakness.',
+    ],
+  },
+  {
+    icon: '🎮',
+    eyebrow: 'Step 3 of 5',
+    title: 'Make it fit your defensive user',
+    body: 'My Defensive User lets the app consider the defender you control and how you prefer to call the game—not just the theoretical best coverage.',
+    points: [
+      'Best For You may differ from Best Overall when another call better fits your user or style.',
+      'Treat it as a tailored starting point, then change calls when the offense shows the listed counter.',
+    ],
+  },
+  {
+    icon: '🧪',
+    eyebrow: 'Step 4 of 5',
+    title: 'Adjust less, learn faster',
+    body: 'Use Quick Setup first. The extra counters are responses to a problem you have already seen—not a checklist to apply before every snap.',
+    points: [
+      'Test This Call records the result and what beat it so you can validate recommendations on your game and settings.',
+      'Return to the base call when an adjustment creates a new weakness or the offense changes its answer.',
+    ],
+  },
+  {
+    icon: '⚙️', eyebrow: 'Step 5 of 5', title: 'Build a setup you can call quickly',
+    body: 'In Macro Builder, select the offensive problem. The app gives you a short adjustment package.',
+    points: [
+      'Set these adjustments lists the changes. Use with tells you which coverage or run look the package needs.',
+      'At the line separates receiver-specific changes from the saved settings. Your job and tradeoffs are there when you need more detail.',
+      'Select the package manually in the game. Test it with your base call before relying on it under the play clock.',
+    ],
+  },
+];
+
 export default function ScoutScreen({
   sel, setSel, flat, runPass, setRunPass,
   myBook, changeBook,
-  scored, setScored,
+  scored,
   setSelFm,
   setActiveP,
   modal, setModal,
@@ -31,16 +87,19 @@ export default function ScoutScreen({
   const [pendingDelete, setPendingDelete] = useState(null);
   const [profileAction, setProfileAction] = useState(null); // name of profile to act on
   const [openCard, setOpenCard] = useState(null);
+  const [onboardingPage, setOnboardingPage] = useState(0);
   const toggleCard = (id) => setOpenCard(prev => prev === id ? null : id);
 
   const [showOnboarding, setShowOnboarding] = useState(() => {
-    try { return !localStorage.getItem('sb_onboarded'); } catch(e) { return false; }
+    try { return !localStorage.getItem('sb_onboarded_v2'); } catch { return false; }
   });
 
   const dismissOnboarding = () => {
-    try { localStorage.setItem('sb_onboarded', '1'); } catch(e) {}
+    try { localStorage.setItem('sb_onboarded_v2', '1'); } catch { /* Continue without persistence. */ }
     setShowOnboarding(false);
   };
+
+  const onboarding = ONBOARDING_PAGES[onboardingPage];
 
   const onboardingRef = useRef(null);
   useEffect(() => {
@@ -65,49 +124,40 @@ export default function ScoutScreen({
         >
           <div style={{ background: "var(--color-surface-2)", border: "1px solid var(--color-gold)", borderRadius: "var(--r-lg)", padding: "28px 26px", width: "100%", maxWidth: 440, maxHeight: "90dvh", overflowY: "auto" }}>
 
-            <div style={{ fontSize: 34, textAlign: "center", marginBottom: 8 }}>🛡️</div>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
+              <span style={{ fontSize: 10, color: "var(--color-gold)", textTransform: "uppercase", letterSpacing: "1.4px", fontWeight: 800 }}>{onboarding.eyebrow}</span>
+              <button onClick={dismissOnboarding} style={{ background: "none", border: "none", color: "var(--color-text-3)", fontSize: 11, cursor: "pointer", padding: 4 }}>Skip</button>
+            </div>
+            <div style={{ fontSize: 34, textAlign: "center", marginBottom: 8 }}>{onboarding.icon}</div>
             <div id="onboarding-title" style={{ fontSize: 20, fontWeight: "700", color: "var(--color-text-1)", textAlign: "center", marginBottom: 4, fontFamily: "var(--font-mono)" }}>
-              Welcome to Scheme Builders
+              {onboarding.title}
             </div>
             <div style={{ fontSize: 12, color: "var(--color-text-3)", textAlign: "center", marginBottom: 18, letterSpacing: "1px", textTransform: "uppercase" }}>
-              CFB Defensive Intelligence
+              Scheme Builders · CFB Defensive Intelligence
             </div>
-
-            {[
-              { n: 1, title: "Scout", desc: "Tag your opponent's offensive tendencies — run style, pass concepts, personnel, QB traits" },
-              { n: 2, title: "Set Bias", desc: "Dial in their run/pass tendency to sharpen your defensive match for this specific opponent" },
-              { n: 3, title: "Build Your Plan", desc: "Get a ranked list of defensive formations built for this opponent" },
-            ].map(({ n, title, desc }) => (
-              <div key={n} style={{ display: "flex", alignItems: "flex-start", gap: 12, marginBottom: 14 }}>
-                <div style={{ width: 26, height: 26, borderRadius: "50%", background: "var(--color-gold)", color: "var(--color-bg)", fontSize: 13, fontWeight: "700", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, marginTop: 1, fontFamily: "var(--font-mono)" }}>
-                  {n}
-                </div>
-                <div>
-                  <div style={{ fontSize: 14, fontWeight: "700", color: "var(--color-text-1)", marginBottom: 2, fontFamily: "var(--font-mono)" }}>{title}</div>
-                  <div style={{ fontSize: 12.5, color: "var(--color-text-3)", lineHeight: 1.45 }}>{desc}</div>
-                </div>
-              </div>
-            ))}
 
             <div style={{ background: "var(--color-bg)", border: "1px solid var(--color-border-subtle)", borderRadius: "var(--r-md)", padding: "12px 13px", marginBottom: 18 }}>
-              <div style={{ fontSize: 10.5, color: "var(--color-text-3)", letterSpacing: "1px", textTransform: "uppercase", marginBottom: 8, fontFamily: "var(--font-mono)" }}>
-                You'll get
-              </div>
-              <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
-                {["✓ Ranked formations", "✓ Coverage packages", "✓ Blitz %", "✓ Call sheets", "✓ Macro Adjustments", "✓ Formations"].map(p => (
-                  <span key={p} style={{ background: "var(--color-surface-success)", border: "1px solid var(--color-border)", borderRadius: 16, padding: "4px 11px", fontSize: 11, color: "var(--color-success)" }}>
-                    {p}
-                  </span>
-                ))}
-              </div>
+              <div style={{ fontSize: 12.5, color: "var(--color-text-2)", lineHeight: 1.55, marginBottom: 10 }}>{onboarding.body}</div>
+              {onboarding.points.map(point => (
+                <div key={point} style={{ display: "flex", gap: 8, fontSize: 11.5, color: "var(--color-text-3)", lineHeight: 1.5, marginTop: 7 }}>
+                  <span style={{ color: "var(--color-gold)", flexShrink: 0 }}>▸</span>
+                  <span>{point}</span>
+                </div>
+              ))}
             </div>
 
-            <button
-              onClick={dismissOnboarding}
-              style={{ width: "100%", height: 50, background: "var(--color-cta-bg)", border: "none", borderRadius: "var(--r-md)", color: "var(--color-cta-text)", fontWeight: "700", fontSize: 14, cursor: "pointer", fontFamily: "var(--font-mono)" }}
-            >
-              Let's Build a Game Plan →
-            </button>
+            <div style={{ display: "flex", justifyContent: "center", gap: 6, marginBottom: 12 }}>
+              {ONBOARDING_PAGES.map((page, index) => <span key={page.title} style={{ width: index === onboardingPage ? 20 : 7, height: 7, borderRadius: 7, background: index === onboardingPage ? "var(--color-gold)" : "var(--color-border)", transition: "width 150ms ease" }} />)}
+            </div>
+            <div style={{ display: "grid", gridTemplateColumns: onboardingPage > 0 ? "0.8fr 1.2fr" : "1fr", gap: 8 }}>
+              {onboardingPage > 0 && <button onClick={() => setOnboardingPage(page => page - 1)} style={{ height: 48, background: "transparent", border: "1px solid var(--color-border)", borderRadius: "var(--r-md)", color: "var(--color-text-2)", fontWeight: 700, fontSize: 13, cursor: "pointer" }}>← Back</button>}
+              <button
+                onClick={() => onboardingPage === ONBOARDING_PAGES.length - 1 ? dismissOnboarding() : setOnboardingPage(page => page + 1)}
+                style={{ height: 48, background: "var(--color-cta-bg)", border: "none", borderRadius: "var(--r-md)", color: "var(--color-cta-text)", fontWeight: "700", fontSize: 13, cursor: "pointer", fontFamily: "var(--font-mono)" }}
+              >
+                {onboardingPage === ONBOARDING_PAGES.length - 1 ? 'Start Scouting →' : 'Next →'}
+              </button>
+            </div>
 
           </div>
         </div>,
@@ -126,49 +176,20 @@ export default function ScoutScreen({
         <div style={{ fontSize: 11, letterSpacing: "2px", color: "var(--color-gold-dim)", textTransform: "uppercase", fontWeight: "700", fontFamily: "var(--font-mono)" }}>
           CFB · Defensive Intelligence
         </div>
-        <button
-          onClick={() => setShowPB(v => !v)}
-          style={{
-            minHeight: 32, padding: "0 14px",
-            background: (myBook !== "All" || showPB) ? "var(--color-gold-surface)" : "transparent",
-            border: `1px solid ${(myBook !== "All" || showPB) ? "var(--color-gold)" : "var(--color-border)"}`,
-            borderRadius: "var(--r-md)",
-            color: (myBook !== "All" || showPB) ? "var(--color-gold)" : "var(--color-text-2)",
-            fontSize: 11, fontWeight: "600", cursor: "pointer",
-            fontFamily: "var(--font-mono)", whiteSpace: "nowrap",
-            transition: "all 150ms ease",
-          }}
-        >
-          {myBook !== "All" ? myBook : "All Books"}
-        </button>
+        <div style={{ display: "flex", gap: 6 }}>
+          <button onClick={() => { setOnboardingPage(0); setShowOnboarding(true); }} style={{ minHeight: 32, padding: "0 10px", background: "transparent", border: "1px solid var(--color-border)", borderRadius: "var(--r-md)", color: "var(--color-text-2)", fontSize: 11, fontWeight: 700, cursor: "pointer" }}>Guide</button>
+          <button aria-haspopup="dialog" aria-expanded={showPB} onClick={() => setShowPB(true)} style={{ minHeight: 32, padding: '0 10px', background: myBook !== 'All' ? 'var(--color-gold-surface)' : 'transparent', border: '1px solid var(--color-border)', borderRadius: 'var(--r-md)', color: 'var(--color-gold)', fontSize: 11, fontWeight: 600, cursor: 'pointer' }}>
+            {myBook === 'All' ? 'All Books' : myBook}
+          </button>
+        </div>
       </div>
 
-      {/* Playbook selector dropdown */}
-      {showPB && (
-        <div style={{ background: "linear-gradient(135deg, var(--color-surface-1), var(--color-surface-2))", borderBottom: "1px solid var(--color-border-subtle)", padding: "10px 16px", position: "sticky", top: "calc(40px + env(safe-area-inset-top))", zIndex: 79 }}>
-          <div style={{ fontSize: 9, color: "var(--color-gold-dim)", letterSpacing: "1.5px", textTransform: "uppercase", fontFamily: "var(--font-mono)", marginBottom: 8 }}>
-            My Defensive Playbook
-          </div>
-          <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
-            {["All", ...Object.keys(PLAYBOOKS)].map(b => (
-              <button key={b} onClick={() => { changeBook(b); setShowPB(false); }} style={{
-                minHeight: 32, padding: "0 12px",
-                borderRadius: "var(--r-sm)", fontSize: 10,
-                background: myBook === b ? "var(--color-gold-surface)" : "transparent",
-                border: `1px solid ${myBook === b ? "var(--color-gold)" : "var(--color-border)"}`,
-                color: myBook === b ? "var(--color-gold)" : "var(--color-text-2)",
-                cursor: "pointer", fontFamily: "var(--font-mono)",
-                transition: "all 120ms ease",
-              }}>{b}</button>
-            ))}
-          </div>
-        </div>
-      )}
+      {showPB && <PlaybookModal value={myBook} onChange={changeBook} onClose={() => setShowPB(false)} />}
 
       {/* ── XO Hero ── */}
       <div className="xo-hero">
         <div className="xo-fades" />
-        <div style={{ position: "relative", zIndex: 2, padding: "42px 16px 32px" }}>
+        <div style={{ position: "relative", zIndex: 2, padding: "14px 16px 12px" }}>
           <div style={{ fontSize: 28, fontWeight: "700", color: "var(--color-text-1)", letterSpacing: "-0.5px", marginBottom: 5, lineHeight: 1.1, fontFamily: "var(--font-mono)" }}>
             Scheme <span style={{ color: "var(--color-gold)" }}>Builders</span>
           </div>
@@ -220,7 +241,7 @@ export default function ScoutScreen({
         {scored.length > 0 ? (
           <div style={{ background: "var(--color-surface-success)", border: "1px solid var(--color-border)", borderLeft: "3px solid var(--color-success)", borderRadius: "var(--r-md)", padding: "10px 14px", marginBottom: 16, fontSize: 13, color: "var(--color-success)", lineHeight: 1.5, display: "flex", justifyContent: "space-between", alignItems: "center", gap: 10 }}>
             <span>Editing active game plan — update traits then rebuild.</span>
-            <button onClick={() => { setSel({}); setScored([]); setSelFm(null); setActiveP(null); }} style={{ ...smallBtn, color: "#70aa50", borderColor: "#2a4a1e", whiteSpace: "nowrap", flexShrink: 0 }}>Clear All</button>
+            <button onClick={() => { setSel({}); setSelFm(null); setActiveP(null); }} style={{ ...smallBtn, color: "#70aa50", borderColor: "#2a4a1e", whiteSpace: "nowrap", flexShrink: 0 }}>Clear All</button>
           </div>
         ) : null}
 
@@ -299,14 +320,14 @@ export default function ScoutScreen({
         })()}
 
         {/* ── ② Run / Pass Bias anchor ── */}
-        <SectionAnchor num="2" label="RUN / PASS BIAS" />
+        <SectionAnchor num="2" label="OPPONENT RUN / PASS TENDENCY" />
 
         {/* ── Run / Pass bias ── */}
         <div style={{ marginTop: 8 }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
             <span style={{ fontSize: 13, fontWeight: "700", color: "var(--color-pass)", fontFamily: "var(--font-mono)", letterSpacing: "1px" }}>PASS</span>
             <span style={{ fontSize: 14, fontWeight: "700", fontFamily: "var(--font-mono)", color: ["","#3a8fe8","#4a9ed4","#4aa890","#5a9860","#b89040","#d07028","#d84810"][runPass] }}>
-              {["","Full Pass","Pass","Pass Lean","Balanced","Run Lean","Run","Full Run"][runPass]}
+              {RUN_PASS_LABELS[runPass]}
             </span>
             <span style={{ fontSize: 13, fontWeight: "700", color: "var(--color-run)", fontFamily: "var(--font-mono)", letterSpacing: "1px" }}>RUN</span>
           </div>
@@ -323,6 +344,7 @@ export default function ScoutScreen({
                 <button
                   key={pos}
                   onClick={() => setRunPass(pos)}
+                  aria-label={RUN_PASS_LABELS[pos]} aria-pressed={isActive}
                   style={{
                     flex: 1, minHeight: 40, borderRadius: 8,
                     cursor: "pointer", transition: "all 120ms ease",
@@ -338,6 +360,8 @@ export default function ScoutScreen({
             })}
           </div>
         </div>
+
+        <p style={{ fontSize: 12, color: "var(--color-text-3)", lineHeight: 1.45 }}>What does your opponent favor? This changes formation and play selection. Even at either end, the defense keeps an answer for the other threat. Down and distance still matter.</p>
 
         {/* ── ③ Build anchor ── */}
         <SectionAnchor num="3" label="BUILD" />
@@ -380,10 +404,10 @@ export default function ScoutScreen({
               width: "100%",
               minHeight: 52,
               padding: "0 24px",
-              background: flat.length >= 2 ? "var(--color-surface-1)" : "var(--color-surface-2)",
-              border: flat.length >= 2 ? "1px solid var(--color-border)" : "1px solid transparent",
+              background: flat.length >= 2 ? "var(--color-build-gradient)" : "var(--color-surface-2)",
+              border: flat.length >= 2 ? "1px solid var(--color-build-border)" : "1px solid transparent",
               borderRadius: "var(--r-lg)",
-              color: flat.length >= 2 ? "var(--color-text-1)" : "var(--color-text-3)",
+              color: flat.length >= 2 ? "var(--color-build-text)" : "var(--color-text-3)",
               fontSize: 15,
               fontWeight: "700",
               cursor: flat.length >= 2 ? "pointer" : "not-allowed",
@@ -393,7 +417,7 @@ export default function ScoutScreen({
               transition: "opacity 150ms ease",
             }}
           >
-            {scored.length > 0 ? "Update Game Plan →" : "Build Game Plan →"}
+            Build Game Plan →
           </button>
         </div>
 
@@ -461,7 +485,7 @@ export default function ScoutScreen({
             />
             <div style={{ display: "flex", gap: 10, marginTop: 14 }}>
               <button
-                onClick={() => { if (saveName.trim()) saveProfiles(p => ({ ...p, [saveName.trim()]: sel })); setModal(false); setSaveName(""); }}
+                onClick={() => { if (saveName.trim()) saveProfiles(p => ({ ...p, [saveName.trim()]: saveOpponentProfile(sel, runPass) })); setModal(false); setSaveName(""); }}
                 disabled={!saveName.trim()}
                 style={{ flex: 1, minHeight: 46, background: "var(--color-cta-bg)", border: "none", borderRadius: "var(--r-md)", color: "var(--color-cta-text)", fontWeight: "700", fontSize: 14, cursor: "pointer" }}
               >

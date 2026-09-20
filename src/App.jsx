@@ -1,8 +1,11 @@
-import { useState, useCallback, useEffect } from 'react';
-import { TRAIT_LABELS } from './data/traits.js';
+import { readActiveSession, writeActiveSession } from './data/activeSession.js';
+import { normalizeOpponentProfile, readOpponentProfiles, writeOpponentProfiles } from './data/opponentProfile.js';
+import { useState, useCallback, useEffect, useMemo } from 'react';
+import { recommend, buildRecommendationShareText } from './engine/recommendations.js';
 import { scoreAll } from './engine/scoring.js';
 import { getAvailableFamilies } from './data/personnel.js';
-import { applyDownDistance } from './engine/downDistance.js';
+import { DEFAULT_USER_PROFILE, normalizeUserProfile } from './data/userProfile.js';
+
 import TeamsScreen from './components/TeamsScreen.jsx';
 import ScoutScreen from './components/ScoutScreen.jsx';
 import GamePlanScreen from './components/GamePlanScreen.jsx';
@@ -13,12 +16,15 @@ import MacroBuilder from './components/MacroBuilder.jsx';
 import FormationInfo from './components/FormationInfo.jsx';
 
 export default function App() {
+  const [restored] = useState(() => {
+    try { return readActiveSession(sessionStorage); } catch { return readActiveSession(null); }
+  });
   // ── Navigation ──────────────────────────────────────────────────────────────
-  const [step, setStep] = useState("scout");
+  const [step, setStep] = useState(restored.step);
 
   // ── Theme ────────────────────────────────────────────────────────────────────
   const [isDark, setIsDark] = useState(() => {
-    try { return localStorage.getItem('sb_theme') !== 'light'; } catch { return true; }
+    try { return localStorage.getItem('sb_theme') === 'dark'; } catch { return false; }
   });
 
   const onToggle = useCallback(() => {
@@ -34,18 +40,36 @@ export default function App() {
   }, [isDark]);
 
   // ── Scout state ─────────────────────────────────────────────────────────────
-  const [sel, setSel]         = useState({});
-  const [runPass, setRunPass] = useState(4);
+  const [sel, setSel]         = useState(restored.sel);
+  const [runPass, setRunPass] = useState(restored.runPass);
 
   // ── Game plan state ──────────────────────────────────────────────────────────
-  const [scored, setScored]             = useState([]);
-  const [activeP, setActiveP]           = useState(null);
-  const [selFm, setSelFm]               = useState(null);
-  const [mainTab, setMainTab]           = useState("personnel");
+  const [activeP, setActiveP]           = useState(restored.activeP);
+  const [selFm, setSelFm]               = useState(restored.selFm);
+  const [mainTab, setMainTab]           = useState(restored.mainTab);
   const [quickAdjOpen, setQuickAdjOpen] = useState(false);
   const [shareToast, setShareToast]     = useState(null);
-  const [ddDown, setDdDown]             = useState("");
-  const [ddDistance, setDdDistance]     = useState("");
+  const [gameObjective, setGameObjective] = useState(restored.gameObjective);
+  const [setupSelections, setSetupSelections] = useState(() => {
+    try {
+      return { book: localStorage.getItem('cfb26_myBook') !== null, user: localStorage.getItem('sb_user_profile_changed') === 'true', objective: restored.objectiveSelected };
+    } catch { return { book: false, user: false, objective: restored.objectiveSelected }; }
+  });
+  const chooseGameObjective = value => {
+    setGameObjective(value);
+    setSetupSelections(current => ({ ...current, objective: true }));
+  };
+
+  const [situDown, setSituDown] = useState(restored.situDown);
+  const [situDist, setSituDist] = useState(restored.situDist);
+
+  // ── Human defensive profile ─────────────────────────────────────────────────
+  const [userProfile, setUserProfileState] = useState(() => {
+    try {
+      const saved = localStorage.getItem('sb_user_profile');
+      return normalizeUserProfile(saved ? JSON.parse(saved) : DEFAULT_USER_PROFILE);
+    } catch { return { ...DEFAULT_USER_PROFILE }; }
+  });
 
   // ── Playbook ─────────────────────────────────────────────────────────────────
   const [myBook, setMyBook] = useState(() => {
@@ -54,7 +78,7 @@ export default function App() {
 
   // ── Opponent profiles ─────────────────────────────────────────────────────────
   const [profiles, setProfiles] = useState(() => {
-    try { const s = localStorage.getItem('cfb26_profiles'); return s ? JSON.parse(s) : {}; } catch(e) { return {}; }
+    try { return readOpponentProfiles(localStorage); } catch { return {}; }
   });
   const [modal, setModal]       = useState(false);
   const [saveName, setSaveName] = useState("");
@@ -66,24 +90,23 @@ export default function App() {
   const [compareB, setCompareB] = useState("4-3 Multiple");
 
   // ── Selected team (Team Picker → Plan) ────────────────────────────────────────
-  const [selectedTeam, setSelectedTeam] = useState(null);
+  const [selectedTeam, setSelectedTeam] = useState(restored.selectedTeam);
+
+  useEffect(() => {
+    try { writeActiveSession(sessionStorage, { step, sel, runPass, activeP, selFm, mainTab, situDown, situDist, gameObjective, selectedTeam, objectiveSelected: setupSelections.objective }); }
+    catch { /* Session restoration is optional when storage is blocked. */ }
+  }, [step, sel, runPass, activeP, selFm, mainTab, situDown, situDist, gameObjective, selectedTeam, setupSelections.objective]);
 
   // ── Derived ──────────────────────────────────────────────────────────────────
-  const flat         = Object.values(sel).flat();
+  const flat = useMemo(() => Object.values(sel).flat(), [sel]);
   const personnelSel = sel.personnel || [];
-
-  // Keep `scored` in sync with the live scout. Previously scored only recomputed
-  // on explicit Build/book-change, so changing tags then viewing Plan showed a
-  // STALE ranking (e.g. run fronts left over from a prior scout vs an empty set).
-  // Deriving it reactively makes stale recommendations structurally impossible.
-  useEffect(() => {
-    if (!flat.length) { setScored([]); return; }
-    setScored(scoreAll(flat, myBook || "All", runPass));
-  }, [JSON.stringify(flat), myBook, runPass]);
-
-  const displayScored = (ddDown && ddDistance)
-    ? applyDownDistance(scored, Number(ddDown), Number(ddDistance))
-    : scored;
+  const availableFamilies = getAvailableFamilies(flat, selectedTeam?.id);
+  const activeFamily = availableFamilies.includes(activeP) ? activeP : (availableFamilies[0] || null);
+  const familyId = mainTab === 'personnel' ? activeFamily : null;
+  const scored = useMemo(() => scoreAll(flat, myBook, runPass), [flat, myBook, runPass]);
+  const recommendationInput = useMemo(() => ({ traits: flat, book: myBook, runPass, familyId, down: situDown, distance: situDist, userProfile, gameObjective }),
+    [flat, myBook, runPass, familyId, situDown, situDist, userProfile, gameObjective]);
+  const recommendation = useMemo(() => recommend(recommendationInput), [recommendationInput]);
 
   // ── Navigation — cleans up plan-specific UI when leaving plan/notes ───────────
   const navigate = useCallback((newStep) => {
@@ -98,33 +121,44 @@ export default function App() {
   const saveProfiles = (updater) => {
     setProfiles(prev => {
       const next = typeof updater === 'function' ? updater(prev) : updater;
-      try { localStorage.setItem('cfb26_profiles', JSON.stringify(next)); } catch(e) {}
+      try { writeOpponentProfiles(localStorage, next); } catch { /* Keep unsaved profiles available for export. */ }
       return next;
     });
   };
 
   const changeBook = (book) => {
+    setSetupSelections(current => ({ ...current, book: true }));
     setMyBook(book);
     try { localStorage.setItem("cfb26_myBook", book); } catch(e) {}
-    setScored(scoreAll(Object.values(sel).flat(), book, runPass));
     setSelFm(null);
+  };
+
+  const setUserProfile = (updater) => {
+    const next = normalizeUserProfile(typeof updater === 'function' ? updater(userProfile) : updater);
+    if (next.position === userProfile.position && next.callStyle === userProfile.callStyle) return;
+    setSetupSelections(current => ({ ...current, user: true }));
+    setUserProfileState(next);
+    try {
+      localStorage.setItem('sb_user_profile', JSON.stringify(next));
+      localStorage.setItem('sb_user_profile_changed', 'true');
+    } catch { /* storage may be unavailable */ }
   };
 
 
   const loadProfile = useCallback((profileTags) => {
-    setSel(profileTags);
-    setScored(scoreAll(Object.values(profileTags).flat(), myBook || "All", runPass));
+    const saved = normalizeOpponentProfile(profileTags);
+    setSel(saved.traits);
+    setRunPass(saved.runPass);
     setSelFm(null);
     setActiveP(null);
     setSelectedTeam(null);
-  }, [myBook, runPass]);
+    setSituDown("base"); setSituDist(""); setGameObjective("balanced"); setSetupSelections(current => ({ ...current, objective: false }));
+  }, []);
 
   const toggle = useCallback((g, t) =>
     setSel(p => { const c = p[g] || []; return { ...p, [g]: c.includes(t) ? c.filter(x => x !== t) : [...c, t] }; }), []);
 
   const build = () => {
-    const results = scoreAll(flat, myBook || "All", runPass);
-    setScored(results);
     // Default to the first available personnel family (applies expert bias immediately)
     // rather than a raw personnel tag which bypasses family-level guidance
     const fams = getAvailableFamilies(flat);
@@ -132,28 +166,13 @@ export default function App() {
     setSelFm(null);
     setMainTab("personnel");
     setSelectedTeam(null);
+    setSituDown("base"); setSituDist(""); setGameObjective("balanced"); setSetupSelections(current => ({ ...current, objective: false }));
     navigate("plan");
     document.getElementById('root')?.scrollTo(0, 0);
   };
 
-  const buildShareText = () => {
-    const lines = ['CFB 27 DC SCHEME BUILDER — GAME PLAN', '═'.repeat(38), ''];
-    const allTraits = Object.entries(sel).flatMap(([, ids]) => ids.map(id => TRAIT_LABELS[id] || id));
-    if (allTraits.length) { lines.push('SCOUTED TRAITS:'); allTraits.forEach(t => lines.push(`  · ${t}`)); lines.push(''); }
-    lines.push('TOP MATCHED FORMATIONS:', '─'.repeat(30));
-    displayScored.slice(0, 4).forEach((fm, i) => {
-      lines.push(`#${i+1} ${fm.name} — ${fm.sc}% match · ${fm.blitz}% blitz`);
-      lines.push(`  Base: ${fm.coverages?.[0]?.name || '—'}`);
-      if (fm.coreHits?.length) lines.push(`  Core: ${fm.coreHits.map(t => TRAIT_LABELS[t]||t).join(', ')}`);
-      if (fm.callsheet?.length) { lines.push('  Calls:'); fm.callsheet.slice(0,3).forEach(c => lines.push(`    ${c.down}: ${c.call}`)); }
-      lines.push('');
-    });
-    lines.push('Generated by Scheme Builders');
-    return lines.join('\n');
-  };
-
   const handleShare = async () => {
-    const text = buildShareText();
+    const text = buildRecommendationShareText(recommendation, flat);
     try {
       if (navigator.share) { await navigator.share({ title: 'CFB 27 DC Game Plan', text }); setShareToast('shared'); }
       else { await navigator.clipboard.writeText(text); setShareToast('copied'); }
@@ -165,10 +184,10 @@ export default function App() {
 
   const exportProfiles = () => {
     if (!Object.keys(profiles).length) return;
-    const blob = new Blob([JSON.stringify({ version: 1, profiles }, null, 2)], { type: "application/json" });
+    const blob = new Blob([JSON.stringify({ version: 2, profiles }, null, 2)], { type: "application/json" });
     const url  = URL.createObjectURL(blob);
     const a    = document.createElement("a");
-    a.href = url; a.download = "cfb26-dc-profiles.json"; a.click();
+    a.href = url; a.download = "cfb27-dc-profiles.json"; a.click();
     URL.revokeObjectURL(url);
   };
 
@@ -193,8 +212,8 @@ export default function App() {
     sel, setSel, flat, personnelSel,
     runPass, setRunPass,
     myBook, changeBook,
-    scored: displayScored, rawScored: scored, setScored,
-    activeP, setActiveP,
+    scored, recommendation, recommendationInput,
+    activeP: activeFamily, setActiveP,
     selFm, setSelFm,
     mainTab, setMainTab,
     quickAdjOpen, setQuickAdjOpen,
@@ -206,26 +225,26 @@ export default function App() {
     toggle, build,
     compareA, setCompareA,
     compareB, setCompareB,
-    ddDown, setDdDown,
-    ddDistance, setDdDistance,
+    situDown, setSituDown, situDist, setSituDist, gameObjective, setGameObjective: chooseGameObjective, setupSelections,
     setStep: navigate,
     navigateToNotes: (profileName) => { setNotesInitProfile(profileName); navigate("notes"); },
     selectedTeam,
+    userProfile, setUserProfile,
   };
 
   return (
     <>
       {step === "teams"   && <TeamsScreen   key="teams"   onBack={() => navigate("scout")} onBuildFromTeam={(team) => {
-        const results = scoreAll(team.traits, "All");
         setMyBook("All");
-        try { localStorage.setItem("cfb26_myBook", "All"); } catch(e) {}
+        setSetupSelections(current => ({ ...current, book: false }));
+        try { localStorage.removeItem("cfb26_myBook"); } catch(e) {}
         setSel({ _team: team.traits });
-        setScored(results);
         // Use getAvailableFamilies to pick the most contextually relevant starting family
         const teamFams = getAvailableFamilies(team.traits, team.id);
         setActiveP(teamFams[0] || "p11_gun");
         setSelFm(null); setMainTab("personnel");
         setSelectedTeam(team);
+        setSituDown("base"); setSituDist(""); setGameObjective("balanced"); setSetupSelections(current => ({ ...current, objective: false }));
         navigate("plan");
         document.getElementById('root')?.scrollTo(0, 0);
       }} />}

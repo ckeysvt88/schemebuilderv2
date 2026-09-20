@@ -1,5 +1,8 @@
-import { memo } from 'react';
-import { Document, Page, Text, View, StyleSheet, PDFDownloadLink } from '@react-pdf/renderer';
+import { memo, useEffect, useRef, useState } from 'react';
+import SetupDialog from './SetupDialog.jsx';
+import { savePdf } from '../utils/savePdf.js';
+import CallSheetPreview from './CallSheetPreview.jsx';
+import { Document, Page, Text, View, StyleSheet, pdf } from '@react-pdf/renderer';
 import { buildCallSheetData } from '../engine/buildCallSheet.js';
 
 // ── Print-friendly light theme ────────────────────────────────────────────────
@@ -120,16 +123,16 @@ const S = StyleSheet.create({
   // Column widths
   cSit:  { width: 70,  paddingVertical: 5, paddingHorizontal: 6, borderRightWidth: 1, borderRightColor: C.border, justifyContent: 'center' },
   cPrim: { flex: 3,    paddingVertical: 5, paddingHorizontal: 6, borderRightWidth: 1, borderRightColor: C.border },
-  cPct:  { width: 30,  paddingVertical: 5, paddingHorizontal: 4, borderRightWidth: 1, borderRightColor: C.border, alignItems: 'center', justifyContent: 'center' },
+  cPct:  { width: 30, flexShrink: 0, paddingVertical: 5, paddingHorizontal: 4, borderRightWidth: 1, borderRightColor: C.border, alignItems: 'center', justifyContent: 'center' },
   cSec:  { flex: 2.4,  paddingVertical: 5, paddingHorizontal: 6, borderRightWidth: 1, borderRightColor: C.border },
-  cPct2: { width: 26,  paddingVertical: 5, paddingHorizontal: 4, alignItems: 'center', justifyContent: 'center' },
+  cPct2: { width: 26, flexShrink: 0, paddingVertical: 5, paddingHorizontal: 4, alignItems: 'center', justifyContent: 'center' },
 
   // Header column widths
   cSitH:  { width: 70,  paddingVertical: 4, paddingHorizontal: 6, borderRightWidth: 1, borderRightColor: 'rgba(255,255,255,0.15)', justifyContent: 'center' },
   cPrimH: { flex: 3,    paddingVertical: 4, paddingHorizontal: 6, borderRightWidth: 1, borderRightColor: 'rgba(255,255,255,0.15)' },
-  cPctH:  { width: 30,  paddingVertical: 4, paddingHorizontal: 4, borderRightWidth: 1, borderRightColor: 'rgba(255,255,255,0.15)', alignItems: 'center' },
+  cPctH:  { width: 30, flexShrink: 0, paddingVertical: 4, paddingHorizontal: 4, borderRightWidth: 1, borderRightColor: 'rgba(255,255,255,0.15)', alignItems: 'center' },
   cSecH:  { flex: 2.4,  paddingVertical: 4, paddingHorizontal: 6, borderRightWidth: 1, borderRightColor: 'rgba(255,255,255,0.15)' },
-  cPct2H: { width: 26,  paddingVertical: 4, paddingHorizontal: 4, alignItems: 'center' },
+  cPct2H: { width: 26, flexShrink: 0, paddingVertical: 4, paddingHorizontal: 4, alignItems: 'center' },
 
   matHdrTxt: { color: C.hdrText, fontSize: 6, fontFamily: 'Helvetica-Bold', letterSpacing: 0.5 },
   sitTxt:    { fontSize: 7, fontFamily: 'Helvetica-Bold' },
@@ -185,15 +188,12 @@ function MatrixRow({ row, isAlt }) {
           ) : <Text style={S.emptyCell}>—</Text>}
         </View>
 
-        {/* Primary match % + blitz label */}
+        {/* Primary fit */}
         <View style={S.cPct}>
           {row.primary && (
             <>
               <Text style={[S.callPct, { color: PC[row.primary.priority] || C.gold }]}>
-                {row.primary.sc}%
-              </Text>
-              <Text style={[S.callBzLbl, { color: row.primary.blitzColor || C.text3 }]}>
-                {row.primary.blitz}% bz
+                {row.primary.sc}
               </Text>
             </>
           )}
@@ -211,15 +211,12 @@ function MatrixRow({ row, isAlt }) {
           ) : <Text style={S.emptyCell}>—</Text>}
         </View>
 
-        {/* Secondary match % + blitz label */}
+        {/* Secondary fit */}
         <View style={S.cPct2}>
           {row.secondary && (
             <>
               <Text style={[S.callPct, { fontSize: 7, color: PC[row.secondary.priority] || C.gold }]}>
-                {row.secondary.sc}%
-              </Text>
-              <Text style={[S.callBzLbl, { color: row.secondary.blitzColor || C.text3 }]}>
-                {row.secondary.blitz}%
+                {row.secondary.sc}
               </Text>
             </>
           )}
@@ -252,12 +249,15 @@ function TopFormationItem({ fm, rank, isLast }) {
             <Text style={S.tfBadgeTxt}>{PL[fm.priority] || fm.priority}</Text>
           </View>
         </View>
-        <Text style={S.tfPct}>{fm.sc}%</Text>
+        <Text style={S.tfPct}>{fm.sc}/100</Text>
       </View>
-      <Text style={S.tfMeta}>{fm.coverage}  ·  {fm.blitz}% blitz</Text>
-      {fm.dcNote ? (
-        <Text style={S.tfNote} numberOfLines={2}>{fm.dcNote}</Text>
-      ) : null}
+      <Text style={S.tfMeta}>{fm.coverage}</Text>
+      {fm.matchup && <>
+        <Text style={S.tfMeta}>{fm.matchup.structure}</Text>
+        {fm.front && <Text style={S.tfMeta}>Formation front: {fm.front.summary}</Text>}
+        {fm.matchup.concept && <Text style={S.tfMeta}>Threat assessment: {fm.matchup.concept.utility}/100 · {fm.matchup.concept.confidence} confidence · Main concern: {fm.matchup.concept.priorityRisk.label}</Text>}
+        <Text style={S.tfNote}>Concern: {fm.matchup.weaknesses[0] || 'Assignment counts alone do not establish matchup safety.'}</Text>
+      </>}
     </View>
   );
 }
@@ -281,7 +281,7 @@ function GuideEntry({ entry, isLast }) {
           <Text style={[S.guideCallTxt, { color: PC[entry.primary.priority] || C.text1 }]}>
             {entry.primary.name} · {entry.primary.coverage}
           </Text>
-          <Text style={S.guideCallPct}>{entry.primary.sc}% · {entry.primary.blitzLabel}</Text>
+          <Text style={S.guideCallPct}>{entry.primary.sc}/100</Text>
         </View>
       ) : (
         <Text style={S.guideNoCall}>No formation matched for this situation</Text>
@@ -298,10 +298,10 @@ function GuideEntry({ entry, isLast }) {
 }
 
 // ── PDF Document ──────────────────────────────────────────────────────────────
-function CallSheetDocument({ data }) {
+export function CallSheetDocument({ data }) {
   const {
     profile, situationMatrix, topFormations, situationGuide,
-    myBook, runPassLabel, date, totalFormations,
+    myBook, runPassLabel, date, totalFormations, contextLabel,
   } = data;
 
   return (
@@ -313,7 +313,7 @@ function CallSheetDocument({ data }) {
           <View>
             <Text style={S.hdrBrand}>SCHEME BUILDERS</Text>
             <Text style={S.hdrTitle}>DEFENSIVE CALL SHEET</Text>
-            <Text style={S.hdrSubtitle}>CFB 27 Defensive Scheme Builder — Game Preparation</Text>
+            <Text style={S.hdrSubtitle}>{contextLabel}</Text>
           </View>
           <View style={S.hdrRight}>
             <Text style={S.hdrMeta}>{date}</Text>
@@ -346,7 +346,7 @@ function CallSheetDocument({ data }) {
             {topFormations.length > 0 && (
               <View style={S.tfSection}>
                 <View style={S.secHdr}>
-                  <Text style={S.secHdrTxt}>TOP FORMATIONS</Text>
+                  <Text style={S.secHdrTxt}>CURRENT RECOMMENDATIONS</Text>
                 </View>
                 {topFormations.map((fm, i) =>
                   fm ? (
@@ -371,9 +371,9 @@ function CallSheetDocument({ data }) {
             <View style={S.matHdrRow}>
               <View style={S.cSitH}><Text style={S.matHdrTxt}>SITUATION</Text></View>
               <View style={S.cPrimH}><Text style={S.matHdrTxt}>PRIMARY CALL</Text></View>
-              <View style={S.cPctH}><Text style={S.matHdrTxt}>MATCH</Text></View>
+              <View style={S.cPctH}><Text style={S.matHdrTxt}>FIT</Text></View>
               <View style={S.cSecH}><Text style={S.matHdrTxt}>SECONDARY CALL</Text></View>
-              <View style={S.cPct2H}><Text style={S.matHdrTxt}>%</Text></View>
+              <View style={S.cPct2H}><Text style={S.matHdrTxt}>FIT</Text></View>
             </View>
 
             {situationMatrix.map((row, i) => (
@@ -383,7 +383,7 @@ function CallSheetDocument({ data }) {
         </View>
 
         <View style={S.footer}>
-          <Text style={S.footerTxt}>Scheme Builders · CFB 27 Defensive Scheme Builder · CONFIDENTIAL — GAME PREP</Text>
+          <Text style={S.footerTxt}>Scheme Builders · Fit: 0–100 heuristic, not success probability</Text>
           <Text style={S.footerTxt}>Page 1 of 2</Text>
         </View>
       </Page>
@@ -395,7 +395,7 @@ function CallSheetDocument({ data }) {
             <Text style={S.p2Brand}>SCHEME BUILDERS</Text>
             <Text style={S.p2Title}>SITUATIONAL COACHING GUIDE</Text>
           </View>
-          <Text style={S.p2Sub}>DC keys · likely personnel · best call — for every game situation</Text>
+          <Text style={S.p2Sub}>Fit scores: 0–100, not success probabilities. Same scouted look across rows.</Text>
         </View>
 
         {situationGuide.map((entry, i) => (
@@ -407,7 +407,7 @@ function CallSheetDocument({ data }) {
         ))}
 
         <View style={S.footer}>
-          <Text style={S.footerTxt}>Scheme Builders · CFB 27 Defensive Scheme Builder · CONFIDENTIAL — GAME PREP</Text>
+          <Text style={S.footerTxt}>Scheme Builders · Fit: 0–100 heuristic, not success probability</Text>
           <Text style={S.footerTxt}>Page 2 of 2</Text>
         </View>
       </Page>
@@ -419,76 +419,65 @@ function CallSheetDocument({ data }) {
 // ── Exported button component ─────────────────────────────────────────────────
 // variant="compact"  →  small header button (default)
 // variant="full"     →  wide, prominent banner button for top-of-page placement
-export const ExportPDFButton = memo(function ExportPDFButton({ rawScored, sel, myBook, runPass, variant = 'compact', label }) {
-  if (!rawScored || rawScored.length === 0) return null;
-
-  const data     = buildCallSheetData({ rawScored, sel, myBook, runPass });
-  const fileName = `call-sheet-${new Date().toISOString().slice(0, 10)}.pdf`;
-  const isFull   = variant === 'full';
-
-  return (
-    <PDFDownloadLink
-      document={<CallSheetDocument data={data} />}
-      fileName={fileName}
-      style={{ textDecoration: 'none', display: 'block', width: '100%' }}
-    >
-      {({ loading }) =>
-        isFull ? (
-          // ── Full-width banner button ──────────────────────────────────────
-          <button
-            disabled={loading}
-            style={{
-              width: '100%',
-              minHeight: 40,
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: 8,
-              background: loading ? 'transparent' : 'rgba(200,150,12,0.07)',
-              border: '1px solid var(--color-gold-border, #4a3808)',
-              borderRadius: 'var(--r-sm)',
-              color: loading ? 'var(--color-text-3)' : 'var(--color-gold)',
-              fontSize: 12,
-              fontWeight: '700',
-              letterSpacing: '0.5px',
-              cursor: loading ? 'wait' : 'pointer',
-              fontFamily: 'var(--font-mono)',
-              transition: 'all 150ms ease',
-              opacity: loading ? 0.55 : 1,
-            }}
-          >
-            {loading
-              ? 'Building Call Sheet…'
-              : 'Export Defensive Call Sheet  ↓  PDF  (2 pages)'}
-          </button>
-        ) : (
-          // ── Compact header button ─────────────────────────────────────────
-          // Keep the static label/appearance regardless of PDFDownloadLink's
-          // loading state — that flips true→false on every fresh mount (e.g.
-          // navigating in from Team Picker), which otherwise flashes this
-          // button and only this button, since it's the only async one here.
-          <button
-            disabled={loading}
-            style={{
-              minHeight: 28,
-              width: '100%',
-              boxSizing: 'border-box',
-              padding: '0 10px',
-              background: 'transparent',
-              border: '1px solid var(--color-border)',
-              borderRadius: 'var(--r-sm)',
-              color: 'var(--color-text-2)',
-              fontSize: 11,
-              cursor: loading ? 'wait' : 'pointer',
-              fontFamily: 'var(--font-mono)',
-              whiteSpace: 'nowrap',
-              transition: 'all 150ms ease',
-            }}
-          >
-            {label || 'PDF'}
-          </button>
-        )
-      }
-    </PDFDownloadLink>
-  );
+export const ExportPDFButton = memo(function ExportPDFButton({ input, sel, variant = 'compact', label }) {
+  const [open, setOpen] = useState(false);
+  const [status, setStatus] = useState('idle');
+  const [url, setUrl] = useState(null);
+  const [file, setFile] = useState(null);
+  const [viewing, setViewing] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [saveMessage, setSaveMessage] = useState('');
+  const generation = useRef(0);
+  const objectUrl = useRef(null);
+  useEffect(() => () => {
+    generation.current += 1;
+    if (objectUrl.current) URL.revokeObjectURL(objectUrl.current);
+  }, []);
+  const close = () => { generation.current += 1; setOpen(false); };
+  const generate = async () => {
+    const id = ++generation.current;
+    setOpen(true); setStatus('loading'); setUrl(null); setFile(null); setViewing(false); setSaveMessage('');
+    // Let the dialog paint before calculating the situation matrix.
+    await new Promise(resolve => setTimeout(resolve, 30));
+    if (id !== generation.current) return;
+    try {
+      const data = buildCallSheetData({ input, sel });
+      const blob = await pdf(<CallSheetDocument data={data} />).toBlob();
+      if (id !== generation.current) return;
+      if (objectUrl.current) URL.revokeObjectURL(objectUrl.current);
+      objectUrl.current = URL.createObjectURL(blob);
+      setFile(new File([blob], `call-sheet-${new Date().toISOString().slice(0, 10)}.pdf`, { type: 'application/pdf' }));
+      setUrl(objectUrl.current); setStatus('ready');
+    } catch {
+      if (id === generation.current) setStatus('error');
+    }
+  };
+  const save = async () => {
+    if (saving || !file) return;
+    setSaving(true); setSaveMessage('');
+    try { await savePdf(file, url); }
+    catch { setSaveMessage('Could not open the save options. Please try again.'); }
+    finally { setSaving(false); }
+  };
+  if (!input?.traits?.length) return null;
+  const linkStyle = { display: 'block', width: '100%', background: 'var(--color-surface-1)', font: 'inherit', cursor: 'pointer', padding: '12px 16px', marginTop: 12, border: '1px solid var(--color-gold-border)', borderRadius: 'var(--r-sm)', color: 'var(--color-text-1)', textAlign: 'center', textDecoration: 'none' };
+  return <>
+    <button type="button" onClick={generate} style={{ width: '100%', minHeight: variant === 'full' ? 40 : 32, padding: '0 10px', background: 'transparent', border: '1px solid var(--color-border)', borderRadius: 'var(--r-sm)', color: 'var(--color-text-2)', cursor: 'pointer', fontFamily: 'var(--font-mono)', fontSize: 11 }}>
+      {label || 'Call Sheet'}
+    </button>
+    {open && <SetupDialog title="Your Call Sheet" description="Save a copy or view your call sheet here. Your game plan stays in place." onClose={close} closeLabel="Cancel">
+      <div role="status" aria-live="polite" style={{ color: 'var(--color-text-1)', lineHeight: 1.5 }}>
+        {status === 'loading' && 'Building your call sheet…'}
+        {status === 'error' && 'The PDF could not be created. Your scouting is safe. Please try again.'}
+        {status === 'ready' && 'Your call sheet is ready.'}
+      </div>
+      {status === 'error' && <button type="button" onClick={generate} style={linkStyle}>Try again</button>}
+      {url && <>
+        <button type="button" onClick={save} disabled={saving} style={linkStyle}>{saving ? 'Opening save options…' : 'Save PDF'}</button>
+        <button type="button" onClick={() => setViewing(value => !value)} style={linkStyle}>{viewing ? 'Hide Preview' : 'View PDF'}</button>
+        <p role="status" style={{ fontSize: 12, color: 'var(--color-text-2)' }}>{saveMessage || 'On iPhone, choose Save to Files if the share sheet opens.'}</p>
+        {viewing && <CallSheetPreview file={file} />}
+      </>}
+    </SetupDialog>}
+  </>;
 });

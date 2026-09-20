@@ -307,7 +307,7 @@ export default function FormationInfo() {
             </Section>
           )}
 
-          {/* Pre-snap + coaching */}
+          {/* Pre-snap and situation-aware adjustment direction */}
           {d.preSnap?.length > 0 && (
             <Section title="Pre-Snap Keys" count={d.preSnap.length}>
               {d.preSnap.map((x, i) => (
@@ -317,17 +317,11 @@ export default function FormationInfo() {
               ))}
             </Section>
           )}
-          {d.coaching?.length > 0 && (
-            <Section title="Coaching Settings" count={d.coaching.length}>
-              {d.coaching.map((c, i) => (
-                <div key={i} style={{ fontSize: 13, marginBottom: 4, lineHeight: 1.5 }}>
-                  <span style={{ fontFamily: "var(--font-mono)", color: "var(--color-gold-bright)", fontWeight: 700 }}>{c.label}</span>
-                  <span style={{ color: "var(--color-text-3)" }}>: </span>
-                  <span style={{ color: "var(--color-text-1)" }}>{c.value}</span>
-                </div>
-              ))}
-            </Section>
-          )}
+          <Section title="Adjustment Guidance">
+            <div style={{ fontSize: 13, color: "var(--color-text-2)", lineHeight: 1.6 }}>
+              Choose adjustments from the live Game Plan. The exact coverage, down and distance, and threat determine the right setting—not the formation by itself.
+            </div>
+          </Section>
 
           <Section title="Playbooks" count={d.books.length}>
             <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>

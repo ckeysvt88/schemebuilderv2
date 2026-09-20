@@ -1,120 +1,133 @@
 import { useState } from 'react';
-import { getBlitz } from '../engine/scoring.js';
-import { rankCoveragesForSituation } from '../engine/coverageRank.js';
-import { ADJUSTMENTS, computeConflicts } from '../data/adjustments.js';
 import { TRAIT_LABELS } from '../data/traits.js';
-import BlitzBar from './BlitzBar.jsx';
 import WhySelected from './WhySelected.jsx';
+import { getFrontStructure } from '../engine/frontStructure.js';
+import { getCoverageGuidance } from '../engine/coverageGuidance.js';
+import { buildAdjustmentPlan } from '../engine/adjustmentPlan.js';
 
-const PC = { run: "#a06030", pass: "#1a6fe8", hybrid: "#7858a0", pressure: "#aa5050" };
-
-function AdjSection({ sec, items, icon }) {
-  if (!items || items.length === 0) return null;
-  return (
-    <div style={{ marginBottom: 14 }}>
-      <div style={{ fontSize: "12px", color: "var(--color-gold)", letterSpacing: "1.5px", textTransform: "uppercase", marginBottom: 8, fontFamily: "'IBM Plex Mono', monospace" }}>{icon} {sec}</div>
-      {items.map((a, i) => (
-        <div key={i} style={{ background: "var(--color-surface-1)", border: "1px solid var(--color-border-subtle)", borderLeft: "3px solid var(--color-border)", borderRadius: 5, padding: "10px 13px", marginBottom: 7 }}>
-          <div style={{ fontSize: 11, fontWeight: "bold", color: "var(--color-text-1)", fontFamily: "'IBM Plex Mono', monospace", marginBottom: 3 }}>{a.setting}</div>
-          <div style={{ fontSize: 11, color: "var(--color-text-3)", lineHeight: 1.55 }}>{a.reason}</div>
-        </div>
-      ))}
-    </div>
-  );
-}
-
-function ConflictingReads({ fm, flat, matched }) {
-  const conflicts = computeConflicts(fm, flat, matched);
-  if (conflicts.length === 0) return null;
-  return (
-    <div style={{ marginBottom: 18 }}>
-      <div style={{ fontSize: "12px", color: "var(--color-text-3)", letterSpacing: "2px", textTransform: "uppercase", marginBottom: 14, fontFamily: "'IBM Plex Mono', monospace" }}>Conflicting Reads</div>
-      {conflicts.map(c => (
-        <div key={c.axis} style={{ background: "var(--color-surface-1)", border: "1px solid var(--color-border-subtle)", borderLeft: "3px solid var(--color-danger)", borderRadius: 5, padding: "10px 13px", marginBottom: 7 }}>
-          <div style={{ fontSize: 11, fontWeight: "bold", color: "var(--color-danger)", fontFamily: "'IBM Plex Mono', monospace", marginBottom: 6 }}>{c.axis}</div>
-          {c.entries.map((e, i) => (
-            <div key={i} style={{ fontSize: 11, color: "var(--color-text-2)", marginBottom: 3 }}>
-              <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontWeight: "bold" }}>{e.value}</span>
-              <span style={{ color: "var(--color-text-3)" }}> — {e.source}</span>
-            </div>
-          ))}
-          <div style={{ fontSize: 11, color: "var(--color-text-3)", lineHeight: 1.55, marginTop: 6 }}>{c.note}</div>
-        </div>
-      ))}
-    </div>
-  );
-}
-
-function AdjustmentsPanel({ fm, flat }) {
-  const matched = ADJUSTMENTS.filter(a => a.triggers.some(t => flat.includes(t)));
-  const ss = matched.filter(a => a.section === "Safety Setup");
-  const zd = matched.filter(a => a.section === "Zone Drops");
-  const ps = matched.filter(a => a.section === "Pre-Snap");
-  const kr = matched.filter(a => a.section === "Keys & Reads");
-  const qt = matched.filter(a => a.section === "QB Threat");
+function AdjustmentsPanel({ fm, flat, situation, onLogCall }) {
+  const plan = buildAdjustmentPlan(fm, flat, situation);
   return (
     <div>
-      {fm.coaching?.length > 0 && (
-        <div style={{ marginBottom: 18 }}>
-          <div style={{ fontSize: "12px", color: "var(--color-text-3)", letterSpacing: "2px", textTransform: "uppercase", marginBottom: 14, fontFamily: "'IBM Plex Mono', monospace" }}>Formation-Specific</div>
-          <div style={{ display: "flex", flexWrap: "nowrap", gap: 5 }}>
-            {fm.coaching.map((c, i) => (
-              <div key={i} style={{ flex: "1 1 0", minWidth: 0, background: "var(--color-surface-1)", border: "1px solid var(--color-border-subtle)", borderLeft: "3px solid var(--color-gold)", borderRadius: 5, padding: "7px 7px" }}>
-                <div style={{ fontSize: 10.5, fontWeight: "bold", color: "var(--color-text-1)", fontFamily: "'IBM Plex Mono', monospace", lineHeight: 1.3 }}>{c.label}</div>
-                <div style={{ fontSize: 11, color: "var(--color-text-3)", lineHeight: 1.35, marginTop: 3 }}>{c.value}</div>
-              </div>
-            ))}
+      <div style={{ background: "var(--color-gold-surface)", border: "1px solid var(--color-gold-border)", borderLeft: "4px solid var(--color-gold)", borderRadius: 5, padding: "11px 13px", marginBottom: 13 }}>
+        <div style={{ fontSize: 10, color: "var(--color-gold)", letterSpacing: "1.3px", textTransform: "uppercase", fontFamily: "'IBM Plex Mono', monospace" }}>{plan.objective.situation} objective</div>
+        <strong style={{ display: "block", fontSize: 13, color: "var(--color-text-1)", marginTop: 3 }}>{plan.objective.label}</strong>
+        <div style={{ fontSize: 11, color: "var(--color-text-2)", lineHeight: 1.5, marginTop: 4 }}>{plan.objective.text}</div>
+      </div>
+
+      {plan.settings.length > 0 ? <>
+        <div style={{ fontSize: 12, fontWeight: 800, color: "var(--color-text-1)", marginBottom: 3 }}>Quick setup</div>
+        <div style={{ fontSize: 11, color: "var(--color-text-3)", lineHeight: 1.5, marginBottom: 10 }}>Make these changes for this call and down.</div>
+      </> : <p style={{ fontSize: 11, color: "var(--color-text-2)", margin: "0 0 10px" }}>No pre-snap changes needed.</p>}
+      {plan.settings.map(item => (
+        <div key={item.setting} style={{ background: "var(--color-surface-1)", border: "1px solid var(--color-border-subtle)", borderLeft: "3px solid var(--color-gold)", borderRadius: 5, padding: "10px 13px", marginBottom: 7 }}>
+          <div style={{ display: "flex", justifyContent: "space-between", gap: 10, alignItems: "baseline" }}>
+            <strong style={{ fontSize: 11, color: "var(--color-text-1)" }}>{item.setting}</strong>
+            <strong style={{ fontSize: 11, color: "var(--color-gold)", textAlign: "right" }}>{item.value}</strong>
           </div>
+          <div style={{ fontSize: 11, color: "var(--color-text-2)", lineHeight: 1.5, marginTop: 4 }}>{item.why}</div>
+          <details style={{ fontSize: 11, color: "var(--color-text-3)", marginTop: 5 }}>
+            <summary style={{ cursor: "pointer", color: "var(--color-gold)" }}>What you give up</summary>
+            <div style={{ marginTop: 4, lineHeight: 1.5 }}>{item.tradeoff}</div>
+          </details>
         </div>
+      ))}
+
+      {plan.preset && (
+        <details style={{ background: "var(--color-surface-1)", border: "1px solid var(--color-border-subtle)", borderRadius: 5, padding: "9px 12px", marginTop: 9 }}>
+          <summary style={{ cursor: "pointer", color: "var(--color-gold)", fontSize: 11, fontWeight: 700 }}>Optional one-button counter</summary>
+          <div style={{ display: "flex", justifyContent: "space-between", gap: 10, marginTop: 8 }}>
+            <strong style={{ fontSize: 11, color: "var(--color-text-1)" }}>{plan.preset.setting}</strong>
+            <strong style={{ fontSize: 11, color: "var(--color-gold)", textAlign: "right" }}>{plan.preset.value}</strong>
+          </div>
+          <div style={{ fontSize: 11, color: "var(--color-text-2)", lineHeight: 1.5, marginTop: 4 }}>{plan.preset.why}</div>
+          <div style={{ fontSize: 11, color: "var(--color-text-3)", lineHeight: 1.5, marginTop: 4 }}><strong>Reset it when:</strong> {plan.preset.tradeoff}</div>
+        </details>
       )}
-      <ConflictingReads fm={fm} flat={flat} matched={matched} />
-      <div style={{ fontSize: "12px", color: "var(--color-text-3)", letterSpacing: "2px", textTransform: "uppercase", marginBottom: 14, fontFamily: "'IBM Plex Mono', monospace" }}>Scouting-Based</div>
-      {matched.length === 0 && (
-        <div style={{ fontSize: 11, color: "var(--color-text-3)", padding: "10px", textAlign: "center", fontStyle: "italic" }}>No specific adjustments flagged — default settings apply.</div>
+
+      {plan.tools.length > 0 && (
+        <details style={{ background: "var(--color-surface-1)", border: "1px solid var(--color-border-subtle)", borderRadius: 5, padding: "10px 12px", marginTop: 10 }}>
+          <summary style={{ cursor: "pointer", color: "var(--color-gold)", fontSize: 11, fontWeight: 700 }}>More counters — use only after you see the problem</summary>
+          <div style={{ fontSize: 11, color: "var(--color-text-3)", lineHeight: 1.5, margin: "7px 0 9px" }}>These are available tools, not extra steps to apply every snap.</div>
+          {plan.tools.map(item => (
+            <div key={`${item.setting}-${item.value}`} style={{ borderTop: "1px solid var(--color-border-subtle)", padding: "9px 1px" }}>
+              <div style={{ display: "flex", justifyContent: "space-between", gap: 10 }}>
+                <strong style={{ fontSize: 11, color: "var(--color-text-1)" }}>{item.setting}</strong>
+                <strong style={{ fontSize: 11, color: "var(--color-gold)", textAlign: "right" }}>{item.value}</strong>
+              </div>
+              <div style={{ fontSize: 11, color: "var(--color-text-2)", lineHeight: 1.45, marginTop: 4 }}>{item.why}</div>
+              <div style={{ fontSize: 10, color: "var(--color-text-3)", lineHeight: 1.45, marginTop: 3 }}><strong>Risk:</strong> {item.tradeoff}</div>
+            </div>
+          ))}
+        </details>
       )}
-      <AdjSection sec="QB Threat" items={qt} icon="🏃" />
-      <AdjSection sec="Safety Setup" items={ss} icon="🔭" />
-      <AdjSection sec="Zone Drops" items={zd} icon="📐" />
-      <AdjSection sec="Pre-Snap" items={ps} icon="🎭" />
-      <AdjSection sec="Keys & Reads" items={kr} icon="🏈" />
+
+      {plan.alerts.length > 0 && <>
+        <div style={{ fontSize: 12, fontWeight: 800, color: "var(--color-text-1)", margin: "16px 0 8px" }}>When to reset these settings</div>
+        {plan.alerts.map(item => (
+          <div key={item.when} style={{ background: "var(--color-surface-1)", border: "1px solid var(--color-border-subtle)", borderLeft: "3px solid var(--color-pass)", borderRadius: 5, padding: "10px 13px", marginBottom: 7 }}>
+            <strong style={{ fontSize: 11, color: "var(--color-text-1)" }}>{item.when}</strong>
+            <div style={{ fontSize: 11, color: "var(--color-text-3)", lineHeight: 1.5, marginTop: 4 }}>{item.action}</div>
+          </div>
+        ))}
+      </>}
+
+      <div style={{ background: "var(--color-surface-1)", border: "1px solid var(--color-border-subtle)", borderLeft: "3px solid var(--color-success)", borderRadius: 5, padding: "10px 13px", marginTop: 16 }}>
+        <div style={{ fontSize: 10, color: "var(--color-success)", letterSpacing: "1.5px", textTransform: "uppercase", marginBottom: 4, fontFamily: "'IBM Plex Mono', monospace" }}>Your user key</div>
+        <strong style={{ fontSize: 11, color: "var(--color-text-1)" }}>{plan.userKey.title}</strong>
+        <div style={{ fontSize: 11, color: "var(--color-text-3)", lineHeight: 1.5, marginTop: 4 }}>{plan.userKey.text}</div>
+      </div>
+      {onLogCall && <button onClick={() => onLogCall({ call: fm.personalizedCoverage || fm.recommendedCoverage, plan })} style={{ width: "100%", marginTop: 10, padding: "10px 12px", background: "var(--color-gold-surface)", border: "1px solid var(--color-gold)", borderRadius: 6, color: "var(--color-gold-bright)", fontSize: 11, fontWeight: 800, cursor: "pointer" }}>Log this setup after the snap</button>}
     </div>
   );
 }
 
-const SIT_LABELS = { base:"Base", "2md":"2nd & Mid", "3lg":"3rd & Long", "3sh":"3rd & Short", rz:"Red Zone" };
-const BIAS_MAP_RP = { 1:-1.0, 2:-0.65, 3:-0.30, 4:0, 5:0.30, 6:0.65, 7:1.0 };
+function CoverageCard({ call, index, flat, recommended = false, playerChoice = false, onLogCall }) {
+  const guidance = getCoverageGuidance(call.name, call.tag, flat);
+  return (
+    <div style={{ background: "var(--color-surface-1)", border: "1px solid var(--color-border-subtle)", borderLeft: `3px solid ${["#b8880c","#6090b8","#7858a0","#508860"][index] || "#b8880c"}`, borderRadius: 5, padding: "14px 16px", marginBottom: 12 }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 7, flexWrap: "wrap", marginBottom: 6 }}>
+        <span style={{ fontWeight: "bold", fontSize: 11, color: "var(--color-text-1)" }}>{call.name}</span>
+        <span style={{ fontSize: "10px", background: "var(--color-gold-surface)", border: "1px solid var(--color-gold-border)", color: "var(--color-gold)", padding: "2px 5px", borderRadius: 4, fontFamily: "'IBM Plex Mono', monospace" }}>{call.tag}</span>
+        {recommended && !call.optionRoles?.length && <span style={{ fontSize: "10px", background: "var(--color-surface-success)", border: "1px solid var(--color-border)", color: "var(--color-success)", padding: "2px 5px", borderRadius: 4, fontWeight: "bold", fontFamily: "'IBM Plex Mono', monospace" }}>BEST OVERALL</span>}
+        {call.optionRoles?.map(role => (
+          <span key={role.id} style={{ fontSize: "10px", background: role.id === 'overall' ? "var(--color-surface-success)" : "var(--color-surface-2)", border: "1px solid var(--color-border)", color: role.id === 'overall' ? "var(--color-success)" : "var(--color-text-2)", padding: "2px 5px", borderRadius: 4, fontWeight: "bold", fontFamily: "'IBM Plex Mono', monospace" }}>
+            {role.label}
+          </span>
+        ))}
+        {playerChoice && <span style={{ fontSize: "10px", background: "var(--color-gold-surface)", border: "1px solid var(--color-gold)", color: "var(--color-gold-bright)", padding: "2px 5px", borderRadius: 4, fontWeight: "bold", fontFamily: "'IBM Plex Mono', monospace" }}>BEST FOR YOU</span>}
+      </div>
+      {call.optionRoles?.length > 0 && (
+        <div style={{ fontSize: 11, color: "var(--color-text-2)", lineHeight: 1.5, marginBottom: 7 }}>
+          {call.optionRoles.map(role => <div key={role.id}>{role.reason}</div>)}
+        </div>
+      )}
+      {playerChoice && call.playerChoiceReason && <div style={{ fontSize: 11, color: "var(--color-gold)", lineHeight: 1.45, marginBottom: 7 }}><strong>Why it fits you:</strong> {call.playerChoiceReason}</div>}
+      <div style={{ fontSize: 11, color: "var(--color-text-2)", lineHeight: 1.65 }}>
+        <div><strong>Use it when:</strong> {guidance.bestSpot}</div>
+        <div><strong>Make them beat you with:</strong> {guidance.offenseAnswer}</div>
+      </div>
+      <details style={{ fontSize: 11, lineHeight: 1.55, marginTop: 8 }}>
+        <summary style={{ cursor: "pointer", color: "var(--color-gold)", fontWeight: 700 }}>Call coaching</summary>
+        <p><strong>This call protects:</strong> {guidance.takesAway}</p>
+        <p><strong>Your job:</strong> {guidance.userKey}</p>
+        <p><strong>Change the call when:</strong> {guidance.getOut}</p>
+        {call.matchup?.concept && <p><strong>Main concern on this down:</strong> {call.matchup.concept.priorityRisk.label}. {call.matchup.concept.mainConcession}</p>}
+      </details>
+      {onLogCall && <button onClick={() => onLogCall({ call: call.name })} style={{ marginTop: 9, padding: "6px 9px", background: "transparent", border: "1px solid var(--color-gold-border)", borderRadius: 5, color: "var(--color-gold)", fontSize: 10, fontWeight: 700, cursor: "pointer" }}>Test this call</button>}
+    </div>
+  );
+}
 
-export default function FormationDetail({ fm, flat, situation = "base", runPass = 4 }) {
+export default function FormationDetail({ fm, flat, situation, onLogCall }) {
   const [tab, setTab] = useState("coverages");
   const [showWhy, setShowWhy] = useState(false);
   const [showScoring, setShowScoring] = useState(false);
-  const blitz = getBlitz(fm, flat);
-
-  // ── Scoring factor calculations ───────────────────────────────────────────
-  const runBias = BIAS_MAP_RP[runPass] || 0;
-  let biasAdj = 0;
-  if (fm.priority === "run" && runBias > 0) biasAdj = Math.round(runBias * 15);
-  else if (fm.priority === "pass" && runBias < 0) biasAdj = Math.round(-runBias * 15);
-  else if (fm.priority === "run" && runBias < 0) biasAdj = Math.round(runBias * 10);
-  else if (fm.priority === "pass" && runBias > 0) biasAdj = Math.round(-runBias * 10);
-
-  const avoidFired = (fm.avoidTags || []).filter(t => flat.includes(t));
-  const blitzModsFired = (fm.blitzMods || []).filter(m => m.tags.some(t => flat.includes(t)));
-  const situAdj = fm._situationAdj || 0;
+  const front = getFrontStructure(fm.name);
+  const situationPlan = buildAdjustmentPlan(fm, flat, situation);
 
   return (
     <div style={{ background: "var(--color-bg)", border: "1px solid var(--color-gold)", borderTop: "none", borderLeft: "3px solid var(--color-gold)", borderRadius: "0 0 9px 9px", overflow: "hidden", marginBottom: 18 }}>
-      {/* Blitz bar */}
-      <div style={{ padding: "16px 16px", borderBottom: "1px solid var(--color-border-subtle)", background: "var(--color-bg)" }}>
-        <BlitzBar pct={blitz} />
-        {fm.blitzMods.filter(m => m.tags.some(t => flat.includes(t))).slice(0, 3).map((m, i) => (
-          <div key={i} style={{ fontSize: "11px", color: "var(--color-text-3)", marginTop: 3, display: "flex", gap: 8 }}>
-            <span style={{ color: m.d >= 0 ? "var(--color-gold-bright)" : "var(--color-success)", fontWeight: "bold" }}>{m.d >= 0 ? `+${m.d}%` : `${m.d}%`}</span>
-            <span>— {m.tags.filter(t => flat.includes(t)).map(t => TRAIT_LABELS[t] || t).join(", ")}</span>
-          </div>
-        ))}
-      </div>
-
       {/* Why This Formation Was Selected — collapsible */}
       <div style={{ borderBottom: "1px solid var(--color-border-subtle)", background: "var(--color-bg)" }}>
         <button
@@ -150,41 +163,14 @@ export default function FormationDetail({ fm, flat, situation = "base", runPass 
             {showScoring && (
               <div style={{ marginTop: 8, borderTop: "1px solid var(--color-border-subtle)", paddingTop: 10 }}>
                 <div style={{ fontSize: 10, color: "var(--color-text-3)", letterSpacing: "2px", textTransform: "uppercase", fontFamily: "'IBM Plex Mono', monospace", marginBottom: 8 }}>Scoring Factors</div>
-                {/* Run/Pass Bias */}
-                <div style={{ fontSize: 11, fontFamily: "'IBM Plex Mono', monospace", marginBottom: 5, display: "flex", gap: 8 }}>
-                  <span style={{ color: "var(--color-text-3)", minWidth: 110 }}>Run/Pass Bias:</span>
-                  {biasAdj === 0
-                    ? <span style={{ color: "var(--color-text-3)" }}>Balanced</span>
-                    : <span style={{ color: biasAdj > 0 ? "var(--color-success)" : "var(--color-danger)" }}>
-                        {biasAdj > 0 ? `+${biasAdj}` : biasAdj} {fm.priority} {biasAdj > 0 ? "bias" : "penalty"}
-                      </span>
-                  }
-                </div>
-                {/* AvoidTags Penalty */}
-                {avoidFired.length > 0 && (
-                  <div style={{ fontSize: 11, fontFamily: "'IBM Plex Mono', monospace", marginBottom: 5, display: "flex", gap: 8 }}>
-                    <span style={{ color: "var(--color-text-3)", minWidth: 110 }}>Avoid Penalty:</span>
-                    <span style={{ color: "var(--color-danger)" }}>-25: {avoidFired.map(t => TRAIT_LABELS[t] || t).join(", ")}</span>
-                  </div>
-                )}
-                {/* Blitz Modifiers */}
-                {blitzModsFired.slice(0, 2).map((m, i) => (
-                  <div key={i} style={{ fontSize: 11, fontFamily: "'IBM Plex Mono', monospace", marginBottom: 5, display: "flex", gap: 8 }}>
-                    <span style={{ color: "var(--color-text-3)", minWidth: 110 }}>Blitz Mod:</span>
-                    <span style={{ color: m.d >= 0 ? "var(--color-gold-bright)" : "var(--color-success)" }}>
-                      {m.d >= 0 ? `+${m.d}%` : `${m.d}%`} — {m.tags.filter(t => flat.includes(t)).map(t => TRAIT_LABELS[t] || t).join(", ")}
-                    </span>
+                {fm.ledger.map((entry, i) => (
+                  <div key={`${entry.id}-${i}`} style={{ fontSize: 11, marginBottom: 5 }}>
+                    {entry.label}: {entry.delta > 0 ? '+' : ''}{entry.delta}
+                    {entry.reason && <div style={{ color: 'var(--color-text-3)', marginTop: 2 }}>{entry.reason}</div>}
+                    {entry.tags?.length ? ` — ${entry.tags.map(t => TRAIT_LABELS[t] || t).join(', ')}` : ''}
                   </div>
                 ))}
-                {/* Situation Adjustment */}
-                {situation !== "base" && (
-                  <div style={{ fontSize: 11, fontFamily: "'IBM Plex Mono', monospace", marginBottom: 5, display: "flex", gap: 8 }}>
-                    <span style={{ color: "var(--color-text-3)", minWidth: 110 }}>Situation:</span>
-                    <span style={{ color: situAdj !== 0 ? "var(--color-gold)" : "var(--color-text-3)" }}>
-                      {SIT_LABELS[situation]}{situAdj !== 0 ? (situAdj > 0 ? ` +${situAdj}` : ` ${situAdj}`) : " — no adjustment"}
-                    </span>
-                  </div>
-                )}
+                <div style={{ fontSize: 11 }}>Fit score: {fm.sc}/100. This is an authored heuristic, not a success probability.</div>
               </div>
             )}
           </div>
@@ -192,6 +178,10 @@ export default function FormationDetail({ fm, flat, situation = "base", runPass 
       </div>
 
       {/* Inner tabs */}
+      {front && <div style={{ padding: "10px 16px", borderBottom: "1px solid var(--color-border-subtle)", background: "var(--color-surface-1)", fontSize: 11, lineHeight: 1.5 }}>
+        <strong>Formation front:</strong> {front.summary}
+        <div style={{ color: "var(--color-text-3)" }}>Positions: {front.labels.join(' · ')}. Alignment only—not the number rushing.</div>
+      </div>}
       <div style={{ display: "flex", borderBottom: "1px solid var(--color-border-subtle)", background: "var(--color-bg)" }}>
         {[
           { id: "coverages", l: "📡 Coverages" },
@@ -209,18 +199,26 @@ export default function FormationDetail({ fm, flat, situation = "base", runPass 
       </div>
 
       <div style={{ padding: 13 }}>
-        {tab === "coverages" && rankCoveragesForSituation(fm, situation, flat).map((c, i) => (
-          <div key={c.name} style={{ background: "var(--color-surface-1)", border: "1px solid var(--color-border-subtle)", borderLeft: `3px solid ${["#b8880c","#6090b8","#7858a0","#508860"][i] || "#b8880c"}`, borderRadius: 5, padding: "14px 16px", marginBottom: 16 }}>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 4 }}>
-              <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                <span style={{ fontWeight: "bold", fontSize: 11, color: "var(--color-text-1)" }}>{c.name}</span>
-                <span style={{ fontSize: "12px", background: "var(--color-gold-surface)", border: "1px solid var(--color-gold-border)", color: "var(--color-gold)", padding: "1px 5px", borderRadius: 4, fontFamily: "'IBM Plex Mono', monospace" }}>{c.tag}</span>
-                {i === 0 && <span style={{ fontSize: "12px", background: "var(--color-surface-success)", border: "1px solid var(--color-border)", color: "var(--color-success)", padding: "1px 5px", borderRadius: 4, fontWeight: "bold", fontFamily: "'IBM Plex Mono', monospace" }}>RECOMMENDED</span>}
-              </div>
+        {tab === "coverages" && (() => {
+          const choices = fm.callOptions?.length ? fm.callOptions : fm.rankedCoverages.slice(0, 4);
+          const choiceNames = new Set(choices.map(call => call.name));
+          const more = fm.rankedCoverages.filter(call => !choiceNames.has(call.name));
+          return <>
+            <div style={{ fontSize: 12, fontWeight: 800, color: "var(--color-text-1)", marginBottom: 3 }}>Choose the call for the problem</div>
+            <div style={{ fontSize: 11, color: "var(--color-text-3)", lineHeight: 1.5, marginBottom: 10 }}>Best Overall is the top matchup. Best For You also considers your saved defensive user and play style.</div>
+            <div style={{ background: "var(--color-gold-surface)", border: "1px solid var(--color-gold-border)", borderLeft: "3px solid var(--color-gold)", borderRadius: 5, padding: "9px 11px", marginBottom: 11 }}>
+              <div style={{ fontSize: 10, color: "var(--color-gold)", fontWeight: 800, textTransform: "uppercase", letterSpacing: "1px" }}>{situationPlan.objective.situation}: {situationPlan.objective.label}</div>
+              <div style={{ fontSize: 11, color: "var(--color-text-2)", lineHeight: 1.45, marginTop: 3 }}>{situationPlan.objective.text}</div>
             </div>
-            <div style={{ fontSize: 11, color: "var(--color-text-2)", lineHeight: 1.65 }}>{c.detail || c.note}</div>
-          </div>
-        ))}
+            {choices.map((call, index) => <CoverageCard key={call.name} call={call} index={index} flat={flat} recommended={call.name === fm.recommendedCoverage} playerChoice={call.name === fm.personalizedCoverage} onLogCall={onLogCall} />)}
+            {more.length > 0 && (
+              <details style={{ marginTop: 8 }}>
+                <summary style={{ cursor: "pointer", color: "var(--color-gold)", fontSize: 11, fontWeight: 700, marginBottom: 10 }}>More calls in this formation ({more.length})</summary>
+                {more.map((call, index) => <CoverageCard key={call.name} call={call} index={index + choices.length} flat={flat} onLogCall={onLogCall} />)}
+              </details>
+            )}
+          </>;
+        })()}
 
         {tab === "preSnap" && (
           <div>
@@ -235,22 +233,7 @@ export default function FormationDetail({ fm, flat, situation = "base", runPass 
         )}
 
         {tab === "coaching" && (
-          <div>
-            <AdjustmentsPanel fm={fm} flat={flat} />
-            {(flat.includes("boundary_hash") || flat.includes("field_hash")) && (
-              <div style={{ marginTop: 4, background: "var(--color-surface-1)", border: "1px solid var(--color-border-subtle)", borderLeft: "3px solid var(--color-border)", borderRadius: 5, padding: "10px 13px" }}>
-                <div style={{ fontSize: 10, color: "var(--color-gold)", letterSpacing: "1.5px", textTransform: "uppercase", marginBottom: 4, fontFamily: "'IBM Plex Mono', monospace" }}>📐 Hash Shade</div>
-                <div style={{ fontSize: 11, fontWeight: "bold", color: "var(--color-text-1)", fontFamily: "'IBM Plex Mono', monospace", marginBottom: 3 }}>
-                  {flat.includes("boundary_hash") ? "Shade toward boundary" : "Shade toward field"}
-                </div>
-                <div style={{ fontSize: 11, color: "var(--color-text-3)", lineHeight: 1.55 }}>
-                  {flat.includes("boundary_hash")
-                    ? "Routes attack the wide side — shade your coverage toward the boundary and rotate safety support to the field."
-                    : "Safety midpoint shifts to field side — routes concentrate to the wide hash. Rotate coverage toward the field."}
-                </div>
-              </div>
-            )}
-          </div>
+          <AdjustmentsPanel fm={fm} flat={flat} situation={situation} onLogCall={onLogCall} />
         )}
 
         {tab === "callsheet" && (

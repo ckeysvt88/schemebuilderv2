@@ -70,7 +70,7 @@ export const COVERAGE_FLAGS = {
   "Tampa Sim Pressure": { shortOK: false, longOK: true , fitIn: 0, fitOut: 2 },
 
   // ── C4 (5) — Quarters family — long
-  "Cover 4 Drop":     { shortOK: false, longOK: true , fitIn: 2, fitOut: 0 },
+  "Cover 4 Drop":     { shortOK: false, longOK: true , fitIn: 0, fitOut: 0 },
   "Cover 4 Palms":    { shortOK: false, longOK: true , fitIn: 2, fitOut: 0 },
   "Cover 4 Quarters": { shortOK: false, longOK: true , fitIn: 2, fitOut: 0 },
   "Cover 4 Show 2":   { shortOK: false, longOK: true , fitIn: 2, fitOut: 0 },
@@ -226,6 +226,11 @@ export const COVERAGE_FLAGS = {
   "46 Mid Blitz": { shortOK: false, longOK: false },
   "LB Blitz 6":   { shortOK: false, longOK: false },
 };
+
+// Exact abbreviated inventory labels used by Nickel 3-3 Single Mug.
+// These share the classification of the existing full spelling, not new counts.
+COVERAGE_FLAGS['Cov 2 Invert Hard Flat'] = { ...COVERAGE_FLAGS['Cover 2 Invert Hard Flat'] };
+COVERAGE_FLAGS['Cov 3 Buzz Match Wk'] = { ...COVERAGE_FLAGS['Cover 3 Buzz Match Wk'] };
 
 export const isShortYardageCall = name => COVERAGE_FLAGS[name]?.shortOK === true;
 export const isDeepSafeCall     = name => COVERAGE_FLAGS[name]?.longOK  === true;

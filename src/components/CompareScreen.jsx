@@ -97,7 +97,7 @@ export default function CompareScreen({ compareA, setCompareA, compareB, setComp
             { label: "Shared",           count: shared.length, color: "var(--color-text-2)" },
             { label: `${compareB} only`, count: onlyB.length, color: colB },
           ].map((s, i) => (
-            <div key={i} style={{ background: "var(--color-surface-2)", border: `1px solid ${s.color}44`, borderTop: `3px solid ${s.color}`, borderRadius: "var(--r-md)", padding: "12px 10px", textAlign: "center" }}>
+            <div key={i} style={{ background: "var(--color-surface-2)", border: `1px solid color-mix(in srgb, ${s.color} 45%, var(--color-surface-2))`, borderTop: `3px solid ${s.color}`, borderRadius: "var(--r-md)", padding: "12px 10px", textAlign: "center" }}>
               <div style={{ fontSize: 24, fontWeight: "700", color: s.color, fontFamily: "var(--font-mono)", lineHeight: 1 }}>{s.count}</div>
               <div style={{ fontSize: 10, color: "var(--color-text-3)", marginTop: 4, fontFamily: "var(--font-mono)", lineHeight: 1.3 }}>{s.label}</div>
             </div>
@@ -140,7 +140,7 @@ export default function CompareScreen({ compareA, setCompareA, compareB, setComp
         {/* Descriptions */}
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
           {[compareA, compareB].map(book => (
-            <div key={book} style={{ background: "var(--color-surface-2)", border: `1px solid ${(PLAYBOOKS[book]?.color || "var(--color-border)")}33`, borderLeft: `3px solid ${PLAYBOOKS[book]?.color || "var(--color-border)"}`, borderRadius: "var(--r-md)", padding: "12px 13px" }}>
+            <div key={book} style={{ background: "var(--color-surface-2)", border: `1px solid color-mix(in srgb, ${PLAYBOOKS[book]?.color || "var(--color-border)"} 40%, var(--color-surface-2))`, borderLeft: `3px solid ${PLAYBOOKS[book]?.color || "var(--color-border)"}`, borderRadius: "var(--r-md)", padding: "12px 13px" }}>
               <div style={{ fontSize: 12, fontWeight: "700", color: PLAYBOOKS[book]?.color || "var(--color-text-2)", fontFamily: "var(--font-mono)", marginBottom: 5 }}>{book}</div>
               <div style={{ fontSize: 12, color: "var(--color-text-2)", lineHeight: 1.55 }}>
                 {book === "All" ? "All formations from every playbook." : (PLAYBOOKS[book]?.desc || "")}
