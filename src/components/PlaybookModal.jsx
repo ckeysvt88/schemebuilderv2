@@ -29,7 +29,7 @@ export default function PlaybookModal({ value, recommended, onChange, onClose })
   };
   return createPortal(
     <div onClick={onClose} style={{ position: 'fixed', inset: 0, zIndex: 520, padding: 20, background: 'rgba(0,0,0,0.85)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-      <div ref={panel} role="dialog" aria-modal="true" aria-labelledby={titleId} onKeyDown={onKeyDown} onClick={event => event.stopPropagation()} style={{ width: '100%', maxWidth: 520, maxHeight: '82dvh', display: 'flex', flexDirection: 'column', background: 'var(--color-surface-2)', border: '1px solid var(--color-gold)', borderRadius: 'var(--r-lg)', padding: '18px 20px' }}>
+      <div ref={panel} role="dialog" aria-modal="true" aria-labelledby={titleId} onKeyDown={onKeyDown} onClick={event => event.stopPropagation()} style={{ width: '100%', boxSizing: 'border-box', maxWidth: 620, maxHeight: '82dvh', display: 'flex', flexDirection: 'column', background: 'var(--color-surface-2)', border: '1px solid var(--color-gold)', borderRadius: 'var(--r-lg)', padding: '16px' }}>
         <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 12, marginBottom: 16, flexShrink: 0 }}>
           <div>
             <div id={titleId} style={{ fontSize: 16, color: 'var(--color-gold-bright)', fontWeight: 800 }}>My Defensive Playbook</div>
@@ -37,14 +37,14 @@ export default function PlaybookModal({ value, recommended, onChange, onClose })
           </div>
           <button onClick={onClose} style={{ minHeight: 36, padding: '0 12px', background: 'transparent', border: '1px solid var(--color-border)', borderRadius: 'var(--r-sm)', color: 'var(--color-text-2)', cursor: 'pointer' }}>Done</button>
         </div>
-        <div style={{ overflowY: 'auto', minHeight: 0, display: 'grid', gap: 7, padding: 2 }}>
+        <div className="playbook-choice-grid">
           {['All', ...Object.keys(PLAYBOOKS)].map(book => (
-            <button key={book} ref={value === book ? current : null} aria-pressed={value === book} onClick={() => { onChange(book); onClose(); }} style={{ minHeight: 46, textAlign: 'left', padding: '10px 11px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8, background: value === book ? 'var(--color-gold-surface)' : 'var(--color-surface-1)', border: `1px solid ${value === book ? 'var(--color-gold)' : 'var(--color-border-subtle)'}`, borderRadius: 'var(--r-sm)', color: value === book ? 'var(--color-gold-bright)' : 'var(--color-text-1)', cursor: 'pointer' }}>
-              <span style={{ fontSize: 12, fontWeight: 700 }}>{book === 'All' ? 'All Books' : book}</span>
-              <span style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'flex-end', gap: 6, fontSize: 10 }}>
+            <button key={book} ref={value === book ? current : null} aria-pressed={value === book} onClick={() => { onChange(book); onClose(); }} style={{ minWidth: 0, minHeight: 54, textAlign: 'center', padding: '7px 6px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 3, overflowWrap: 'anywhere', background: value === book ? 'var(--color-gold-surface)' : 'var(--color-surface-1)', border: `1px solid ${value === book ? 'var(--color-gold)' : 'var(--color-border-subtle)'}`, borderRadius: 'var(--r-sm)', color: value === book ? 'var(--color-gold-bright)' : 'var(--color-text-1)', cursor: 'pointer' }}>
+              <span style={{ fontSize: 12, fontWeight: 700, lineHeight: 1.3 }}>{book === 'All' ? 'All Books' : book}</span>
+              {(recommended === book || value === book) && <span style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: 4, fontSize: 10 }}>
                 {recommended === book && <span style={{ color: 'var(--color-success)' }}>Recommended</span>}
                 {value === book && <span style={{ color: 'var(--color-gold-bright)' }}>✓ Current</span>}
-              </span>
+              </span>}
             </button>
           ))}
         </div>

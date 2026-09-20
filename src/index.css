@@ -287,3 +287,21 @@ button, label { user-select: none; -webkit-user-select: none; }
 .plan-toolbar__column-title { padding-bottom: 6px; border-bottom: 1px solid var(--color-border); text-align: center; font: 700 12px/1.4 var(--font-sans); color: var(--color-text-1); }
 .plan-toolbar__options button:disabled { opacity: .45; cursor: default; }
 .plan-toolbar__distance-hint { text-align: center; font: 400 12px/1.4 var(--font-sans); color: var(--color-text-2); }
+
+
+/* Shared by the Scout and Plan playbook popups. */
+.playbook-choice-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 6px;
+  padding: 2px;
+  overflow-y: auto;
+  min-height: 0;
+}
+.playbook-choice-grid button:focus-visible {
+  outline: 2px solid var(--color-gold-bright);
+  outline-offset: -3px;
+}
+@media (min-width: 560px) {
+  .playbook-choice-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}

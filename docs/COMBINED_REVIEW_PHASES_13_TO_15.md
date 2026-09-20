@@ -31,7 +31,7 @@ git log -1 --oneline
 npm run dev
 ```
 
-The latest commit message should be **Align adjustment instructions and highlight Build Game Plan**. Compare its short number with the one in my delivery message.
+The latest commit message should be **Compact playbook selection into a responsive grid**. Compare its short number with the one in my delivery message.
 
 If Git says local changes would be overwritten, stop and send that message; do not discard files or use a force/reset command. If fetch only asks whether to retry deleting the old worktree folders from earlier, answer **n**.
 
@@ -599,3 +599,11 @@ Implementation complete for slider wiring, normalization, scoring, persistence a
 - [ ] On Scout, the primary action always reads Build Game Plan. It has a distinct green/teal gradient in light mode and a muted dark gradient with light text in dark mode. Its disabled state remains clear.
 
 Validation: 130 tests pass. New adjustment checks cover all 1,245 catalog plays across four threat profiles and four situations; build and focused lint pass. Device appearance and actual game-menu behavior still require review.
+
+
+### Check 63 — Compact playbook selection
+
+- [ ] Open playbook selection from Scout and Plan. Choices use two columns on phones and three at widths of 560px or more.
+- [ ] Names are centered and wrap without clipping. Current and Recommended labels remain readable; the selected book stays gold.
+- [ ] All Books and every playbook remain available. The list scrolls inside the popup; Done stays visible.
+- [ ] Select a book: it applies and closes. Reopen: the current book is focused and visible. Check Escape and keyboard Tab, plus both themes.
