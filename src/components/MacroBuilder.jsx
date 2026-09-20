@@ -1,5 +1,5 @@
-import { useState, useMemo, useEffect } from 'react';
-import { MACRO_LIBRARY, MACRO_CATS, matchMacros, exportLoadout, normalizeMacroSelection } from '../data/macros.js';
+import { useState, useEffect } from 'react';
+import { MACRO_LIBRARY, MACRO_CATS, exportLoadout, normalizeMacroSelection } from '../data/macros.js';
 
 import { buildMacroPlan } from '../engine/macroPlan.js';
 
@@ -7,9 +7,9 @@ const sectionLabel = { fontSize: 10, color: "var(--color-text-3)", fontFamily: "
 const smallBtn = { fontSize: 11, minHeight: 28, padding: "0 10px", background: "transparent", border: "1px solid var(--color-border)", borderRadius: "var(--r-sm)", color: "var(--color-text-2)", cursor: "pointer", fontFamily: "var(--font-mono)" };
 const chip = (on) => ({
   padding: "0 12px", minHeight: 40, borderRadius: "var(--r-md)",
-  border: `1px solid ${on ? "var(--color-gold)" : "var(--color-border-subtle)"}`,
-  background: on ? "var(--color-gold-surface)" : "var(--color-surface-2)",
-  color: on ? "var(--color-gold-bright)" : "var(--color-text-2)",
+  border: `1px solid ${on ? "var(--color-gold)" : "#c9d2de"}`,
+  background: on ? "var(--color-gold-surface)" : "#ffffff",
+  color: on ? "var(--color-gold-bright)" : "#253040",
   fontFamily: "var(--font-mono)", fontSize: 12, fontWeight: 700, cursor: "pointer", transition: "all 150ms ease",
 });
 const ctaBtn = (enabled) => ({
@@ -22,7 +22,6 @@ const ctaBtn = (enabled) => ({
 const goldHead = { fontSize: 10, fontFamily: "var(--font-mono)", letterSpacing: "1px", textTransform: "uppercase", color: "var(--color-gold)", margin: "10px 0 4px", fontWeight: 700 };
 
 export default function MacroBuilder() {
-  const [query, setQuery] = useState("");
   const [cat, setCat] = useState(null);
   const [sel, setSel] = useState(() => {
     try { const s = localStorage.getItem('cfb27_macros'); return normalizeMacroSelection(s ? JSON.parse(s) : []); } catch { return []; }
@@ -37,7 +36,6 @@ export default function MacroBuilder() {
   }, []);
   useEffect(() => { try { localStorage.setItem('cfb27_macros', JSON.stringify(sel)); } catch { /* Selection remains usable for this visit. */ } }, [sel]);
 
-  const suggestions = useMemo(() => matchMacros(query, 4), [query]);
   const selected = sel.map(id => MACRO_LIBRARY.find(m => m.id === id)).filter(Boolean);
 
   const toggle = (id) => {
@@ -79,39 +77,18 @@ export default function MacroBuilder() {
         {view === "build" && (<>
 
           <div style={sectionLabel}>What's the problem?</div>
-          <input aria-label="Search offensive problems"
-            style={{ width: "100%", boxSizing: "border-box", minHeight: 44, background: "var(--color-surface-2)", border: "1px solid var(--color-border)", borderRadius: "var(--r-md)", color: "var(--color-text-1)", fontFamily: "var(--font-sans)", fontSize: 16, padding: "0 14px", outline: "none" }}
-            value={query} onChange={e => setQuery(e.target.value)}
-            placeholder={'Describe it — "he keeps pulling on the read option"'} />
-          {suggestions.length > 0 && query.trim().length >= 3 && (
-            <div style={{ background: "linear-gradient(135deg, var(--color-surface-1), var(--color-surface-2))", border: "1px solid var(--color-border)", borderLeft: "3px solid var(--color-gold)", borderRadius: "var(--r-md)", padding: "12px 13px", marginTop: 8 }}>
-              <div style={{ fontSize: 11, color: "var(--color-text-3)", fontStyle: "italic", marginBottom: 8, lineHeight: 1.4 }}>
-                Possible answers to "{query.trim()}" — choose the problem you actually see
-              </div>
-              {suggestions.map(({ m }) => (
-                <div key={m.id} style={{ marginBottom: 8 }}>
-                  <button style={{ ...chip(sel.includes(m.id)), width: "100%", textAlign: "left", padding: "8px 12px" }} onClick={() => toggle(m.id)}>
-                    {sel.includes(m.id) ? "✓ " : "+ "}{m.name}<span style={{ fontFamily: "var(--font-sans)", fontWeight: 400, color: sel.includes(m.id) ? "var(--color-gold-bright)" : "var(--color-text-3)" }}> — {m.label}</span>
-                  </button>
-                </div>
-              ))}
-            </div>
-          )}
-
-          {query.trim().length >= 3 && !suggestions.length && <p role="status" style={{ fontSize: 12 }}>No clear threat found. Describe what they are doing, such as “throwing screens,” or browse below.</p>}
-          <div style={sectionLabel}>Browse all 56 problems</div>
           <div className="macro-cat-grid">
             {MACRO_CATS.map((c) => {
               const cnt = selected.filter(m => m.cat === c).length;
               const isOpen = cat === c;
               return (
-                <button key={c} onClick={() => setCat(isOpen ? null : c)}
+                <button key={c} aria-expanded={isOpen} onClick={() => setCat(isOpen ? null : c)}
                   style={{
-                    background: cnt > 0 ? "var(--color-surface-success)" : "var(--color-surface-2)",
-                    border: `1px solid ${isOpen ? "var(--color-gold)" : cnt > 0 ? "var(--color-border)" : "var(--color-border-subtle)"}`,
+                    background: isOpen || cnt > 0 ? "var(--color-gold-surface)" : "#ffffff",
+                    border: `1px solid ${isOpen || cnt > 0 ? "var(--color-gold)" : "#c9d2de"}`,
                     borderRadius: "var(--r-md)", padding: "14px 6px", textAlign: "center", cursor: "pointer", minHeight: 52,
-                    transition: "border-color 150ms, background 150ms", outline: "none" }}>
-                  <div style={{ fontSize: 11, fontWeight: "700", color: cnt > 0 ? "var(--color-success)" : "var(--color-text-3)", lineHeight: 1.35, fontFamily: "var(--font-mono)", minHeight: 28, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                    transition: "border-color 150ms, background 150ms" }}>
+                  <div style={{ fontSize: 11, fontWeight: "700", color: isOpen || cnt > 0 ? "var(--color-gold-bright)" : "#253040", lineHeight: 1.35, fontFamily: "var(--font-mono)", minHeight: 28, display: "flex", alignItems: "center", justifyContent: "center" }}>
                     {c}{cnt > 0 ? ` (${cnt})` : ""}
                   </div>
                 </button>
@@ -121,7 +98,7 @@ export default function MacroBuilder() {
           {cat && (
             <div style={{ display: "flex", flexDirection: "column", gap: 6, marginTop: 8 }}>
               {MACRO_LIBRARY.filter(m => m.cat === cat).map(m => (
-                <button key={m.id} style={{ ...chip(sel.includes(m.id)), width: "100%", textAlign: "left", fontFamily: "var(--font-sans)", fontWeight: sel.includes(m.id) ? 700 : 500, fontSize: 13, padding: "10px 12px" }} onClick={() => toggle(m.id)}>
+                <button key={m.id} aria-pressed={sel.includes(m.id)} style={{ ...chip(sel.includes(m.id)), width: "100%", textAlign: "left", fontFamily: "var(--font-sans)", fontWeight: sel.includes(m.id) ? 700 : 500, fontSize: 13, padding: "10px 12px" }} onClick={() => toggle(m.id)}>
                   {sel.includes(m.id) ? "✓ " : ""}{m.label}
                 </button>
               ))}

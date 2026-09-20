@@ -31,7 +31,7 @@ git log -1 --oneline
 npm run dev
 ```
 
-The latest commit message should be **Match expanded toolbar borders to the surrounding outline**. Compare its short number with the one in my delivery message.
+The latest commit message should be **Simplify macro selection and distinguish idle options**. Compare its short number with the one in my delivery message.
 
 If Git says local changes would be overwritten, stop and send that message; do not discard files or use a force/reset command. If fetch only asks whether to retry deleting the old worktree folders from earlier, answer **n**.
 
@@ -551,3 +551,11 @@ Checks 40–44 above now describe the new problem-only workflow; prior base-call
 - [ ] Open Down & Distance, then Formation & Personnel. The lower header edge matches the outer border in color and thickness, with square joining corners. No contrasting bar appears.
 - [ ] The outer outline continues down both sides and around the rounded bottom beneath the choices, like an expanded Team Info box.
 - [ ] Close the dropdown: rounded header corners return, with no doubled lower border. Check both themes and smooth opening/closing.
+
+
+### Check 58 — Cleaner macro selection
+
+- [ ] Macro Builder opens directly to problem categories. The Describe it field and text suggestions are gone; all 56 problems remain available through categories.
+- [ ] Idle categories and unselected problems have white backgrounds with dark readable text. An open category is gold; categories containing selected problems remain gold with their count when closed.
+- [ ] Selecting a problem turns it gold and adds its checked state and plan card. Removing it restores white; an empty closed category returns to white too.
+- [ ] Saved selections retain their highlights on reopening. Build Loadout and Copy All still include the selected packages. Review colors in both themes.
