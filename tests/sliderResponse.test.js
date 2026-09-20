@@ -47,3 +47,15 @@ test('personnel-only and RPO scout setups change leading recommendations at slid
     assert.notDeepEqual(best(1),best(7));
   }
 });
+
+
+test('slider reweights a threat without changing its underlying coverage grade', () => {
+  for (const name of ['Cover 4 Quarters', 'Cover 2', 'Cover 6', 'Cover 3 Sky', 'Cover 4 Drop']) {
+    const grades = [];
+    for (let runPass = 1; runPass <= 7; runPass++) {
+      const assessment = assessConceptMatchups(null, name, ['quick_game'], 'base', 'balanced', runPass);
+      grades.push(assessment.scenarios.find(s => s.id === 'run-choice').grade);
+    }
+    assert.equal(new Set(grades).size, 1, name);
+  }
+});

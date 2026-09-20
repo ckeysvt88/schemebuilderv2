@@ -31,7 +31,7 @@ git log -1 --oneline
 npm run dev
 ```
 
-The latest commit message should be **Restore slider influence and refine comparison and theme defaults**. Compare its short number with the one in my delivery message.
+The latest commit message should be **Complete slider consistency and show active plan tendency**. Compare its short number with the one in my delivery message.
 
 If Git says local changes would be overwritten, stop and send that message; do not discard files or use a force/reset command. If fetch only asks whether to retry deleting the old worktree folders from earlier, answer **n**.
 
@@ -576,3 +576,14 @@ Checks 40–44 above now describe the new problem-only workflow; prior base-call
 - [ ] Refresh: a deliberately saved dark preference stays dark. Switch back to light: idle setup buttons are white again.
 
 Validation: 125 engine tests passed, including all 1,245 catalogued plays, 71 formations, playbook/situation safety and added slider regression checks. Build and focused lint passed. Theme and border appearance still require device review.
+
+
+### Check 61 — Completed slider behavior
+
+- [ ] The plan context line displays the active opponent tendency. Compare all seven positions, with Pass on the left and Run on the right.
+- [ ] Keep traits, offensive look, playbook, objective and user settings fixed. Change the tendency, rebuild, and compare formation/call scores and ordering. Returning to Balanced restores the same result.
+- [ ] Repeat with only a personnel selection, RPO Heavy, and a mixed run/pass scout. A retained best call is acceptable; the threat weighting and scores must still respond where the call has different strengths.
+- [ ] Coverage run support stays consistent through Balanced; only its emphasis changes. An unspecified run does not acquire a fabricated direction or RPO assignment.
+- [ ] Save/reload an opponent profile and compare live recommendations, copied plan and PDF: the tendency and calls agree.
+
+Implementation complete for slider wiring, normalization, scoring, persistence and exports. 126 tests pass, including existing full-catalog checks. Device review and real-game calibration remain separate validation steps.

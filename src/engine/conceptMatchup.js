@@ -114,8 +114,10 @@ export function buildConceptScenarios(traits = [], situation = 'base', gameObjec
   // A non-neutral slider is explicit scouting evidence about run/pass emphasis,
   // not evidence of a particular scheme, alignment, or quarterback mobility.
   if ([...scenarios.values()].some(s => s.source === 'observed') || runPassBias(runPass) !== 0) {
-    if (![...scenarios.keys()].some(id => ['inside-run', 'edge-run', 'qb-run', 'run-choice'].includes(id)))
+    if (![...scenarios.keys()].some(id => ['inside-run', 'edge-run', 'qb-run', 'run-choice'].includes(id))) {
       addScenario(scenarios, 'run-choice', 'Run — direction not scouted', 0.6, runPassBias(runPass) ? 'tendency' : 'complement', 'Keep a run answer without assuming a run scheme.');
+      scenarios.get('run-choice').supportScope = 'direction-unknown';
+    }
     if (![...scenarios.keys()].some(id => !['inside-run', 'edge-run', 'qb-run', 'run-choice', 'rpo'].includes(id)))
       addScenario(scenarios, 'pass-choice', 'Pass — routes not scouted', 0.6, runPassBias(runPass) ? 'tendency' : 'complement', 'Balance short coverage and deep help until the routes are scouted.');
   }
@@ -209,7 +211,7 @@ function gradeScenario(play, coverageName, scenario) {
       support: fit.outside, concession: fit.watch };
   }
   if (scenario.id === 'run-choice') {
-    if (scenario.source !== 'tendency') return {
+    if (scenario.supportScope !== 'direction-unknown') return {
       grade: 50, support: 'The handoff remains live; identify whether the run attacks inside or outside.',
       concession: 'Keep a defender responsible for the handoff when you react to the throw.',
     };

@@ -4,6 +4,7 @@ import PlanToolbar from './PlanToolbar.jsx';
 import { CONFERENCES } from '../data/teams.js';
 import { FDB } from '../data/formations.js';
 import { TRAITS } from '../data/traits.js';
+import { RUN_PASS_LABELS } from '../data/runPassBias.js';
 import { PMAP, PERSONNEL_FAMILIES, FAMILY_ADJUSTMENTS } from '../data/personnel.js';
 import { scoreAll, groupByPersonnel } from '../engine/scoring.js';
 import { getAvailableFamilies } from '../data/personnel.js';
@@ -225,7 +226,7 @@ export default function GamePlanScreen({
         />
 
         <p style={{ fontSize: 11, color: "var(--color-text-3)" }}>
-          {recommendation.familyLabel} · {recommendation.context.label}. Fit scores are rankings, not success probabilities.
+          {recommendation.familyLabel} · {recommendation.context.label} · Opponent: <strong>{RUN_PASS_LABELS[recommendation.runPass]}</strong>. Fit scores are rankings, not success probabilities.
         </p>
         {!planList.length && <p role="status">No recommended call fits this scout, situation and playbook. Check the current offensive look or choose another defensive playbook.</p>}
         {/* ── Tempo warning ── */}

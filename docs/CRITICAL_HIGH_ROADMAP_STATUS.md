@@ -14,7 +14,7 @@ Status after update 25. **Not all critical and high-priority requirements are im
 | High | Personalized assignments and user help | Partial. Position/style choices and matchup guardrails work. Exact user responsibility, help defenders and skill burden still need call-level evidence. |
 | High | Explicit game-objective selection | Complete in update 22: Balanced, No Quick TD, and Get a Stop flow through UI, scenario weights, selection safeguards, adjustments, share/PDF and objective-separated call tests. New plan/profile/scouting resets to Balanced. Device checks 33–35 pending. |
 | High | Automatic clock/score and field-position interpretation | Remaining future scope. The player now supplies the objective directly; numeric score, clock, timeout and field-position inputs are not implemented. Do not claim the app computes win probability, timeout usage or field-goal range. |
-| High | Run/pass tendency across calls and persistence | Implemented in update 23. Seven normalized levels reach concept weights, live/export/PDF, saved opponent profiles and separated test history. Opposite threats and situational risk gates remain. Weights still need gameplay calibration. |
+| High | Run/pass tendency across calls and persistence | Implementation completed through Check 61, including capped-score penalties, group emphasis and stable coverage grades through Balanced. Seven normalized levels reach concept weights, live/export/PDF, saved opponent profiles and separated test history. Opposite threats and situational risk gates remain. Weights still need gameplay calibration. |
 | High | Macro Builder correctness and catalog coverage | Reworked in update 25: 56 problem-first packages with varied adjustments, visible prerequisites and separate at-line actions. No base-call input is required. Optional exact-call checks cover all 1,245 plays; device/gameplay validation remains pending. |
 | High | Full-formation regression coverage | Expanded in update 23 to all 31 books plus All, seven tendency levels, five situation selections, all user styles/objectives, and all macros × all inventory plays × four contexts. See FULL_FORMATION_COVERAGE_PHASE23.md for every row and explicit inventory exceptions. |
 | High | Fast coaching and adjustments | Implemented improvements with regression coverage; device usability and game-menu verification remain part of review. Continue auditing old narrative claims and contradictory advice. |
@@ -29,7 +29,7 @@ Status after update 25. **Not all critical and high-priority requirements are im
 
 These are remaining engineering tasks as well as evidence tasks. They are not all blocked on the user. Gameplay-only conclusions require actual gameplay observations.
 
-[Combined validation checks 1–60](COMBINED_REVIEW_PHASES_13_TO_15.md)
+[Combined validation checks 1–61](COMBINED_REVIEW_PHASES_13_TO_15.md)
 
 
 ## Update 23 inventory exceptions
@@ -61,3 +61,5 @@ Check 57 covers joined dropdown borders matching the surrounding outline, withou
 Check 58 covers direct category-based macro selection without Describe it, neutral idle choices and gold active/selected states.
 
 Checks 59–60 cover slider penalties surviving capped formation scores, run/pass group emphasis, unknown-direction coverage support, comparison borders, light-first startup and dark setup-button surfaces.
+
+Check 61 closes slider implementation: active tendency is visible in the plan and an unchanged threat keeps the same coverage grade across all seven settings. 126 automated tests pass; device/gameplay validation remains pending.
