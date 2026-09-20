@@ -65,7 +65,11 @@ export function scoreAll(traits = [], book = 'All', runPass = 4, familyId = null
     const idx = preferred.indexOf(name);
     // An expert preference cannot revive a matchup suppressed to zero.
     const family = base + runPassDelta + avoid > 0 && idx >= 0 ? (FAMILY_BONUS[idx] ?? 3) : 0;
-    const rawSc = base + runPassDelta + avoid + family;
+    // Bound the neutral formation grade first: a surplus family bonus must
+    // not absorb the penalty for facing the opposite run/pass tendency.
+    const neutralRaw = base + avoid + family;
+    const neutralBounds = clamp(neutralRaw) - neutralRaw;
+    const rawSc = neutralRaw + neutralBounds + runPassDelta;
     // A real selected match remains reviewable even when several conflicting
     // scout warnings fire. A 1 is a severe warning, not an endorsement.
     const sc = rawSc <= 0 ? 1 : clamp(rawSc);
@@ -74,6 +78,7 @@ export function scoreAll(traits = [], book = 'All', runPass = 4, familyId = null
       { id: 'runPass', label: 'Opponent run/pass tendency', delta: runPassDelta },
       { id: 'avoid', label: 'Matchup penalty', delta: avoid, tags: avoidHits },
       { id: 'family', label: 'Authored family preference', delta: family },
+      { id: 'formation:bounds', label: 'Formation score bounds before tendency', delta: neutralBounds },
       { id: 'clamp', label: rawSc <= 0 ? 'Kept for matchup review' : 'Score bounds', delta: sc - rawSc },
     ];
     return [{ ...d, name, sc, coreHits, suppHits, threatCoverage: coverage, effectiveTraits: flat, ledger,

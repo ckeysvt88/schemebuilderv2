@@ -21,7 +21,9 @@ test('objective changes the actual winner and returning to balanced restores the
   const protect = recommend({ ...base, gameObjective: 'no_quick_td' });
   const stop = recommend({ ...base, gameObjective: 'get_stop' });
   assert.equal(solid(before).recommendedCoverage, 'Cover 2 Invert Hard Flat');
-  assert.equal(solid(protect).recommendedCoverage, 'Cover 3 Match');
+  assert.notEqual(solid(protect).recommendedCoverage, solid(before).recommendedCoverage);
+  const protectedCall = solid(protect).rankedCoverages.find(c => c.name === solid(protect).recommendedCoverage);
+  assert.ok(protectedCall.matchup.facts.deep >= 3);
   assert.equal(solid(stop).recommendedCoverage, 'Cover 2 Invert Hard Flat');
   assert.deepEqual(recommend(base), before);
 });

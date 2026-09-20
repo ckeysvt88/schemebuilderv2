@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" data-theme="light">
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no"/>
@@ -7,12 +7,12 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black"/>
   <meta name="apple-mobile-web-app-title" content="CFB 27 Scheme Builders"/>
   <link rel="apple-touch-icon" href="/icon.png"/>
-  <meta name="theme-color" content="#07080f"/>
+  <meta name="theme-color" content="#edf1f8"/>
   <script>
     (function() {
       try {
         var t = localStorage.getItem('sb_theme');
-        if (t) document.documentElement.setAttribute('data-theme', t);
+        document.documentElement.setAttribute('data-theme', t === 'dark' ? 'dark' : 'light');
       } catch(e) {}
     })();
   </script>

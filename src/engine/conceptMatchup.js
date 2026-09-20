@@ -110,22 +110,43 @@ export function buildConceptScenarios(traits = [], situation = 'base', gameObjec
       addScenario(scenarios, 'quick', 'Quick conversion throw', 0.8, 'objective', 'Challenge the short completion that sustains the drive.');
     }
   }
+  // Retain both sides at every slider position when threats are scouted.
   // A non-neutral slider is explicit scouting evidence about run/pass emphasis,
   // not evidence of a particular scheme, alignment, or quarterback mobility.
-  if (runPassBias(runPass) !== 0) {
+  if ([...scenarios.values()].some(s => s.source === 'observed') || runPassBias(runPass) !== 0) {
     if (![...scenarios.keys()].some(id => ['inside-run', 'edge-run', 'qb-run', 'run-choice'].includes(id)))
-      addScenario(scenarios, 'run-choice', 'Run — direction not scouted', 0.6, 'tendency', 'Keep a run answer; the slider does not identify the run scheme.');
+      addScenario(scenarios, 'run-choice', 'Run — direction not scouted', 0.6, runPassBias(runPass) ? 'tendency' : 'complement', 'Keep a run answer without assuming a run scheme.');
     if (![...scenarios.keys()].some(id => !['inside-run', 'edge-run', 'qb-run', 'run-choice', 'rpo'].includes(id)))
-      addScenario(scenarios, 'pass-choice', 'Pass — routes not scouted', 0.6, 'tendency', 'Balance short coverage and deep help until the routes are scouted.');
+      addScenario(scenarios, 'pass-choice', 'Pass — routes not scouted', 0.6, runPassBias(runPass) ? 'tendency' : 'complement', 'Balance short coverage and deep help until the routes are scouted.');
   }
+  // The number of selected pass concepts must not outweigh an explicit
+  // run-heavy tendency. Set emphasis across run/pass groups first, preserving
+  // relative concept weights within each group. RPO remains a separate conflict.
+  const isRun = id => ['inside-run', 'edge-run', 'qb-run', 'run-choice'].includes(id);
+  const rows = [...scenarios.values()];
+  const runTotal = rows.filter(s => isRun(s.id)).reduce((n, s) => n + s.weight, 0);
+  const passTotal = rows.filter(s => !isRun(s.id) && s.id !== 'rpo').reduce((n, s) => n + s.weight, 0);
+  const bias = runPassBias(runPass);
+  const totalDemand = runTotal + passTotal;
+  const originalRunShare = totalDemand ? runTotal / totalDemand : 0;
+  // 80/20 is a heuristic emphasis, not a claim about actual play frequency.
+  const extremeRunShare = bias > 0 ? Math.max(0.8, (1 + originalRunShare) / 2)
+    : Math.min(0.2, originalRunShare / 2);
+  const targetRunShare = originalRunShare + Math.abs(bias) * (extremeRunShare - originalRunShare);
+  const tendency = id => {
+    if (id === 'rpo') return 1;
+    if (!bias || !runTotal || !passTotal) return conceptBiasMultiplier(id, runPass);
+    return isRun(id) ? targetRunShare * totalDemand / runTotal
+      : (1 - targetRunShare) * totalDemand / passTotal;
+  };
   const multipliers = SITUATION_CONCEPT_WEIGHTS[situation] || SITUATION_CONCEPT_WEIGHTS.base;
   const result = [...scenarios.values()].map(scenario => ({
     ...scenario,
     baseWeight: scenario.weight,
-    tendencyMultiplier: conceptBiasMultiplier(scenario.id, runPass),
+    tendencyMultiplier: tendency(scenario.id),
     situationMultiplier: multipliers[scenario.id] || 1,
     objectiveMultiplier: objective === 'no_quick_td' && ['vertical', 'play-action'].includes(scenario.id) ? 2 : 1,
-    weight: scenario.weight * conceptBiasMultiplier(scenario.id, runPass) * (multipliers[scenario.id] || 1) * (objective === 'no_quick_td' && ['vertical', 'play-action'].includes(scenario.id) ? 2 : 1),
+    weight: scenario.weight * tendency(scenario.id) * (multipliers[scenario.id] || 1) * (objective === 'no_quick_td' && ['vertical', 'play-action'].includes(scenario.id) ? 2 : 1),
   }));
   const total = result.reduce((sum, scenario) => sum + scenario.weight, 0);
   return result.map(scenario => ({ ...scenario, normalizedWeight: total ? scenario.weight / total : 0 }));
@@ -188,8 +209,17 @@ function gradeScenario(play, coverageName, scenario) {
       support: fit.outside, concession: fit.watch };
   }
   if (scenario.id === 'run-choice') {
-    return { grade: 50, support: 'The handoff remains live; identify whether the run attacks inside or outside.',
-      concession: 'Keep a defender responsible for the handoff when you react to the throw.' };
+    if (scenario.source !== 'tendency') return {
+      grade: 50, support: 'The handoff remains live; identify whether the run attacks inside or outside.',
+      concession: 'Keep a defender responsible for the handoff when you react to the throw.',
+    };
+    // Unknown direction is not identical run support for every coverage.
+    // Balance the known inside/outside support without inventing a run scheme.
+    const inside = gradeScenario(play, coverageName, { id: 'inside-run' }).grade;
+    const outside = gradeScenario(play, coverageName, { id: 'edge-run' }).grade;
+    return { grade: Math.round((inside + outside) / 2),
+      support: 'Balance inside and outside run support until the run direction is scouted.',
+      concession: fit.watch };
   }
   if (scenario.id === 'rpo') {
     const throwAnswer = gradeScenario(play, coverageName, { id: 'quick' });

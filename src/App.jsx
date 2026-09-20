@@ -20,7 +20,7 @@ export default function App() {
 
   // ── Theme ────────────────────────────────────────────────────────────────────
   const [isDark, setIsDark] = useState(() => {
-    try { return localStorage.getItem('sb_theme') !== 'light'; } catch { return true; }
+    try { return localStorage.getItem('sb_theme') === 'dark'; } catch { return false; }
   });
 
   const onToggle = useCallback(() => {

@@ -31,7 +31,7 @@ git log -1 --oneline
 npm run dev
 ```
 
-The latest commit message should be **Simplify macro selection and distinguish idle options**. Compare its short number with the one in my delivery message.
+The latest commit message should be **Restore slider influence and refine comparison and theme defaults**. Compare its short number with the one in my delivery message.
 
 If Git says local changes would be overwritten, stop and send that message; do not discard files or use a force/reset command. If fetch only asks whether to retry deleting the old worktree folders from earlier, answer **n**.
 
@@ -559,3 +559,20 @@ Checks 40–44 above now describe the new problem-only workflow; prior base-call
 - [ ] Idle categories and unselected problems have white backgrounds with dark readable text. An open category is gold; categories containing selected problems remain gold with their count when closed.
 - [ ] Selecting a problem turns it gold and adds its checked state and plan card. Removing it restores white; an empty closed category returns to white too.
 - [ ] Saved selections retain their highlights on reopening. Build Loadout and Copy All still include the selected packages. Review colors in both themes.
+
+
+### Check 59 — Run/pass response and comparison borders
+
+- [ ] Compare two playbooks: Shared has a complete outline like the adjacent summary boxes, in both themes.
+- [ ] Scout 11p with RPO Heavy, build the plan, and compare Very pass-heavy (left) against Very run-heavy (right), keeping the same offensive look and playbook. Compare the top three formations, scores and calls.
+- [ ] Repeat with inside/outside runs, quick game and deep shots; also try several other personnel families and a restricted playbook. Scores and threat emphasis must react. A call may remain best at both ends; do not force a different call when it still answers the matchup.
+- [ ] Compare a scout with many pass concepts against the run-heavy endpoint: tag count must not override the explicit run emphasis. Both threats remain considered. Long-yardage and explosive-play safeguards still apply.
+- [ ] Copy/export the plan and confirm its tendency and recommended calls match the live screen.
+
+### Check 60 — Light default and dark setup buttons
+
+- [ ] Open in a private window with no saved preferences: the app starts light, without a dark flash.
+- [ ] Switch to dark: idle Playbook, My Defensive User and Game Objective buttons use the dark button surface with readable text. Selected buttons retain their gold treatment.
+- [ ] Refresh: a deliberately saved dark preference stays dark. Switch back to light: idle setup buttons are white again.
+
+Validation: 125 engine tests passed, including all 1,245 catalogued plays, 71 formations, playbook/situation safety and added slider regression checks. Build and focused lint passed. Theme and border appearance still require device review.

@@ -29,7 +29,7 @@ Status after update 25. **Not all critical and high-priority requirements are im
 
 These are remaining engineering tasks as well as evidence tasks. They are not all blocked on the user. Gameplay-only conclusions require actual gameplay observations.
 
-[Combined validation checks 1–58](COMBINED_REVIEW_PHASES_13_TO_15.md)
+[Combined validation checks 1–60](COMBINED_REVIEW_PHASES_13_TO_15.md)
 
 
 ## Update 23 inventory exceptions
@@ -59,3 +59,5 @@ Check 56 covers toolbar dividers, softer team borders and user highlights based 
 Check 57 covers joined dropdown borders matching the surrounding outline, without a contrasting header bar.
 
 Check 58 covers direct category-based macro selection without Describe it, neutral idle choices and gold active/selected states.
+
+Checks 59–60 cover slider penalties surviving capped formation scores, run/pass group emphasis, unknown-direction coverage support, comparison borders, light-first startup and dark setup-button surfaces.

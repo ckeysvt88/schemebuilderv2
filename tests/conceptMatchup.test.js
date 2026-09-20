@@ -45,7 +45,7 @@ test('contain improves the narrow QB-run assessment but states its remaining con
   const withContain = assessConceptMatchups(contain, contain.n, ['mobile_qb']);
   const without = assessConceptMatchups(quarters, quarters.n, ['mobile_qb']);
   assert.ok(withContain.utility > without.utility);
-  assert.match(withContain.mainConcession, /inside lane|option read/);
+  assert.match(withContain.scenarios.find(s => s.id === 'qb-run').concession, /inside lane|option read/);
 });
 
 test('live situation changes threat priority and bad-case protection', () => {

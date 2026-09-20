@@ -121,8 +121,11 @@ test('bias changes individual calls across fronts, including a hybrid formation'
   const pass=recommend({traits:mixed,runPass:1}); const run=recommend({traits:mixed,runPass:7});
   for(const name of ['3-4 Tite','3-4 Over','Nickel Load Dbl Mug']) {
     const p=pass.formations.find(f=>f.name===name); const r=run.formations.find(f=>f.name===name);
-    assert.ok(p && r,name); assert.notEqual(p.recommendedCoverage,r.recommendedCoverage,name);
+    assert.ok(p && r,name); assert.notEqual(p.sc,r.sc,name);
+    // A balanced inside/outside call may still win both rankings.
+    assert.notDeepEqual(p.rankedCoverages.map(c=>[c.name,c.sc]),r.rankedCoverages.map(c=>[c.name,c.sc]),name);
   }
+  assert.ok(run.formations.some(f=>pass.formations.find(p=>p.name===f.name)?.recommendedCoverage !== f.recommendedCoverage));
   assert.ok(run.formations.some(f=>FDB[f.name].priority==='hybrid' && f.rankedCoverages.some(c=>pass.formations.find(p=>p.name===f.name)?.rankedCoverages.find(p=>p.name===c.name)?.sc!==c.sc)));
   for(const runPass of [1,4,7]) {
     const input={traits:mixed,runPass};const live=recommend(input);const pdf=buildCallSheetData({input});
