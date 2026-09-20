@@ -17,7 +17,7 @@ export default function PlanToolbar({ options, value, fallbackLabel, onChange, d
     (open === 'situation' ? downTrigger : formationTrigger).current?.focus({ preventScroll: true });
     setOpen(null);
   };
-  return <section className="plan-toolbar" aria-label="Plan situation and offensive formation" onKeyDown={event => {
+  return <section className="plan-toolbar" data-expanded={open !== null} aria-label="Plan situation and offensive formation" onKeyDown={event => {
     if (open && event.key === 'Escape') { event.preventDefault(); close(); }
   }}>
     <div className="plan-toolbar__row">

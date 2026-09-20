@@ -31,7 +31,7 @@ git log -1 --oneline
 npm run dev
 ```
 
-The latest commit message should be **Clarify toolbar borders and track actual user changes**. Compare its short number with the one in my delivery message.
+The latest commit message should be **Match expanded toolbar borders to the surrounding outline**. Compare its short number with the one in my delivery message.
 
 If Git says local changes would be overwritten, stop and send that message; do not discard files or use a force/reset command. If fetch only asks whether to retry deleting the old worktree folders from earlier, answer **n**.
 
@@ -544,3 +544,10 @@ Checks 40–44 above now describe the new problem-only workflow; prior base-call
 - [ ] Team Info borders are softer and the left edge slightly thinner, while remaining visible for Akron, Alabama and Appalachian State in both themes.
 - [ ] An old saved default Linebacker profile alone must not make My Defensive User gold. Opening and closing the popup or tapping the unchanged default must not mark it changed.
 - [ ] Change Linebacker to Safety: the top button stays gold after closing. Change back to Linebacker: it stays gold. Refresh: this actual change history is remembered. Changing call priority also counts.
+
+
+### Check 57 — Joined dropdown borders
+
+- [ ] Open Down & Distance, then Formation & Personnel. The lower header edge matches the outer border in color and thickness, with square joining corners. No contrasting bar appears.
+- [ ] The outer outline continues down both sides and around the rounded bottom beneath the choices, like an expanded Team Info box.
+- [ ] Close the dropdown: rounded header corners return, with no doubled lower border. Check both themes and smooth opening/closing.
