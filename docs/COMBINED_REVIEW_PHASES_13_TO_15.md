@@ -31,7 +31,7 @@ git log -1 --oneline
 npm run dev
 ```
 
-The latest commit message should be **Balance situation choices and soften plan controls**. Compare its short number with the one in my delivery message.
+The latest commit message should be **Keep setup selections highlighted and improve plan visibility**. Compare its short number with the one in my delivery message.
 
 If Git says local changes would be overwritten, stop and send that message; do not discard files or use a force/reset command. If fetch only asks whether to retry deleting the old worktree folders from earlier, answer **n**.
 
@@ -526,6 +526,13 @@ Checks 40–44 above now describe the new problem-only workflow; prior base-call
 
 ### Check 54 — Team color and quieter setup buttons
 
-- [ ] Playbook, My Defensive User and Game Objective are white with readable dark text when closed. Open each popup: only its button turns gold/yellow. Closing returns it to white; saved choices remain visible.
+- [ ] Untouched setup buttons are white. Choose an option in each popup: that button stays gold after closing. Merely opening and closing an untouched popup does not mark it selected. Saved playbook/user choices stay highlighted after refresh; a new plan resets the objective.
 - [ ] Choose teams with different colors. Team Info uses the selected team's color as a soft background tint, including a lighter tint inside its expanded panel. Check readability in light and dark themes.
 - [ ] Red Zone is always available at the bottom of the right column, even from Base. Selecting it closes the panel, clears distance and displays Red Zone in the toolbar.
+
+
+### Check 55 — Visible team outlines and two-column formations
+
+- [ ] Compare Akron, Alabama and Appalachian State in both themes. Team Info has a visible outline on all sides when collapsed and around the full panel when expanded; the fill still follows the team color.
+- [ ] Formation & Personnel opens in two equal columns, including with seven choices (four rows). Long labels wrap on a phone without overlapping. Selecting a look still updates recommendations and closes smoothly.
+- [ ] Choose All Books or Balanced explicitly: these count as selections too and stay highlighted. Returning from another app tab preserves the selected highlights.

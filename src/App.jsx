@@ -46,6 +46,16 @@ export default function App() {
   const [quickAdjOpen, setQuickAdjOpen] = useState(false);
   const [shareToast, setShareToast]     = useState(null);
   const [gameObjective, setGameObjective] = useState('balanced');
+  const [setupSelections, setSetupSelections] = useState(() => {
+    try {
+      return { book: localStorage.getItem('cfb26_myBook') !== null, user: localStorage.getItem('sb_user_profile') !== null, objective: false };
+    } catch { return { book: false, user: false, objective: false }; }
+  });
+  const chooseGameObjective = value => {
+    setGameObjective(value);
+    setSetupSelections(current => ({ ...current, objective: true }));
+  };
+
   const [situDown, setSituDown] = useState("base");
   const [situDist, setSituDist] = useState("");
 
@@ -108,12 +118,14 @@ export default function App() {
   };
 
   const changeBook = (book) => {
+    setSetupSelections(current => ({ ...current, book: true }));
     setMyBook(book);
     try { localStorage.setItem("cfb26_myBook", book); } catch(e) {}
     setSelFm(null);
   };
 
   const setUserProfile = (updater) => {
+    setSetupSelections(current => ({ ...current, user: true }));
     setUserProfileState(current => {
       const next = normalizeUserProfile(typeof updater === 'function' ? updater(current) : updater);
       try { localStorage.setItem('sb_user_profile', JSON.stringify(next)); } catch { /* storage may be unavailable */ }
@@ -129,7 +141,7 @@ export default function App() {
     setSelFm(null);
     setActiveP(null);
     setSelectedTeam(null);
-    setSituDown("base"); setSituDist(""); setGameObjective("balanced");
+    setSituDown("base"); setSituDist(""); setGameObjective("balanced"); setSetupSelections(current => ({ ...current, objective: false }));
   }, []);
 
   const toggle = useCallback((g, t) =>
@@ -143,7 +155,7 @@ export default function App() {
     setSelFm(null);
     setMainTab("personnel");
     setSelectedTeam(null);
-    setSituDown("base"); setSituDist(""); setGameObjective("balanced");
+    setSituDown("base"); setSituDist(""); setGameObjective("balanced"); setSetupSelections(current => ({ ...current, objective: false }));
     navigate("plan");
     document.getElementById('root')?.scrollTo(0, 0);
   };
@@ -202,7 +214,7 @@ export default function App() {
     toggle, build,
     compareA, setCompareA,
     compareB, setCompareB,
-    situDown, setSituDown, situDist, setSituDist, gameObjective, setGameObjective,
+    situDown, setSituDown, situDist, setSituDist, gameObjective, setGameObjective: chooseGameObjective, setupSelections,
     setStep: navigate,
     navigateToNotes: (profileName) => { setNotesInitProfile(profileName); navigate("notes"); },
     selectedTeam,
@@ -213,14 +225,15 @@ export default function App() {
     <>
       {step === "teams"   && <TeamsScreen   key="teams"   onBack={() => navigate("scout")} onBuildFromTeam={(team) => {
         setMyBook("All");
-        try { localStorage.setItem("cfb26_myBook", "All"); } catch(e) {}
+        setSetupSelections(current => ({ ...current, book: false }));
+        try { localStorage.removeItem("cfb26_myBook"); } catch(e) {}
         setSel({ _team: team.traits });
         // Use getAvailableFamilies to pick the most contextually relevant starting family
         const teamFams = getAvailableFamilies(team.traits, team.id);
         setActiveP(teamFams[0] || "p11_gun");
         setSelFm(null); setMainTab("personnel");
         setSelectedTeam(team);
-        setSituDown("base"); setSituDist(""); setGameObjective("balanced");
+        setSituDown("base"); setSituDist(""); setGameObjective("balanced"); setSetupSelections(current => ({ ...current, objective: false }));
         navigate("plan");
         document.getElementById('root')?.scrollTo(0, 0);
       }} />}

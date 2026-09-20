@@ -62,7 +62,7 @@ export default function PlanToolbar({ options, value, fallbackLabel, onChange, d
       </div>
     </div>
     <div id={`${panelId}-formation`} className="plan-toolbar__reveal" data-open={open === 'formation'} aria-hidden={open !== 'formation'} inert={open !== 'formation'}>
-      <div className="plan-toolbar__clip"><div className="plan-toolbar__options" role="group" aria-label="Choose offensive formation and personnel">
+      <div className="plan-toolbar__clip"><div className="plan-toolbar__options plan-toolbar__formations" role="group" aria-label="Choose offensive formation and personnel">
         {options.map(option => <button key={option.id} type="button" aria-pressed={option.id === value} onClick={() => { onChange(option.id); close(); }}>
           <strong>{option.label}</strong>
           {option.personnel && <span className="plan-toolbar__composition">{option.personnel}</span>}

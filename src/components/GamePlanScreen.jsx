@@ -55,7 +55,7 @@ export default function GamePlanScreen({
   shareToast, handleShare,
   toggle,
   compareA, setCompareA, compareB, setCompareB,
-  situDown, setSituDown, situDist, setSituDist, gameObjective, setGameObjective,
+  situDown, setSituDown, situDist, setSituDist, gameObjective, setGameObjective, setupSelections,
   setStep,
   selectedTeam,
   userProfile, setUserProfile,
@@ -209,7 +209,7 @@ export default function GamePlanScreen({
       <div style={{ padding: "14px 16px" }}>
         <DefensiveSetupRow myBook={myBook} changeBook={changeBook} recommendedBook={recBook?.book}
           userProfile={userProfile} setUserProfile={setUserProfile}
-          gameObjective={gameObjective} setGameObjective={setGameObjective} />
+          gameObjective={gameObjective} setGameObjective={setGameObjective} selections={setupSelections} />
 
         <PlanToolbar
           down={situDown}
@@ -255,8 +255,8 @@ export default function GamePlanScreen({
                       onClick={() => setShowTeamInfo(v => !v)}
                       style={{
                         width: "100%", display: "flex", alignItems: "center", justifyContent: "space-between",
-                        background: `color-mix(in srgb, ${selectedTeam.color || "#507890"} 18%, var(--color-surface-1))`, border: "1px solid var(--color-border-subtle)",
-                        borderLeft: `4px solid ${selectedTeam.color || "#507890"}`,
+                        background: `color-mix(in srgb, ${selectedTeam.color || "#507890"} 18%, var(--color-surface-1))`, border: "1px solid var(--color-text-3)",
+                        borderLeft: "4px solid var(--color-text-3)",
                         borderRadius: showTeamInfo ? "var(--r-md) var(--r-md) 0 0" : "var(--r-md)",
                         padding: "9px 14px", marginBottom: showTeamInfo ? 0 : 12,
                         cursor: "pointer", textAlign: "left",
@@ -270,7 +270,7 @@ export default function GamePlanScreen({
                       </span>
                     </button>
                     {showTeamInfo && (
-                      <div style={{ background: `color-mix(in srgb, ${selectedTeam.color || "#507890"} 8%, var(--color-surface-1))`, border: "1px solid var(--color-border-subtle)", borderLeft: `4px solid ${selectedTeam.color || "#507890"}`, borderTop: "none", borderRadius: "0 0 var(--r-md) var(--r-md)", padding: "12px 14px", marginBottom: 12 }}>
+                      <div style={{ background: `color-mix(in srgb, ${selectedTeam.color || "#507890"} 8%, var(--color-surface-1))`, border: "1px solid var(--color-text-3)", borderLeft: "4px solid var(--color-text-3)", borderTop: "none", borderRadius: "0 0 var(--r-md) var(--r-md)", padding: "12px 14px", marginBottom: 12 }}>
                         {selectedTeam.notes && (
                           <div style={{ marginBottom: 10, paddingBottom: 10, borderBottom: "1px solid var(--color-border-subtle)" }}>
                             <div style={{ fontSize: 10, color: "var(--color-text-2)", letterSpacing: "2px", textTransform: "uppercase", marginBottom: 4, fontFamily: "var(--font-mono)" }}>Scouting Report</div>
