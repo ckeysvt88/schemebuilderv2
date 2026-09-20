@@ -31,7 +31,7 @@ git log -1 --oneline
 npm run dev
 ```
 
-The latest commit message should be **Compact playbook selection into a responsive grid**. Compare its short number with the one in my delivery message.
+The latest commit message should be **Hide default adjustments and soften the build button**. Compare its short number with the one in my delivery message.
 
 If Git says local changes would be overwritten, stop and send that message; do not discard files or use a force/reset command. If fetch only asks whether to retry deleting the old worktree folders from earlier, answer **n**.
 
@@ -607,3 +607,11 @@ Validation: 130 tests pass. New adjustment checks cover all 1,245 catalog plays 
 - [ ] Names are centered and wrap without clipping. Current and Recommended labels remain readable; the selected book stays gold.
 - [ ] All Books and every playbook remain available. The list scrolls inside the popup; Done stays visible.
 - [ ] Select a book: it applies and closes. Reopen: the current book is focused and visible. Check Escape and keyboard Tab, plus both themes.
+
+
+### Check 64 — Changes only and softer build button
+
+- [ ] Mixed short/deep scouting no longer displays Zone Strategy Default. Default settings are omitted before applying the three-item Quick Setup limit.
+- [ ] When no changes are recommended, only a short No pre-snap changes needed message appears; the old Keep the defaults card is gone.
+- [ ] Reset instructions may still say Default when undoing a recommended change. Optional default Plaster settings are hidden.
+- [ ] Build Game Plan has a soft yellow gradient in light mode and a muted gold-brown gradient in dark mode, with readable text in both.

@@ -1,8 +1,8 @@
 /* ── Design Tokens ──────────────────────────────────────────────────────────── */
 :root {
-  --color-build-gradient: linear-gradient(120deg, #123c39, #17464f);
-  --color-build-border: #488d88;
-  --color-build-text: #e3fff6;
+  --color-build-gradient: linear-gradient(120deg, #302a18, #40351b);
+  --color-build-border: #756237;
+  --color-build-text: #f3e6bc;
   --color-setup-idle: var(--color-surface-2);
   --color-setup-idle-border: var(--color-border);
   --color-bg:            #07080f;
@@ -48,9 +48,9 @@
 
 /* ── Light mode overrides ────────────────────────────────────────────────── */
 [data-theme="light"] {
-  --color-build-gradient: linear-gradient(120deg, #c5ecd9, #bee4ec);
-  --color-build-border: #498676;
-  --color-build-text: #143e36;
+  --color-build-gradient: linear-gradient(120deg, #f0ead5, #e8dbb4);
+  --color-build-border: #b7a571;
+  --color-build-text: #57451c;
   --color-setup-idle: #ffffff;
   --color-setup-idle-border: #c9d2de;
   --color-bg:             #edf1f8;

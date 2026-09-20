@@ -15,14 +15,10 @@ function AdjustmentsPanel({ fm, flat, situation, onLogCall }) {
         <div style={{ fontSize: 11, color: "var(--color-text-2)", lineHeight: 1.5, marginTop: 4 }}>{plan.objective.text}</div>
       </div>
 
-      <div style={{ fontSize: 12, fontWeight: 800, color: "var(--color-text-1)", marginBottom: 3 }}>Quick setup</div>
-      <div style={{ fontSize: 11, color: "var(--color-text-3)", lineHeight: 1.5, marginBottom: 10 }}>Start with these settings for this call and down. Leave other controls at their defaults.</div>
-      {plan.settings.length === 0 && (
-        <div style={{ background: "var(--color-surface-1)", border: "1px solid var(--color-border-subtle)", borderLeft: "3px solid var(--color-gold)", borderRadius: 5, padding: "10px 13px", marginBottom: 7 }}>
-          <strong style={{ fontSize: 11, color: "var(--color-text-1)" }}>Keep the defaults</strong>
-          <div style={{ fontSize: 11, color: "var(--color-text-3)", lineHeight: 1.5, marginTop: 4 }}>This call does not need a universal menu adjustment. Get lined up and execute it first.</div>
-        </div>
-      )}
+      {plan.settings.length > 0 ? <>
+        <div style={{ fontSize: 12, fontWeight: 800, color: "var(--color-text-1)", marginBottom: 3 }}>Quick setup</div>
+        <div style={{ fontSize: 11, color: "var(--color-text-3)", lineHeight: 1.5, marginBottom: 10 }}>Make these changes for this call and down.</div>
+      </> : <p style={{ fontSize: 11, color: "var(--color-text-2)", margin: "0 0 10px" }}>No pre-snap changes needed.</p>}
       {plan.settings.map(item => (
         <div key={item.setting} style={{ background: "var(--color-surface-1)", border: "1px solid var(--color-border-subtle)", borderLeft: "3px solid var(--color-gold)", borderRadius: 5, padding: "10px 13px", marginBottom: 7 }}>
           <div style={{ display: "flex", justifyContent: "space-between", gap: 10, alignItems: "baseline" }}>

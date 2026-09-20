@@ -364,10 +364,11 @@ export function buildAdjustmentPlan(fm, traits = [], situation = {}) {
     action: 'Keep the call and the first adjustment you trust. Get lined up before opening another menu.',
   });
 
-  const visibleSettings = settings.slice(0, 3);
+  const changes = settings.filter(item => !['Default', 'Balanced', 'Normal'].includes(item.value));
+  const visibleSettings = changes.slice(0, 3);
   // Settings beyond the quick-setup budget remain available; do not silently
   // lose QB contain or prescribe duplicate/conflicting controls in the toolbox.
-  const displayedTools = [...settings.slice(3), ...tools].filter((item, index, all) =>
+  const displayedTools = [...changes.slice(3), ...tools].filter(item => !['Default', 'Balanced', 'Normal', 'Conservative · O.O.P & Time'].includes(item.value)).filter((item, index, all) =>
     !visibleSettings.some(current => current.family === item.family) &&
     all.findIndex(other => other.family === item.family) === index).slice(0, 8);
   const settingAlerts = visibleSettings.flatMap(item => {

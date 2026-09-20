@@ -29,7 +29,7 @@ Status after update 25. **Not all critical and high-priority requirements are im
 
 These are remaining engineering tasks as well as evidence tasks. They are not all blocked on the user. Gameplay-only conclusions require actual gameplay observations.
 
-[Combined validation checks 1–63](COMBINED_REVIEW_PHASES_13_TO_15.md)
+[Combined validation checks 1–64](COMBINED_REVIEW_PHASES_13_TO_15.md)
 
 
 ## Update 23 inventory exceptions
@@ -67,3 +67,5 @@ Check 61 closes slider implementation: active tendency is visible in the plan an
 Check 62 covers adjustment/reset consistency, narrower quick-game triggers, run-heavy gap priority, retained overflow counters, call-specific Roll/match checks, and the themed Build Game Plan action. 130 tests pass.
 
 Check 63 covers the shared two-/three-column playbook picker, readable selection labels and existing popup behavior.
+
+Check 64 covers changes-only adjustment lists and the soft yellow, theme-aware Build Game Plan gradient.

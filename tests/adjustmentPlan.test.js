@@ -121,7 +121,7 @@ test('base adjustments distinguish short, deep, mixed, run-heavy and man context
     buildAdjustmentPlan({...fm(coverage),runPass},traits).settings;
   assert.equal(setting(['quick_game'])[0].value,'Aggressive');
   assert.equal(setting(['deep_shots'])[0].value,'Conservative');
-  assert.equal(setting(['quick_game','deep_shots'])[0].value,'Default');
+  assert.ok(!setting(['quick_game','deep_shots']).some(s=>s.setting==='Zone Strategy'));
   assert.equal(setting(['quick_game','inside_run'],7)[0].setting,'Gap Integrity');
   assert.ok(!setting(['quick_game'],4,'Cover 1 Robber Press').some(s=>s.setting==='Zone Strategy'));
 });
@@ -143,6 +143,7 @@ test('every catalog call has consistent setup, toolbox and reset instructions', 
     ]) for(const [down,distance] of [['base',''],[3,'short'],[4,'long'],['rz','']]) {
       const plan=buildAdjustmentPlan({...fm(play.n),runPass:7},traits,{down,distance});
       const all=[...plan.settings,...plan.tools];
+      assert.ok(all.every(s=>!['Default','Balanced','Normal','Conservative · O.O.P & Time'].includes(s.value)));
       assert.equal(new Set(all.map(s=>s.setting)).size,all.length,play.n);
       assert.ok(plan.settings.length<=3);
       for(const alert of plan.alerts) if(alert.setting)
