@@ -404,10 +404,10 @@ export default function ScoutScreen({
               width: "100%",
               minHeight: 52,
               padding: "0 24px",
-              background: flat.length >= 2 ? "var(--color-surface-1)" : "var(--color-surface-2)",
-              border: flat.length >= 2 ? "1px solid var(--color-border)" : "1px solid transparent",
+              background: flat.length >= 2 ? "var(--color-build-gradient)" : "var(--color-surface-2)",
+              border: flat.length >= 2 ? "1px solid var(--color-build-border)" : "1px solid transparent",
               borderRadius: "var(--r-lg)",
-              color: flat.length >= 2 ? "var(--color-text-1)" : "var(--color-text-3)",
+              color: flat.length >= 2 ? "var(--color-build-text)" : "var(--color-text-3)",
               fontSize: 15,
               fontWeight: "700",
               cursor: flat.length >= 2 ? "pointer" : "not-allowed",
@@ -417,7 +417,7 @@ export default function ScoutScreen({
               transition: "opacity 150ms ease",
             }}
           >
-            {scored.length > 0 ? "Update Game Plan →" : "Build Game Plan →"}
+            Build Game Plan →
           </button>
         </div>
 

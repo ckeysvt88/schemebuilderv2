@@ -1,3 +1,4 @@
+import { normalizeRunPass } from '../data/runPassBias.js';
 import { getGameObjective } from '../data/gameObjectives.js';
 import { getCoverageFamily } from './coverageGuidance.js';
 import { normalizeSituation, coverageSituation } from './context.js';
@@ -31,8 +32,8 @@ function objectiveFor(key) {
 }
 
 function presetMacroFor(traits, situationKey) {
-  const quick = hasAny(traits, ['quick_game', 'rpo', 'screens', 'slant_heavy', 'flat_attack', 'qb_checkdown']);
-  const deep = hasAny(traits, ['deep_shots', 'back_shoulder', 'seam_routes', 'two_minute_pass']);
+  const quick = hasAny(traits, ['quick_game', 'west_coast', 'slant_heavy', 'qb_checkdown']);
+  const deep = hasAny(traits, ['deep_shots', 'back_shoulder', 'seam_routes', 'two_minute_pass', 'play_action']);
 
   if (traits.includes('screens')) return {
     setting: 'In-game preset', value: 'Defend Screen Pass',
@@ -147,6 +148,27 @@ function userKeyFor(traits, situationKey) {
   };
 }
 
+function resetFor(item) {
+  if (item.setting === 'Zone Strategy' && item.value === 'Aggressive') return {
+    when: 'Routes start winning behind your zones',
+    action: 'Set Zone Strategy to Default. If the deep shot becomes the main threat, use Conservative.',
+  };
+  if (item.setting === 'Zone Strategy' && item.value === 'Conservative') return {
+    when: 'Short completions keep reaching the sticks',
+    action: 'Set Zone Strategy to Default. Challenge the catch sooner without pulling away the deep help.',
+  };
+  const resets = {
+    'Cornerback Depth': ['The cushion no longer fits the down', 'Return Cornerback Depth to Default, then set it for the new distance. Keep deep help against fast receivers.'],
+    'Cornerback Width': ['The offense starts winning the opposite release', 'Return Cornerback Width to Default before changing leverage again.'],
+    'Safety Depth': ['The deep threat stops and underneath gains hurt you', 'Return Safety Depth to Default. Keep the safeties in their coverage assignments.'],
+    'Pass Commit': ['A draw or quarterback run beats the pass rush', 'Stop using Pass Commit on the next snap; keep the front ready for both run and pass.'],
+    'Gap Integrity': ['The offense shifts away from the run', 'Return Gap Integrity to Balanced and reassess the passing threat.'],
+    'Pass Rush': ['The quarterback stays in the pocket', 'If you applied QB Contain, reset the play before returning to its normal rush. Reapply any other adjustments you still need.'],
+  };
+  const reset = resets[item.setting];
+  return reset ? { when: reset[0], action: reset[1] } : null;
+}
+
 export function buildAdjustmentPlan(fm, traits = [], situation = {}) {
   const activeCoverage = fm?.personalizedCoverage || fm?.recommendedCoverage || '';
   const selectedCall = fm?.rankedCoverages?.find(call => call.name === activeCoverage);
@@ -166,13 +188,13 @@ export function buildAdjustmentPlan(fm, traits = [], situation = {}) {
   const tools = [];
   const alerts = [];
 
-  const quick = hasAny(traits, ['quick_game', 'rpo', 'slant_heavy', 'flat_attack', 'qb_checkdown']);
-  const deep = hasAny(traits, ['deep_shots', 'back_shoulder', 'seam_routes', 'two_minute_pass']);
+  const quick = hasAny(traits, ['quick_game', 'west_coast', 'slant_heavy', 'qb_checkdown']);
+  const deep = hasAny(traits, ['deep_shots', 'back_shoulder', 'seam_routes', 'two_minute_pass', 'play_action']);
   const insideBreaks = hasAny(traits, ['crossers', 'middle_heavy', 'slant_heavy', 'seam_routes']);
   const outsideBreaks = hasAny(traits, ['flat_attack', 'back_shoulder']);
   const runThreat = hasAny(traits, ['inside_run', 'outside_run', 'hb_stretch', 'counter_trap', 'fb_lead', 'option_run', 'strong_oline', 'run_heavy_1st', 'short_yardage_run']);
   const mobileQb = hasAny(traits, ['mobile_qb', 'qb_scramble', 'dual_threat', 'option_run']);
-  const heavyRun = hasAny(traits, ['short_yardage_run', 'inside_run', 'counter_trap', 'fb_lead', 'strong_oline', 'p22', 'p23']);
+  const runHeavy = normalizeRunPass(fm?.runPass) >= 6;
 
   if (situationKey === '3lg') {
     if (isZone) add(settings, 'zone-depth', {
@@ -211,11 +233,6 @@ export function buildAdjustmentPlan(fm, traits = [], situation = {}) {
       why: 'Drive on the short routes that can reach the line to gain immediately.',
       tradeoff: 'A protected double move or seam can open behind an underneath defender.',
     });
-    if (traits.includes('play_action') && heavyRun) add(settings, 'aggression', {
-      setting: 'Defender Aggression', value: 'Conservative',
-      why: 'Stay disciplined through the run fake so play action does not create a free throw behind the linebackers.',
-      tradeoff: 'The second level attacks a real handoff more slowly.',
-    });
   } else if (situationKey === 'rz') {
     add(settings, 'cb-depth', {
       setting: 'Cornerback Depth', value: '5 yards',
@@ -238,17 +255,29 @@ export function buildAdjustmentPlan(fm, traits = [], situation = {}) {
       why: 'The opponent’s clearest passing tendency is vertical. Keep zone defenders above the deep route.',
       tradeoff: 'Short completions will have more room underneath.',
     });
-    if (isZone && quick && !deep) add(settings, 'zone-depth', {
+    if (isZone && quick && !deep && !runHeavy) add(settings, 'zone-depth', {
       setting: 'Zone Strategy', value: 'Aggressive',
       why: 'The opponent’s clearest passing tendency is quick game. Break downhill on short routes.',
       tradeoff: 'Routes breaking behind the underneath defender become more dangerous.',
     });
-    if (traits.includes('play_action')) add(settings, 'aggression', {
-      setting: 'Defender Aggression', value: 'Conservative',
-      why: 'Stay patient through the run fake and protect the intermediate window behind the linebackers.',
-      tradeoff: 'The second level attacks real handoffs more slowly.',
-    });
+
   }
+
+  if (situationKey === 'base' && isZone && quick && deep) add(settings, 'zone-depth', {
+    setting: 'Zone Strategy', value: 'Default',
+    why: 'Short throws and deeper routes are both scouted. Keep normal zone reactions until one starts beating this call.',
+    tradeoff: 'Neither route depth gets extra attention. Use the optional counters after you identify the problem.',
+  });
+  if (situationKey === 'base' && runHeavy && runThreat) add(settings, 'gap', {
+    setting: 'Gap Integrity', value: 'Conservative',
+    why: 'You marked the opponent run-heavy. Keep defenders in their gaps before chasing the ball.',
+    tradeoff: 'Fewer aggressive sheds; this does not add defenders to the box.',
+  });
+  if (situationKey === 'base' && runHeavy && isZone && quick && !deep) add(tools, 'zone-depth', {
+    setting: 'Zone Strategy', value: 'Aggressive',
+    why: 'Use only if the quick throw starts beating you despite the run-heavy tendency.',
+    tradeoff: 'Deeper windows open behind defenders who drive on short routes.',
+  });
 
   if (mobileQb) add(settings, 'contain', {
     setting: 'Pass Rush', value: 'QB Contain',
@@ -292,7 +321,7 @@ export function buildAdjustmentPlan(fm, traits = [], situation = {}) {
     tradeoff: 'The opposite side receives less immediate safety help.',
   });
 
-  if (traits.includes('elite_te') || traits.includes('elite_wr')) add(tools, 'target-help', {
+  if (/roll/i.test(activeCoverage) && (traits.includes('elite_te') || traits.includes('elite_wr'))) add(tools, 'target-help', {
     setting: 'Roll Coverage', value: traits.includes('elite_te') ? 'TE1' : 'Fastest',
     why: `Send extra help toward the ${traits.includes('elite_te') ? 'featured tight end' : 'speed threat'}.`,
     tradeoff: 'Receivers away from the roll receive less help.',
@@ -316,7 +345,8 @@ export function buildAdjustmentPlan(fm, traits = [], situation = {}) {
     tradeoff: 'The run gap receives less help. If the offense starts handing it off, return to Balanced.',
   });
 
-  const matchCheck = matchCheckFor(family, activeCoverage, traits);
+  const supportsMatchCheck = /match|quarters|palms|cover 6/i.test(activeCoverage) || ['cover1', 'twoMan'].includes(family);
+  const matchCheck = supportsMatchCheck ? matchCheckFor(family, activeCoverage, traits) : null;
   if (matchCheck) add(tools, 'match-check', {
     setting: 'Formation Check', value: matchCheck.value,
     why: matchCheck.why,
@@ -329,21 +359,27 @@ export function buildAdjustmentPlan(fm, traits = [], situation = {}) {
     tradeoff: 'The assigned defender leaves his original job. Check the play art so his vacated area still has help.',
   });
 
-  if (traits.includes('inside_run') && traits.includes('outside_run')) alerts.push({
-    when: 'The run direction changes',
-    action: 'Return the defensive line to normal. Pinch only for a confirmed inside run look; spread only for a confirmed outside run look.',
-  });
   if (hasAny(traits, ['hurry_up', 'no_huddle', 'tempo_shift'])) alerts.push({
     when: 'The offense goes hurry-up',
     action: 'Keep the call and the first adjustment you trust. Get lined up before opening another menu.',
   });
 
+  const visibleSettings = settings.slice(0, 3);
+  // Settings beyond the quick-setup budget remain available; do not silently
+  // lose QB contain or prescribe duplicate/conflicting controls in the toolbox.
+  const displayedTools = [...settings.slice(3), ...tools].filter((item, index, all) =>
+    !visibleSettings.some(current => current.family === item.family) &&
+    all.findIndex(other => other.family === item.family) === index).slice(0, 8);
+  const settingAlerts = visibleSettings.flatMap(item => {
+    const note = resetFor(item);
+    return note ? [{ setting: item.setting, ...note }] : [];
+  });
   return {
     objective: { ...(gameObjective.id === 'balanced' ? objectiveFor(situationKey) : gameObjective), situation: context.label },
-    settings: settings.slice(0, 3).map(publicAdjustment),
-    tools: tools.slice(0, 8).map(publicAdjustment),
-    preset: presetMacroFor(traits, situationKey),
-    alerts: alerts.slice(0, 2),
+    settings: visibleSettings.map(publicAdjustment),
+    tools: displayedTools.map(publicAdjustment),
+    preset: presetMacroFor(runHeavy && situationKey === 'base' ? traits.filter(t => !['quick_game', 'west_coast', 'slant_heavy', 'qb_checkdown'].includes(t)) : traits, situationKey),
+    alerts: [...settingAlerts, ...alerts].slice(0, 2),
     userKey: userKeyFor(traits, situationKey),
   };
 }

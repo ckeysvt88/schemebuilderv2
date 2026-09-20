@@ -1,5 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { PLAYS } from '../src/data/plays.js';
 import { buildAdjustmentPlan } from '../src/engine/adjustmentPlan.js';
 
 const fm = coverage => ({ recommendedCoverage: coverage });
@@ -30,15 +31,16 @@ test('a quick preset does not replace the actual coaching adjustments', () => {
   assert.doesNotMatch(JSON.stringify(plan.settings), /In-game preset/);
 });
 
-test('play action receives patient linebacker behavior rather than a conflicting run instruction', () => {
+test('play action protects deeper coverage without inventing a linebacker reaction control', () => {
   const plan = buildAdjustmentPlan(fm('Cover 3 Sky'), ['play_action', 'short_yardage_run']);
-  assert.match(JSON.stringify(plan.settings), /Defender Aggression.*Conservative/);
+  assert.match(JSON.stringify(plan.settings), /Zone Strategy.*Conservative/);
+  assert.doesNotMatch(JSON.stringify(plan), /Defender Aggression/);
 });
 
-test('opposing run tendencies become a conditional reset, not simultaneous line calls', () => {
+test('opposing run tendencies never invent a previous defensive-line adjustment', () => {
   const plan = buildAdjustmentPlan(fm('Cover 3 Sky'), ['inside_run', 'outside_run']);
   assert.doesNotMatch(JSON.stringify(plan.settings), /Pinch|Spread/);
-  assert.match(plan.alerts[0].action, /Return the defensive line to normal/);
+  assert.doesNotMatch(JSON.stringify(plan.alerts), /defensive line|Pinch|Spread/);
 });
 
 test('red-zone and short-yardage settings require the live situation', () => {
@@ -87,7 +89,7 @@ test('advanced counters expose shell, leverage, matchup, match-check, and indivi
   const text = JSON.stringify(plan.tools);
   assert.match(text, /Coverage Shell/);
   assert.match(text, /Coverage Leverage.*Inside/);
-  assert.match(text, /Roll Coverage/);
+  assert.doesNotMatch(text, /Roll Coverage/);
   assert.match(text, /Palms Bunch.*Box/);
   assert.match(text, /Individual Coverage/);
 });
@@ -104,4 +106,51 @@ test('man and unknown calls do not receive zone-only menu settings', () => {
   const unknown = buildAdjustmentPlan(fm('Bracket Switch Willie'), ['elite_te']);
   assert.doesNotMatch(JSON.stringify(man.settings), /Smart Zones|Plaster|Red Zone Awareness/);
   assert.doesNotMatch(JSON.stringify(unknown.settings), /Smart Zones|Plaster|Red Zone Awareness/);
+});
+
+
+test('RPO and flat targets alone do not prescribe aggressive short-zone behavior', () => {
+  for (const traits of [['rpo'], ['flat_attack'], ['rpo','inside_run','outside_run']]) {
+    const plan = buildAdjustmentPlan(fm('Cover 3 Sky'), traits);
+    assert.doesNotMatch(JSON.stringify(plan.settings), /Zone Strategy.*Aggressive/);
+    assert.doesNotMatch(JSON.stringify(plan.alerts), /defensive line/);
+  }
+});
+test('base adjustments distinguish short, deep, mixed, run-heavy and man contexts', () => {
+  const setting = (traits, runPass=4, coverage='Cover 3 Sky') =>
+    buildAdjustmentPlan({...fm(coverage),runPass},traits).settings;
+  assert.equal(setting(['quick_game'])[0].value,'Aggressive');
+  assert.equal(setting(['deep_shots'])[0].value,'Conservative');
+  assert.equal(setting(['quick_game','deep_shots'])[0].value,'Default');
+  assert.equal(setting(['quick_game','inside_run'],7)[0].setting,'Gap Integrity');
+  assert.ok(!setting(['quick_game'],4,'Cover 1 Robber Press').some(s=>s.setting==='Zone Strategy'));
+});
+test('reset notes correspond to displayed controls and vary with the adjustment', () => {
+  const quick=buildAdjustmentPlan(fm('Cover 3 Sky'),['quick_game']);
+  const deep=buildAdjustmentPlan(fm('Cover 3 Sky'),['deep_shots']);
+  assert.match(quick.alerts[0].action,/Zone Strategy to Default/);
+  assert.notDeepEqual(quick.alerts,deep.alerts);
+  const long=buildAdjustmentPlan(fm('Cover 3 Sky'),['deep_shots','mobile_qb'],{down:4,distance:'long'});
+  assert.ok(long.tools.some(s=>s.value==='QB Contain'));
+});
+test('every catalog call has consistent setup, toolbox and reset instructions', () => {
+  let count=0;
+  for(const plays of Object.values(PLAYS)) for(const play of plays) {
+    count++;
+    for(const traits of [
+      ['rpo','inside_run','outside_run'], ['quick_game','deep_shots','mobile_qb'],
+      ['bunch','elite_wr','slant_heavy'], ['inside_run','quick_game'],
+    ]) for(const [down,distance] of [['base',''],[3,'short'],[4,'long'],['rz','']]) {
+      const plan=buildAdjustmentPlan({...fm(play.n),runPass:7},traits,{down,distance});
+      const all=[...plan.settings,...plan.tools];
+      assert.equal(new Set(all.map(s=>s.setting)).size,all.length,play.n);
+      assert.ok(plan.settings.length<=3);
+      for(const alert of plan.alerts) if(alert.setting)
+        assert.ok(plan.settings.some(s=>s.setting===alert.setting),play.n);
+      assert.doesNotMatch(JSON.stringify(plan.alerts),/Return the defensive line/);
+      if(!/roll/i.test(play.n)) assert.ok(!all.some(s=>s.setting==='Roll Coverage'));
+      if(/drop/i.test(play.n)) assert.ok(!all.some(s=>s.setting==='Formation Check'));
+    }
+  }
+  assert.equal(count,1245);
 });

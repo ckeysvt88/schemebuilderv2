@@ -207,3 +207,15 @@ The following require on-device practice-mode testing rather than additional pro
 8. Confirm individual coverage assignments preserve or vacate the expected zone across hurry-up and audibles.
 
 No result from this queue should be promoted to “confirmed” without recording game version, play, offensive formation, defensive call, adjustment, user-controlled player, and repeated outcome.
+
+
+## September 20 consistency correction
+
+Rechecked EA's Gameplay Deep Dive and CollegeFootball.gg's adjustment reference (links above). EA describes shorter-versus-deeper zone priorities; the menu reference names this Zone Strategy. Smart Zones remains excluded as a separate selectable feature per owner feedback.
+
+- RPO/flat targeting alone is not evidence that a global short-route reaction is the right answer. Mixed short/deep profiles retain Default on base downs. Run-heavy profiles with run evidence prioritize Gap Integrity; short-zone aggression becomes conditional.
+- Reset notes derive from the retained Quick Setup controls. Removed the unrelated defensive-line reset triggered merely by selecting both run directions.
+- Overflow settings remain in the optional toolbox, deduplicated by control family.
+- Removed the claim that Defender Aggression Conservative specifically teaches linebackers to resist play action. The reference describes effort/move behavior, not that claimed read discipline.
+- The reference limits Roll Coverage to Roll plays. Plain spot-drop calls no longer inherit match checks solely from a coverage-family label.
+- These recommendations are coaching heuristics, not measured success guarantees. Exact depth values still require gameplay validation.

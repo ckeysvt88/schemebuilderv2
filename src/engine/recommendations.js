@@ -42,7 +42,7 @@ export function recommend({ traits = [], book = 'All', runPass = 4, familyId = n
     if (!selection) return [];
     const { best, callOptions, playerCall } = selection;
     const playerRole = playerCall?.optionRoles?.find(role => role.id !== 'overall') || playerCall?.optionRoles?.[0];
-    return [{ ...f, gameObjective: objective.id, formationScore: f.sc, sc: best.sc, ledger: [...f.ledger, ...best.ledger],
+    return [{ ...f, runPass, gameObjective: objective.id, formationScore: f.sc, sc: best.sc, ledger: [...f.ledger, ...best.ledger],
       matchup: best.matchup, rankedCoverages, callOptions, recommendedCoverage: best.name,
       personalizedCoverage: playerCall.name,
       personalizedRole: playerRole?.label || 'BEST OVERALL',

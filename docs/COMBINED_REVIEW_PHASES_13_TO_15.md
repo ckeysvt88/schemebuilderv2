@@ -31,7 +31,7 @@ git log -1 --oneline
 npm run dev
 ```
 
-The latest commit message should be **Complete slider consistency and show active plan tendency**. Compare its short number with the one in my delivery message.
+The latest commit message should be **Align adjustment instructions and highlight Build Game Plan**. Compare its short number with the one in my delivery message.
 
 If Git says local changes would be overwritten, stop and send that message; do not discard files or use a force/reset command. If fetch only asks whether to retry deleting the old worktree folders from earlier, answer **n**.
 
@@ -587,3 +587,15 @@ Validation: 125 engine tests passed, including all 1,245 catalogued plays, 71 fo
 - [ ] Save/reload an opponent profile and compare live recommendations, copied plan and PDF: the tendency and calls agree.
 
 Implementation complete for slider wiring, normalization, scoring, persistence and exports. 126 tests pass, including existing full-catalog checks. Device review and real-game calibration remain separate validation steps.
+
+
+### Check 62 — Consistent adjustments and clear build action
+
+- [ ] Scout inside and outside runs plus RPO. Adjustments must not tell you to reset the defensive line without recommending a line change. RPO alone must not trigger Aggressive Zone Strategy.
+- [ ] Compare quick-game only, deep-shots only, both together, and a run-heavy scout with inside runs. In zone calls on Base, expect Aggressive, Conservative, Default, and gap discipline respectively; man calls do not receive Zone Strategy.
+- [ ] Compare 3rd & short with 4th & long. Quick Setup and reset notes change with the displayed controls. Each reset note names the relevant setting, rather than giving the same line-reset instruction.
+- [ ] On long yardage with deep shots and a mobile QB, QB Contain remains available under More counters if three settings already occupy Quick Setup. No setting appears twice with conflicting values.
+- [ ] A spot-drop call must not offer match checks simply because it is Cover 3/4. Roll Coverage appears only for Roll calls.
+- [ ] On Scout, the primary action always reads Build Game Plan. It has a distinct green/teal gradient in light mode and a muted dark gradient with light text in dark mode. Its disabled state remains clear.
+
+Validation: 130 tests pass. New adjustment checks cover all 1,245 catalog plays across four threat profiles and four situations; build and focused lint pass. Device appearance and actual game-menu behavior still require review.
