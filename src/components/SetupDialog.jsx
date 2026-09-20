@@ -3,7 +3,7 @@ import { createPortal } from 'react-dom';
 
 // Shared shell for the compact setup buttons: same size, backdrop and keyboard
 // behavior as the playbook picker. Portal avoids transformed screen containers.
-export default function SetupDialog({ title, description, onClose, children }) {
+export default function SetupDialog({ title, description, onClose, children, closeLabel = 'Done' }) {
   const titleId = useId();
   const panel = useRef(null);
   const done = useRef(null);
@@ -35,7 +35,7 @@ export default function SetupDialog({ title, description, onClose, children }) {
             <div id={titleId} style={{ fontSize: 16, color: 'var(--color-gold-bright)', fontWeight: 800 }}>{title}</div>
             <div style={{ fontSize: 11, color: 'var(--color-text-2)', lineHeight: 1.45, marginTop: 4 }}>{description}</div>
           </div>
-          <button ref={done} onClick={onClose} style={{ minHeight: 36, padding: '0 12px', background: 'transparent', border: '1px solid var(--color-border)', borderRadius: 'var(--r-sm)', color: 'var(--color-text-2)', cursor: 'pointer' }}>Done</button>
+          <button ref={done} onClick={onClose} style={{ minHeight: 36, padding: '0 12px', background: 'transparent', border: '1px solid var(--color-border)', borderRadius: 'var(--r-sm)', color: 'var(--color-text-2)', cursor: 'pointer' }}>{closeLabel}</button>
         </div>
         <div style={{ overflowY: 'auto', minHeight: 0, padding: 2 }}>{children}</div>
       </div>

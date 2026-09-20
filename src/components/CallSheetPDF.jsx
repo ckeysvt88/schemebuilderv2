@@ -1,5 +1,7 @@
 import { memo, useEffect, useRef, useState } from 'react';
 import SetupDialog from './SetupDialog.jsx';
+import { savePdf } from '../utils/savePdf.js';
+import CallSheetPreview from './CallSheetPreview.jsx';
 import { Document, Page, Text, View, StyleSheet, pdf } from '@react-pdf/renderer';
 import { buildCallSheetData } from '../engine/buildCallSheet.js';
 
@@ -421,6 +423,10 @@ export const ExportPDFButton = memo(function ExportPDFButton({ input, sel, varia
   const [open, setOpen] = useState(false);
   const [status, setStatus] = useState('idle');
   const [url, setUrl] = useState(null);
+  const [file, setFile] = useState(null);
+  const [viewing, setViewing] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [saveMessage, setSaveMessage] = useState('');
   const generation = useRef(0);
   const objectUrl = useRef(null);
   useEffect(() => () => {
@@ -430,7 +436,7 @@ export const ExportPDFButton = memo(function ExportPDFButton({ input, sel, varia
   const close = () => { generation.current += 1; setOpen(false); };
   const generate = async () => {
     const id = ++generation.current;
-    setOpen(true); setStatus('loading'); setUrl(null);
+    setOpen(true); setStatus('loading'); setUrl(null); setFile(null); setViewing(false); setSaveMessage('');
     // Let the dialog paint before calculating the situation matrix.
     await new Promise(resolve => setTimeout(resolve, 30));
     if (id !== generation.current) return;
@@ -440,18 +446,26 @@ export const ExportPDFButton = memo(function ExportPDFButton({ input, sel, varia
       if (id !== generation.current) return;
       if (objectUrl.current) URL.revokeObjectURL(objectUrl.current);
       objectUrl.current = URL.createObjectURL(blob);
+      setFile(new File([blob], `call-sheet-${new Date().toISOString().slice(0, 10)}.pdf`, { type: 'application/pdf' }));
       setUrl(objectUrl.current); setStatus('ready');
     } catch {
       if (id === generation.current) setStatus('error');
     }
   };
+  const save = async () => {
+    if (saving || !file) return;
+    setSaving(true); setSaveMessage('');
+    try { await savePdf(file, url); }
+    catch { setSaveMessage('Could not open the save options. Please try again.'); }
+    finally { setSaving(false); }
+  };
   if (!input?.traits?.length) return null;
-  const linkStyle = { display: 'block', padding: '12px 16px', marginTop: 12, border: '1px solid var(--color-gold-border)', borderRadius: 'var(--r-sm)', color: 'var(--color-text-1)', textAlign: 'center', textDecoration: 'none' };
+  const linkStyle = { display: 'block', width: '100%', background: 'var(--color-surface-1)', font: 'inherit', cursor: 'pointer', padding: '12px 16px', marginTop: 12, border: '1px solid var(--color-gold-border)', borderRadius: 'var(--r-sm)', color: 'var(--color-text-1)', textAlign: 'center', textDecoration: 'none' };
   return <>
     <button type="button" onClick={generate} style={{ width: '100%', minHeight: variant === 'full' ? 40 : 32, padding: '0 10px', background: 'transparent', border: '1px solid var(--color-border)', borderRadius: 'var(--r-sm)', color: 'var(--color-text-2)', cursor: 'pointer', fontFamily: 'var(--font-mono)', fontSize: 11 }}>
       {label || 'Call Sheet'}
     </button>
-    {open && <SetupDialog title="Your Call Sheet" description="Open the PDF in a separate tab, or save a copy. Your game plan stays here." onClose={close}>
+    {open && <SetupDialog title="Your Call Sheet" description="Save a copy or view your call sheet here. Your game plan stays in place." onClose={close} closeLabel="Cancel">
       <div role="status" aria-live="polite" style={{ color: 'var(--color-text-1)', lineHeight: 1.5 }}>
         {status === 'loading' && 'Building your call sheet…'}
         {status === 'error' && 'The PDF could not be created. Your scouting is safe. Please try again.'}
@@ -459,8 +473,10 @@ export const ExportPDFButton = memo(function ExportPDFButton({ input, sel, varia
       </div>
       {status === 'error' && <button type="button" onClick={generate} style={linkStyle}>Try again</button>}
       {url && <>
-        <a href={url} target="_blank" rel="noopener noreferrer" style={linkStyle}>Open PDF in a new tab</a>
-        <a href={url} target="_blank" rel="noopener noreferrer" download={`call-sheet-${new Date().toISOString().slice(0, 10)}.pdf`} style={linkStyle}>Save PDF</a>
+        <button type="button" onClick={save} disabled={saving} style={linkStyle}>{saving ? 'Opening save options…' : 'Save PDF'}</button>
+        <button type="button" onClick={() => setViewing(value => !value)} style={linkStyle}>{viewing ? 'Hide Preview' : 'View PDF'}</button>
+        <p role="status" style={{ fontSize: 12, color: 'var(--color-text-2)' }}>{saveMessage || 'On iPhone, choose Save to Files if the share sheet opens.'}</p>
+        {viewing && <CallSheetPreview file={file} />}
       </>}
     </SetupDialog>}
   </>;
