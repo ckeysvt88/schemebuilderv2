@@ -5,6 +5,7 @@ import { applyDownDistance } from './downDistance.js';
 import { normalizeSituation, coverageSituation } from './context.js';
 import { rankCoveragesForSituation } from './coverageRank.js';
 import { selectFormationCalls } from './callSelection.js';
+import { buildAdjustmentPlan } from './adjustmentPlan.js';
 import { evaluateCoverage } from './playMatchup.js';
 import { PLAYS } from '../data/plays.js';
 import { getPlayAssignmentEvidence } from '../data/playEvidence.js';
@@ -34,7 +35,8 @@ export function recommend({ traits = [], book = 'All', runPass = 4, familyId = n
     const baseline = rankCoveragesForSituation({ ...f, coverages: eligible }, sit, f.effectiveTraits);
     const rankedCoverages = baseline.map((c, index) => {
       const evidence = getPlayAssignmentEvidence(f.name, c.name, plays.find(p => p.n === c.name));
-      const evaluated = evaluateCoverage(c, plays.find(p => p.n === c.name), f.effectiveTraits, f.sc, evidence, sit, objective.id, runPass);
+      const adjustmentPlan = buildAdjustmentPlan({ ...f, runPass, gameObjective: objective.id, recommendedCoverage: c.name, rankedCoverages: [c] }, f.effectiveTraits, { down, distance });
+      const evaluated = evaluateCoverage(c, plays.find(p => p.n === c.name), f.effectiveTraits, f.sc, evidence, sit, objective.id, runPass, adjustmentPlan);
       return evaluated && { ...evaluated, baselineOrder: index };
     }).filter(c => c && c.sc > 0).sort((a, b) => b.sc - a.sc || a.baselineOrder - b.baselineOrder);
     if (!rankedCoverages.length) return [];
@@ -65,8 +67,10 @@ export function buildRecommendationShareText(result, traits = []) {
     const call = f.personalizedCall;
     lines.push(`#${i + 1} ${f.name} — fit ${call.sc}/100`, `Best for you: ${f.personalizedCoverage}`);
     if (f.personalizedCoverage !== f.recommendedCoverage) lines.push(`Best overall: ${f.recommendedCoverage}`);
-    lines.push(`Assignments: ${call.matchup.structure}`);
-    if (call.matchup.status === 'verified') lines.push(`Main concern: ${call.matchup.weaknesses[0] || 'No verified assignment warning triggered.'}`);
+    lines.push(`Stock call assignments: ${call.matchup.structure}`);
+    const setup = call.adjustmentPlan?.settings || [];
+    if (setup.length) lines.push('Quick setup: ' + setup.map(item => `${item.setting}: ${item.value}`).join(' · '));
+    if (call.matchup.status === 'verified') lines.push(`Main concern: ${call.matchup.concept?.mainConcession || call.matchup.weaknesses[0] || 'Read your assignment before chasing the ball.'}`);
     lines.push(`Not assessed: ${call.matchup.unknowns.join(' ')}`);
     if (call.matchup.concept) lines.push(`Threat assessment: ${call.matchup.concept.utility}/100 (${call.matchup.concept.confidence.toLowerCase()} confidence)`,
       `Main concern on this down: ${call.matchup.concept.priorityRisk.label} — ${call.matchup.concept.mainConcession}`);

@@ -1,3 +1,4 @@
+import { assessAdjustmentMatchup } from './adjustmentMatchup.js';
 import { assessConceptMatchups } from './conceptMatchup.js';
 
 // Assignment-level guardrails. Counts are transcribed catalog evidence;
@@ -16,7 +17,7 @@ export function threatProfile(traits = []) {
   const has = (...ids) => ids.some(id => selected.has(id));
   return {
     deep: has('deep_shots', 'seam_routes'),
-    mobile: has('mobile_qb', 'dual_threat', 'qb_scramble', 'option_run', 'triple_option'),
+    mobile: has('mobile_qb', 'dual_threat', 'qb_scramble'),
     quick: has('quick_game', 'rpo', 'screens', 'slant_heavy', 'west_coast'),
     crossing: has('crossers'),
     run: has('inside_run', 'outside_run', 'hb_stretch', 'counter_trap', 'fb_lead', 'option_run', 'triple_option'),
@@ -48,7 +49,7 @@ export function assessPlay(play, threats = {}) {
   }
   if (threats.mobile && play.spy === 0 && play.cont === 0) {
     add('mobileWithoutAssignment', 'QB escape assignment missing',
-      'A mobile/option QB is scouted, but this call has no catalogued spy or contain assignment. Ordinary rush lanes or user help may still defend the QB.');
+      'A quarterback escape threat is scouted, but this call has no catalogued spy or contain assignment. Ordinary rush lanes or user help may still defend the QB.');
   }
   if (threats.quick && play.rush >= 5) {
     if (play.man === 0 && play.und <= 3) add('quickAgainstThinZonePressure', 'Thin underneath zone pressure',
@@ -99,7 +100,7 @@ export function unverifiedPlayAssessment() {
   };
 }
 
-export function evaluateCoverage(coverage, play, traits, formationScore, evidence = null, situation = 'base', gameObjective = 'balanced', runPass = 4) {
+export function evaluateCoverage(coverage, play, traits, formationScore, evidence = null, situation = 'base', gameObjective = 'balanced', runPass = 4, adjustmentPlan = null) {
   if (!evidence) {
     const concept = assessConceptMatchups(null, coverage.name, traits, situation, gameObjective, runPass);
     const sc = Math.max(0, Math.min(100, Math.round(formationScore * 0.35 + (concept?.utility ?? 50) * 0.65)));
@@ -118,11 +119,15 @@ export function evaluateCoverage(coverage, play, traits, formationScore, evidenc
   // formation grade cannot hide a poor call against the selected concept.
   const blended = Math.round(assignmentRaw * 0.35 + (concept?.utility ?? 50) * 0.65);
   const conceptDelta = blended - assignmentRaw;
-  const raw = assignmentRaw + conceptDelta;
+  const setup = assessAdjustmentMatchup(play, coverage.name, concept, adjustmentPlan);
+  const raw = assignmentRaw + conceptDelta + setup.delta;
   const sc = Math.max(0, Math.min(matchup.scoreCap, raw));
-  return { ...coverage, sc, gameObjective, matchup: { ...matchup, status: 'verified', verification: evidence, concept }, ledger: [...matchup.factors,
+  return { ...coverage, sc, gameObjective, matchup: { ...matchup, status: 'verified', verification: evidence, concept, setup }, adjustmentPlan, ledger: [...matchup.factors,
     ...([{ id: 'concept:blend', label: `Threat/complement assessment (${concept?.utility ?? 50}/100)`, delta: conceptDelta,
       reason: `Game objective: ${gameObjective}. The ${situation} situation weights the scouted threats and includes a ${Math.round((concept?.riskWeight ?? 0) * 100)}% bad-case component.`,
       basis: concept?.evidence || 'Neutral threat baseline when no scenario is selected' }]),
+    ...(setup.effects.length ? [{ id: 'setup:tradeoff', label: 'Quick setup tradeoff', delta: setup.delta,
+      reason: setup.effects.map(item => `${item.setting}: ${item.value}. ${item.why} Tradeoff: ${item.tradeoff}`).join(' '),
+      basis: 'Threat-weighted ordinal adjustment tradeoffs, capped at +/-4 points; optional counters excluded' }] : []),
     { id: 'play:bounds', label: matchup.scoreCap < 100 ? 'Deep-shot exposure cap (35)' : 'Play score bounds', delta: sc - raw }] };
 }

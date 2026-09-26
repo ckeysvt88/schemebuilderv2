@@ -31,6 +31,7 @@ function pluck(f) {
     name:       f.name,
     matchup:    f.personalizedCall.matchup,
     coverage:   f.personalizedCall.name,
+    quickSetup: (f.personalizedCall.adjustmentPlan?.settings || []).map(item => `${item.setting}: ${item.value}`).join(" · "),
     bestOverall: f.recommendedCoverage,
     sc:         f.personalizedCall.sc,
     priority:   f.priority,

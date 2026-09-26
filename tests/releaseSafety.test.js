@@ -33,8 +33,8 @@ test('personalized exports describe the selected call, including differing assig
   // Check the complete first formation block, irrespective of preceding headings.
   const first = buildRecommendationShareText(result, input.traits).split('#1 ')[1].split('#2 ')[0];
   assert.ok(first.includes(`fit ${f.personalizedCall.sc}/100`));
-  assert.ok(first.includes(`Assignments: ${f.personalizedCall.matchup.structure}`));
-  assert.ok(!first.includes(`Assignments: ${f.matchup.structure}`));
+  assert.ok(first.includes(`Stock call assignments: ${f.personalizedCall.matchup.structure}`));
+  assert.ok(!first.includes(`Stock call assignments: ${f.matchup.structure}`));
 });
 
 test('personalized score ledgers and assignments stay tied to the chosen call across formations', () => {
