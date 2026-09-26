@@ -15,7 +15,7 @@ const DIRECT_SCENARIOS = Object.freeze([
   { id: 'crossers', label: 'Crossers / mesh traffic', tags: ['crossers'], weight: 1 },
   { id: 'sideline', label: 'Sideline high-low stress', tags: ['flat_attack'], weight: 1 },
   { id: 'vertical', label: 'Vertical / seam shot', tags: ['deep_shots', 'seam_routes'], weight: 1 },
-  { id: 'play-action', label: 'Play-action shot', tags: ['play_action'], weight: 1 },
+  { id: 'play-action', label: 'Play action', tags: ['play_action'], weight: 1 },
 ]);
 
 export const SITUATION_CONCEPT_WEIGHTS = Object.freeze({
@@ -54,6 +54,22 @@ export function buildConceptScenarios(traits = [], situation = 'base', gameObjec
       addScenario(scenarios, scenario.id, scenario.label, scenario.weight, 'observed',
         'Directly selected scouting tendency.');
     }
+  }
+
+  // Existing traits mix broad tendencies and specific threats. Preserve that
+  // uncertainty instead of interpreting every quick pass as a bubble, or every
+  // mobile quarterback as a designed option play.
+  if (scenarios.has('quick')) {
+    const quick = scenarios.get('quick');
+    quick.attack = selected.has('slant_heavy') && !selected.has('quick_game') && !selected.has('west_coast') ? 'inside' : 'mixed';
+    quick.label = quick.attack === 'inside' ? 'Short middle throws' : 'Quick throws — inside and outside';
+  }
+  if (scenarios.has('qb-run')) {
+    const qb = scenarios.get('qb-run');
+    qb.option = selected.has('option_run') || selected.has('triple_option');
+    qb.scramble = selected.has('qb_scramble') || selected.has('mobile_qb') || selected.has('dual_threat');
+    qb.pitch = selected.has('triple_option');
+    qb.label = qb.option ? (qb.scramble ? 'QB keeper and scramble' : 'QB run / option') : 'QB escape threat';
   }
 
   const hasRunAction = ['inside-run', 'edge-run'].some(id => scenarios.has(id));
@@ -184,7 +200,7 @@ function gradeScenario(play, coverageName, scenario) {
   const fit = getCoverageRunSupport(coverageName);
   const base = { grade: 55, support: 'The call has a neutral starting point against this threat.', concession: 'Be ready to help the defender the offense puts in conflict.' };
 
-  if (scenario.id === 'vertical' || scenario.id === 'play-action') {
+  if (scenario.id === 'vertical') {
     const grades = [12, 35, 60, 72, 82];
     const grade = structure === 'quarters' && play.badge === 'MATCH'
       ? 88
@@ -192,15 +208,34 @@ function gradeScenario(play, coverageName, scenario) {
     return { grade, support: `${play.deep} deep defender${play.deep === 1 ? '' : 's'} remain assigned against the developing shot.`,
       concession: play.deep >= 3 ? 'The underneath outlet may be available if the defense rallies and tackles.' : 'A won matchup can escape limited deep help.' };
   }
+  if (scenario.id === 'play-action') {
+    // Initial ordinal rubric: intermediate help and a deep cap, not the
+    // vertical-count ladder. Counts cannot prove who bites on the fake.
+    const underneath = play.und >= 4 ? 68 : play.und >= 2 ? 60 : 48;
+    const grade = play.deep === 0 ? Math.min(underneath, 30)
+      : play.deep === 1 ? Math.min(underneath, 55) : underneath;
+    return { grade,
+      support: play.und >= 2 ? 'Underneath help can close the crossing route while deep defenders stay over the top.' : 'Deep help matters, but the fake can open a throw behind the linebackers.',
+      concession: 'Read the handoff before stepping downhill; find the receiver crossing behind you.' };
+  }
   if (scenario.id === 'pass-choice') {
     return { grade: Math.round((gradeScenario(play, coverageName, { id: 'quick' }).grade + gradeScenario(play, coverageName, { id: 'vertical' }).grade) / 2),
       support: 'Weigh short coverage and deep help together until the passing concepts are scouted.',
       concession: 'Watch which route wins before narrowing the coverage to stop it.' };
   }
   if (scenario.id === 'qb-run') {
-    if (play.spy > 0) return { grade: 78, support: 'A true spy is reserved for the quarterback.', concession: 'Removing a defender from coverage can expose an outlet.' };
-    if (play.cont > 0) return { grade: 68, support: 'Contain is assigned on the rush edges.', concession: 'The quarterback can still hit an inside lane or make the next option read.' };
-    return { grade: 38, support: 'No spy or contain assignment is catalogued.', concession: 'Use the Linebacker to close the quarterback lane if the rush opens a crease.' };
+    const escapeGrade = play.spy > 0 ? 72 : play.cont > 0 ? 64 : 45;
+    if (scenario.option) {
+      // Spy/contain is not evidence of a handoff, keeper, and pitch assignment.
+      // Coverage support is useful, but cannot prove a complete option fit.
+      const optionGrade = Math.min(60, 50 + 3 * fit.fitIn + 2 * fit.fitOut);
+      return { grade: scenario.scramble ? Math.round((optionGrade + escapeGrade) / 2) : optionGrade,
+        support: 'Keep a defender on the handoff and another on the quarterback; spy or contain alone does not cover both.',
+        concession: scenario.pitch ? 'Keep outside help for the pitch; do not send both defenders at the quarterback.' : 'Watch the keeper when the edge defender closes on the running back.' };
+    }
+    return { grade: escapeGrade,
+      support: play.spy > 0 ? 'The spy can follow the quarterback when he leaves the pocket.' : play.cont > 0 ? 'Contain rushers help keep the quarterback inside the pocket.' : 'Rush-lane discipline and pursuit must handle a quarterback escape.',
+      concession: play.spy > 0 ? 'The spy leaves one fewer defender covering routes; speed and pursuit still matter.' : 'An inside lane can still open; keep your assignment until the quarterback commits to running.' };
   }
   if (scenario.id === 'inside-run') {
     return { grade: fit.fitIn === 2 ? 66 : fit.fitIn === 1 ? 59 : 50,
@@ -234,15 +269,21 @@ function gradeScenario(play, coverageName, scenario) {
       concession: 'If one defender must stop the run and cover the throw, the QB can attack whichever job he leaves.' };
   }
   if (scenario.id === 'quick') {
-    if (/hard flat/i.test(coverageName)) return {
-      grade: 80,
-      support: 'Hard-flat defenders are assigned to drive immediately on the outside access throw.',
-      concession: 'The corner route or seam can open behind an aggressive flat defender.',
-    };
-    if (play.rush >= 5 && play.und <= 3) return { grade: 38, support: 'Pressure reduces the underneath resources available before the rush arrives.', concession: 'The immediate outlet can beat pressure timing.' };
-    if (play.und >= 4) return { grade: 68, support: `${play.und} underneath defenders can rally to an immediate throw.`, concession: 'Spacing or leverage can still create a clean catch.' };
-    if (structure === 'two-man') return { grade: 58, support: 'Two deep helpers cap a lost man matchup.', concession: 'Traffic and quick separation can win before help arrives.' };
-    return { grade: 50, support: 'The call does not clearly take away the immediate throw.', concession: 'Stay inside the quick route and rally to the flat after the ball is thrown.' };
+    const thinPressure = play.rush >= 5 && play.und <= 3;
+    const insideGrade = thinPressure ? 38 : play.und >= 4 ? 68 : structure === 'two-man' ? 58 : 50;
+    const hardFlat = /hard flat/i.test(coverageName);
+    // A broad quick-game tag includes inside throws. Never give the whole
+    // concept the outside-only hard-flat grade, or bypass thin-pressure risk.
+    const outsideGrade = hardFlat ? (thinPressure ? 58 : 80) : insideGrade;
+    const grade = scenario.attack === 'inside' ? insideGrade : Math.round((insideGrade + outsideGrade) / 2);
+    return { grade,
+      support: scenario.attack !== 'inside' && hardFlat
+        ? 'Hard-flat defenders challenge the outside throw; short middle routes still need inside help.'
+        : thinPressure ? 'The ball can come out before pressure arrives; underneath help is limited.'
+        : 'Keep help inside for slants and short crossing routes, then close on the catch.',
+      concession: scenario.attack !== 'inside' && hardFlat
+        ? 'Do not chase the flat with your inside defender and open the slant behind him.'
+        : 'A short catch can become a first down if the nearest defender loses leverage.' };
   }
   if (scenario.id === 'screen') {
     if (play.rush >= 5) return { grade: 40, support: 'Five or more rushers can create disruption if they diagnose the screen.', concession: 'A completed screen can release behind the pressure.' };

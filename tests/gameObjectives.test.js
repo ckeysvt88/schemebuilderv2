@@ -24,7 +24,9 @@ test('objective changes the actual winner and returning to balanced restores the
   assert.notEqual(solid(protect).recommendedCoverage, solid(before).recommendedCoverage);
   const protectedCall = solid(protect).rankedCoverages.find(c => c.name === solid(protect).recommendedCoverage);
   assert.ok(protectedCall.matchup.facts.deep >= 3);
-  assert.equal(solid(stop).recommendedCoverage, 'Cover 2 Invert Hard Flat');
+  // The stop objective adds an inside-run threat; an outside-flat bonus alone
+  // must not force the same winner as a balanced quick-pass plan.
+  assert.equal(solid(stop).recommendedCoverage, 'Cover 3 Sky Wk');
   assert.deepEqual(recommend(base), before);
 });
 

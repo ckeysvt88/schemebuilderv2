@@ -31,9 +31,10 @@ test('a quick preset does not replace the actual coaching adjustments', () => {
   assert.doesNotMatch(JSON.stringify(plan.settings), /In-game preset/);
 });
 
-test('play action protects deeper coverage without inventing a linebacker reaction control', () => {
+test('play action alone does not invent a vertical shot or a linebacker reaction control', () => {
   const plan = buildAdjustmentPlan(fm('Cover 3 Sky'), ['play_action', 'short_yardage_run']);
-  assert.match(JSON.stringify(plan.settings), /Zone Strategy.*Conservative/);
+  assert.doesNotMatch(JSON.stringify(plan.settings), /Zone Strategy|Safety Depth/);
+  assert.match(plan.userKey.text, /fake|crossing/);
   assert.doesNotMatch(JSON.stringify(plan), /Defender Aggression/);
 });
 
@@ -61,7 +62,8 @@ test('long yardage overrides quick-game scouting and never recommends underneath
     const plan = buildAdjustmentPlan(fm('Cover 3 Sky'), ['quick_game', 'inside_run'], { down, distance: 'long' });
     assert.equal(plan.objective.label, 'Protect the sticks');
     assert.match(JSON.stringify(plan.settings), /Zone Strategy.*Conservative|Cornerback Depth.*10 yards/);
-    assert.match(JSON.stringify(plan.settings), /Pass Commit.*Pass/);
+    assert.doesNotMatch(JSON.stringify(plan.settings), /Pass Commit/);
+    assert.match(JSON.stringify(plan.tools), /Pass Commit/);
     assert.doesNotMatch(JSON.stringify(plan.settings), /Underneath|Gap Integrity/);
     assert.notEqual(plan.preset?.value, 'Play Short Routes');
   }
@@ -81,7 +83,8 @@ test('short and long yardage produce materially different setup instructions', (
   const long = buildAdjustmentPlan(fm('Cover 3 Sky'), traits, { down: 3, distance: 'long' });
   assert.notDeepEqual(short.settings, long.settings);
   assert.match(JSON.stringify(short.settings), /5 yards|Gap Integrity/);
-  assert.match(JSON.stringify(long.settings), /10 yards|Pass Commit/);
+  assert.match(JSON.stringify(long.settings), /16 yards|10 yards/);
+  assert.doesNotMatch(JSON.stringify(long.settings), /Pass Commit/);
 });
 
 test('advanced counters expose shell, leverage, matchup, match-check, and individual tools when supported', () => {

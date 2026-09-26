@@ -6,7 +6,7 @@ import { getCoverageGuidance } from '../engine/coverageGuidance.js';
 import { buildAdjustmentPlan } from '../engine/adjustmentPlan.js';
 
 function AdjustmentsPanel({ fm, flat, situation, onLogCall }) {
-  const plan = buildAdjustmentPlan(fm, flat, situation);
+  const plan = fm.personalizedCall?.adjustmentPlan || buildAdjustmentPlan(fm, flat, situation);
   return (
     <div>
       <div style={{ background: "var(--color-gold-surface)", border: "1px solid var(--color-gold-border)", borderLeft: "4px solid var(--color-gold)", borderRadius: 5, padding: "11px 13px", marginBottom: 13 }}>
@@ -17,7 +17,7 @@ function AdjustmentsPanel({ fm, flat, situation, onLogCall }) {
 
       {plan.settings.length > 0 ? <>
         <div style={{ fontSize: 12, fontWeight: 800, color: "var(--color-text-1)", marginBottom: 3 }}>Quick setup</div>
-        <div style={{ fontSize: 11, color: "var(--color-text-3)", lineHeight: 1.5, marginBottom: 10 }}>Make these changes for this call and down.</div>
+        <div style={{ fontSize: 11, color: "var(--color-text-3)", lineHeight: 1.5, marginBottom: 10 }}>This call’s fit includes these changes. Apply them before the snap.</div>
       </> : <p style={{ fontSize: 11, color: "var(--color-text-2)", margin: "0 0 10px" }}>No pre-snap changes needed.</p>}
       {plan.settings.map(item => (
         <div key={item.setting} style={{ background: "var(--color-surface-1)", border: "1px solid var(--color-border-subtle)", borderLeft: "3px solid var(--color-gold)", borderRadius: 5, padding: "10px 13px", marginBottom: 7 }}>
@@ -124,7 +124,7 @@ export default function FormationDetail({ fm, flat, situation, onLogCall }) {
   const [showWhy, setShowWhy] = useState(false);
   const [showScoring, setShowScoring] = useState(false);
   const front = getFrontStructure(fm.name);
-  const situationPlan = buildAdjustmentPlan(fm, flat, situation);
+  const situationPlan = fm.personalizedCall?.adjustmentPlan || buildAdjustmentPlan(fm, flat, situation);
 
   return (
     <div style={{ background: "var(--color-bg)", border: "1px solid var(--color-gold)", borderTop: "none", borderLeft: "3px solid var(--color-gold)", borderRadius: "0 0 9px 9px", overflow: "hidden", marginBottom: 18 }}>

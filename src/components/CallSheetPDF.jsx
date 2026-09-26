@@ -184,6 +184,7 @@ function MatrixRow({ row, isAlt }) {
                 {row.primary.name}
               </Text>
               <Text style={S.callCov}>{row.primary.coverage}</Text>
+              {row.primary.quickSetup && <Text style={S.tfNote}>{row.primary.quickSetup}</Text>}
             </>
           ) : <Text style={S.emptyCell}>—</Text>}
         </View>
@@ -207,6 +208,7 @@ function MatrixRow({ row, isAlt }) {
                 {row.secondary.name}
               </Text>
               <Text style={S.callCov}>{row.secondary.coverage}</Text>
+              {row.secondary.quickSetup && <Text style={S.tfNote}>{row.secondary.quickSetup}</Text>}
             </>
           ) : <Text style={S.emptyCell}>—</Text>}
         </View>
@@ -252,11 +254,12 @@ function TopFormationItem({ fm, rank, isLast }) {
         <Text style={S.tfPct}>{fm.sc}/100</Text>
       </View>
       <Text style={S.tfMeta}>{fm.coverage}</Text>
+      {fm.quickSetup && <Text style={S.tfMeta}>Quick setup: {fm.quickSetup}</Text>}
       {fm.matchup && <>
-        <Text style={S.tfMeta}>{fm.matchup.structure}</Text>
+        <Text style={S.tfMeta}>Stock call: {fm.matchup.structure}</Text>
         {fm.front && <Text style={S.tfMeta}>Formation front: {fm.front.summary}</Text>}
         {fm.matchup.concept && <Text style={S.tfMeta}>Threat assessment: {fm.matchup.concept.utility}/100 · {fm.matchup.concept.confidence} confidence · Main concern: {fm.matchup.concept.priorityRisk.label}</Text>}
-        <Text style={S.tfNote}>Concern: {fm.matchup.weaknesses[0] || 'Assignment counts alone do not establish matchup safety.'}</Text>
+        <Text style={S.tfNote}>Concern: {fm.matchup.concept?.mainConcession || fm.matchup.weaknesses[0] || 'Read your assignment before chasing the ball.'}</Text>
       </>}
     </View>
   );
