@@ -150,7 +150,6 @@ export default function FormationInfo({ onCustomize }) {
           </div>
           {sel && (
             <div style={{ display: "contents" }}>
-              {canCustomizeFormation(sel) && onCustomize && <button style={{ ...smallBtn, minHeight: 36, color: "var(--color-gold)", borderColor: "var(--color-gold-border)", background: "var(--color-gold-surface)" }} onClick={() => onCustomize(sel)}>Customize</button>}
               <div style={{ display: "flex", alignItems: "center", justifyContent: "flex-end", gap: 6, gridColumn: "1 / -1" }}>
               <button style={smallBtn} onClick={() => setSel(null)}>← All</button>
               <button style={{ ...smallBtn, opacity: selIdx > 0 ? 1 : 0.35, cursor: selIdx > 0 ? "pointer" : "default", minWidth: 32 }}
@@ -214,7 +213,10 @@ export default function FormationInfo({ onCustomize }) {
             <span style={pill("var(--color-text-3)")}>{d.personnel.toUpperCase()}</span>
             <span style={pill("var(--color-gold)")}>BLITZ BASE {d.blitzBase}%</span>
           </div>
-          <div style={{ fontFamily: "var(--font-mono)", fontSize: 22, fontWeight: 700, color: "var(--color-gold-bright)", margin: "8px 0 6px" }}>{sel}</div>
+          <div style={{ display: "grid", gridTemplateColumns: "minmax(0, 1fr) auto", alignItems: "center", gap: 10, margin: "8px 0 6px" }}>
+            <div style={{ fontFamily: "var(--font-mono)", fontSize: 22, fontWeight: 700, color: "var(--color-gold-bright)" }}>{sel}</div>
+            {canCustomizeFormation(sel) && onCustomize && <button style={{ ...smallBtn, minHeight: 36, color: "var(--color-gold)", borderColor: "var(--color-gold-border)", background: "var(--color-gold-surface)" }} onClick={() => onCustomize(sel)}>Customize</button>}
+          </div>
           <div style={{ fontSize: 13.5, color: "var(--color-text-1)", lineHeight: 1.55 }}>{d.desc}</div>
 
           {/* Personnel — diagram-derived when alignment art exists */}
