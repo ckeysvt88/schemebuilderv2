@@ -8,7 +8,7 @@ export function normalizeActiveSession(value = {}) {
   const text = key => typeof source[key] === 'string' ? source[key] : null;
   return {
     sel: profile.traits, runPass: profile.runPass,
-    step: ['scout', 'plan', 'teams', 'compare', 'macros', 'info', 'notes'].includes(source.step) ? source.step : 'scout',
+    step: ['scout', 'plan', 'teams', 'compare', 'macros', 'info', 'notes', 'playart'].includes(source.step) ? source.step : 'scout',
     activeP: text('activeP'), selFm: text('selFm'),
     mainTab: source.mainTab === 'all' ? 'all' : 'personnel',
     situDown: ['base', '1', '2', '3', '4', 'rz'].includes(String(source.situDown)) ? String(source.situDown) : 'base',

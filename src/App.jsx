@@ -1,6 +1,6 @@
 import { readActiveSession, writeActiveSession } from './data/activeSession.js';
 import { normalizeOpponentProfile, readOpponentProfiles, writeOpponentProfiles } from './data/opponentProfile.js';
-import { useState, useCallback, useEffect, useMemo } from 'react';
+import { useState, useCallback, useEffect, useMemo, lazy, Suspense } from 'react';
 import { recommend, buildRecommendationShareText } from './engine/recommendations.js';
 import { scoreAll } from './engine/scoring.js';
 import { getAvailableFamilies } from './data/personnel.js';
@@ -14,6 +14,8 @@ import NotesScreen from './components/NotesScreen.jsx';
 import BottomNav from './components/BottomNav.jsx';
 import MacroBuilder from './components/MacroBuilder.jsx';
 import FormationInfo from './components/FormationInfo.jsx';
+
+const PlayArtBuilder = lazy(() => import('./components/PlayArtBuilder.jsx'));
 
 export default function App() {
   const [restored] = useState(() => {
@@ -252,6 +254,7 @@ export default function App() {
       {step === "plan"    && <GamePlanScreen key="plan"    {...sharedProps} />}
       {step === "compare" && <CompareScreen  key="compare" compareA={compareA} setCompareA={setCompareA} compareB={compareB} setCompareB={setCompareB} setStep={navigate} />}
       {step === "macros"  && <MacroBuilder key="macros" />}
+      {step === "playart" && <Suspense fallback={<div style={{ padding: 24, color: "var(--color-text-2)" }}>Loading Play Art…</div>}><PlayArtBuilder /></Suspense>}
       {step === "info"    && <FormationInfo key="info" />}
       {step === "notes"   && <NotesScreen    key={"notes" + (notesInitProfile || "")}   profiles={profiles} setStep={navigate} initProfile={notesInitProfile} handleShare={handleShare} shareToast={shareToast} />}
 
