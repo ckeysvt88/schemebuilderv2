@@ -30,7 +30,7 @@ export function shiftLinebacker(x, shift='default') {
   if (shift==='spread') return Math.max(3,Math.min(97,x+(x-50)*.3));
   return x;
 }
-export function blitzTargetX(group, x, width) { return group === 'lb' ? x : width/2; }
+export function blitzTargetX(group, x, width) { return ['lb','dl','edge'].includes(group) ? x : width/2; }
 
 // Backfield blitz art shows direction toward the QB, ending before the DL markers.
 export function blitzEndpoint(group, x, y, width, los, standardRush=false) {
