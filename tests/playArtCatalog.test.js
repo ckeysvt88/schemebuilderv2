@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { ALIGN } from '../src/data/alignments.js';
-import { PLAY_ART_FORMATIONS, FORMATION_FAMILIES, familyOf, canCustomizeFormation, positionGroup, formationDepth, shiftLinebacker, blitzTargetX } from '../src/components/playArt/catalog.js';
+import { PLAY_ART_FORMATIONS, FORMATION_FAMILIES, familyOf, canCustomizeFormation, positionGroup, formationDepth, shiftLinebacker, blitzTargetX, blitzEndpoint } from '../src/components/playArt/catalog.js';
 
 test('Every complete formation is available with all 11 original positions and coordinates', () => {
   assert.equal(Object.keys(PLAY_ART_FORMATIONS).length,71);
@@ -31,4 +31,16 @@ test('Default blitz lanes aim toward the QB except straight linebacker lanes',()
   }
   for(const id of ['MIKE1','MIKE2','SLB','SLB2'])assert.equal(positionGroup(id),'lb');
   for(const id of ['RE','LE','RRE','REDG'])assert.equal(positionGroup(id),'edge');
+});
+
+test('Backfield blitz arrows stop before the line and DL Rush stays short and straight',()=>{
+  for(const width of [320,390,720])for(const group of ['cb','slot','s','lb']){
+    for(const x of [40,width/2,width-40])for(const y of [160,250,298]){
+      const end=blitzEndpoint(group,x,y,width,300);
+      assert(end.y<300);
+      if(group==='lb')assert.equal(end.x,x);
+      else assert(Math.abs(end.x-width/2)<=Math.abs(x-width/2));
+    }
+  }
+  for(const group of ['dl','edge'])assert.deepEqual(blitzEndpoint(group,80,300,390,300,true),{x:80,y:328});
 });

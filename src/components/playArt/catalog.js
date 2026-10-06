@@ -31,3 +31,12 @@ export function shiftLinebacker(x, shift='default') {
   return x;
 }
 export function blitzTargetX(group, x, width) { return group === 'lb' ? x : width/2; }
+
+// Backfield blitz art shows direction toward the QB, ending before the DL markers.
+export function blitzEndpoint(group, x, y, width, los, standardRush=false) {
+  if (standardRush) return {x, y:y+28};
+  const qbX=blitzTargetX(group,x,width), qbY=los+38;
+  const endY=y<los ? Math.min(los-6, Math.max(y+8,los-16)) : los+28;
+  const fraction=Math.max(0,Math.min(1,(endY-y)/(qbY-y)));
+  return {x:x+(qbX-x)*fraction,y:endY};
+}
