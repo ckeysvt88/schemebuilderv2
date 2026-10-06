@@ -90,8 +90,6 @@ export default function BottomNav({ step, setStep, hasPlan, isDark = true, onTog
       bottom: 0, left: 0, right: 0,
       zIndex: 90,
       background: "var(--nav-bg-color)",
-      backdropFilter: "blur(20px) saturate(180%)",
-      WebkitBackdropFilter: "blur(20px) saturate(180%)",
       borderTop: "1px solid rgba(184, 136, 12, 0.18)",
       paddingBottom: "env(safe-area-inset-bottom)",
       backgroundColor: "var(--nav-bg-color)",
