@@ -308,3 +308,19 @@ button, label { user-select: none; -webkit-user-select: none; }
 
 /* Solid header surfaces keep scrolling text from showing through. */
 .app-page-header { background: var(--color-surface-1) !important; backdrop-filter: none; -webkit-backdrop-filter: none; filter: none; opacity: 1; text-shadow: none; }
+
+/* Keep the scrolling surface below the status-bar inset on installed iOS apps.
+   Header safe-area padding is replaced here so it is not counted twice. */
+@media (display-mode: standalone) {
+  #root {
+    margin-top: env(safe-area-inset-top);
+    height: calc(100dvh - env(safe-area-inset-top));
+  }
+  .app-page-header { padding-top: 20px !important; }
+}
+.app-page-header, .app-page-header * {
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+  filter: none !important;
+  text-shadow: none !important;
+}
