@@ -1,3 +1,4 @@
+import { canCustomizeFormation } from './playArt/catalog.js';
 import { useState, useMemo, useEffect } from 'react';
 import { FDB } from '../data/formations.js';
 import { TRAIT_LABELS } from '../data/traits.js';
@@ -111,7 +112,7 @@ function Section({ title, count, tone, children, defaultOpen = false }) {
   );
 }
 
-export default function FormationInfo() {
+export default function FormationInfo({ onCustomize }) {
   const [fam, setFam] = useState(null);
   const [sel, setSel] = useState(null);
 
@@ -141,14 +142,16 @@ export default function FormationInfo() {
   return (
     <div className="screen-enter" style={{ fontFamily: "var(--font-sans)", background: "var(--color-bg)", minHeight: "100dvh", color: "var(--color-text-1)", maxWidth: 720, margin: "0 auto" }}>
 
-      <div style={{ background: "linear-gradient(135deg, var(--color-surface-1), var(--color-surface-2))", borderBottom: "2px solid var(--color-gold)", padding: "12px 16px", paddingTop: "calc(env(safe-area-inset-top) + 12px)", position: "sticky", top: 0, zIndex: 80 }}>
-        <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between" }}>
+      <div className="app-page-header" style={{ background: "linear-gradient(135deg, var(--color-surface-1), var(--color-surface-2))", borderBottom: "2px solid var(--color-gold)", padding: "12px 16px", paddingTop: "calc(env(safe-area-inset-top) + 12px)", position: "sticky", top: 0, zIndex: 80 }}>
+        <div style={{ display: "grid", gridTemplateColumns: "minmax(0, 1fr) auto", alignItems: "start", gap: 8 }}>
           <div>
             <div style={{ fontSize: 10, color: "var(--color-gold-dim)", letterSpacing: "2px", textTransform: "uppercase", fontFamily: "var(--font-mono)", marginBottom: 2 }}>Scheme Builders</div>
             <div style={{ fontSize: 20, fontWeight: "700", color: "var(--color-text-1)", fontFamily: "var(--font-mono)" }}>Formation Info</div>
           </div>
           {sel && (
-            <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+            <div style={{ display: "contents" }}>
+              {canCustomizeFormation(sel) && onCustomize && <button style={{ ...smallBtn, minHeight: 36, color: "var(--color-gold)", borderColor: "var(--color-gold-border)", background: "var(--color-gold-surface)" }} onClick={() => onCustomize(sel)}>Customize</button>}
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "flex-end", gap: 6, gridColumn: "1 / -1" }}>
               <button style={smallBtn} onClick={() => setSel(null)}>← All</button>
               <button style={{ ...smallBtn, opacity: selIdx > 0 ? 1 : 0.35, cursor: selIdx > 0 ? "pointer" : "default", minWidth: 32 }}
                 onClick={goPrev} disabled={selIdx <= 0} aria-label="Previous formation">‹</button>
@@ -157,6 +160,7 @@ export default function FormationInfo() {
               </span>
               <button style={{ ...smallBtn, opacity: selIdx < siblings.length - 1 ? 1 : 0.35, cursor: selIdx < siblings.length - 1 ? "pointer" : "default", minWidth: 32 }}
                 onClick={goNext} disabled={selIdx >= siblings.length - 1} aria-label="Next formation">›</button>
+              </div>
             </div>
           )}
         </div>

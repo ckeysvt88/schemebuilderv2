@@ -165,7 +165,7 @@ export default function ScoutScreen({
       )}
 
       {/* ── Slim sticky top bar ── */}
-      <div style={{
+      <div className="app-page-header" style={{
         background: "linear-gradient(135deg, var(--color-surface-1), var(--color-surface-2))",
         borderBottom: "1px solid var(--color-border-subtle)",
         padding: "8px 16px",

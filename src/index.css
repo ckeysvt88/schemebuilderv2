@@ -34,7 +34,7 @@
   --color-bg-fade:       rgba(7, 8, 15, 0.85);
   --color-hero-bg:       var(--color-bg);
   --color-hero-bg-fade:  rgba(7, 8, 15, 0.85);
-  --nav-bg-color:        rgba(7, 8, 15, 0.95);
+  --nav-bg-color:        #07080f;
   --color-cta-bg:        linear-gradient(135deg, #b8880c, #d4a020, #b8880c);
   --color-cta-text:      #07080f;
   --font-mono: 'IBM Plex Mono', 'SF Mono', monospace;
@@ -84,7 +84,7 @@
   --color-cta-text:       #f0f5ff;
   --color-hero-bg:        var(--color-bg);
   --color-hero-bg-fade:   rgba(237, 241, 248, 0.85);
-  --nav-bg-color:         rgba(205, 213, 225, 0.98);
+  --nav-bg-color:         #cdd5e1;
 }
 
 /* ── XO pattern: lighter opacity on light hero bg ───────────────────────── */
@@ -305,3 +305,6 @@ button, label { user-select: none; -webkit-user-select: none; }
 @media (min-width: 560px) {
   .playbook-choice-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 }
+
+/* Solid header surfaces keep scrolling text from showing through. */
+.app-page-header { background: var(--color-surface-1) !important; backdrop-filter: none; -webkit-backdrop-filter: none; filter: none; opacity: 1; text-shadow: none; }

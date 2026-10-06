@@ -23,6 +23,7 @@ export default function App() {
   });
   // ── Navigation ──────────────────────────────────────────────────────────────
   const [step, setStep] = useState(restored.step);
+  const [playArtFormation, setPlayArtFormation] = useState(null);
 
   // ── Theme ────────────────────────────────────────────────────────────────────
   const [isDark, setIsDark] = useState(() => {
@@ -112,6 +113,7 @@ export default function App() {
 
   // ── Navigation — cleans up plan-specific UI when leaving plan/notes ───────────
   const navigate = useCallback((newStep) => {
+    setPlayArtFormation(null);
     if (newStep !== "plan" && newStep !== "notes") {
       setSelFm(null);
       setQuickAdjOpen(false);
@@ -254,8 +256,8 @@ export default function App() {
       {step === "plan"    && <GamePlanScreen key="plan"    {...sharedProps} />}
       {step === "compare" && <CompareScreen  key="compare" compareA={compareA} setCompareA={setCompareA} compareB={compareB} setCompareB={setCompareB} setStep={navigate} />}
       {step === "macros"  && <MacroBuilder key="macros" />}
-      {step === "playart" && <Suspense fallback={<div style={{ padding: 24, color: "var(--color-text-2)" }}>Loading Play Art…</div>}><PlayArtBuilder /></Suspense>}
-      {step === "info"    && <FormationInfo key="info" />}
+      {step === "playart" && <Suspense fallback={<div style={{ padding: 24, color: "var(--color-text-2)" }}>Loading Play Art…</div>}><PlayArtBuilder initialFormation={playArtFormation} /></Suspense>}
+      {step === "info"    && <FormationInfo key="info" onCustomize={(name) => { navigate("playart"); setPlayArtFormation(name); }} />}
       {step === "notes"   && <NotesScreen    key={"notes" + (notesInitProfile || "")}   profiles={profiles} setStep={navigate} initProfile={notesInitProfile} handleShare={handleShare} shareToast={shareToast} />}
 
       <BottomNav step={step} setStep={navigate} hasPlan={scored.length > 0} isDark={isDark} onToggle={onToggle} />

@@ -106,3 +106,14 @@
 #sb-play-art button,#sb-play-art select,#sb-play-art summary,#sb-play-art a{cursor:pointer}
 #sb-play-art button:disabled{cursor:default}
 #sb-play-art .nm-storage-notice{color:var(--nm-muted);font-size:12px;margin-top:8px}
+
+#sb-play-art .nm-stage{display:block}
+#sb-play-art .nm-app{overflow:visible;container-type:normal}
+#sb-play-art .nm-header{display:block;position:sticky;top:0;z-index:80;padding:calc(env(safe-area-inset-top) + 12px) 16px 12px;border-bottom:2px solid var(--color-gold);background:var(--color-surface-1)}
+#sb-play-art .nm-header .nm-brand{font:400 10px var(--font-mono);letter-spacing:2px;text-transform:uppercase;color:var(--color-gold-dim);margin-bottom:2px}
+#sb-play-art .nm-header h1{font:700 20px/1.35 var(--font-mono);color:var(--color-text-1);margin:0;overflow-wrap:anywhere}
+#sb-play-art .nm-pickers{grid-template-columns:minmax(0,.8fr) minmax(0,1.2fr) minmax(0,1.3fr);gap:6px}
+#sb-play-art .nm-pickers label{min-width:0}
+#sb-play-art .nm-reference{margin:8px 0;border:1px solid var(--nm-border);border-radius:7px;background:var(--nm-paper)}
+#sb-play-art .nm-reference img{display:block;width:100%;height:auto}
+#sb-play-art .nm-reference a{display:block;padding:8px;color:var(--nm-gold);font-size:12px}
