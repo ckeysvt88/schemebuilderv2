@@ -70,6 +70,17 @@ const TABS = [
       </svg>
     ),
   },
+  {
+    id: "playart",
+    label: "Play Art",
+    icon: (
+      <svg width="22" height="22" viewBox="0 0 22 22" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+        <circle cx="5" cy="17" r="2" />
+        <path d="M5 15V9c0-3 3-4 6-4h6M14 2l3 3-3 3" />
+        <circle cx="16" cy="15" r="3" />
+      </svg>
+    ),
+  },
 ];
 
 export default function BottomNav({ step, setStep, hasPlan, isDark = true, onToggle = () => {} }) {
@@ -87,7 +98,7 @@ export default function BottomNav({ step, setStep, hasPlan, isDark = true, onTog
     }}>
       <div style={{
         maxWidth: 720, margin: "0 auto",
-        display: "grid", gridTemplateColumns: "repeat(7, 1fr)",
+        display: "grid", gridTemplateColumns: "repeat(8, 1fr)",
         height: "var(--nav-h)",
       }}>
         {TABS.map(tab => {
@@ -136,7 +147,7 @@ export default function BottomNav({ step, setStep, hasPlan, isDark = true, onTog
                 {tab.icon}
               </div>
               <span style={{ fontSize: 10, fontWeight: active ? "700" : "500", letterSpacing: "0.3px", lineHeight: 1 }}>
-                {tab.label}
+                {tab.id === "info" ? "Forms" : tab.label}
               </span>
             </button>
           );
