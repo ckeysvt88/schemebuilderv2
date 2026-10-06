@@ -24,10 +24,10 @@ test('Linebacker shifts preserve side relationships and move toward or away from
   assert.equal(formationDepth(66),0);assert(formationDepth(15)>formationDepth(45));
 });
 
-test('Default blitz lanes aim toward the QB except straight linebacker lanes',()=>{
+test('Default blitz lanes aim toward the QB except straight linebacker and DL lanes',()=>{
   for(const width of [320,390,720])for(const x of [40,width/2,width-40]){
-    assert.equal(blitzTargetX('lb',x,width),x);
-    for(const group of ['s','cb','slot','edge','dl'])assert.equal(blitzTargetX(group,x,width),width/2);
+    for(const group of ['lb','dl','edge'])assert.equal(blitzTargetX(group,x,width),x);
+    for(const group of ['s','cb','slot'])assert.equal(blitzTargetX(group,x,width),width/2);
   }
   for(const id of ['MIKE1','MIKE2','SLB','SLB2'])assert.equal(positionGroup(id),'lb');
   for(const id of ['RE','LE','RRE','REDG'])assert.equal(positionGroup(id),'edge');

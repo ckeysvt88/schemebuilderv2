@@ -22,7 +22,7 @@ const menuGroup=p=>p[3]==='lb'?(/^(MIKE|SLB)/.test(p[0])?'insideLB':'outsideLB')
 // Menu names: AceMadden CFB27. Paths: schematic stunt concepts, not animation timing.
 const stuntMenu=[['none','None'],...['left','right'].flatMap(side=>[['exit','Exit 2 Man'],['tex','Tex 2 Man'],['tom','Tom 2 Man'],['pirate','Pirate 3 Man'],['tempe','Tempe 4 Man']].map(([key,label])=>[side+'_'+key,side[0].toUpperCase()+side.slice(1)+' '+label])),['elpaso','El Paso 4 Man'],['texas','Texas 4 Man']];
 const stuntNotes={exit:'The end goes inside first; the tackle loops outside.',tex:'The tackle goes first; the end loops inside.',tom:'One tackle goes first; the other crosses behind him.',pirate:'Two linemen go inside; the opposite tackle loops behind them.',tempe:'An inside loop on one side and an outside loop on the other.',elpaso:'Both ends go inside; both tackles loop outside.',texas:'Both tackles go first; both ends loop inside.'};
-const names={sky:'Cover 3 Sky',two:'Tampa 2',quarters:'Cover 4 Quarters',cover3:'Cover 3',blank:'Blank formation'};
+const names={sky:'Cover 3 Sky',two:'Tampa 2',quarters:'Cover 4 Quarters',cover3:'Cover 3',blank:'Custom'};
 const formationCalls={'Nickel Over':['sky','two','quarters'],'4-3 Over Wide':['sky','two','quarters'],'3-4 Over':['sky','quarters'],'3-3-5 Stack':['cover3']};
 const exampleCalls={'Nickel Over':['sky','quarters'],'4-3 Over Wide':['sky','quarters'],'3-4 Over':['sky','quarters'],'3-3-5 Stack':['cover3']};
 for(const name of Object.keys(formations))formationCalls[name]=[...(formationCalls[name]||[]),'blank'];
@@ -232,7 +232,7 @@ function draw(){
   text+='<text data-player-label="'+p[0]+'" x="'+labelX+'" y="'+labelY+'" text-anchor="'+anchor+'" style="fill:var(--nm-field-text);paint-order:stroke;stroke:var(--nm-grass);stroke-width:3px;stroke-linejoin:round;font:700 11px monospace">'+p[0]+'</text>';
  });
  svg.innerHTML=base+lines+shapes+text;
- svg.setAttribute('aria-label',formation+' · '+(comparing?(state.template==='blank'?'Blank formation':'Base call'):'My macro')+' · '+names[state.template]);
+ svg.setAttribute('aria-label',formation+' · '+(comparing?(state.template==='blank'?'Custom':'Base call'):'My macro')+' · '+names[state.template]);
  app.artLayout={labels,zones,positions,rushes,stunt:plan,scale,los:LOS,mode:comparing?'base':'macro'};
  players.forEach(p=>{
   const b=markers.querySelector('[data-player="'+p[0]+'"]'),q=positions[p[0]];
@@ -241,7 +241,7 @@ function draw(){
   b.setAttribute('aria-pressed',String(open&&!comparing&&p[0]===selected));b.setAttribute('aria-expanded',String(open&&!comparing&&p[0]===selected));b.setAttribute('aria-label',p[0]+' · '+assignmentLabel(shown.a[p[0]])+' · edit');
  });
  app.querySelectorAll('[data-compare]').forEach(b=>b.setAttribute('aria-pressed',String((b.dataset.compare==='base')===comparing)));
- app.querySelector('.nm-compare-status').textContent=(comparing?(state.template==='blank'?'Blank formation':'Base call'):'My macro')+' · '+names[state.template];
+ app.querySelector('.nm-compare-status').textContent=(comparing?(state.template==='blank'?'Custom':'Base call'):'My macro')+' · '+names[state.template];
 }
 
 function counts(){const c={rush:0,contain:0,deep:0,under:0,man:0,spy:0,blank:0};const shown=displayedState();players.forEach(p=>{const a=shown.a[p[0]],contained=isContained(p,shown);c[contained?'contain':options[a.job][1]]++;});return c;}
