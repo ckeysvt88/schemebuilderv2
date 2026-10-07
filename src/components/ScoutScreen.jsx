@@ -1,3 +1,4 @@
+import { ONBOARDING_PAGES, ONBOARDING_STORAGE_KEY } from '../data/onboarding.js';
 import { saveOpponentProfile } from '../data/opponentProfile.js';
 import { RUN_PASS_LABELS } from '../data/runPassBias.js';
 import { useState, useRef, useEffect } from 'react';
@@ -15,60 +16,6 @@ const ICONS = {
   qbTend:     '🧠',
   situation:  '📋',
 };
-
-const ONBOARDING_PAGES = [
-  {
-    icon: '🔎',
-    eyebrow: 'Step 1 of 5',
-    title: 'Scout what the offense shows',
-    body: 'Select only the tendencies you have actually seen. Personnel tells the app who is on the field; the other traits describe how they are attacking you.',
-    points: [
-      'Start with two or three clear traits—you can add more later.',
-      'Run / Pass Tendency describes the opponent, not your defensive style. It changes formations and calls while keeping both threats live.',
-      'Set the live down and distance because short and long yardage require different answers.',
-      'On the plan page, Game Objective changes the priority: Balanced, No Quick TD, or Get a Stop. Use Get a Stop if a field goal can beat you.',
-    ],
-  },
-  {
-    icon: '📋',
-    eyebrow: 'Step 2 of 5',
-    title: 'Read the call in game order',
-    body: 'Open a recommended formation, then read the coverage cards from top to bottom. The first lines tell you when to use the call and what the offense is being forced to try next.',
-    points: [
-      'Best Overall is the strongest matchup for the current scout and situation.',
-      'Open Call Coaching only when you need your assignment or the call’s main weakness.',
-    ],
-  },
-  {
-    icon: '🎮',
-    eyebrow: 'Step 3 of 5',
-    title: 'Make it fit your defensive user',
-    body: 'My Defensive User lets the app consider the defender you control and how you prefer to call the game—not just the theoretical best coverage.',
-    points: [
-      'Best For You may differ from Best Overall when another call better fits your user or style.',
-      'Treat it as a tailored starting point, then change calls when the offense shows the listed counter.',
-    ],
-  },
-  {
-    icon: '🧪',
-    eyebrow: 'Step 4 of 5',
-    title: 'Adjust less, learn faster',
-    body: 'Use Quick Setup first. The extra counters are responses to a problem you have already seen—not a checklist to apply before every snap.',
-    points: [
-      'Test This Call records the result and what beat it so you can validate recommendations on your game and settings.',
-      'Return to the base call when an adjustment creates a new weakness or the offense changes its answer.',
-    ],
-  },
-  {
-    icon: '⚙️', eyebrow: 'Step 5 of 5', title: 'Build a setup you can call quickly',
-    body: 'In Macro Builder, select the offensive problem. The app gives you a short adjustment package.',
-    points: [
-      'Set these adjustments lists the changes. Use with tells you which coverage or run look the package needs.',
-      'At the line separates receiver-specific changes from the saved settings. Your job and tradeoffs are there when you need more detail.',
-      'Select the package manually in the game. Test it with your base call before relying on it under the play clock.',
-    ],
-  },
-];
 
 export default function ScoutScreen({
   sel, setSel, flat, runPass, setRunPass,
@@ -91,17 +38,21 @@ export default function ScoutScreen({
   const toggleCard = (id) => setOpenCard(prev => prev === id ? null : id);
 
   const [showOnboarding, setShowOnboarding] = useState(() => {
-    try { return !localStorage.getItem('sb_onboarded_v2'); } catch { return false; }
+    try { return !localStorage.getItem(ONBOARDING_STORAGE_KEY); } catch { return false; }
   });
 
   const dismissOnboarding = () => {
-    try { localStorage.setItem('sb_onboarded_v2', '1'); } catch { /* Continue without persistence. */ }
+    try { localStorage.setItem(ONBOARDING_STORAGE_KEY, '1'); } catch { /* Continue without persistence. */ }
     setShowOnboarding(false);
   };
 
   const onboarding = ONBOARDING_PAGES[onboardingPage];
 
   const onboardingRef = useRef(null);
+  const onboardingPanelRef = useRef(null);
+  useEffect(() => {
+    if (showOnboarding) onboardingPanelRef.current?.scrollTo(0, 0);
+  }, [onboardingPage, showOnboarding]);
   useEffect(() => {
     if (showOnboarding && onboardingRef.current) {
       onboardingRef.current.focus();
@@ -122,24 +73,30 @@ export default function ScoutScreen({
           onKeyDown={e => e.key === 'Escape' && dismissOnboarding()}
           style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.88)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 300, padding: 20 }}
         >
-          <div style={{ background: "var(--color-surface-2)", border: "1px solid var(--color-gold)", borderRadius: "var(--r-lg)", padding: "28px 26px", width: "100%", maxWidth: 440, maxHeight: "90dvh", overflowY: "auto" }}>
+          <div ref={onboardingPanelRef} style={{ background: "var(--color-surface-2)", border: "1px solid var(--color-gold)", borderRadius: "var(--r-lg)", padding: "28px 26px", width: "100%", maxWidth: 440, maxHeight: "90dvh", overflowY: "auto" }}>
 
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
-              <span style={{ fontSize: 10, color: "var(--color-gold)", textTransform: "uppercase", letterSpacing: "1.4px", fontWeight: 800 }}>{onboarding.eyebrow}</span>
+              <span style={{ fontSize: 10, color: "var(--color-gold)", textTransform: "uppercase", letterSpacing: "1.4px", fontWeight: 800 }}>{`Page ${onboardingPage + 1} of ${ONBOARDING_PAGES.length}`}</span>
               <button onClick={dismissOnboarding} style={{ background: "none", border: "none", color: "var(--color-text-3)", fontSize: 11, cursor: "pointer", padding: 4 }}>Skip</button>
             </div>
+            <label style={{ display: "block", marginBottom: 14, fontSize: 11, color: "var(--color-text-2)" }}>
+              Jump to a topic
+              <select value={onboardingPage} onChange={event => setOnboardingPage(Number(event.target.value))} style={{ display: "block", width: "100%", marginTop: 5, minHeight: 44, padding: "6px 10px", fontSize: 16, color: "var(--color-text-1)", background: "var(--color-bg)", border: "1px solid var(--color-border)", borderRadius: "var(--r-md)" }}>
+                {ONBOARDING_PAGES.map((page, index) => <option key={page.topic} value={index}>{page.topic}</option>)}
+              </select>
+            </label>
             <div style={{ fontSize: 34, textAlign: "center", marginBottom: 8 }}>{onboarding.icon}</div>
             <div id="onboarding-title" style={{ fontSize: 20, fontWeight: "700", color: "var(--color-text-1)", textAlign: "center", marginBottom: 4, fontFamily: "var(--font-mono)" }}>
               {onboarding.title}
             </div>
             <div style={{ fontSize: 12, color: "var(--color-text-3)", textAlign: "center", marginBottom: 18, letterSpacing: "1px", textTransform: "uppercase" }}>
-              Scheme Builders · CFB Defensive Intelligence
+              Scheme Builders · Quick Guide
             </div>
 
             <div style={{ background: "var(--color-bg)", border: "1px solid var(--color-border-subtle)", borderRadius: "var(--r-md)", padding: "12px 13px", marginBottom: 18 }}>
               <div style={{ fontSize: 12.5, color: "var(--color-text-2)", lineHeight: 1.55, marginBottom: 10 }}>{onboarding.body}</div>
               {onboarding.points.map(point => (
-                <div key={point} style={{ display: "flex", gap: 8, fontSize: 11.5, color: "var(--color-text-3)", lineHeight: 1.5, marginTop: 7 }}>
+                <div key={point} style={{ display: "flex", gap: 8, fontSize: 12.5, color: "var(--color-text-2)", lineHeight: 1.5, marginTop: 7 }}>
                   <span style={{ color: "var(--color-gold)", flexShrink: 0 }}>▸</span>
                   <span>{point}</span>
                 </div>
