@@ -8,8 +8,8 @@ const C = {
   pinch: control('DL Alignment', 'Pinch', 'Bring the defensive line closer to the inside run lanes.', 'The edge is easier to reach; do not chase an outside run with this package.', 'front'),
   spread: control('DL Alignment', 'Spread', 'Widen the line to meet the outside blocking surface.', 'An inside crease or cutback can open. Keep an inside defender home.', 'front'),
   gaps: control('Gap Integrity', 'Conservative', 'Keep the run defense from chasing out of its gaps.', 'This does not win the block or make the tackle.'),
-  downhill: control('Defensive Aggression', 'Aggressive', 'Attack a confirmed short-yardage run faster.', 'Play action and missed fits become more dangerous.', 'any', 'Use only for a run you are willing to sell out against.'),
-  patient: control('Defensive Aggression', 'Conservative', 'Keep linebackers from charging at the first run action.', 'Real handoffs get a slower response.'),
+  downhill: control('Defender Aggression', 'Aggressive', 'Attack a confirmed short-yardage run faster.', 'Play action and missed fits become more dangerous.', 'any', 'Use only for a run you are willing to sell out against.'),
+  patient: control('Defender Aggression', 'Conservative', 'Keep linebackers from charging at the first run action.', 'Real handoffs get a slower response.'),
   read: control('Option Read Key', 'Conservative', 'Make the read defender favor the QB keep.', 'The inside defenders still have to stop the handoff.'),
   pitch: control('Option Pitch Key', 'Aggressive', 'Make the pitch defender favor the pitch back.', 'You still need a separate defender for the quarterback.'),
   rpo: control('RPO Pass Key', 'Conservative', 'Keep attention on the quick throw attached to the run.', 'The handoff gets less help from that defender.'),
@@ -29,7 +29,7 @@ const C = {
   shellDefault: control('Coverage Shell', 'Default', 'Keep the called play’s normal presentation so the defense can get set.', 'The quarterback gets a clearer pre-snap picture.'),
   bunch: control('Man Bunch Check', 'Point Combo', 'Exchange the two off-point releases instead of chasing through the rub.', 'Check every release after motion.', 'man', 'Man coverage only; zone and match calls use their own checks.'),
   stack: control('Man Stack Check', 'Combo', 'Exchange inside and outside releases from the stack.', 'A switch can still leave a speed mismatch.', 'man', 'Man coverage only; zone and match calls use their own checks.'),
-  rollTE: control('Roll Coverage', 'TE1', 'Lean coverage help toward the top tight end.', 'The other receivers get less help.', 'deep', 'Use when TE1 is the tight end beating you.'),
+  rollTE: control('Roll Coverage', 'TE1', 'Lean coverage help toward the top tight end.', 'The other receivers get less help.', 'roll', 'Use only on a named Roll call when TE1 is the tight end beating you.'),
   flatsLow: control('Zone Drops — Flats', '5 yards', 'Keep flat coverage near the quick catch.', 'A corner route can develop behind it.', 'shortZone', 'Spot-drop zone only; keep deep help over the short defender.'),
   flatsHigh: control('Zone Drops — Flats', '25 yards', 'Start a cloud flat deeper under the corner route.', 'This defender cannot also take the quick flat.', 'layered', 'Use cloud flats with a separate underneath defender on the attacked side; tune to the actual route depth.'),
   curlsLow: control('Zone Drops — Curl Flats', '5 yards', 'Give the deeper flat defender a separate short-route helper.', 'That helper leaves less room to defend the middle.', 'layered', 'Pair with the deeper cloud flat; check which underneath defender you reassign.'),
@@ -43,6 +43,59 @@ const passCommit = line('Pass Commit', 'Pass', 'Tell the defense to anticipate t
 const routeCommit = line('Route Commit', 'Inside', 'Anticipate the inside break after the opponent repeats it.', 'Optional after a clear tendency; an outside break punishes the guess.');
 const make = (use, keys, atLine = []) => ({ use, settings: keys.map(key => C[key]), atLine });
 export const MACRO_RECIPES = {
+  texas_four: {
+    ...make('Four rushing defensive linemen; inspect the rush paths before applying. Four total rushers alone is not enough.', [] , [passCommit]),
+    settings: [
+      { ...C.spread, scope: 'rush' },
+      control('DL Stunt', 'Texas 4-Man', 'Exchange rush lanes with the existing line.', 'Protection can pick this up; losing an edge can invite a rollout.', 'fourRush', 'Confirm four rushing linemen and remove conflicting contain assignments.'),
+    ],
+  },
+  texas_contain: {
+    ...make('A compatible four-man rush front, with a clear rollout tendency to one side.', [], [
+      line('Rush pairing', 'Left Tex 2-Man + Right Contain, or Right Tex 2-Man + Left Contain', 'Contain the observed escape side; stunt the opposite side.', 'Choose one pair after seeing the formation. Verify both paths; do not add Both Contain over the stunt.'),
+    ]),
+    settings: [{ ...C.spread, scope: 'fourRush', when: 'Confirm the front supports the two-man stunt; total rusher count does not identify the linemen.' }],
+  },
+  press_inside: {
+    ...make('Cover 2 Man, with two deep helpers and corners able to contest the release.', ['press', 'inside'], [routeCommit]),
+    requires: 'twoMan',
+  },
+  inside_ten: {
+    ...make('Tampa 2 inside the opponent’s 10-yard line only. Reassign the actual outside corners and deep safeties after checking play art.', [], [
+      line('Outside corners', 'Hard Flat on each side', 'Keep a short outside defender beneath each safety.', 'Identify the outside corners; never assume depth-chart numbers tell you their on-field roles.'),
+      line('Deep safeties', 'Inside Quarter on each side', 'Keep both safeties covering the end zone.', 'Confirm both deep safety roles. This changes the stock call; protect the back corners yourself from your assignment.'),
+    ]),
+    requires: 'insideTen',
+    settings: [C.pinch, C.contain,
+      control('DL Stunt', 'None', 'Clear rush-lane exchanges before containing both edges.', 'Removing the stunt changes how the rush attacks protection.'),
+      C.read,
+      control('RPO Read Key', 'Conservative', 'Favor the quarterback on the read.', 'Interior defenders still need to handle the handoff.'),
+      control('Zone Drops — Flats', '10 yards', 'Set the flat-drop limit for this compressed field.', 'A drop depth does not guarantee coverage of the back corner.', 'shortZone', 'Inside the 10, after assigning the hard flats.'),
+      C.hooksShort,
+      control('Zone Strategy', 'Ultra Aggressive', 'Challenge the immediate scoring throw.', 'Routes behind the first break remain dangerous.', 'shortZone', 'Only inside the 10 with the manual coverage changes completed.'),
+    ],
+  },
+  protect_lead: {
+    ...make('Spot-drop Tampa 2 or Cover 3 Sky when preventing a quick touchdown is the goal. Switch plans if a field goal can beat you.', [], [
+      line('Flat assignments', 'Verify cloud flats on both sides', 'Leave the deep coverage intact while checking the outside zones.', 'On Cover 3 Sky, change only the flat defenders. Check the actual Tampa 2 variant rather than assuming its zones.'),
+      line('Match checks', 'Zone It for the applicable family and receiver alignment', 'Keep a straight-zone plan if a matching check is active.', 'Apply only to the relevant check; do not change unrelated coverage families.'),
+    ]),
+    requires: 'protectLead',
+    settings: [
+      control('Zone Strategy', 'Conservative', 'Prioritize routes developing downfield.', 'Short completions can still create field-goal range.'),
+      control('Plaster', 'Off', 'Keep defenders in their zone assignments on extended plays.', 'Receivers may find space as the quarterback buys time.'),
+      C.read,
+      control('RPO Read Key', 'Conservative', 'Leave the read defender focused on the quarterback.', 'The interior must handle the handoff.'),
+      C.back,
+    ],
+  },
+  tampa_mable: {
+    ...make('Tampa 2 with a cloud flat and a separate underneath helper on the attacked side. Start with Nickel Over and inspect the roles.', ['flatsHigh', 'curlsLow'], [
+      mable,
+      line('Opposite side', 'Check the other flat after changing global drop depths', 'The global Flats setting also affects the opposite flat defender.', 'Keep deep help there. Use two underneath helpers only when both exist; do not assume every dime package has two suitable slots.'),
+    ]),
+    requires: 'tampa',
+  },
   inside_power: make('Inside run; keep an outside force defender.', ['pinch', 'gaps']),
   outside_zone: make('Stretch or outside zone; keep an inside cutback defender.', ['spread', 'gaps']),
   counter_trap: make('Counter or trap; read the pull before chasing.', ['gaps', 'patient']),

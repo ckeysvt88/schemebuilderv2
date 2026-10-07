@@ -10,7 +10,9 @@ function memoryStorage(initial = {}) {
 }
 
 test('personalized exports describe the selected call, including differing assignments and risk', () => {
-  const input = { traits: ['p11', 'deep_shots'], runPass: 1, userProfile: { position: 'middle', callStyle: 'pressure' } };
+  // Run-heavy scout retains a competitive personal pressure call with a
+  // different structure, so this test exercises export identity, not a tie.
+  const input = { traits: ['p11', 'deep_shots'], runPass: 7, userProfile: { position: 'middle', callStyle: 'pressure' } };
   const result = recommend(input);
   const pdf = buildCallSheetData({ input });
   const f = result.formations[0];

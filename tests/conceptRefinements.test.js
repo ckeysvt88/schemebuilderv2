@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { PLAYS } from '../src/data/plays.js';
 import { assessConceptMatchups, buildConceptScenarios } from '../src/engine/conceptMatchup.js';
 const grade = (play, traits, id) => assessConceptMatchups(play, play.n, traits).scenarios.find(s => s.id === id).grade;
-const base = { n: 'Cover 3', rush: 4, und: 4, deep: 3, man: 0, spy: 0, cont: 0, badge: 'ZONE' };
+const base = { n: 'Cover 3', rush: 4, und: 4, deep: 3, shell: 3, man: 0, spy: 0, cont: 0, badge: 'ZONE' };
 
 test('hard flats help mixed outside access without receiving a slant bonus', () => {
   const flat = { ...base, n: 'Cover 3 Hard Flat' };

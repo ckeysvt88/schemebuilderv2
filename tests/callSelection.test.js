@@ -19,7 +19,7 @@ test('known catastrophic risk cannot become overall or personal despite the high
     assert.equal(result.best.name, sky.name);
     assert.equal(result.playerCall.name, sky.name);
     assert.equal(result.callOptions[0].name, sky.name);
-    assert.ok(result.callOptions.some(c => c.name === zero.name)); // Optional pressure, not a winner.
+    assert.ok(!result.callOptions.some(c => c.name === zero.name)); // Rejected calls cannot return as alternatives.
   }
 });
 
@@ -31,7 +31,7 @@ test('all-rejected and empty menus return no selection instead of an unsafe fall
 
 test('the score-loss budget uses the eligible overall call, not a rejected higher score', () => {
   const pressure = { name: 'FS Blitz', tag: 'Pressure', sc: 60,
-    matchup: { status: 'verified', facts: { deep: 1 } } };
+    matchup: { status: 'verified', facts: { rushers: 5, deep: 1, underneath: 0, man: 5, spy: 0 } } };
   const result = selectFormationCalls([zero, sky, pressure], ['deep_shots'], 'base', { position: 'line', callStyle: 'pressure' });
   assert.equal(result.best.name, sky.name);
   assert.equal(result.playerCall.name, pressure.name);

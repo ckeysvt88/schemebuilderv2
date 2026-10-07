@@ -7,7 +7,7 @@ const calls = [
   { name: 'Cover 3 Sky', tag: 'Base' },
   { name: 'Cover 2 Hard Flat', tag: 'vs Quick Game' },
   { name: 'Cover 4 Quarters', tag: 'Deep Shots' },
-  { name: 'Sam Edge 3', tag: 'Zone Pressure' },
+  { name: 'Sam Edge 3', tag: 'Zone Pressure', matchup: { status: 'verified', facts: { rushers: 5, deep: 3, underneath: 3, man: 0, spy: 0 } } },
   { name: 'Cover 1 Contain Spy', tag: 'vs Mobile QB', matchup: { status: 'verified', facts: { spy: 1, contain: 0, deep: 1 } } },
 ];
 
@@ -136,7 +136,7 @@ test('verified contain explains its inside-escape limitation', () => {
 
 test('personal preference cannot override a substantially stronger matchup', () => {
   const options = buildCallOptions([{ name: 'Cover 4 Quarters', sc: 80 },
-    { name: 'FS Blitz', tag: 'Pressure', sc: 55 }], ['deep_shots'], 'base', 4,
+    { name: 'FS Blitz', tag: 'Pressure', sc: 55, matchup: { status: 'verified', facts: { rushers: 5, deep: 1, underneath: 0, man: 5, spy: 0 } } }], ['deep_shots'], 'base', 4,
   { position: 'line', callStyle: 'pressure' });
   const player = options.find(call => call.isPlayerChoice);
   assert.equal(player.name, 'Cover 4 Quarters');
@@ -146,7 +146,7 @@ test('personal preference cannot override a substantially stronger matchup', () 
 
 test('competitive preference preserves both overall and personalized cards even at limit one', () => {
   const options = buildCallOptions([{ name: 'Cover 3 Sky', sc: 80 },
-    { name: 'FS Blitz', tag: 'Pressure', sc: 73 }], [], 'base', 1,
+    { name: 'FS Blitz', tag: 'Pressure', sc: 73, matchup: { status: 'verified', facts: { rushers: 5, deep: 1, underneath: 0, man: 5, spy: 0 } } }], [], 'base', 1,
   { position: 'line', callStyle: 'pressure' });
   assert.equal(options[0].name, 'Cover 3 Sky');
   assert.equal(options.find(call => call.isPlayerChoice).name, 'FS Blitz');

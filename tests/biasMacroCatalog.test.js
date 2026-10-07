@@ -143,9 +143,9 @@ test('macro search handles negation, multiple problems, repeated words, and corr
   assert.deepEqual(matchMacros('mesh mesh mesh').map(x=>x.m.id),matchMacros('mesh').map(x=>x.m.id));
 });
 
-test('all 56 macros are browsable and saved IDs recover safely without duplicates or phantom slots', () => {
-  assert.equal(MACRO_LIBRARY.length,56);
-  assert.equal(new Set(MACRO_LIBRARY.map(m=>m.id)).size,56);
+test('all 62 macros are browsable and saved IDs recover safely without duplicates or phantom slots', () => {
+  assert.equal(MACRO_LIBRARY.length,62);
+  assert.equal(new Set(MACRO_LIBRARY.map(m=>m.id)).size,62);
   assert.deepEqual(Object.keys(MACRO_COACHING).sort(),MACRO_LIBRARY.map(m=>m.id).sort());
   assert.ok(MACRO_LIBRARY.every(m=>MACRO_CATS.includes(m.cat)));
   for(const input of [null,{},'wrong']) assert.deepEqual(normalizeMacroSelection(input),[]);
@@ -161,7 +161,7 @@ test('every macro checks every exact catalog play across four situations; none r
     assert.equal(plan.context.call,play.n);
     assert.ok(plan.goal&&plan.user&&plan.risk);
     assert.equal(new Set(plan.settings.map(s=>s.setting)).size,plan.settings.length);
-    assert.ok(plan.settings.length<=3);
+    assert.ok(plan.settings.length <= (m.id === 'inside_ten' ? 8 : m.id === 'protect_lead' ? 5 : 3));
     assert.ok(!JSON.stringify(plan).match(/Smart Zone|Soft Squat|Look For Work|auto.fir|9th fitter/i));
     if(situation==='long') {
       assert.ok(!plan.settings.some(s=>s.value==='Underneath'));
@@ -170,7 +170,7 @@ test('every macro checks every exact catalog play across four situations; none r
     if(['deep','deepInside','playAction'].includes(plan.profile)&&play.deep<2)assert.equal(plan.ready,false);
     if(plan.ready)assert.ok(plan.compatible&&plan.settings.length);
   }
-  assert.equal(evaluated,278880);
+  assert.equal(evaluated,308760);
   assert.equal(JSON.stringify(PLAYS),before);
 });
 

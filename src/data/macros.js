@@ -3,6 +3,12 @@ export const MACRO_CATS = ["Run Game","RPO & Spread Run","Pass Attack","Clusters
 // Stable IDs preserve existing saved selections. Coaching and controls live in
 // macroCoaching.js / macroPlan.js; legacy position guesses are no longer used.
 export const MACRO_LIBRARY = [
+  { id: 'texas_four', tier: 'deep', cat: 'QB Problems', label: 'Four-man rush needs a changeup', aka: 'texas four 4 man stunt spread rush', name: 'SPREAD TEXAS' },
+  { id: 'texas_contain', tier: 'deep', cat: 'QB Problems', label: 'QB rolling away from my stunt', aka: 'texas two 2 man rollout escape stunt contain', name: 'STUNT & CONTAIN' },
+  { id: 'press_inside', tier: 'deep', cat: 'Pass Attack', label: 'Inside breaks beating my Cover 2 Man', aka: 'press shade inside two man slants', name: 'PRESS INSIDE' },
+  { id: 'inside_ten', tier: 'deep', cat: 'Situational', label: 'Inside the 10: quick throws and QB keep', aka: 'redzone inside ten 10 tampa', name: 'INSIDE TEN' },
+  { id: 'protect_lead', tier: 'deep', cat: 'Situational', label: 'Protect a lead against a quick touchdown', aka: 'conservative late lead touchdown prevent', name: 'PROTECT THE LEAD' },
+  { id: 'tampa_mable', tier: 'deep', cat: 'Pass Attack', label: 'Corner routes attacking my Tampa 2', aka: 'tampa mable layered corner cloud curl flat', name: 'TAMPA MABLE' },
   {
     "id": "inside_power",
     "tier": "core",

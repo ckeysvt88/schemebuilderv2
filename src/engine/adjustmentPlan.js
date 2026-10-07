@@ -106,7 +106,7 @@ function matchCheckFor(family, coverageName, traits) {
     if (stack) return { value: `${prefix} Stack — Triangle`, why: 'Bracket two stacked receivers with three defenders and exchange releases.' };
     if (trips && palms) return { value: 'Palms Trips — Stubbie', why: 'Lock #1 while three defenders distribute #2 and #3.' };
     if (trips && family === 'split') return { value: 'Cover 6 Trips — Stubbie', why: 'Point the match side at trips and distribute #2 and #3 with inside help.' };
-    if (trips) return { value: 'Quarters Trips — Stress', why: 'Use Stress only when trips repeatedly sends all three receivers vertical.' };
+    if (trips && traits.includes('deep_shots')) return { value: 'Quarters Trips — Stress', why: 'Consider only after seeing all three trips receivers go vertical. A deep-shot tendency alone does not prove that release pattern.' };
   }
   return null;
 }
@@ -191,7 +191,10 @@ export function buildAdjustmentPlan(fm, traits = [], situation = {}) {
   if (gameObjective.id === 'no_quick_td') return {
     objective: { ...gameObjective, situation: context.label },
     settings: isZone ? [{ setting: 'Zone Strategy', value: 'Conservative', why: 'Keep zone defenders above developing routes before driving on the short throw.', tradeoff: 'Short gains may be available. Reconsider this objective if those gains put the offense in winning field-goal range.' }] : [],
-    tools: shellTool(family) ? [shellTool(family)] : [],
+    tools: [
+      ...(isZone ? [{ setting: 'Plaster', value: 'Off', why: 'Optional when keeping the zone structure on extended plays matters more than attaching to receivers.', tradeoff: 'Receivers can settle into gaps. This does not disable the called play’s match rules or replace defending seams and deep sidelines.' }] : []),
+      ...(shellTool(family) ? [shellTool(family)] : []),
+    ],
     preset: null,
     alerts: [{ when: 'A field goal can beat you', action: 'Choose Get a Stop and defend the line to gain instead of conceding short gains.' }],
     userKey: { title: 'Keep the deep help intact', text: 'Leave the deep defenders in coverage. Play your own assignment first, then rally after the throw; do not pull a deep defender down to chase a short route.' },
@@ -314,7 +317,7 @@ export function buildAdjustmentPlan(fm, traits = [], situation = {}) {
   if (mobileQb) add(settings, 'contain', {
     setting: 'Pass Rush', value: 'QB Contain',
     why: 'Keep the outermost rushers outside the quarterback and force him to step up into traffic.',
-    tradeoff: 'Contain protects the edge, not the middle. The user must still see the step-up or draw.',
+    tradeoff: 'Contain protects the edge, not the middle. Check the step-up or draw, and remove a conflicting stunt from the contained edge.',
   });
 
   const shell = shellTool(family);
@@ -350,19 +353,13 @@ export function buildAdjustmentPlan(fm, traits = [], situation = {}) {
   if (traits.includes('field_hash') !== traits.includes('boundary_hash')) add(tools, 'midpoint', {
     setting: 'Safety Midpoint', value: traits.includes('field_hash') ? 'Field' : 'Boundary',
     why: `Lean the safeties toward the ${traits.includes('field_hash') ? 'wide side' : 'short side'} the offense prefers to attack.`,
-    tradeoff: 'The opposite side receives less immediate safety help.',
+    tradeoff: 'The opposite side receives less immediate safety help. If your menu lists only Left/Right, choose the actual field side after locating the ball; Field is not always Right.',
   });
 
   if (/roll/i.test(activeCoverage) && (traits.includes('elite_te') || traits.includes('elite_wr'))) add(tools, 'target-help', {
     setting: 'Roll Coverage', value: traits.includes('elite_te') ? 'TE1' : 'Fastest',
     why: `Send extra help toward the ${traits.includes('elite_te') ? 'featured tight end' : 'speed threat'}.`,
     tradeoff: 'Receivers away from the roll receive less help.',
-  });
-
-  if (mobileQb && isZone) add(tools, 'plaster', {
-    setting: 'Plaster', value: 'Conservative · O.O.P & Time',
-    why: 'After the quarterback escapes and the play extends, backside zone defenders can attach to nearby receivers.',
-    tradeoff: 'Coverage eventually leaves its original zone structure. Keep the conservative trigger until scramble-drill throws prove it is too slow.',
   });
 
   if (hasAny(traits, ['mobile_qb', 'dual_threat']) && traits.includes('option_run')) add(tools, 'option-key', {
@@ -377,12 +374,31 @@ export function buildAdjustmentPlan(fm, traits = [], situation = {}) {
     tradeoff: 'The run gap receives less help. If the offense starts handing it off, return to Balanced.',
   });
 
+  if (traits.includes('rpo') && mobileQb) add(tools, 'rpo-read', {
+    setting: 'RPO Read Key', value: 'Conservative',
+    why: 'Use if the quarterback keeps winning on RPO reads. This changes the QB/handoff responsibility, separately from RPO Pass Key.',
+    tradeoff: 'The handoff needs an interior defender. Mobility alone is not evidence that the QB is keeping.',
+  });
+  if (traits.includes('triple_option')) add(tools, 'option-pitch', {
+    setting: 'Option Pitch Key', value: 'Aggressive',
+    why: 'Use if the pitch back is winning; assign another defender to the quarterback.',
+    tradeoff: 'The quarterback keep has less help from the pitch defender. Return to Balanced when that becomes the problem.',
+  });
+
   const supportsMatchCheck = /match|quarters|palms|cover 6/i.test(activeCoverage) || ['cover1', 'twoMan'].includes(family);
   const matchCheck = supportsMatchCheck ? matchCheckFor(family, activeCoverage, traits) : null;
   if (matchCheck) add(tools, 'match-check', {
     setting: 'Formation Check', value: matchCheck.value,
     why: matchCheck.why,
-    tradeoff: 'Use only with the named coverage family. A different call may use different rules.',
+    tradeoff: family === 'split'
+      ? 'Apply only on the quarters side of Cover 6. Check which side faces the receiver cluster; the half-field side does not use this check.'
+      : 'Use only with the named coverage family. A different call may use different rules.',
+  });
+
+  if (mobileQb && isZone) add(tools, 'plaster-trigger', {
+    setting: 'Plaster Trigger', value: 'O.O.P',
+    why: 'Optional if receivers repeatedly uncover immediately after the QB exits the pocket. First keep Plaster on Conservative and Plaster Time on Default.',
+    tradeoff: 'Backside zones can be vacated sooner. The trigger has no effect with Plaster Off; return to O.O.P & Time if early matching opens another route.',
   });
 
   if (hasAny(traits, ['elite_wr', 'elite_te', 'slot_threat', 'crossers', 'screens'])) add(tools, 'individual', {
@@ -400,7 +416,7 @@ export function buildAdjustmentPlan(fm, traits = [], situation = {}) {
   const visibleSettings = changes.slice(0, 3);
   // Settings beyond the quick-setup budget remain available; do not silently
   // lose QB contain or prescribe duplicate/conflicting controls in the toolbox.
-  const displayedTools = [...changes.slice(3), ...tools].filter(item => !['Default', 'Balanced', 'Normal', 'Conservative · O.O.P & Time'].includes(item.value)).filter((item, index, all) =>
+  const displayedTools = [...changes.slice(3), ...tools].filter(item => !['Default', 'Balanced', 'Normal'].includes(item.value)).filter((item, index, all) =>
     !visibleSettings.some(current => current.family === item.family) &&
     all.findIndex(other => other.family === item.family) === index).slice(0, 8);
   const settingAlerts = visibleSettings.flatMap(item => {
