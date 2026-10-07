@@ -11,11 +11,11 @@ const options={standardRush:['Rush','rush'],rush:['Blitz','rush'],contain:['QB c
 // Position menus transcribed from the user's AceMadden reference screenshots.
 // These are macro overrides. A stock play can carry an assignment absent from its override menu.
 const positionMenus={
- cb:[['third_outside','Outside Third'],['cloud','Cloud Flat'],['hard','Hard Flat'],['curl','Curl Flat'],['half','Deep Half'],['rush','Blitz'],['quarter','Inside Quarter'],['soft','Soft Squat']],
- slot:[['seam','Seam Flat'],['vertical','Vertical Hook'],['hard','Hard Flat'],['curl','Curl Flat'],['half','Deep Half'],['rush','Blitz'],['spy','QB Spy'],['hook','Hook Curl']],
- s:[['middle','Middle Read'],['hook','Hook Curl'],['third_middle','Inside Third'],['curl','Curl Flat'],['half','Deep Half'],['rush','Blitz'],['third_outside','Outside Third'],['quarter','Inside Quarter']],
+ cb:[['third_outside','Outside Third'],['quarter','Inside Quarter'],['cloud','Cloud Flat'],['hard','Hard Flat'],['curl','Curl Flat'],['half','Deep Half'],['rush','Blitz'],['soft','Soft Squat']],
+ slot:[['half','Deep Half'],['seam','Seam Flat'],['vertical','Vertical Hook'],['hard','Hard Flat'],['curl','Curl Flat'],['rush','Blitz'],['spy','QB Spy'],['hook','Hook Curl']],
+ s:[['middle','Middle Read'],['hook','Hook Curl'],['curl','Curl Flat'],['half','Deep Half'],['rush','Blitz'],['third_middle','Inside Third'],['third_outside','Outside Third'],['quarter','Inside Quarter']],
  outsideLB:[['seam','Seam Flat'],['vertical','Vertical Hook'],['hard','Hard Flat'],['curl','Curl Flat'],['half','Deep Half'],['rush','Blitz'],['spy','QB Spy'],['hook','Hook Curl']],
- insideLB:[['middle','Middle Read'],['hook','Hook Curl'],['hard','Hard Flat'],['curl','Curl Flat'],['third_middle','Middle Third'],['rush','Blitz'],['spy','QB Spy'],['rec3','3 Rec Hook']],
+ insideLB:[['hook','Hook Curl'],['hard','Hard Flat'],['curl','Curl Flat'],['middle','Middle Read'],['third_middle','Middle Third'],['rush','Blitz'],['spy','QB Spy'],['rec3','3 Rec Hook']],
  edge:[['standardRush','Rush'],['vertical','Vertical Hook'],['hook','Hook Curl'],['hard','Hard Flat'],['curl','Curl Flat'],['soft','Soft Squat'],['rush','Blitz'],['spy','QB Spy'],['rec3','3 Rec Hook']],
  dl:[['standardRush','Rush'],['hook:left','Hook Curl Left'],['hook:right','Hook Curl Right'],['curl:left','Curl Left'],['curl:right','Curl Right'],['bluff','Bluff Blitz'],['rush','Blitz'],['spy','QB Spy'],['rec3','3 Rec Hook']]
 };
