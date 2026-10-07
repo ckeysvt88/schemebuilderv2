@@ -30,5 +30,6 @@ export function coverageSituation(context) {
   if (context?.key === 'rz') return 'rz';
   if (context?.down >= 3 && context.distance >= 7) return '3lg';
   if (context?.down >= 3 && context.distance > 0 && context.distance <= 3) return '3sh';
+  if (context?.down >= 3 && context.distance >= 4 && context.distance <= 6) return '3md';
   return 'base';
 }

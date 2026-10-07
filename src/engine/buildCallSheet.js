@@ -22,6 +22,7 @@ const SITUATIONS = [
   { label: '3RD & MEDIUM',  down: 3, distance: 5  },
   { label: '3RD & LONG',    down: 3, distance: 10 },
   { label: '4TH & SHORT',   down: 4, distance: 1  },
+  { label: '4TH & MEDIUM',  down: 4, distance: 5  },
   { label: '4TH & LONG',    down: 4, distance: 7  },
 ];
 

@@ -34,8 +34,12 @@ export function getSituationTip(down, distance) {
   const c = normalizeSituation(down, distance);
   if (c.key === 'rz') return 'Match the offensive personnel and spacing. Red zone is not automatically short yardage; protect the immediate pass and QB run.';
   if (!c.distance) return 'Add distance for situational guidance. Keep a balanced response to the observed offense.';
-  if (c.distance <= 3) return 'Account for the run, QB keeper and quick throw. Short yardage alone does not justify all-out pressure; play action remains live.';
+  if (c.down === 2 && c.distance <= 3) return 'Expect a run or quick throw, but keep deep help for a play-action shot. Do not sell out just because third down would be manageable.';
+  if (c.distance <= 3) return 'Fit the run and QB keeper, contest the quick throw, and keep play-action help. Short yardage does not justify all-out pressure.';
   if (c.down >= 3 && c.distance >= 7) return 'Protect the sticks and deep threats. Rally to short catches and maintain a QB escape answer; pressure must justify its coverage cost.';
+  if (c.down >= 3) return 'Contest hitches, outs, and crossing routes at the sticks. Tackle at the catch; deep cushion alone can concede the conversion.';
+  if (c.down === 2 && c.distance >= 7) return 'Defend the longer throw, then rally to screens and underneath gains. Keep the draw and QB escape covered instead of assuming an automatic pass.';
+  if (c.down === 2) return 'Close intermediate windows without losing the run fit. Avoid a gain that leaves an easy third down.';
   return 'Stay balanced against the observed personnel. Fit the run without giving away the complementary pass.';
 }
 // Retained for callers that need a neutral fallback, not a predicted substitution.

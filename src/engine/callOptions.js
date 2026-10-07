@@ -23,6 +23,7 @@ export const PERSONAL_CALL_WEIGHTS = Object.freeze({
   situation: Object.freeze({
     '3lg': { safe: 10 },
     '3sh': { run: 10, quick: 6 },
+    '3md': { quick: 6, overall: 3 },
   }),
 });
 
@@ -34,7 +35,7 @@ function personalFit(option, profile, situation, order) {
   return { option, order, styleFit, positionFit, situationFit, total: styleFit + positionFit + situationFit };
 }
 
-function personalReason(fit, profile) {
+function personalReason(fit, profile, situation) {
   const roles = fit.option.optionRoles.map(role => role.id);
   const positionReason = {
     middle: roles.includes('mobile')
@@ -57,7 +58,9 @@ function personalReason(fit, profile) {
       : profile.callStyle === 'balanced' && roles.includes('overall')
         ? 'It is still the strongest all-around matchup.'
         : '';
-  const situationReason = fit.situationFit > 0 && roles.includes('safe')
+  const situationReason = fit.situationFit > 0 && situation === '3md'
+    ? 'The medium-yardage priority is contesting the catch near the line to gain.'
+    : fit.situationFit > 0 && roles.includes('safe')
     ? 'The long-yardage priority is protecting the sticks and preventing the explosive pass.'
     : fit.situationFit > 0 && roles.includes('run')
       ? 'The short-yardage priority is fitting the run first.'
@@ -163,12 +166,14 @@ export function buildCallOptions(rankedCalls = [], traits = [], situation = 'bas
     });
   }
 
-  if (hasAny(traits, QUICK_TRAITS)) {
+  if (hasAny(traits, QUICK_TRAITS) || situation === '3md') {
     const quick = rankedCalls.find(call => /vs quick game|hard flat/i.test(`${call.tag || ''} ${call.name || ''}`));
     addRole(options, quick, {
       id: 'quick',
-      label: 'QUICK-THROW ANSWER',
-      reason: 'Use it when bubbles, quick outs, hitches, or slants are keeping the offense on schedule.',
+      label: situation === '3md' ? 'CONTEST THE STICKS' : 'QUICK-THROW ANSWER',
+      reason: situation === '3md'
+        ? 'Contest the short completion that can reach the line to gain; keep help for deeper breaks.'
+        : 'Use it when bubbles, quick outs, hitches, or slants are keeping the offense on schedule.',
     });
   }
 
@@ -187,7 +192,7 @@ export function buildCallOptions(rankedCalls = [], traits = [], situation = 'bas
   return visible.map(option => ({
     ...option,
     isPlayerChoice: option.name === playerFit?.option.name,
-    playerChoiceReason: option.name === playerFit?.option.name ? (guardReason || personalReason(playerFit, profile)) : '',
+    playerChoiceReason: option.name === playerFit?.option.name ? (guardReason || personalReason(playerFit, profile, situation)) : '',
     personalFit: option.name === playerFit?.option.name ? {
       style: playerFit.styleFit,
       userPosition: playerFit.positionFit,

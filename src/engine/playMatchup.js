@@ -100,9 +100,9 @@ export function unverifiedPlayAssessment() {
   };
 }
 
-export function evaluateCoverage(coverage, play, traits, formationScore, evidence = null, situation = 'base', gameObjective = 'balanced', runPass = 4, adjustmentPlan = null) {
+export function evaluateCoverage(coverage, play, traits, formationScore, evidence = null, situation = 'base', gameObjective = 'balanced', runPass = 4, adjustmentPlan = null, conceptSituation = situation) {
   if (!evidence) {
-    const concept = assessConceptMatchups(null, coverage.name, traits, situation, gameObjective, runPass);
+    const concept = assessConceptMatchups(null, coverage.name, traits, conceptSituation, gameObjective, runPass);
     const sc = Math.max(0, Math.min(100, Math.round(formationScore * 0.35 + (concept?.utility ?? 50) * 0.65)));
     return { ...coverage, sc, gameObjective, matchup: { ...unverifiedPlayAssessment(), concept }, ledger: [
       { id: 'play:unverified', label: 'Coverage fit with unknown assignments', delta: sc - formationScore,
@@ -113,7 +113,7 @@ export function evaluateCoverage(coverage, play, traits, formationScore, evidenc
   const matchup = assessPlay(play, threatProfile(traits));
   if (!matchup) return null;
   const assignmentRaw = formationScore + matchup.delta;
-  const concept = assessConceptMatchups(play, coverage.name, traits, situation, gameObjective, runPass);
+  const concept = assessConceptMatchups(play, coverage.name, traits, conceptSituation, gameObjective, runPass);
   // Formation gets the defense on the field; the exact call must decide which
   // coverage wins. Weight the verified threat matchup more heavily so a strong
   // formation grade cannot hide a poor call against the selected concept.
@@ -124,7 +124,7 @@ export function evaluateCoverage(coverage, play, traits, formationScore, evidenc
   const sc = Math.max(0, Math.min(matchup.scoreCap, raw));
   return { ...coverage, sc, gameObjective, matchup: { ...matchup, status: 'verified', verification: evidence, concept, setup }, adjustmentPlan, ledger: [...matchup.factors,
     ...([{ id: 'concept:blend', label: `Threat/complement assessment (${concept?.utility ?? 50}/100)`, delta: conceptDelta,
-      reason: `Game objective: ${gameObjective}. The ${situation} situation weights the scouted threats and includes a ${Math.round((concept?.riskWeight ?? 0) * 100)}% bad-case component.`,
+      reason: `Game objective: ${gameObjective}. The ${conceptSituation} situation weights the scouted threats and includes a ${Math.round((concept?.riskWeight ?? 0) * 100)}% bad-case component.`,
       basis: concept?.evidence || 'Neutral threat baseline when no scenario is selected' }]),
     ...(setup.effects.length ? [{ id: 'setup:tradeoff', label: 'Quick setup tradeoff', delta: setup.delta,
       reason: setup.effects.map(item => `${item.setting}: ${item.value}. ${item.why} Tradeoff: ${item.tradeoff}`).join(' '),

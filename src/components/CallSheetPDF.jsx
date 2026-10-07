@@ -121,11 +121,11 @@ const S = StyleSheet.create({
   matTipTxt: { fontSize: 5.5, color: '#5A4010', fontStyle: 'italic', lineHeight: 1.35 },
 
   // Column widths
-  cSit:  { width: 70,  paddingVertical: 5, paddingHorizontal: 6, borderRightWidth: 1, borderRightColor: C.border, justifyContent: 'center' },
-  cPrim: { flex: 3,    paddingVertical: 5, paddingHorizontal: 6, borderRightWidth: 1, borderRightColor: C.border },
-  cPct:  { width: 30, flexShrink: 0, paddingVertical: 5, paddingHorizontal: 4, borderRightWidth: 1, borderRightColor: C.border, alignItems: 'center', justifyContent: 'center' },
-  cSec:  { flex: 2.4,  paddingVertical: 5, paddingHorizontal: 6, borderRightWidth: 1, borderRightColor: C.border },
-  cPct2: { width: 26, flexShrink: 0, paddingVertical: 5, paddingHorizontal: 4, alignItems: 'center', justifyContent: 'center' },
+  cSit:  { width: 70,  paddingVertical: 3, paddingHorizontal: 6, borderRightWidth: 1, borderRightColor: C.border, justifyContent: 'center' },
+  cPrim: { flex: 3,    paddingVertical: 3, paddingHorizontal: 6, borderRightWidth: 1, borderRightColor: C.border },
+  cPct:  { width: 30, flexShrink: 0, paddingVertical: 3, paddingHorizontal: 4, borderRightWidth: 1, borderRightColor: C.border, alignItems: 'center', justifyContent: 'center' },
+  cSec:  { flex: 2.4,  paddingVertical: 3, paddingHorizontal: 6, borderRightWidth: 1, borderRightColor: C.border },
+  cPct2: { width: 26, flexShrink: 0, paddingVertical: 3, paddingHorizontal: 4, alignItems: 'center', justifyContent: 'center' },
 
   // Header column widths
   cSitH:  { width: 70,  paddingVertical: 4, paddingHorizontal: 6, borderRightWidth: 1, borderRightColor: 'rgba(255,255,255,0.15)', justifyContent: 'center' },
@@ -152,14 +152,15 @@ const S = StyleSheet.create({
   p2Brand: { fontSize: 6, color: C.gold, fontFamily: 'Helvetica-Bold', letterSpacing: 2, marginBottom: 2 },
   p2Sub:   { fontSize: 7, color: C.text3 },
 
-  guideEntry:  { marginBottom: 5, paddingBottom: 5, borderBottomWidth: 1, borderBottomColor: '#E8EDF4' },
+  guideEntry:  { marginBottom: 1, paddingBottom: 1, borderBottomWidth: 1, borderBottomColor: '#E8EDF4' },
   guideHdrRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: 2 },
   guideSitLbl: { fontSize: 8, fontFamily: 'Helvetica-Bold' },
   guidePers:   { fontSize: 5.5, color: C.text3, fontStyle: 'italic' },
   guideCallRow:{ flexDirection: 'row', alignItems: 'center', marginBottom: 2 },
   guideCallLbl:{ fontSize: 5.5, color: C.text3, fontFamily: 'Helvetica-Bold', letterSpacing: 0.8, marginRight: 5 },
-  guideCallTxt:{ fontSize: 6.5, fontFamily: 'Helvetica-Bold', marginRight: 6 },
-  guideCallPct:{ fontSize: 6, color: C.text3 },
+  guideCallTxt:{ fontSize: 6.5, fontFamily: 'Helvetica-Bold', marginRight: 6, flexShrink: 1 },
+  guideCallPct:{ fontSize: 6, color: C.text3, flexShrink: 0 },
+  guideSetup:  { fontSize: 6, color: C.text2, lineHeight: 1.3, marginBottom: 2 },
   guideTipLbl: { fontSize: 5.5, color: C.gold, fontFamily: 'Helvetica-Bold', letterSpacing: 0.8, marginBottom: 1.5 },
   guideTipTxt: { fontSize: 6.5, color: C.text2, lineHeight: 1.4 },
   guideNoCall: { fontSize: 6.5, color: C.text3, fontStyle: 'italic', marginBottom: 2 },
@@ -270,7 +271,7 @@ function GuideEntry({ entry, isLast }) {
   const hasPrimary = entry.primary && entry.primary.name;
 
   return (
-    <View style={[S.guideEntry, isLast && { borderBottomWidth: 0, marginBottom: 0 }]}>
+    <View wrap={false} style={[S.guideEntry, isLast && { borderBottomWidth: 0, marginBottom: 0 }]}>
       <View style={S.guideHdrRow}>
         <Text style={[S.guideSitLbl, { color: sc }]}>{entry.label}</Text>
         {entry.likelyPersonnel ? (
@@ -289,6 +290,10 @@ function GuideEntry({ entry, isLast }) {
       ) : (
         <Text style={S.guideNoCall}>No formation matched for this situation</Text>
       )}
+
+      {hasPrimary && entry.primary.quickSetup ? (
+        <Text style={S.guideSetup}>SETUP · {entry.primary.quickSetup}</Text>
+      ) : null}
 
       {entry.dcTip ? (
         <>
@@ -387,7 +392,7 @@ export function CallSheetDocument({ data }) {
 
         <View style={S.footer}>
           <Text style={S.footerTxt}>Scheme Builders · Fit: 0–100 heuristic, not success probability</Text>
-          <Text style={S.footerTxt}>Page 1 of 2</Text>
+          <Text style={S.footerTxt} render={({ pageNumber, totalPages }) => `Page ${pageNumber} of ${totalPages}`} />
         </View>
       </Page>
 
@@ -411,7 +416,7 @@ export function CallSheetDocument({ data }) {
 
         <View style={S.footer}>
           <Text style={S.footerTxt}>Scheme Builders · Fit: 0–100 heuristic, not success probability</Text>
-          <Text style={S.footerTxt}>Page 2 of 2</Text>
+          <Text style={S.footerTxt} render={({ pageNumber, totalPages }) => `Page ${pageNumber} of ${totalPages}`} />
         </View>
       </Page>
 
