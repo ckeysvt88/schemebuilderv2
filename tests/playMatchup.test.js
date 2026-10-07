@@ -126,7 +126,7 @@ test('verified 4-3 Over Solid uses situation-aware exact-call scoring', () => {
   const formation = result.formations.find(item => item.name === '4-3 Over Solid');
   assert.ok(formation);
   assert.equal(formation.matchup.status, 'verified');
-  assert.equal(formation.matchup.concept.situation, '3lg');
+  assert.equal(formation.matchup.concept.situation, '3_long');
   assert.equal(formation.matchup.concept.riskWeight, 0.40);
   assert.equal(formation.sc, formation.ledger.reduce((sum, item) => sum + item.delta, 0));
 });

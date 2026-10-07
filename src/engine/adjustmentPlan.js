@@ -13,6 +13,10 @@ function situationContext(situation = {}) {
 }
 
 function objectiveFor(key) {
+  if (key === '3md') return {
+    label: 'Contest the conversion window',
+    text: 'Defend routes at the line to gain. A short completion can move the chains; keep help behind the underneath defenders.',
+  };
   if (key === '3lg') return {
     label: 'Protect the sticks',
     text: 'Keep every throw in front of the deep coverage. Make the offense catch it short and tackle before the line to gain.',
@@ -122,6 +126,10 @@ function shellTool(family) {
 }
 
 function userKeyFor(traits, situationKey) {
+  if (situationKey === '3md') return {
+    title: 'Defend the catch point at the sticks',
+    text: 'Read the inside break or crossing route near the line to gain. Keep your leverage and tackle at the catch; do not follow a short decoy out of your zone.',
+  };
   if (situationKey === '3lg') return {
     title: 'Guard the line to gain first',
     text: 'Gain depth with the first inside route, then break downhill. Do not chase a short route that cannot reach the sticks.',
@@ -240,6 +248,17 @@ export function buildAdjustmentPlan(fm, traits = [], situation = {}) {
       why: 'Drive on the short routes that can reach the line to gain immediately.',
       tradeoff: 'A protected double move or seam can open behind an underneath defender.',
     });
+  } else if (situationKey === '3md') {
+    add(settings, 'cb-depth', {
+      setting: 'Cornerback Depth', value: '5 yards',
+      why: 'Medium conversion distance: contest hitches and outs near the sticks instead of giving automatic long-yardage cushion.',
+      tradeoff: 'Keep help for deeper breaks and double moves; a tighter starting alignment does not guarantee a stop.',
+    });
+    if (isZone && quick && !deep && !playAction) add(settings, 'zone-depth', {
+      setting: 'Zone Strategy', value: 'Aggressive',
+      why: 'The scouted quick throw can convert immediately. Close on the catch at the line to gain.',
+      tradeoff: 'A seam or double move can punish the underneath reaction. Keep the selected call’s deep help.',
+    });
   } else if (situationKey === 'rz') {
     add(settings, 'cb-depth', {
       setting: 'Cornerback Depth', value: '5 yards',
@@ -262,10 +281,16 @@ export function buildAdjustmentPlan(fm, traits = [], situation = {}) {
       why: 'The opponent’s clearest passing tendency is vertical. Keep zone defenders above the deep route.',
       tradeoff: 'Short completions will have more room underneath.',
     });
-    if (isZone && quick && !deep && !playAction && !runHeavy) add(settings, 'zone-depth', {
+    if (isZone && quick && !deep && !playAction && !runHeavy && context.key !== '2_short') add(settings, 'zone-depth', {
       setting: 'Zone Strategy', value: 'Aggressive',
       why: 'The opponent’s clearest passing tendency is quick game. Break downhill on short routes.',
       tradeoff: 'Routes breaking behind the underneath defender become more dangerous.',
+    });
+
+    if (isZone && quick && context.key === '2_short') add(settings, 'zone-depth', {
+      setting: 'Zone Strategy', value: 'Default',
+      why: 'Second and short leaves a shot opportunity. Keep normal reactions instead of chasing the short route before the play develops.',
+      tradeoff: 'The quick throw is less tightly contested; rally and tackle without surrendering the play-action shot.',
     });
 
   }

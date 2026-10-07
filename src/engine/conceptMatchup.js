@@ -18,8 +18,31 @@ const DIRECT_SCENARIOS = Object.freeze([
   { id: 'play-action', label: 'Play action', tags: ['play_action'], weight: 1 },
 ]);
 
+// Provisional football priorities, not inferred offensive frequencies. First
+// and ten remains balanced; second and long keeps the underneath recovery
+// throw live; third/fourth and medium must contest conversion windows.
+const EARLY_SHORT = { 'inside-run': 1.35, 'edge-run': 1.25, 'run-choice': 1.30,
+  'qb-run': 1.30, rpo: 1.20, quick: 1.15, vertical: 0.85, 'play-action': 1.15 };
+const EARLY_MEDIUM = { 'inside-run': 1.10, 'edge-run': 1.05, 'run-choice': 1.10,
+  rpo: 1.10, quick: 1.15, crossers: 1.10 };
+const SECOND_LONG = { 'inside-run': 0.65, 'edge-run': 0.65, 'run-choice': 0.70,
+  'qb-run': 0.85, rpo: 0.90, quick: 1.15, screen: 1.25, crossers: 1.30,
+  sideline: 1.25, vertical: 1.45, 'play-action': 1.10 };
+const CONVERSION_MEDIUM = { 'inside-run': 0.70, 'edge-run': 0.65, 'run-choice': 0.75,
+  'qb-run': 1.00, rpo: 1.05, quick: 1.45, screen: 0.95, crossers: 1.60,
+  sideline: 1.45, vertical: 1.05, 'play-action': 0.85 };
+
 export const SITUATION_CONCEPT_WEIGHTS = Object.freeze({
   base: Object.freeze({}),
+  '1_short': Object.freeze(EARLY_SHORT),
+  '1_medium': Object.freeze(EARLY_MEDIUM),
+  '1_long': Object.freeze({}),
+  '2_short': Object.freeze({ ...EARLY_SHORT, 'play-action': 1.55, vertical: 1.10 }),
+  '2_medium': Object.freeze({ ...EARLY_MEDIUM, crossers: 1.25, sideline: 1.15 }),
+  '2_long': Object.freeze(SECOND_LONG),
+  '3md': Object.freeze(CONVERSION_MEDIUM),
+  '3_medium': Object.freeze(CONVERSION_MEDIUM),
+  '4_medium': Object.freeze(CONVERSION_MEDIUM),
   '3lg': Object.freeze({
     'inside-run': 0.30, 'edge-run': 0.30, 'run-choice': 0.45, 'qb-run': 0.60,
     rpo: 0.70, quick: 0.75, screen: 0.95, crossers: 1.35, sideline: 1.50,
@@ -39,6 +62,19 @@ export const SITUATION_CONCEPT_WEIGHTS = Object.freeze({
 
 export const SITUATION_RISK_WEIGHTS = Object.freeze({ base: 0.25, '3lg': 0.40, '3sh': 0.35, rz: 0.35 });
 
+function situationProfile(situation) {
+  const match = /^([1-4])_(short|medium|long)$/.exec(situation);
+  const down = match ? Number(match[1]) : null;
+  const distance = match?.[2];
+  const short = situation === '3sh' || (down >= 3 && distance === 'short');
+  const long = situation === '3lg' || (down >= 3 && distance === 'long');
+  const medium = situation === '3md' || (down >= 3 && distance === 'medium');
+  const key = short ? '3sh' : long ? '3lg' : medium ? '3md' : situation;
+  return { down, distance, short, long, medium,
+    weights: SITUATION_CONCEPT_WEIGHTS[key] || SITUATION_CONCEPT_WEIGHTS.base,
+    riskWeight: SITUATION_RISK_WEIGHTS[key] ?? (medium ? 0.35 : down === 2 && distance === 'long' ? 0.30 : 0.25) };
+}
+
 function addScenario(map, id, label, weight, source, reason) {
   const current = map.get(id);
   if (!current || current.weight < weight || current.source === 'complement') {
@@ -47,6 +83,7 @@ function addScenario(map, id, label, weight, source, reason) {
 }
 
 export function buildConceptScenarios(traits = [], situation = 'base', gameObjective = 'balanced', runPass = 4) {
+  const profile = situationProfile(situation);
   const selected = new Set(traits);
   const scenarios = new Map();
   for (const scenario of DIRECT_SCENARIOS) {
@@ -94,17 +131,46 @@ export function buildConceptScenarios(traits = [], situation = 'base', gameObjec
 
   // Down and distance create real threats even when the scout has not tagged a
   // matching tendency. These are labelled as situation-driven, not observed.
-  if (situation === '3lg') {
+  if (profile.long) {
     addScenario(scenarios, 'vertical', 'Throw beyond the sticks', 0.75, 'situation',
       'Long yardage makes the deep and intermediate conversion throw a live threat.');
     addScenario(scenarios, 'sideline', 'Sideline route at the sticks', 0.45, 'situation',
       'Long yardage commonly attacks the line to gain near the sideline.');
   }
-  if (situation === '3sh') {
+  if (profile.short) {
     addScenario(scenarios, 'inside-run', 'Short-yardage run', 0.65, 'situation',
       'Short yardage keeps the direct run live even without a run tendency tag.');
     addScenario(scenarios, 'quick', 'Quick throw at the sticks', 0.55, 'situation',
       'Short yardage keeps hitches, slants, outs, and access throws live.');
+  }
+  if (profile.medium) {
+    addScenario(scenarios, 'quick', 'Quick conversion throw', 0.65, 'situation',
+      'A short completion can reach the line to gain on third or fourth and medium.');
+    addScenario(scenarios, 'crossers', 'Intermediate crossing window', 0.65, 'situation',
+      'Crossing routes can reach the sticks without needing a deep shot.');
+    addScenario(scenarios, 'sideline', 'Out route at the sticks', 0.50, 'situation',
+      'Contest the sideline conversion window, not just the deep pass.');
+  }
+  if (profile.down && profile.down <= 2) {
+    const runPresent = ['inside-run', 'edge-run', 'qb-run', 'run-choice'].some(id => scenarios.has(id));
+    if (!runPresent) {
+      addScenario(scenarios, 'run-choice', 'Early-down run — direction unknown',
+        profile.distance === 'short' ? 0.75 : 0.45, 'situation',
+        'Early downs retain a run answer; distance does not identify the run scheme.');
+      scenarios.get('run-choice').supportScope = 'direction-unknown';
+    }
+    if (![...scenarios.keys()].some(id => !['inside-run', 'edge-run', 'qb-run', 'run-choice', 'rpo'].includes(id))) {
+      addScenario(scenarios, 'pass-choice', 'Early-down pass — routes unknown', 0.55, 'situation',
+        'Keep a passing answer without inventing a scouted route tendency.');
+    }
+    if (profile.down === 2 && profile.distance === 'short') {
+      addScenario(scenarios, 'play-action', 'Second-and-short shot opportunity', 0.55, 'situation',
+        'The offense has room to try play action before a manageable third down; keep deep help.');
+    }
+    if (profile.down === 2 && profile.distance === 'long') {
+      addScenario(scenarios, 'vertical', 'Second-and-long intermediate / deep throw', 0.55, 'situation',
+        'Account for the longer throw while retaining an answer to screens, draws, and shorter gains.');
+    }
   }
   if (situation === 'rz') {
     addScenario(scenarios, 'inside-run', 'Red-zone run', 0.45, 'situation',
@@ -118,7 +184,7 @@ export function buildConceptScenarios(traits = [], situation = 'base', gameObjec
     addScenario(scenarios, 'vertical', 'Prevent the quick touchdown', 1.5, 'objective', 'The player explicitly prioritizes avoiding a quick touchdown.');
   }
   if (objective === 'get_stop') {
-    if (situation === '3lg') {
+    if (profile.long) {
       addScenario(scenarios, 'vertical', 'Conversion throw', 1, 'objective', 'The player needs a stop at the line to gain.');
       addScenario(scenarios, 'sideline', 'Sideline conversion', 0.65, 'objective', 'Protect the sideline at the sticks.');
     } else {
@@ -157,7 +223,7 @@ export function buildConceptScenarios(traits = [], situation = 'base', gameObjec
     return isRun(id) ? targetRunShare * totalDemand / runTotal
       : (1 - targetRunShare) * totalDemand / passTotal;
   };
-  const multipliers = SITUATION_CONCEPT_WEIGHTS[situation] || SITUATION_CONCEPT_WEIGHTS.base;
+  const multipliers = profile.weights;
   const result = [...scenarios.values()].map(scenario => ({
     ...scenario,
     baseWeight: scenario.weight,
@@ -306,7 +372,7 @@ function gradeScenario(play, coverageName, scenario) {
 export function assessConceptMatchups(play, coverageName, traits = [], situation = 'base', gameObjective = 'balanced', runPass = 4) {
   const scenarios = buildConceptScenarios(traits, situation, gameObjective, runPass);
   if (!scenarios.length) return null;
-  const riskWeight = Math.max(SITUATION_RISK_WEIGHTS[situation] ?? SITUATION_RISK_WEIGHTS.base, getGameObjective(gameObjective).id === 'no_quick_td' ? 0.45 : 0);
+  const riskWeight = Math.max(situationProfile(situation).riskWeight, getGameObjective(gameObjective).id === 'no_quick_td' ? 0.45 : 0);
   const grades = scenarios.map(scenario => ({ ...scenario, ...gradeScenario(play, coverageName, scenario) }));
   const weightedMean = grades.reduce((sum, item) => sum + item.grade * item.normalizedWeight, 0);
   const badCase = grades.reduce((worst, item) => item.grade < worst.grade ? item : worst, grades[0]);

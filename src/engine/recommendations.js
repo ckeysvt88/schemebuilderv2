@@ -21,6 +21,9 @@ export function recommend({ traits = [], book = 'All', runPass = 4, familyId = n
   const normalizedUserProfile = normalizeUserProfile(userProfile);
   const context = normalizeSituation(down, distance);
   const sit = coverageSituation(context);
+  // Keep exact down/distance for threat scoring. The coarse coverage key is
+  // still used for eligibility and user-call selection.
+  const conceptSituation = context.distance ? context.key : sit;
   const scored = applyDownDistance(scoreAll(traits, book, runPass, familyId), down, distance);
   const formations = scored.flatMap(f => {
     // There is no clock/lead objective in this first phase: do not prescribe
@@ -36,7 +39,7 @@ export function recommend({ traits = [], book = 'All', runPass = 4, familyId = n
     const rankedCoverages = baseline.map((c, index) => {
       const evidence = getPlayAssignmentEvidence(f.name, c.name, plays.find(p => p.n === c.name));
       const adjustmentPlan = buildAdjustmentPlan({ ...f, runPass, gameObjective: objective.id, recommendedCoverage: c.name, rankedCoverages: [c] }, f.effectiveTraits, { down, distance });
-      const evaluated = evaluateCoverage(c, plays.find(p => p.n === c.name), f.effectiveTraits, f.sc, evidence, sit, objective.id, runPass, adjustmentPlan);
+      const evaluated = evaluateCoverage(c, plays.find(p => p.n === c.name), f.effectiveTraits, f.sc, evidence, sit, objective.id, runPass, adjustmentPlan, conceptSituation);
       return evaluated && { ...evaluated, baselineOrder: index };
     }).filter(c => c && c.sc > 0).sort((a, b) => b.sc - a.sc || a.baselineOrder - b.baselineOrder);
     if (!rankedCoverages.length) return [];
