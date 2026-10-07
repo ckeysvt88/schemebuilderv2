@@ -143,23 +143,19 @@ export default function FormationInfo({ onCustomize }) {
     <div className="screen-enter" style={{ fontFamily: "var(--font-sans)", background: "var(--color-bg)", minHeight: "100dvh", color: "var(--color-text-1)", maxWidth: 720, margin: "0 auto" }}>
 
       <div className="app-page-header" style={{ background: "linear-gradient(135deg, var(--color-surface-1), var(--color-surface-2))", borderBottom: "2px solid var(--color-gold)", padding: "12px 16px", paddingTop: "calc(env(safe-area-inset-top) + 12px)", position: "sticky", top: 0, zIndex: 80 }}>
-        <div style={{ display: "grid", gridTemplateColumns: "minmax(0, 1fr) auto", alignItems: "start", gap: 8 }}>
-          <div>
-            <div style={{ fontSize: 10, color: "var(--color-gold-dim)", letterSpacing: "2px", textTransform: "uppercase", fontFamily: "var(--font-mono)", marginBottom: 2 }}>Scheme Builders</div>
-            <div style={{ fontSize: 20, fontWeight: "700", color: "var(--color-text-1)", fontFamily: "var(--font-mono)" }}>Formation Info</div>
-          </div>
+        <div style={{ fontSize: 10, color: "var(--color-gold-dim)", letterSpacing: "2px", textTransform: "uppercase", fontFamily: "var(--font-mono)", marginBottom: 5 }}>Scheme Builders</div>
+        <div style={{ display: "grid", gridTemplateColumns: "minmax(0, 1fr) auto", alignItems: "center", gap: 8 }}>
+          <div style={{ fontSize: 20, fontWeight: "700", lineHeight: 1.2, color: "var(--color-text-1)", fontFamily: "var(--font-mono)" }}>Formation Info</div>
           {sel && (
-            <div style={{ display: "contents" }}>
-              <div style={{ display: "flex", alignItems: "center", justifyContent: "flex-end", gap: 6, gridColumn: "1 / -1" }}>
-              <button style={smallBtn} onClick={() => setSel(null)}>← All</button>
-              <button style={{ ...smallBtn, opacity: selIdx > 0 ? 1 : 0.35, cursor: selIdx > 0 ? "pointer" : "default", minWidth: 32 }}
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "flex-end", gap: 5 }}>
+              <button style={{ ...smallBtn, minHeight: 32, padding: "0 8px", whiteSpace: "nowrap" }} onClick={() => setSel(null)}>← All</button>
+              <button style={{ ...smallBtn, opacity: selIdx > 0 ? 1 : 0.35, cursor: selIdx > 0 ? "pointer" : "default", width: 28, padding: 0, minHeight: 32 }}
                 onClick={goPrev} disabled={selIdx <= 0} aria-label="Previous formation">‹</button>
-              <span style={{ fontSize: 10, color: "var(--color-text-3)", fontFamily: "var(--font-mono)", minWidth: 34, textAlign: "center" }}>
+              <span style={{ fontSize: 10, color: "var(--color-text-3)", fontFamily: "var(--font-mono)", minWidth: 30, textAlign: "center" }}>
                 {selIdx + 1}/{siblings.length}
               </span>
-              <button style={{ ...smallBtn, opacity: selIdx < siblings.length - 1 ? 1 : 0.35, cursor: selIdx < siblings.length - 1 ? "pointer" : "default", minWidth: 32 }}
+              <button style={{ ...smallBtn, opacity: selIdx < siblings.length - 1 ? 1 : 0.35, cursor: selIdx < siblings.length - 1 ? "pointer" : "default", width: 28, padding: 0, minHeight: 32 }}
                 onClick={goNext} disabled={selIdx >= siblings.length - 1} aria-label="Next formation">›</button>
-              </div>
             </div>
           )}
         </div>
@@ -208,15 +204,15 @@ export default function FormationInfo({ onCustomize }) {
 
         {/* ── Detail ── */}
         {sel && d && (<>
-          <div style={{ display: "flex", alignItems: "center", gap: 7, flexWrap: "wrap", marginTop: 2 }}>
-            <span style={pill(pri.c)}>{pri.l.toUpperCase()}</span>
-            <span style={pill("var(--color-text-3)")}>{d.personnel.toUpperCase()}</span>
-            <span style={pill("var(--color-gold)")}>BLITZ BASE {d.blitzBase}%</span>
+          <div style={{ display: "grid", gridTemplateColumns: "minmax(0, 1fr) auto", alignItems: "start", gap: 8, marginTop: 2 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap", minHeight: 32 }}>
+              <span style={pill(pri.c)}>{pri.l.toUpperCase()}</span>
+              <span style={pill("var(--color-text-3)")}>{d.personnel.toUpperCase()}</span>
+              <span style={pill("var(--color-gold)")}>BLITZ BASE {d.blitzBase}%</span>
+            </div>
+            {canCustomizeFormation(sel) && onCustomize && <button style={{ ...smallBtn, minHeight: 32, whiteSpace: "nowrap", color: "var(--color-gold)", borderColor: "var(--color-gold-border)", background: "var(--color-gold-surface)" }} onClick={() => onCustomize(sel)}>Customize</button>}
           </div>
-          <div style={{ display: "grid", gridTemplateColumns: "minmax(0, 1fr) auto", alignItems: "center", gap: 10, margin: "8px 0 6px" }}>
-            <div style={{ fontFamily: "var(--font-mono)", fontSize: 22, fontWeight: 700, color: "var(--color-gold-bright)" }}>{sel}</div>
-            {canCustomizeFormation(sel) && onCustomize && <button style={{ ...smallBtn, minHeight: 36, color: "var(--color-gold)", borderColor: "var(--color-gold-border)", background: "var(--color-gold-surface)" }} onClick={() => onCustomize(sel)}>Customize</button>}
-          </div>
+          <div style={{ fontFamily: "var(--font-mono)", fontSize: 22, fontWeight: 700, color: "var(--color-gold-bright)", margin: "12px 0 9px" }}>{sel}</div>
           <div style={{ fontSize: 13.5, color: "var(--color-text-1)", lineHeight: 1.55 }}>{d.desc}</div>
 
           {/* Personnel — diagram-derived when alignment art exists */}
