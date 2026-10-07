@@ -2,6 +2,7 @@ import { assessPersonalChoice, assessCallRisk, hasVerifiedQbControl, selectOvera
 import { COVERAGE_FLAGS } from '../data/coverageFlags.js';
 import { getCoverageRunSupport, getRunDirections } from './coverageRunSupport.js';
 import { normalizeUserProfile } from '../data/userProfile.js';
+import { getPressureProfile } from './pressureProfile.js';
 
 const QUICK_TRAITS = new Set(['rpo', 'quick_game', 'west_coast', 'screens', 'flat_attack', 'slant_heavy', 'qb_checkdown']);
 const MOBILE_TRAITS = new Set(['option_run', 'mobile_qb', 'dual_threat', 'qb_scramble']);
@@ -73,8 +74,7 @@ function personalReason(fit, profile, situation) {
 }
 
 export function isPressureOption(call = {}) {
-  const label = `${call.name || ''} ${call.tag || ''}`;
-  return /pressure|all-out|\bblitz\b|\bfire\b|\bshoot\b|\bstorm\b|engage eight|gaps all/i.test(label);
+  return getPressureProfile(call)?.extraRush === true;
 }
 
 function addRole(options, call, role) {
@@ -104,13 +104,13 @@ function bestRunFit(calls, traits) {
     .sort((a, b) => b.weakest - a.weakest || b.total - a.total || a.order - b.order)[0]?.call || null;
 }
 
-// Builds a short, evidence-gated call menu. These labels describe authored
-// exact-call classifications; they do not infer rushers, run fits or user jobs
-// from the formation shell.
+// Every suggested role passes the same objective/deep-help checks as the
+// overall call. Pressure additionally requires verified exact assignments.
 export function buildCallOptions(rankedCalls = [], traits = [], situation = 'base', limit = 4, userProfile = {}) {
   if (!rankedCalls.length) return [];
   const overall = selectOverallCall(rankedCalls, traits, situation);
   if (!overall) return [];
+  const eligibleCalls = rankedCalls.filter(call => assessCallRisk(call, traits, situation).eligible);
   const options = [];
 
   addRole(options, overall, {
@@ -119,7 +119,7 @@ export function buildCallOptions(rankedCalls = [], traits = [], situation = 'bas
     reason: 'Best current fit in this formation for the scout and game situation.',
   });
 
-  const deepHelp = rankedCalls.find(call => COVERAGE_FLAGS[call.name]?.longOK && !isPressureOption(call)
+  const deepHelp = eligibleCalls.find(call => COVERAGE_FLAGS[call.name]?.longOK && !isPressureOption(call)
     && (call.matchup?.status !== 'verified' || call.matchup.facts?.deep > 0));
   addRole(options, deepHelp, {
     id: 'safe',
@@ -129,16 +129,16 @@ export function buildCallOptions(rankedCalls = [], traits = [], situation = 'bas
       : 'Use it when preventing the explosive pass matters more than squeezing the short throw.',
   });
 
-  const pressure = rankedCalls.find(call => isPressureOption(call) && assessCallRisk(call, traits, situation).eligible)
-    || rankedCalls.find(isPressureOption);
+  const pressure = eligibleCalls.find(isPressureOption);
+  const pressureProfile = getPressureProfile(pressure);
   addRole(options, pressure, {
     id: 'pressure',
-    label: 'PRESSURE',
-    reason: 'Use it when the quarterback is comfortable. The ball must come out faster, but a quick answer can punish the call.',
+    label: pressureProfile?.label,
+    reason: pressureProfile?.reason,
   });
 
   if (hasAny(traits, MOBILE_TRAITS)) {
-    const mobile = rankedCalls.find(hasVerifiedQbControl);
+    const mobile = eligibleCalls.find(hasVerifiedQbControl);
     addRole(options, mobile, {
       id: 'mobile',
       label: 'QB CONTROL',
@@ -148,7 +148,7 @@ export function buildCallOptions(rankedCalls = [], traits = [], situation = 'bas
     });
   }
 
-  const runFit = bestRunFit(rankedCalls, traits);
+  const runFit = bestRunFit(eligibleCalls, traits);
   if (runFit) {
     const { inside, outside } = getRunDirections(traits);
     const support = getCoverageRunSupport(runFit.name);
@@ -167,7 +167,7 @@ export function buildCallOptions(rankedCalls = [], traits = [], situation = 'bas
   }
 
   if (hasAny(traits, QUICK_TRAITS) || situation === '3md') {
-    const quick = rankedCalls.find(call => /vs quick game|hard flat/i.test(`${call.tag || ''} ${call.name || ''}`));
+    const quick = eligibleCalls.find(call => /vs quick game|hard flat/i.test(`${call.tag || ''} ${call.name || ''}`));
     addRole(options, quick, {
       id: 'quick',
       label: situation === '3md' ? 'CONTEST THE STICKS' : 'QUICK-THROW ANSWER',

@@ -6,14 +6,14 @@ import { buildMacroPlan } from '../src/engine/macroPlan.js';
 import { PLAYS } from '../src/data/plays.js';
 const recipe = id => buildMacroPlan({id});
 
-test('all 56 problems give usable instructions without hidden formation state', () => {
+test('all 62 problems give usable instructions without hidden formation state', () => {
   assert.deepEqual(Object.keys(MACRO_RECIPES).sort(), MACRO_LIBRARY.map(m=>m.id).sort());
   const controls = new Set();
   for (const m of MACRO_LIBRARY) {
     const p = buildMacroPlan(m);
     assert.ok(p.ready && p.settings.length && p.use, m.id);
     assert.equal(p.mode, 'problem-recipe');
-    assert.ok(p.settings.length <= 3);
+    assert.ok(p.settings.length <= (m.id === 'inside_ten' ? 8 : m.id === 'protect_lead' ? 5 : 3));
     assert.equal(new Set(p.settings.map(s=>s.setting)).size, p.settings.length);
     for (const s of p.settings) {
       assert.ok(s.why && s.risk && s.value);
@@ -32,8 +32,8 @@ test('different run and pass problems produce different practical adjustments', 
   const value = (id, name) => recipe(id).settings.find(s=>s.setting===name)?.value;
   assert.equal(value('inside_power','DL Alignment'),'Pinch');
   assert.equal(value('outside_zone','DL Alignment'),'Spread');
-  assert.equal(value('counter_trap','Defensive Aggression'),'Conservative');
-  assert.equal(value('qb_sneak_short','Defensive Aggression'),'Aggressive');
+  assert.equal(value('counter_trap','Defender Aggression'),'Conservative');
+  assert.equal(value('qb_sneak_short','Defender Aggression'),'Aggressive');
   assert.equal(value('option_read','Option Read Key'),'Conservative');
   assert.equal(value('speed_option','Option Pitch Key'),'Aggressive');
   assert.equal(value('rpo_glance','RPO Pass Key'),'Conservative');

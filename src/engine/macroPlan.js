@@ -40,7 +40,13 @@ export function buildMacroPlan(macro, context = {}) {
   }
   const family = getCoverageFamily(play.n);
   const spotZone = play.und > 0 && play.badge !== 'MATCH' && play.man === 0;
+  if (recipe.requires === 'twoMan' && !(family === 'twoMan' && play.deep >= 2 && play.man >= 4)) return reject(recipe.use);
+  if (['tampa', 'insideTen'].includes(recipe.requires) && !(family === 'tampa2' && spotZone && play.deep >= 2 && play.und >= 4)) return reject(recipe.use);
+  if (recipe.requires === 'insideTen' && (ctx.situation !== 'rz' || !Number.isFinite(context.yardsToGoal) || context.yardsToGoal <= 0 || context.yardsToGoal > 10)) return reject('Confirm Tampa 2 and a ball spot inside the 10. A generic red-zone label is not enough.');
+  if (recipe.requires === 'protectLead' && !(spotZone && (family === 'tampa2' || play.n === 'Cover 3 Sky') && context.gameObjective === 'no_quick_td')) return reject(recipe.use);
   const allowed = s => {
+    if (s.scope === 'fourRush') return play.rush >= 4;
+    if (s.scope === 'roll') return /roll/i.test(play.n) && play.deep >= 2;
     if (s.scope === 'deep') return play.deep >= 2;
     if (s.scope === 'shortZone') return !long && spotZone && play.deep >= 2;
     if (s.scope === 'short') return !long;
@@ -51,7 +57,7 @@ export function buildMacroPlan(macro, context = {}) {
     return true;
   };
   if (plan.settings.some(s => !allowed(s))) return reject(`This package needs a different coverage or situation. ${recipe.use}`);
-  if (long && plan.settings.some(s => s.setting === 'Defensive Aggression' && s.value === 'Aggressive')) {
+  if (long && plan.settings.some(s => s.setting === 'Defender Aggression' && s.value === 'Aggressive')) {
     return reject('Do not use this run sellout package on long yardage.');
   }
   return plan;

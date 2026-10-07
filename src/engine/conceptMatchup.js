@@ -1,6 +1,7 @@
 import { runPassBias, conceptBiasMultiplier } from '../data/runPassBias.js';
 import { getGameObjective } from '../data/gameObjectives.js';
 import { getCoverageRunSupport } from './coverageRunSupport.js';
+import { getCoverageResponsibilities } from './coverageResponsibilities.js';
 
 // Phase 3 pilot: ordinal matchup grades, not probabilities or measured outcomes.
 // The catalog proves only the assignments it contains. These rules therefore stay
@@ -109,6 +110,7 @@ export function buildConceptScenarios(traits = [], situation = 'base', gameObjec
     qb.label = qb.option ? (qb.scramble ? 'QB keeper and scramble' : 'QB run / option') : 'QB escape threat';
   }
 
+
   const hasRunAction = ['inside-run', 'edge-run'].some(id => scenarios.has(id));
   if (scenarios.has('rpo')) {
     addScenario(scenarios, 'quick', 'Quick game / access throw', 0.45, 'complement',
@@ -192,6 +194,13 @@ export function buildConceptScenarios(traits = [], situation = 'base', gameObjec
       addScenario(scenarios, 'quick', 'Quick conversion throw', 0.8, 'objective', 'Challenge the short completion that sustains the drive.');
     }
   }
+  if (scenarios.has('vertical')) {
+    const vertical = scenarios.get('vertical');
+    vertical.attack = selected.has('seam_routes')
+      ? selected.has('deep_shots') ? 'mixed' : 'seam' : 'broad';
+    vertical.label = vertical.attack === 'seam' ? 'TE / slot seam route'
+      : vertical.attack === 'mixed' ? 'Deep shots and TE / slot seams' : vertical.label;
+  }
   // Retain both sides at every slider position when threats are scouted.
   // A non-neutral slider is explicit scouting evidence about run/pass emphasis,
   // not evidence of a particular scheme, alignment, or quarterback mobility.
@@ -263,14 +272,41 @@ function gradeScenario(play, coverageName, scenario) {
       })[scenario.id] || 'Read your assignment before chasing the ball.' };
   }
   const structure = coverageStructure(play || {});
+  const responsibilities = getCoverageResponsibilities(play, coverageName);
   const fit = getCoverageRunSupport(coverageName);
   const base = { grade: 55, support: 'The call has a neutral starting point against this threat.', concession: 'Be ready to help the defender the offense puts in conflict.' };
 
   if (scenario.id === 'vertical') {
     const grades = [12, 35, 60, 72, 82];
-    const grade = structure === 'quarters' && play.badge === 'MATCH'
+    let grade = structure === 'quarters' && play.badge === 'MATCH'
       ? 88
       : grades[Math.min(play.deep, 4)];
+    if (scenario.attack === 'seam' || scenario.attack === 'mixed') {
+      // One scenario holds both threats: do not double-count seam_routes.
+      let seamGrade = grade;
+      if (responsibilities?.pole) seamGrade = 72;
+      else if (structure === 'two-zone') seamGrade = 48;
+      else if (responsibilities?.threeMatch) seamGrade = 76;
+      else if (structure === 'three-zone' || structure === 'three-match') seamGrade = 66;
+      else if (responsibilities?.split) seamGrade = 68;
+      else if (structure === 'quarters' && play.badge === 'MATCH') seamGrade = 82;
+      grade = scenario.attack === 'mixed' ? Math.round((grade + seamGrade) / 2) : seamGrade;
+      return { grade,
+        support: responsibilities?.pole
+          ? 'The Tampa pole runner carries the deep middle seam between the halves.'
+          : structure === 'two-zone'
+            ? 'Two deep halves cap the outside throws; the inside seam still stresses the middle underneath defender.'
+            : responsibilities?.threeMatch || (structure === 'quarters' && play.badge === 'MATCH')
+              ? 'Match responsibilities can carry the inside vertical release; confirm the check against this formation.'
+              : responsibilities?.split
+                ? 'The quarters side and half-field side answer seams differently; identify which side the offense attacks.'
+                : 'Deep middle help can cap a seam, but underneath collision and receiver distribution still matter.',
+        concession: responsibilities?.pole
+          ? 'The pole runner must carry the seam; his speed and release recognition are unknown, and short middle help is reduced.'
+          : structure === 'two-zone'
+            ? 'The seam can split the halves if the middle defender cannot carry it.'
+            : 'Multiple vertical releases can divide the help; defender speed and the match check are not scored.' };
+    }
     return { grade, support: `${play.deep} deep defender${play.deep === 1 ? '' : 's'} remain assigned against the developing shot.`,
       concession: play.deep >= 3 ? 'The underneath outlet may be available if the defense rallies and tackles.' : 'A won matchup can escape limited deep help.' };
   }
@@ -336,19 +372,31 @@ function gradeScenario(play, coverageName, scenario) {
   }
   if (scenario.id === 'quick') {
     const thinPressure = play.rush >= 5 && play.und <= 3;
-    const insideGrade = thinPressure ? 38 : play.und >= 4 ? 68 : structure === 'two-man' ? 58 : 50;
-    const hardFlat = /hard flat/i.test(coverageName);
+    let insideGrade = thinPressure ? 38 : play.und >= 4 ? 68 : structure === 'two-man' ? 58 : 50;
+    if (!thinPressure && play.und >= 4 && responsibilities?.pole) insideGrade = 60;
+    if (!thinPressure && play.und >= 4 && responsibilities?.buzz) insideGrade = 72;
+    const hardFlat = responsibilities?.hardFlat;
     // A broad quick-game tag includes inside throws. Never give the whole
     // concept the outside-only hard-flat grade, or bypass thin-pressure risk.
-    const outsideGrade = hardFlat ? (thinPressure ? 58 : 80) : insideGrade;
+    const outsideGrade = hardFlat ? (thinPressure ? 58 : 80)
+      : !thinPressure && responsibilities?.palms ? 74
+        : !thinPressure && responsibilities?.pole ? 64 : insideGrade;
     const grade = scenario.attack === 'inside' ? insideGrade : Math.round((insideGrade + outsideGrade) / 2);
     return { grade,
       support: scenario.attack !== 'inside' && hardFlat
         ? 'Hard-flat defenders challenge the outside throw; short middle routes still need inside help.'
+        : scenario.attack !== 'inside' && responsibilities?.palms
+          ? 'Palms uses a two-read exchange to contest the outside release; confirm the receiver distribution and check.'
         : thinPressure ? 'The ball can come out before pressure arrives; underneath help is limited.'
+        : responsibilities?.pole ? 'The pole runner gains depth; the remaining hooks must close the short middle throw.'
+        : responsibilities?.buzz ? 'The safety buzzes an inside hook window; keep the outside flat responsibility covered.'
         : 'Keep help inside for slants and short crossing routes, then close on the catch.',
       concession: scenario.attack !== 'inside' && hardFlat
         ? 'Do not chase the flat with your inside defender and open the slant behind him.'
+        : responsibilities?.palms && scenario.attack !== 'inside'
+          ? 'A wrong exchange or an outside double move can attack behind the corner; short middle help is still limited.'
+        : responsibilities?.pole ? 'A short completion can enter the space below the pole runner.'
+        : responsibilities?.buzz ? 'An outside throw can attack the space away from the inside rotation.'
         : 'A short catch can become a first down if the nearest defender loses leverage.' };
   }
   if (scenario.id === 'screen') {
@@ -358,10 +406,22 @@ function gradeScenario(play, coverageName, scenario) {
   }
   if (scenario.id === 'crossers') {
     if (play.man >= 4) return { grade: play.und > 0 ? 50 : 42, support: play.und > 0 ? 'An underneath helper can disrupt one crossing window.' : 'No underneath helper is assigned to crossing traffic.', concession: 'Man defenders can be screened or lose leverage through traffic.' };
+    if (play.und >= 4 && responsibilities?.pole) return { grade: 60,
+      support: 'The hooks handle the crossing window while the pole runner carries the deep middle.',
+      concession: 'A crosser can settle below the pole runner; keep your hook responsibility before chasing the deep release.' };
+    if (play.und >= 4 && responsibilities?.buzz) return { grade: 68,
+      support: 'The buzz safety adds an inside hook presence against the crossing window.',
+      concession: 'A second crosser or outside high-low can attack away from the buzz; the rotation is not a complete mesh answer.' };
     if (play.und >= 4) return { grade: 64, support: 'Four or more underneath zones can pass off crossing traffic.', concession: 'Do not chase a crosser out of your area and open the next window behind you.' };
     return { grade: 52, support: 'The call avoids a full man-traffic answer.', concession: 'Too few documented underneath defenders can open a crossing lane.' };
   }
   if (scenario.id === 'sideline') {
+    if (responsibilities?.hardFlat) return { grade: structure === 'two-zone' ? 50 : 42,
+      support: 'Hard flats challenge the low route first; the deeper outside route must be handled by the coverage behind them.',
+      concession: 'A corner or sail route can break behind the hard-flat defender; do not treat stopping the flat as stopping the whole high-low.' };
+    if (responsibilities?.cloud) return { grade: 58,
+      support: 'The cloud corner layers the flat beneath deep help on the rotated side.',
+      concession: 'Only the cloud side gets that structure; the attack side and drop depth are not known.' };
     if (structure === 'split-field-six') return { grade: 66, support: 'The half-field side includes a cloud corner with a deep cap.', concession: 'The offense can attack the opposite side, and the call side is not known.' };
     if (structure === 'two-zone' || structure === 'tampa-two') return { grade: 58, support: 'A flat defender and deep half can layer the sideline.', concession: 'A high-low combination can still force that flat defender to choose.' };
     return { grade: 50, support: 'The exact curl/flat depth and sideline leverage are not stored.', concession: 'A flood-like high-low can stress one outside defender.' };
@@ -383,6 +443,7 @@ export function assessConceptMatchups(play, coverageName, traits = [], situation
   return {
     utility, weightedMean: Math.round(weightedMean), riskWeight, situation, badCase, priorityRisk,
     scenarios: grades,
+    responsibilities: getCoverageResponsibilities(play, coverageName),
     mainConcession: priorityRisk.concession,
     confidence: !play || grades.some(item => item.id === 'rpo' || item.id === 'run-choice' || item.id.includes('run')) ? 'Limited' : 'Moderate',
     evidence: play ? 'Ordinal football rubric applied to transcribed assignments; requires CFB 27 gameplay calibration' : 'Coverage-family run support with neutral grades for unknown exact assignments; not gameplay probability',

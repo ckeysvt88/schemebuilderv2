@@ -1,0 +1,825 @@
+{
+  "baseline": "78db24d",
+  "metrics": {
+    "scouts": 96,
+    "formationMenus": 4760,
+    "menuChanges": 1468,
+    "personalChanges": 879,
+    "topPersonalChanges": 0,
+    "overallChanges": 0,
+    "invalidPressure": 0
+  },
+  "examples": [
+    {
+      "title": "Separate four-rusher simulation from extra-rusher pressure",
+      "formation": "3-3-5 Stack",
+      "input": {
+        "traits": [
+          "p11",
+          "crossers",
+          "slant_heavy"
+        ],
+        "down": 3,
+        "distance": 5,
+        "userProfile": {
+          "position": "line",
+          "callStyle": "pressure"
+        }
+      },
+      "why": "Tampa Sim Pressure remains Best Overall. Mike Will 2 becomes the extra-rusher option and Best for You for this DL / Create Pressure preference, within the existing fit-loss limit.",
+      "rank": 11,
+      "current": {
+        "name": "3-3-5 Stack",
+        "best": "Tampa Sim Pressure",
+        "personal": "Tampa Sim Pressure",
+        "score": 71,
+        "overallScore": 71,
+        "options": [
+          {
+            "name": "Tampa Sim Pressure",
+            "score": 71,
+            "personal": true,
+            "roles": [
+              {
+                "id": "overall",
+                "label": "BEST OVERALL",
+                "reason": "Best current fit in this formation for the scout and game situation."
+              },
+              {
+                "id": "pressure",
+                "label": "PRESSURE",
+                "reason": "Use it when the quarterback is comfortable. The ball must come out faster, but a quick answer can punish the call."
+              }
+            ],
+            "structure": "4 rush · 2 deep · 5 underneath · 0 man · 0 spy · 0 contain",
+            "facts": {
+              "rushers": 4,
+              "deep": 2,
+              "underneath": 5,
+              "man": 0,
+              "spy": 0,
+              "contain": 0,
+              "badge": "ZONE",
+              "shell": 2
+            }
+          },
+          {
+            "name": "Mike Will 2",
+            "score": 71,
+            "personal": false,
+            "roles": [
+              {
+                "id": "safe",
+                "label": "DEEP HELP",
+                "reason": "Use it when preventing the explosive pass matters more than squeezing the short throw."
+              },
+              {
+                "id": "quick",
+                "label": "CONTEST THE STICKS",
+                "reason": "Contest the short completion that can reach the line to gain; keep help for deeper breaks."
+              }
+            ],
+            "structure": "5 rush · 2 deep · 4 underneath · 0 man · 0 spy · 0 contain",
+            "facts": {
+              "rushers": 5,
+              "deep": 2,
+              "underneath": 4,
+              "man": 0,
+              "spy": 0,
+              "contain": 0,
+              "badge": "BLITZ",
+              "shell": 2
+            }
+          }
+        ]
+      },
+      "proposed": {
+        "name": "3-3-5 Stack",
+        "best": "Tampa Sim Pressure",
+        "personal": "Mike Will 2",
+        "score": 71,
+        "overallScore": 71,
+        "options": [
+          {
+            "name": "Tampa Sim Pressure",
+            "score": 71,
+            "personal": false,
+            "roles": [
+              {
+                "id": "overall",
+                "label": "BEST OVERALL",
+                "reason": "Best current fit in this formation for the scout and game situation."
+              },
+              {
+                "id": "safe",
+                "label": "DEEP HELP",
+                "reason": "Use it when preventing the explosive pass matters more than squeezing the short throw."
+              }
+            ],
+            "structure": "4 rush · 2 deep · 5 underneath · 0 man · 0 spy · 0 contain",
+            "facts": {
+              "rushers": 4,
+              "deep": 2,
+              "underneath": 5,
+              "man": 0,
+              "spy": 0,
+              "contain": 0,
+              "badge": "ZONE",
+              "shell": 2
+            }
+          },
+          {
+            "name": "Mike Will 2",
+            "score": 71,
+            "personal": true,
+            "roles": [
+              {
+                "id": "pressure",
+                "label": "ZONE PRESSURE",
+                "reason": "Send 5 rushers when you want to challenge the protection. 4 underneath zones remain; check the quick outlet before sending pressure. Extra rushers do not guarantee pressure arrives before the throw."
+              },
+              {
+                "id": "quick",
+                "label": "CONTEST THE STICKS",
+                "reason": "Contest the short completion that can reach the line to gain; keep help for deeper breaks."
+              }
+            ],
+            "structure": "5 rush · 2 deep · 4 underneath · 0 man · 0 spy · 0 contain",
+            "facts": {
+              "rushers": 5,
+              "deep": 2,
+              "underneath": 4,
+              "man": 0,
+              "spy": 0,
+              "contain": 0,
+              "badge": "BLITZ",
+              "shell": 2
+            }
+          }
+        ]
+      }
+    },
+    {
+      "title": "Keep the stronger matchup when extra-rusher pressure is unavailable",
+      "formation": "Nickel Over",
+      "input": {
+        "traits": [
+          "p11",
+          "crossers",
+          "slant_heavy"
+        ],
+        "down": 3,
+        "distance": 5,
+        "userProfile": {
+          "position": "line",
+          "callStyle": "pressure"
+        }
+      },
+      "why": "Nickel Sim 2 has four rushers. It no longer receives the extra-rusher preference bonus. Cover 2 Invert becomes Best for You; the simulated call remains in the ranked play inventory.",
+      "rank": 9,
+      "current": {
+        "name": "Nickel Over",
+        "best": "Cover 2 Invert",
+        "personal": "Nickel Sim 2",
+        "score": 72,
+        "overallScore": 72,
+        "options": [
+          {
+            "name": "Cover 2 Invert",
+            "score": 72,
+            "personal": false,
+            "roles": [
+              {
+                "id": "overall",
+                "label": "BEST OVERALL",
+                "reason": "Best current fit in this formation for the scout and game situation."
+              },
+              {
+                "id": "safe",
+                "label": "DEEP HELP",
+                "reason": "Use it when preventing the explosive pass matters more than squeezing the short throw."
+              },
+              {
+                "id": "quick",
+                "label": "CONTEST THE STICKS",
+                "reason": "Contest the short completion that can reach the line to gain; keep help for deeper breaks."
+              }
+            ],
+            "structure": "4 rush · 2 deep · 5 underneath · 0 man · 0 spy · 0 contain",
+            "facts": {
+              "rushers": 4,
+              "deep": 2,
+              "underneath": 5,
+              "man": 0,
+              "spy": 0,
+              "contain": 0,
+              "badge": "ZONE",
+              "shell": 2
+            }
+          },
+          {
+            "name": "Nickel Sim 2",
+            "score": 72,
+            "personal": true,
+            "roles": [
+              {
+                "id": "pressure",
+                "label": "PRESSURE",
+                "reason": "Use it when the quarterback is comfortable. The ball must come out faster, but a quick answer can punish the call."
+              }
+            ],
+            "structure": "4 rush · 2 deep · 5 underneath · 0 man · 0 spy · 0 contain",
+            "facts": {
+              "rushers": 4,
+              "deep": 2,
+              "underneath": 5,
+              "man": 0,
+              "spy": 0,
+              "contain": 0,
+              "badge": "BLITZ",
+              "shell": 2
+            }
+          }
+        ]
+      },
+      "proposed": {
+        "name": "Nickel Over",
+        "best": "Cover 2 Invert",
+        "personal": "Cover 2 Invert",
+        "score": 72,
+        "overallScore": 72,
+        "options": [
+          {
+            "name": "Cover 2 Invert",
+            "score": 72,
+            "personal": true,
+            "roles": [
+              {
+                "id": "overall",
+                "label": "BEST OVERALL",
+                "reason": "Best current fit in this formation for the scout and game situation."
+              },
+              {
+                "id": "safe",
+                "label": "DEEP HELP",
+                "reason": "Use it when preventing the explosive pass matters more than squeezing the short throw."
+              },
+              {
+                "id": "quick",
+                "label": "CONTEST THE STICKS",
+                "reason": "Contest the short completion that can reach the line to gain; keep help for deeper breaks."
+              }
+            ],
+            "structure": "4 rush · 2 deep · 5 underneath · 0 man · 0 spy · 0 contain",
+            "facts": {
+              "rushers": 4,
+              "deep": 2,
+              "underneath": 5,
+              "man": 0,
+              "spy": 0,
+              "contain": 0,
+              "badge": "ZONE",
+              "shell": 2
+            }
+          }
+        ]
+      }
+    },
+    {
+      "title": "Do not restore a rejected zero-deep alternative",
+      "formation": "Dime 2-3 Odd",
+      "input": {
+        "traits": [
+          "p11",
+          "deep_shots",
+          "mobile_qb"
+        ],
+        "down": 1,
+        "distance": 10,
+        "userProfile": {
+          "position": "middle",
+          "callStyle": "balanced"
+        }
+      },
+      "why": "The current menu can display Zero Blitz despite the scouted deep shots. The proposed menu omits that recommendation. The personalized QB-control choice stays the same.",
+      "rank": 27,
+      "current": {
+        "name": "Dime 2-3 Odd",
+        "best": "Cover 4 Quarters",
+        "personal": "Cover 1 Contain Spy",
+        "score": 47,
+        "overallScore": 54,
+        "options": [
+          {
+            "name": "Cover 4 Quarters",
+            "score": 54,
+            "personal": false,
+            "roles": [
+              {
+                "id": "overall",
+                "label": "BEST OVERALL",
+                "reason": "Best current fit in this formation for the scout and game situation."
+              },
+              {
+                "id": "safe",
+                "label": "DEEP HELP",
+                "reason": "Use it when preventing the explosive pass matters more than squeezing the short throw."
+              }
+            ],
+            "structure": "4 rush · 4 deep · 3 underneath · 0 man · 0 spy · 0 contain",
+            "facts": {
+              "rushers": 4,
+              "deep": 4,
+              "underneath": 3,
+              "man": 0,
+              "spy": 0,
+              "contain": 0,
+              "badge": "MATCH",
+              "shell": 4
+            }
+          },
+          {
+            "name": "Zero Blitz",
+            "score": 24,
+            "personal": false,
+            "roles": [
+              {
+                "id": "pressure",
+                "label": "PRESSURE",
+                "reason": "Use it when the quarterback is comfortable. The ball must come out faster, but a quick answer can punish the call."
+              }
+            ],
+            "structure": "6 rush · 0 deep · 0 underneath · 5 man · 0 spy · 0 contain",
+            "facts": {
+              "rushers": 6,
+              "deep": 0,
+              "underneath": 0,
+              "man": 5,
+              "spy": 0,
+              "contain": 0,
+              "badge": "BLITZ",
+              "shell": 0
+            }
+          },
+          {
+            "name": "Cover 1 Contain Spy",
+            "score": 47,
+            "personal": true,
+            "roles": [
+              {
+                "id": "mobile",
+                "label": "QB CONTROL",
+                "reason": "A defender is assigned to track the QB. Keep your coverage job covered rather than sending a second defender after him."
+              }
+            ],
+            "structure": "4 rush · 1 deep · 0 underneath · 5 man · 1 spy · 2 contain",
+            "facts": {
+              "rushers": 4,
+              "deep": 1,
+              "underneath": 0,
+              "man": 5,
+              "spy": 1,
+              "contain": 2,
+              "badge": "MAN",
+              "shell": 1
+            }
+          }
+        ]
+      },
+      "proposed": {
+        "name": "Dime 2-3 Odd",
+        "best": "Cover 4 Quarters",
+        "personal": "Cover 1 Contain Spy",
+        "score": 47,
+        "overallScore": 54,
+        "options": [
+          {
+            "name": "Cover 4 Quarters",
+            "score": 54,
+            "personal": false,
+            "roles": [
+              {
+                "id": "overall",
+                "label": "BEST OVERALL",
+                "reason": "Best current fit in this formation for the scout and game situation."
+              },
+              {
+                "id": "safe",
+                "label": "DEEP HELP",
+                "reason": "Use it when preventing the explosive pass matters more than squeezing the short throw."
+              }
+            ],
+            "structure": "4 rush · 4 deep · 3 underneath · 0 man · 0 spy · 0 contain",
+            "facts": {
+              "rushers": 4,
+              "deep": 4,
+              "underneath": 3,
+              "man": 0,
+              "spy": 0,
+              "contain": 0,
+              "badge": "MATCH",
+              "shell": 4
+            }
+          },
+          {
+            "name": "Cover 1 Contain Spy",
+            "score": 47,
+            "personal": true,
+            "roles": [
+              {
+                "id": "mobile",
+                "label": "QB CONTROL",
+                "reason": "A defender is assigned to track the QB. Keep your coverage job covered rather than sending a second defender after him."
+              }
+            ],
+            "structure": "4 rush · 1 deep · 0 underneath · 5 man · 1 spy · 2 contain",
+            "facts": {
+              "rushers": 4,
+              "deep": 1,
+              "underneath": 0,
+              "man": 5,
+              "spy": 1,
+              "contain": 2,
+              "badge": "MAN",
+              "shell": 1
+            }
+          }
+        ]
+      }
+    },
+    {
+      "title": "Recognize extra rushers even under a plain coverage name",
+      "formation": "5-2 Normal",
+      "input": {
+        "traits": [
+          "p12",
+          "inside_run",
+          "play_action"
+        ],
+        "down": 1,
+        "distance": 10,
+        "userProfile": {
+          "position": "line",
+          "callStyle": "pressure"
+        }
+      },
+      "why": "This formation’s Cover 3 has five rushers in the verified inventory. Its assignments qualify it for Zone Pressure, regardless of its ordinary name.",
+      "rank": 17,
+      "current": {
+        "name": "5-2 Normal",
+        "best": "Cover 2",
+        "personal": "DT Loop",
+        "score": 57,
+        "overallScore": 62,
+        "options": [
+          {
+            "name": "Cover 2",
+            "score": 62,
+            "personal": false,
+            "roles": [
+              {
+                "id": "overall",
+                "label": "BEST OVERALL",
+                "reason": "Best current fit in this formation for the scout and game situation."
+              },
+              {
+                "id": "safe",
+                "label": "DEEP HELP",
+                "reason": "Use it when preventing the explosive pass matters more than squeezing the short throw."
+              }
+            ],
+            "structure": "4 rush · 2 deep · 5 underneath · 0 man · 0 spy · 0 contain",
+            "facts": {
+              "rushers": 4,
+              "deep": 2,
+              "underneath": 5,
+              "man": 0,
+              "spy": 0,
+              "contain": 0,
+              "badge": "ZONE",
+              "shell": 2
+            }
+          },
+          {
+            "name": "DT Loop",
+            "score": 57,
+            "personal": true,
+            "roles": [
+              {
+                "id": "pressure",
+                "label": "PRESSURE",
+                "reason": "Use it when the quarterback is comfortable. The ball must come out faster, but a quick answer can punish the call."
+              }
+            ],
+            "structure": "5 rush · 1 deep · 1 underneath · 4 man · 0 spy · 0 contain",
+            "facts": {
+              "rushers": 5,
+              "deep": 1,
+              "underneath": 1,
+              "man": 4,
+              "spy": 0,
+              "contain": 0,
+              "badge": "BLITZ",
+              "shell": 1
+            }
+          }
+        ]
+      },
+      "proposed": {
+        "name": "5-2 Normal",
+        "best": "Cover 2",
+        "personal": "Cover 3",
+        "score": 60,
+        "overallScore": 62,
+        "options": [
+          {
+            "name": "Cover 2",
+            "score": 62,
+            "personal": false,
+            "roles": [
+              {
+                "id": "overall",
+                "label": "BEST OVERALL",
+                "reason": "Best current fit in this formation for the scout and game situation."
+              },
+              {
+                "id": "safe",
+                "label": "DEEP HELP",
+                "reason": "Use it when preventing the explosive pass matters more than squeezing the short throw."
+              }
+            ],
+            "structure": "4 rush · 2 deep · 5 underneath · 0 man · 0 spy · 0 contain",
+            "facts": {
+              "rushers": 4,
+              "deep": 2,
+              "underneath": 5,
+              "man": 0,
+              "spy": 0,
+              "contain": 0,
+              "badge": "ZONE",
+              "shell": 2
+            }
+          },
+          {
+            "name": "Cover 3",
+            "score": 60,
+            "personal": true,
+            "roles": [
+              {
+                "id": "pressure",
+                "label": "ZONE PRESSURE",
+                "reason": "Send 5 rushers when you want to challenge the protection. 3 underneath zones remain; check the quick outlet before sending pressure. Extra rushers do not guarantee pressure arrives before the throw."
+              }
+            ],
+            "structure": "5 rush · 3 deep · 3 underneath · 0 man · 0 spy · 0 contain",
+            "facts": {
+              "rushers": 5,
+              "deep": 3,
+              "underneath": 3,
+              "man": 0,
+              "spy": 0,
+              "contain": 0,
+              "badge": "BLITZ",
+              "shell": 3
+            }
+          }
+        ]
+      }
+    },
+    {
+      "title": "Balanced Linebacker scout — control example",
+      "formation": "Dollar Sugar 3-2",
+      "input": {
+        "traits": [
+          "p11",
+          "crossers",
+          "slant_heavy"
+        ],
+        "down": 3,
+        "distance": 5,
+        "userProfile": {
+          "position": "middle",
+          "callStyle": "balanced"
+        }
+      },
+      "why": "The highest-ranked formation for this scout is included as a control. This step changes classification and alternative eligibility; it does not change the underlying matchup scores.",
+      "rank": 1,
+      "current": {
+        "name": "Dollar Sugar 3-2",
+        "best": "Tampa 2",
+        "personal": "Tampa 2",
+        "score": 76,
+        "overallScore": 76,
+        "options": [
+          {
+            "name": "Tampa 2",
+            "score": 76,
+            "personal": true,
+            "roles": [
+              {
+                "id": "overall",
+                "label": "BEST OVERALL",
+                "reason": "Best current fit in this formation for the scout and game situation."
+              },
+              {
+                "id": "safe",
+                "label": "DEEP HELP",
+                "reason": "Use it when preventing the explosive pass matters more than squeezing the short throw."
+              },
+              {
+                "id": "quick",
+                "label": "CONTEST THE STICKS",
+                "reason": "Contest the short completion that can reach the line to gain; keep help for deeper breaks."
+              }
+            ],
+            "structure": "4 rush · 2 deep · 5 underneath · 0 man · 0 spy · 0 contain",
+            "facts": {
+              "rushers": 4,
+              "deep": 2,
+              "underneath": 5,
+              "man": 0,
+              "spy": 0,
+              "contain": 0,
+              "badge": "ZONE",
+              "shell": 2
+            }
+          },
+          {
+            "name": "SS Zone Blitz",
+            "score": 61,
+            "personal": false,
+            "roles": [
+              {
+                "id": "pressure",
+                "label": "PRESSURE",
+                "reason": "Use it when the quarterback is comfortable. The ball must come out faster, but a quick answer can punish the call."
+              }
+            ],
+            "structure": "5 rush · 3 deep · 3 underneath · 0 man · 0 spy · 0 contain",
+            "facts": {
+              "rushers": 5,
+              "deep": 3,
+              "underneath": 3,
+              "man": 0,
+              "spy": 0,
+              "contain": 0,
+              "badge": "BLITZ",
+              "shell": 3
+            }
+          }
+        ]
+      },
+      "proposed": {
+        "name": "Dollar Sugar 3-2",
+        "best": "Tampa 2",
+        "personal": "Tampa 2",
+        "score": 76,
+        "overallScore": 76,
+        "options": [
+          {
+            "name": "Tampa 2",
+            "score": 76,
+            "personal": true,
+            "roles": [
+              {
+                "id": "overall",
+                "label": "BEST OVERALL",
+                "reason": "Best current fit in this formation for the scout and game situation."
+              },
+              {
+                "id": "safe",
+                "label": "DEEP HELP",
+                "reason": "Use it when preventing the explosive pass matters more than squeezing the short throw."
+              },
+              {
+                "id": "quick",
+                "label": "CONTEST THE STICKS",
+                "reason": "Contest the short completion that can reach the line to gain; keep help for deeper breaks."
+              }
+            ],
+            "structure": "4 rush · 2 deep · 5 underneath · 0 man · 0 spy · 0 contain",
+            "facts": {
+              "rushers": 4,
+              "deep": 2,
+              "underneath": 5,
+              "man": 0,
+              "spy": 0,
+              "contain": 0,
+              "badge": "ZONE",
+              "shell": 2
+            }
+          },
+          {
+            "name": "SS Zone Blitz",
+            "score": 61,
+            "personal": false,
+            "roles": [
+              {
+                "id": "pressure",
+                "label": "ZONE PRESSURE",
+                "reason": "Send 5 rushers when you want to challenge the protection. 3 underneath zones remain; check the quick outlet before sending pressure. Extra rushers do not guarantee pressure arrives before the throw."
+              }
+            ],
+            "structure": "5 rush · 3 deep · 3 underneath · 0 man · 0 spy · 0 contain",
+            "facts": {
+              "rushers": 5,
+              "deep": 3,
+              "underneath": 3,
+              "man": 0,
+              "spy": 0,
+              "contain": 0,
+              "badge": "BLITZ",
+              "shell": 3
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "pdf": [
+    {
+      "situation": "1ST & SHORT",
+      "current": "Dollar Sugar 3-2 · Tampa 2 (75)",
+      "proposed": "Dollar Sugar 3-2 · Tampa 2 (75)",
+      "secondaryCurrent": "Dollar 3-2 · Cover 3 Buzz Spy (74)",
+      "secondaryProposed": "Dollar 3-2 · Cover 3 Buzz Spy (74)"
+    },
+    {
+      "situation": "1ST & MEDIUM",
+      "current": "Dollar Sugar 3-2 · Tampa 2 (78)",
+      "proposed": "Dollar Sugar 3-2 · Tampa 2 (78)",
+      "secondaryCurrent": "Dollar 3-2 · Cover 3 Buzz Spy (77)",
+      "secondaryProposed": "Dollar 3-2 · Cover 3 Buzz Spy (77)"
+    },
+    {
+      "situation": "1ST & LONG",
+      "current": "Dollar Sugar 3-2 · Tampa 2 (78)",
+      "proposed": "Dollar Sugar 3-2 · Tampa 2 (78)",
+      "secondaryCurrent": "Dollar 3-2 · Cover 3 Buzz Spy (77)",
+      "secondaryProposed": "Dollar 3-2 · Cover 3 Buzz Spy (77)"
+    },
+    {
+      "situation": "2ND & SHORT",
+      "current": "Dollar 3-2 · Cover 3 Buzz Spy (74)",
+      "proposed": "Dollar 3-2 · Cover 3 Buzz Spy (74)",
+      "secondaryCurrent": "Dollar Sugar 3-2 · Cover 3 Sky (74)",
+      "secondaryProposed": "Dollar Sugar 3-2 · Cover 3 Sky (74)"
+    },
+    {
+      "situation": "2ND & MEDIUM",
+      "current": "Dollar Sugar 3-2 · Tampa 2 (78)",
+      "proposed": "Dollar Sugar 3-2 · Tampa 2 (78)",
+      "secondaryCurrent": "Dollar 3-2 · Cover 3 Buzz Spy (77)",
+      "secondaryProposed": "Dollar 3-2 · Cover 3 Buzz Spy (77)"
+    },
+    {
+      "situation": "2ND & LONG",
+      "current": "Dollar 3-2 · Cover 3 Buzz Spy (76)",
+      "proposed": "Dollar 3-2 · Cover 3 Buzz Spy (76)",
+      "secondaryCurrent": "Dollar Sugar 3-2 · Cover 3 Sky (76)",
+      "secondaryProposed": "Dollar Sugar 3-2 · Cover 3 Sky (76)"
+    },
+    {
+      "situation": "3RD & SHORT",
+      "current": "Dollar 3-2 · Cover 3 Buzz Spy (76)",
+      "proposed": "Dollar 3-2 · Cover 3 Buzz Spy (76)",
+      "secondaryCurrent": "Dollar Sugar 3-2 · Tampa 2 (72)",
+      "secondaryProposed": "Dollar Sugar 3-2 · Tampa 2 (72)"
+    },
+    {
+      "situation": "3RD & MEDIUM",
+      "current": "Dollar Sugar 3-2 · Tampa 2 (76)",
+      "proposed": "Dollar Sugar 3-2 · Tampa 2 (76)",
+      "secondaryCurrent": "Dollar 3-2 · Cover 3 Buzz Spy (74)",
+      "secondaryProposed": "Dollar 3-2 · Cover 3 Buzz Spy (74)"
+    },
+    {
+      "situation": "3RD & LONG",
+      "current": "Dollar Sugar 3-2 · Cover 4 Drop (76)",
+      "proposed": "Dollar Sugar 3-2 · Cover 4 Drop (76)",
+      "secondaryCurrent": "Dollar 3-2 · Cover 4 Palms (74)",
+      "secondaryProposed": "Dollar 3-2 · Cover 4 Palms (74)"
+    },
+    {
+      "situation": "4TH & SHORT",
+      "current": "Dollar 3-2 · Cover 3 Buzz Spy (76)",
+      "proposed": "Dollar 3-2 · Cover 3 Buzz Spy (76)",
+      "secondaryCurrent": "Dollar Sugar 3-2 · Tampa 2 (72)",
+      "secondaryProposed": "Dollar Sugar 3-2 · Tampa 2 (72)"
+    },
+    {
+      "situation": "4TH & MEDIUM",
+      "current": "Dollar Sugar 3-2 · Tampa 2 (76)",
+      "proposed": "Dollar Sugar 3-2 · Tampa 2 (76)",
+      "secondaryCurrent": "Dollar 3-2 · Cover 3 Buzz Spy (74)",
+      "secondaryProposed": "Dollar 3-2 · Cover 3 Buzz Spy (74)"
+    },
+    {
+      "situation": "4TH & LONG",
+      "current": "Dollar Sugar 3-2 · Cover 4 Drop (76)",
+      "proposed": "Dollar Sugar 3-2 · Cover 4 Drop (76)",
+      "secondaryCurrent": "Dollar 3-2 · Cover 4 Palms (74)",
+      "secondaryProposed": "Dollar 3-2 · Cover 4 Palms (74)"
+    }
+  ]
+}

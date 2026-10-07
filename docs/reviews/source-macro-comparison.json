@@ -1,0 +1,1115 @@
+{
+  "baseline": "/workspace/scratch/cd1a2d231b9d/engine-step2-baseline",
+  "macroCount": 62,
+  "compared": 96,
+  "rankChanges": [],
+  "macros": [
+    {
+      "title": "Four-man rush",
+      "note": "Existing disguise package versus a dedicated stunt package. The original remains available.",
+      "before": {
+        "id": "pocket_surgeon",
+        "name": "MUDDY WATER",
+        "profile": "balanced",
+        "goal": "Change the picture without opening an easy outlet.",
+        "user": "Take away the first route entering your assignment and make the QB reset his read.",
+        "risk": "Extra blitzers can give a patient QB a faster answer.",
+        "use": "Keep sound coverage while changing the pre-snap picture.",
+        "context": {
+          "book": "All",
+          "formation": "",
+          "call": "",
+          "situation": "base"
+        },
+        "settings": [
+          {
+            "setting": "Coverage Shell",
+            "value": "Cover 2",
+            "why": "Show two high safeties before the snap.",
+            "risk": "Disguise does not change the called coverage; check alignment after motion.",
+            "scope": "any",
+            "when": ""
+          }
+        ],
+        "atLine": [
+          {
+            "setting": "Pass-rush stunt",
+            "value": "Texas 4-Man + spread DL",
+            "why": "Change the rush paths without adding a fifth rusher.",
+            "when": "Optional only with four rushing defensive linemen; do not apply to a three-man front or a call dropping a lineman."
+          }
+        ],
+        "manual": [],
+        "compatible": true,
+        "ready": true,
+        "mode": "problem-recipe",
+        "callout": "Keep sound coverage while changing the pre-snap picture."
+      },
+      "after": {
+        "id": "texas_four",
+        "name": "SPREAD TEXAS",
+        "profile": "balanced",
+        "goal": "Create a different rush path without adding a blitzer.",
+        "user": "Cover your assignment through the first read; watch the QB escape without abandoning a receiver.",
+        "risk": "A stunt can lose rush-lane spacing. Four linemen do not guarantee pressure.",
+        "use": "Four rushing defensive linemen; inspect the rush paths before applying. Four total rushers alone is not enough.",
+        "context": {
+          "book": "All",
+          "formation": "",
+          "call": "",
+          "situation": "base"
+        },
+        "settings": [
+          {
+            "setting": "DL Alignment",
+            "value": "Spread",
+            "why": "Widen the line to meet the outside blocking surface.",
+            "risk": "An inside crease or cutback can open. Keep an inside defender home.",
+            "scope": "rush",
+            "when": ""
+          },
+          {
+            "setting": "DL Stunt",
+            "value": "Texas 4-Man",
+            "why": "Exchange rush lanes with the existing line.",
+            "risk": "Protection can pick this up; losing an edge can invite a rollout.",
+            "scope": "fourRush",
+            "when": "Confirm four rushing linemen and remove conflicting contain assignments."
+          }
+        ],
+        "atLine": [
+          {
+            "setting": "Pass Commit",
+            "value": "Pass",
+            "why": "Tell the defense to anticipate the throw.",
+            "when": "Only when a pass is highly likely; draws and handoffs punish the guess."
+          }
+        ],
+        "manual": [],
+        "compatible": true,
+        "ready": true,
+        "mode": "problem-recipe",
+        "callout": "Four rushing defensive linemen; inspect the rush paths before applying. Four total rushers alone is not enough."
+      }
+    },
+    {
+      "title": "Rollout against a stunt",
+      "note": "Dedicated opposite-side pairing; do not combine the two packages.",
+      "before": {
+        "id": "scramble_drill",
+        "name": "PLASTER KIT",
+        "profile": "contain",
+        "goal": "Keep the quarterback in the pocket and protect the late throw.",
+        "user": "With an underneath assignment, watch the step-up lane without abandoning a receiver still in your area.",
+        "risk": "Contain does not close the middle or guarantee a sack.",
+        "use": "At least two rushers; leave coverage behind the contain.",
+        "context": {
+          "book": "All",
+          "formation": "",
+          "call": "",
+          "situation": "base"
+        },
+        "settings": [
+          {
+            "setting": "QB Contain",
+            "value": "Both",
+            "why": "Keep the outside rush from running past the quarterback.",
+            "risk": "The QB can still step up or run through the middle.",
+            "scope": "rush",
+            "when": ""
+          }
+        ],
+        "atLine": [
+          {
+            "setting": "Individual Coverage",
+            "value": "QB Spy",
+            "why": "Choose a fast underneath defender, not a deep safety. You lose that defender’s original zone or man assignment.",
+            "when": "Only if the remaining defense still covers every receiver."
+          }
+        ],
+        "manual": [],
+        "compatible": true,
+        "ready": true,
+        "mode": "problem-recipe",
+        "callout": "At least two rushers; leave coverage behind the contain."
+      },
+      "after": {
+        "id": "texas_contain",
+        "name": "STUNT & CONTAIN",
+        "profile": "contain",
+        "goal": "Keep the preferred escape edge while changing the opposite rush.",
+        "user": "Read the rollout direction on the field. Keep coverage on the late throw.",
+        "risk": "Contain and a stunt on the same edge can overwrite one another; inspect the final paths.",
+        "use": "A compatible four-man rush front, with a clear rollout tendency to one side.",
+        "context": {
+          "book": "All",
+          "formation": "",
+          "call": "",
+          "situation": "base"
+        },
+        "settings": [
+          {
+            "setting": "DL Alignment",
+            "value": "Spread",
+            "why": "Widen the line to meet the outside blocking surface.",
+            "risk": "An inside crease or cutback can open. Keep an inside defender home.",
+            "scope": "fourRush",
+            "when": "Confirm the front supports the two-man stunt; total rusher count does not identify the linemen."
+          }
+        ],
+        "atLine": [
+          {
+            "setting": "Rush pairing",
+            "value": "Left Tex 2-Man + Right Contain, or Right Tex 2-Man + Left Contain",
+            "why": "Contain the observed escape side; stunt the opposite side.",
+            "when": "Choose one pair after seeing the formation. Verify both paths; do not add Both Contain over the stunt."
+          }
+        ],
+        "manual": [],
+        "compatible": true,
+        "ready": true,
+        "mode": "problem-recipe",
+        "callout": "A compatible four-man rush front, with a clear rollout tendency to one side."
+      }
+    },
+    {
+      "title": "Inside releases against man",
+      "note": "A new Cover 2 Man option; the broader crossers package remains.",
+      "before": {
+        "id": "mesh_crossers",
+        "name": "MESH CRUSH",
+        "profile": "inside",
+        "goal": "Make the quarterback throw around the middle defender.",
+        "user": "Wall the first crosser entering your zone. Pass it off instead of chasing it across the field.",
+        "risk": "A dig behind the shallow crosser can open the next window.",
+        "use": "Crossing routes; keep an underneath defender in the middle.",
+        "context": {
+          "book": "All",
+          "formation": "",
+          "call": "",
+          "situation": "base"
+        },
+        "settings": [
+          {
+            "setting": "Coverage Leverage",
+            "value": "Inside",
+            "why": "Make the inside release harder to win.",
+            "risk": "Outside breaks have more room.",
+            "scope": "any",
+            "when": ""
+          }
+        ],
+        "atLine": [
+          {
+            "setting": "Route Commit",
+            "value": "Inside",
+            "why": "Anticipate the inside break after the opponent repeats it.",
+            "when": "Optional after a clear tendency; an outside break punishes the guess."
+          }
+        ],
+        "manual": [],
+        "compatible": true,
+        "ready": true,
+        "mode": "problem-recipe",
+        "callout": "Crossing routes; keep an underneath defender in the middle."
+      },
+      "after": {
+        "id": "press_inside",
+        "name": "PRESS INSIDE",
+        "profile": "inside",
+        "goal": "Contest repeated inside releases with two-high man help.",
+        "user": "Stay with your assigned receiver or deep area; an RB release still belongs to his man defender.",
+        "risk": "Outside breaks, lost presses and double moves can win. Route commit is a tendency guess.",
+        "use": "Cover 2 Man, with two deep helpers and corners able to contest the release.",
+        "context": {
+          "book": "All",
+          "formation": "",
+          "call": "",
+          "situation": "base"
+        },
+        "settings": [
+          {
+            "setting": "Secondary Alignment",
+            "value": "Press",
+            "why": "Disrupt the release before the route develops.",
+            "risk": "A lost press can become a deep shot.",
+            "scope": "man",
+            "when": "Use with man coverage, deep help and corners who can win the matchup."
+          },
+          {
+            "setting": "Coverage Leverage",
+            "value": "Inside",
+            "why": "Make the inside release harder to win.",
+            "risk": "Outside breaks have more room.",
+            "scope": "any",
+            "when": ""
+          }
+        ],
+        "atLine": [
+          {
+            "setting": "Route Commit",
+            "value": "Inside",
+            "why": "Anticipate the inside break after the opponent repeats it.",
+            "when": "Optional after a clear tendency; an outside break punishes the guess."
+          }
+        ],
+        "manual": [],
+        "compatible": true,
+        "ready": true,
+        "mode": "problem-recipe",
+        "callout": "Cover 2 Man, with two deep helpers and corners able to contest the release."
+      }
+    },
+    {
+      "title": "Inside the 10",
+      "note": "New package with eight setup controls and two manual role changes. A generic red-zone label does not qualify.",
+      "before": {
+        "id": "two_point",
+        "name": "CARD COUNTER",
+        "profile": "quick",
+        "goal": "Defend the goal line and the immediate throw.",
+        "user": "Check the QB run, then protect your receiver or zone through the first route break.",
+        "risk": "Rub routes and sprint-outs can force a fast choice.",
+        "use": "Spot-drop zone at the goal line with a separate QB-run defender.",
+        "context": {
+          "book": "All",
+          "formation": "",
+          "call": "",
+          "situation": "base"
+        },
+        "settings": [
+          {
+            "setting": "Zone Drops — Hooks",
+            "value": "5 yards",
+            "why": "Keep hook defenders close to the quick middle throw.",
+            "risk": "Routes behind the hook become easier.",
+            "scope": "shortZone",
+            "when": "Spot-drop zone in short yardage only; do not use for long yardage."
+          },
+          {
+            "setting": "QB Contain",
+            "value": "Both",
+            "why": "Keep the outside rush from running past the quarterback.",
+            "risk": "The QB can still step up or run through the middle.",
+            "scope": "rush",
+            "when": ""
+          }
+        ],
+        "atLine": [],
+        "manual": [],
+        "compatible": true,
+        "ready": true,
+        "mode": "problem-recipe",
+        "callout": "Spot-drop zone at the goal line with a separate QB-run defender."
+      },
+      "after": {
+        "id": "inside_ten",
+        "name": "INSIDE TEN",
+        "profile": "quick",
+        "goal": "Contest immediate scores in a compressed field.",
+        "user": "Finish the full setup before the snap. Stay responsible for your receiver or zone, especially the back corner.",
+        "risk": "This is a manually altered call. Aggressive reactions can expose routes behind them; use a simpler call if there is no setup time.",
+        "use": "Tampa 2 inside the opponent’s 10-yard line only. Reassign the actual outside corners and deep safeties after checking play art.",
+        "context": {
+          "book": "All",
+          "formation": "",
+          "call": "",
+          "situation": "base"
+        },
+        "settings": [
+          {
+            "setting": "DL Alignment",
+            "value": "Pinch",
+            "why": "Bring the defensive line closer to the inside run lanes.",
+            "risk": "The edge is easier to reach; do not chase an outside run with this package.",
+            "scope": "front",
+            "when": ""
+          },
+          {
+            "setting": "QB Contain",
+            "value": "Both",
+            "why": "Keep the outside rush from running past the quarterback.",
+            "risk": "The QB can still step up or run through the middle.",
+            "scope": "rush",
+            "when": ""
+          },
+          {
+            "setting": "DL Stunt",
+            "value": "None",
+            "why": "Clear rush-lane exchanges before containing both edges.",
+            "risk": "Removing the stunt changes how the rush attacks protection.",
+            "scope": "any",
+            "when": ""
+          },
+          {
+            "setting": "Option Read Key",
+            "value": "Conservative",
+            "why": "Make the read defender favor the QB keep.",
+            "risk": "The inside defenders still have to stop the handoff.",
+            "scope": "any",
+            "when": ""
+          },
+          {
+            "setting": "RPO Read Key",
+            "value": "Conservative",
+            "why": "Favor the quarterback on the read.",
+            "risk": "Interior defenders still need to handle the handoff.",
+            "scope": "any",
+            "when": ""
+          },
+          {
+            "setting": "Zone Drops — Flats",
+            "value": "10 yards",
+            "why": "Set the flat-drop limit for this compressed field.",
+            "risk": "A drop depth does not guarantee coverage of the back corner.",
+            "scope": "shortZone",
+            "when": "Inside the 10, after assigning the hard flats."
+          },
+          {
+            "setting": "Zone Drops — Hooks",
+            "value": "5 yards",
+            "why": "Keep hook defenders close to the quick middle throw.",
+            "risk": "Routes behind the hook become easier.",
+            "scope": "shortZone",
+            "when": "Spot-drop zone in short yardage only; do not use for long yardage."
+          },
+          {
+            "setting": "Zone Strategy",
+            "value": "Ultra Aggressive",
+            "why": "Challenge the immediate scoring throw.",
+            "risk": "Routes behind the first break remain dangerous.",
+            "scope": "shortZone",
+            "when": "Only inside the 10 with the manual coverage changes completed."
+          }
+        ],
+        "atLine": [
+          {
+            "setting": "Outside corners",
+            "value": "Hard Flat on each side",
+            "why": "Keep a short outside defender beneath each safety.",
+            "when": "Identify the outside corners; never assume depth-chart numbers tell you their on-field roles."
+          },
+          {
+            "setting": "Deep safeties",
+            "value": "Inside Quarter on each side",
+            "why": "Keep both safeties covering the end zone.",
+            "when": "Confirm both deep safety roles. This changes the stock call; protect the back corners yourself from your assignment."
+          }
+        ],
+        "manual": [],
+        "compatible": true,
+        "ready": true,
+        "mode": "problem-recipe",
+        "callout": "Tampa 2 inside the opponent’s 10-yard line only. Reassign the actual outside corners and deep safeties after checking play art."
+      }
+    },
+    {
+      "title": "Protecting a late lead",
+      "note": "New touchdown-prevention package. The original sideline plan still serves a different goal.",
+      "before": {
+        "id": "two_minute",
+        "name": "CLOCK COP",
+        "profile": "outside",
+        "goal": "Defend the line to gain and the sideline catch.",
+        "user": "Keep routes in front of you and tackle inbounds when possible.",
+        "risk": "Conceding short throws can still put the offense in winning field-goal range.",
+        "use": "Protect the sideline while still defending the first-down line.",
+        "context": {
+          "book": "All",
+          "formation": "",
+          "call": "",
+          "situation": "base"
+        },
+        "settings": [
+          {
+            "setting": "Coverage Leverage",
+            "value": "Outside",
+            "why": "Make the outside release harder to win.",
+            "risk": "Slants and digs have more room.",
+            "scope": "any",
+            "when": ""
+          },
+          {
+            "setting": "Coverage Shading",
+            "value": "Overtop",
+            "why": "Favor staying above the receiver instead of jumping the first break.",
+            "risk": "Short completions are easier.",
+            "scope": "deep",
+            "when": ""
+          }
+        ],
+        "atLine": [],
+        "manual": [],
+        "compatible": true,
+        "ready": true,
+        "mode": "problem-recipe",
+        "callout": "Protect the sideline while still defending the first-down line."
+      },
+      "after": {
+        "id": "protect_lead",
+        "name": "PROTECT THE LEAD",
+        "profile": "deep",
+        "goal": "Keep the touchdown in front of the defense.",
+        "user": "Carry the seam through your zone and rally to the throw. Keep track of clock and field-goal range.",
+        "risk": "Short catches, seams and extended plays still need defending. A field-goal stop needs a different plan.",
+        "use": "Spot-drop Tampa 2 or Cover 3 Sky when preventing a quick touchdown is the goal. Switch plans if a field goal can beat you.",
+        "context": {
+          "book": "All",
+          "formation": "",
+          "call": "",
+          "situation": "base"
+        },
+        "settings": [
+          {
+            "setting": "Zone Strategy",
+            "value": "Conservative",
+            "why": "Prioritize routes developing downfield.",
+            "risk": "Short completions can still create field-goal range.",
+            "scope": "any",
+            "when": ""
+          },
+          {
+            "setting": "Plaster",
+            "value": "Off",
+            "why": "Keep defenders in their zone assignments on extended plays.",
+            "risk": "Receivers may find space as the quarterback buys time.",
+            "scope": "any",
+            "when": ""
+          },
+          {
+            "setting": "Option Read Key",
+            "value": "Conservative",
+            "why": "Make the read defender favor the QB keep.",
+            "risk": "The inside defenders still have to stop the handoff.",
+            "scope": "any",
+            "when": ""
+          },
+          {
+            "setting": "RPO Read Key",
+            "value": "Conservative",
+            "why": "Leave the read defender focused on the quarterback.",
+            "risk": "The interior must handle the handoff.",
+            "scope": "any",
+            "when": ""
+          },
+          {
+            "setting": "Secondary Alignment",
+            "value": "Back Off",
+            "why": "Give the receiver cushion instead of risking a lost press.",
+            "risk": "Hitches and quick outs can be easy catches.",
+            "scope": "deep",
+            "when": ""
+          }
+        ],
+        "atLine": [
+          {
+            "setting": "Flat assignments",
+            "value": "Verify cloud flats on both sides",
+            "why": "Leave the deep coverage intact while checking the outside zones.",
+            "when": "On Cover 3 Sky, change only the flat defenders. Check the actual Tampa 2 variant rather than assuming its zones."
+          },
+          {
+            "setting": "Match checks",
+            "value": "Zone It for the applicable family and receiver alignment",
+            "why": "Keep a straight-zone plan if a matching check is active.",
+            "when": "Apply only to the relevant check; do not change unrelated coverage families."
+          }
+        ],
+        "manual": [],
+        "compatible": true,
+        "ready": true,
+        "mode": "problem-recipe",
+        "callout": "Spot-drop Tampa 2 or Cover 3 Sky when preventing a quick touchdown is the goal. Switch plans if a field goal can beat you."
+      }
+    },
+    {
+      "title": "Layering the sideline",
+      "note": "The core 25/5 layering already existed. The new entry makes Tampa 2 prerequisites and opposite-side effects explicit.",
+      "before": {
+        "id": "smash_corner",
+        "name": "HOLE PLUG",
+        "profile": "outside",
+        "goal": "Keep the corner route capped while the flat defender handles the hitch.",
+        "user": "Gain depth under the corner from your assigned zone; rally to the hitch after the throw.",
+        "risk": "One defender cannot cover the hitch and corner at the same time.",
+        "use": "Spot-drop Cover 2/Tampa 2 with separate defenders for hitch and corner.",
+        "context": {
+          "book": "All",
+          "formation": "",
+          "call": "",
+          "situation": "base"
+        },
+        "settings": [
+          {
+            "setting": "Zone Drops — Flats",
+            "value": "25 yards",
+            "why": "Start a cloud flat deeper under the corner route.",
+            "risk": "This defender cannot also take the quick flat.",
+            "scope": "layered",
+            "when": "Use cloud flats with a separate underneath defender on the attacked side; tune to the actual route depth."
+          },
+          {
+            "setting": "Zone Drops — Curl Flats",
+            "value": "5 yards",
+            "why": "Give the deeper flat defender a separate short-route helper.",
+            "risk": "That helper leaves less room to defend the middle.",
+            "scope": "layered",
+            "when": "Pair with the deeper cloud flat; check which underneath defender you reassign."
+          }
+        ],
+        "atLine": [
+          {
+            "setting": "Individual Coverage",
+            "value": "Curl Flat under the cloud flat",
+            "why": "Use a separate underneath defender on the attacked side; keep the deep safety in coverage.",
+            "when": "Start with spot-drop Cover 2/Tampa 2 and identify both defenders in the play art."
+          }
+        ],
+        "manual": [],
+        "compatible": true,
+        "ready": true,
+        "mode": "problem-recipe",
+        "callout": "Spot-drop Cover 2/Tampa 2 with separate defenders for hitch and corner."
+      },
+      "after": {
+        "id": "tampa_mable",
+        "name": "TAMPA MABLE",
+        "profile": "outside",
+        "goal": "Give short and deeper sideline routes different defenders.",
+        "user": "Protect the inside space left by the reassigned underneath helper.",
+        "risk": "Global drops affect both sides. Layering one sideline can weaken the middle or the opposite side.",
+        "use": "Tampa 2 with a cloud flat and a separate underneath helper on the attacked side. Start with Nickel Over and inspect the roles.",
+        "context": {
+          "book": "All",
+          "formation": "",
+          "call": "",
+          "situation": "base"
+        },
+        "settings": [
+          {
+            "setting": "Zone Drops — Flats",
+            "value": "25 yards",
+            "why": "Start a cloud flat deeper under the corner route.",
+            "risk": "This defender cannot also take the quick flat.",
+            "scope": "layered",
+            "when": "Use cloud flats with a separate underneath defender on the attacked side; tune to the actual route depth."
+          },
+          {
+            "setting": "Zone Drops — Curl Flats",
+            "value": "5 yards",
+            "why": "Give the deeper flat defender a separate short-route helper.",
+            "risk": "That helper leaves less room to defend the middle.",
+            "scope": "layered",
+            "when": "Pair with the deeper cloud flat; check which underneath defender you reassign."
+          }
+        ],
+        "atLine": [
+          {
+            "setting": "Individual Coverage",
+            "value": "Curl Flat under the cloud flat",
+            "why": "Use a separate underneath defender on the attacked side; keep the deep safety in coverage.",
+            "when": "Start with spot-drop Cover 2/Tampa 2 and identify both defenders in the play art."
+          },
+          {
+            "setting": "Opposite side",
+            "value": "Check the other flat after changing global drop depths",
+            "why": "The global Flats setting also affects the opposite flat defender.",
+            "when": "Keep deep help there. Use two underneath helpers only when both exist; do not assume every dime package has two suitable slots."
+          }
+        ],
+        "manual": [],
+        "compatible": true,
+        "ready": true,
+        "mode": "problem-recipe",
+        "callout": "Tampa 2 with a cloud flat and a separate underneath helper on the attacked side. Start with Nickel Over and inspect the roles."
+      }
+    }
+  ],
+  "adjustments": [
+    {
+      "title": "Mobile QB with RPO and pitch",
+      "call": "Tampa 2",
+      "traits": [
+        "mobile_qb",
+        "rpo",
+        "triple_option"
+      ],
+      "before": {
+        "objective": {
+          "label": "Stay balanced",
+          "text": "Use the selected call as drawn, then make one change only when the scouting report points to a clear problem.",
+          "situation": "Base"
+        },
+        "settings": [
+          {
+            "setting": "Pass Rush",
+            "value": "QB Contain",
+            "why": "Keep the outermost rushers outside the quarterback and force him to step up into traffic.",
+            "tradeoff": "Contain protects the edge, not the middle. The user must still see the step-up or draw."
+          }
+        ],
+        "tools": [
+          {
+            "setting": "Coverage Shell",
+            "value": "Show Cover 3",
+            "why": "Present one-high before rotating to the selected two-high call after the snap.",
+            "tradeoff": "Do not sacrifice getting lined up just to disguise the call."
+          },
+          {
+            "setting": "RPO Pass Key",
+            "value": "Conservative",
+            "why": "Use after the attached RPO throw repeatedly beats your conflict defender; this tells him to favor pass coverage.",
+            "tradeoff": "The run gap receives less help. If the offense starts handing it off, return to Balanced."
+          }
+        ],
+        "preset": {
+          "setting": "In-game preset",
+          "value": "QB Scramble",
+          "why": "Use when the quarterback keeps escaping or extending pass plays.",
+          "tradeoff": "Turn it off if the quarterback stays in the pocket and attacks the extra attention around him."
+        },
+        "alerts": [
+          {
+            "setting": "Pass Rush",
+            "when": "The quarterback stays in the pocket",
+            "action": "If you applied QB Contain, reset the play before returning to its normal rush. Reapply any other adjustments you still need."
+          }
+        ],
+        "userKey": {
+          "title": "Slow-play the conflict",
+          "text": "Stay square through the mesh. Force the handoff or throw, then commit—chasing too early gives the quarterback the answer."
+        }
+      },
+      "after": {
+        "objective": {
+          "label": "Stay balanced",
+          "text": "Use the selected call as drawn, then make one change only when the scouting report points to a clear problem.",
+          "situation": "Base"
+        },
+        "settings": [
+          {
+            "setting": "Pass Rush",
+            "value": "QB Contain",
+            "why": "Keep the outermost rushers outside the quarterback and force him to step up into traffic.",
+            "tradeoff": "Contain protects the edge, not the middle. Check the step-up or draw, and remove a conflicting stunt from the contained edge."
+          }
+        ],
+        "tools": [
+          {
+            "setting": "Coverage Shell",
+            "value": "Show Cover 3",
+            "why": "Present one-high before rotating to the selected two-high call after the snap.",
+            "tradeoff": "Do not sacrifice getting lined up just to disguise the call."
+          },
+          {
+            "setting": "RPO Pass Key",
+            "value": "Conservative",
+            "why": "Use after the attached RPO throw repeatedly beats your conflict defender; this tells him to favor pass coverage.",
+            "tradeoff": "The run gap receives less help. If the offense starts handing it off, return to Balanced."
+          },
+          {
+            "setting": "RPO Read Key",
+            "value": "Conservative",
+            "why": "Use if the quarterback keeps winning on RPO reads. This changes the QB/handoff responsibility, separately from RPO Pass Key.",
+            "tradeoff": "The handoff needs an interior defender. Mobility alone is not evidence that the QB is keeping."
+          },
+          {
+            "setting": "Option Pitch Key",
+            "value": "Aggressive",
+            "why": "Use if the pitch back is winning; assign another defender to the quarterback.",
+            "tradeoff": "The quarterback keep has less help from the pitch defender. Return to Balanced when that becomes the problem."
+          },
+          {
+            "setting": "Plaster Trigger",
+            "value": "O.O.P",
+            "why": "Optional if receivers repeatedly uncover immediately after the QB exits the pocket. First keep Plaster on Conservative and Plaster Time on Default.",
+            "tradeoff": "Backside zones can be vacated sooner. The trigger has no effect with Plaster Off; return to O.O.P & Time if early matching opens another route."
+          }
+        ],
+        "preset": {
+          "setting": "In-game preset",
+          "value": "QB Scramble",
+          "why": "Use when the quarterback keeps escaping or extending pass plays.",
+          "tradeoff": "Turn it off if the quarterback stays in the pocket and attacks the extra attention around him."
+        },
+        "alerts": [
+          {
+            "setting": "Pass Rush",
+            "when": "The quarterback stays in the pocket",
+            "action": "If you applied QB Contain, reset the play before returning to its normal rush. Reapply any other adjustments you still need."
+          }
+        ],
+        "userKey": {
+          "title": "Slow-play the conflict",
+          "text": "Stay square through the mesh. Force the handoff or throw, then commit—chasing too early gives the quarterback the answer."
+        }
+      }
+    },
+    {
+      "title": "Trips without vertical evidence",
+      "call": "Cover 4 Quarters",
+      "traits": [
+        "trips"
+      ],
+      "before": {
+        "objective": {
+          "label": "Stay balanced",
+          "text": "Use the selected call as drawn, then make one change only when the scouting report points to a clear problem.",
+          "situation": "Base"
+        },
+        "settings": [],
+        "tools": [
+          {
+            "setting": "Coverage Shell",
+            "value": "Show Cover 3",
+            "why": "Present one-high before rotating to the selected two-high call after the snap.",
+            "tradeoff": "Do not sacrifice getting lined up just to disguise the call."
+          },
+          {
+            "setting": "Formation Check",
+            "value": "Quarters Trips — Stress",
+            "why": "Use Stress only when trips repeatedly sends all three receivers vertical.",
+            "tradeoff": "Use only with the named coverage family. A different call may use different rules."
+          }
+        ],
+        "preset": null,
+        "alerts": [],
+        "userKey": {
+          "title": "Protect your space first",
+          "text": "Handle the threat entering your assignment before chasing another route. Make the quarterback hold the ball and throw outside."
+        }
+      },
+      "after": {
+        "objective": {
+          "label": "Stay balanced",
+          "text": "Use the selected call as drawn, then make one change only when the scouting report points to a clear problem.",
+          "situation": "Base"
+        },
+        "settings": [],
+        "tools": [
+          {
+            "setting": "Coverage Shell",
+            "value": "Show Cover 3",
+            "why": "Present one-high before rotating to the selected two-high call after the snap.",
+            "tradeoff": "Do not sacrifice getting lined up just to disguise the call."
+          }
+        ],
+        "preset": null,
+        "alerts": [],
+        "userKey": {
+          "title": "Protect your space first",
+          "text": "Handle the threat entering your assignment before chasing another route. Make the quarterback hold the ball and throw outside."
+        }
+      }
+    },
+    {
+      "title": "Trips with deep shots",
+      "call": "Cover 4 Quarters",
+      "traits": [
+        "trips",
+        "deep_shots"
+      ],
+      "before": {
+        "objective": {
+          "label": "Stay balanced",
+          "text": "Use the selected call as drawn, then make one change only when the scouting report points to a clear problem.",
+          "situation": "Base"
+        },
+        "settings": [
+          {
+            "setting": "Zone Strategy",
+            "value": "Conservative",
+            "why": "The opponent’s clearest passing tendency is vertical. Keep zone defenders above the deep route.",
+            "tradeoff": "Short completions will have more room underneath."
+          }
+        ],
+        "tools": [
+          {
+            "setting": "Coverage Shell",
+            "value": "Show Cover 3",
+            "why": "Present one-high before rotating to the selected two-high call after the snap.",
+            "tradeoff": "Do not sacrifice getting lined up just to disguise the call."
+          },
+          {
+            "setting": "Formation Check",
+            "value": "Quarters Trips — Stress",
+            "why": "Use Stress only when trips repeatedly sends all three receivers vertical.",
+            "tradeoff": "Use only with the named coverage family. A different call may use different rules."
+          }
+        ],
+        "preset": {
+          "setting": "In-game preset",
+          "value": "No Deep Passes",
+          "why": "Use after the offense shows that vertical shots are its preferred answer.",
+          "tradeoff": "Turn it off when the offense consistently takes the space underneath."
+        },
+        "alerts": [
+          {
+            "setting": "Zone Strategy",
+            "when": "Short completions keep reaching the sticks",
+            "action": "Set Zone Strategy to Default. Challenge the catch sooner without pulling away the deep help."
+          }
+        ],
+        "userKey": {
+          "title": "Protect your space first",
+          "text": "Handle the threat entering your assignment before chasing another route. Make the quarterback hold the ball and throw outside."
+        }
+      },
+      "after": {
+        "objective": {
+          "label": "Stay balanced",
+          "text": "Use the selected call as drawn, then make one change only when the scouting report points to a clear problem.",
+          "situation": "Base"
+        },
+        "settings": [
+          {
+            "setting": "Zone Strategy",
+            "value": "Conservative",
+            "why": "The opponent’s clearest passing tendency is vertical. Keep zone defenders above the deep route.",
+            "tradeoff": "Short completions will have more room underneath."
+          }
+        ],
+        "tools": [
+          {
+            "setting": "Coverage Shell",
+            "value": "Show Cover 3",
+            "why": "Present one-high before rotating to the selected two-high call after the snap.",
+            "tradeoff": "Do not sacrifice getting lined up just to disguise the call."
+          },
+          {
+            "setting": "Formation Check",
+            "value": "Quarters Trips — Stress",
+            "why": "Consider only after seeing all three trips receivers go vertical. A deep-shot tendency alone does not prove that release pattern.",
+            "tradeoff": "Use only with the named coverage family. A different call may use different rules."
+          }
+        ],
+        "preset": {
+          "setting": "In-game preset",
+          "value": "No Deep Passes",
+          "why": "Use after the offense shows that vertical shots are its preferred answer.",
+          "tradeoff": "Turn it off when the offense consistently takes the space underneath."
+        },
+        "alerts": [
+          {
+            "setting": "Zone Strategy",
+            "when": "Short completions keep reaching the sticks",
+            "action": "Set Zone Strategy to Default. Challenge the catch sooner without pulling away the deep help."
+          }
+        ],
+        "userKey": {
+          "title": "Protect your space first",
+          "text": "Handle the threat entering your assignment before chasing another route. Make the quarterback hold the ball and throw outside."
+        }
+      }
+    },
+    {
+      "title": "Bunch against Cover 6",
+      "call": "Cover 6",
+      "traits": [
+        "bunch"
+      ],
+      "before": {
+        "objective": {
+          "label": "Stay balanced",
+          "text": "Use the selected call as drawn, then make one change only when the scouting report points to a clear problem.",
+          "situation": "Base"
+        },
+        "settings": [],
+        "tools": [
+          {
+            "setting": "Coverage Shell",
+            "value": "Show Cover 3",
+            "why": "Present one-high before rotating to the selected two-high call after the snap.",
+            "tradeoff": "Do not sacrifice getting lined up just to disguise the call."
+          },
+          {
+            "setting": "Formation Check",
+            "value": "Cover 6 Bunch — Box",
+            "why": "Box the bunch with four defenders owning the four release directions.",
+            "tradeoff": "Use only with the named coverage family. A different call may use different rules."
+          }
+        ],
+        "preset": null,
+        "alerts": [],
+        "userKey": {
+          "title": "Protect your space first",
+          "text": "Handle the threat entering your assignment before chasing another route. Make the quarterback hold the ball and throw outside."
+        }
+      },
+      "after": {
+        "objective": {
+          "label": "Stay balanced",
+          "text": "Use the selected call as drawn, then make one change only when the scouting report points to a clear problem.",
+          "situation": "Base"
+        },
+        "settings": [],
+        "tools": [
+          {
+            "setting": "Coverage Shell",
+            "value": "Show Cover 3",
+            "why": "Present one-high before rotating to the selected two-high call after the snap.",
+            "tradeoff": "Do not sacrifice getting lined up just to disguise the call."
+          },
+          {
+            "setting": "Formation Check",
+            "value": "Cover 6 Bunch — Box",
+            "why": "Box the bunch with four defenders owning the four release directions.",
+            "tradeoff": "Apply only on the quarters side of Cover 6. Check which side faces the receiver cluster; the half-field side does not use this check."
+          }
+        ],
+        "preset": null,
+        "alerts": [],
+        "userKey": {
+          "title": "Protect your space first",
+          "text": "Handle the threat entering your assignment before chasing another route. Make the quarterback hold the ball and throw outside."
+        }
+      }
+    },
+    {
+      "title": "Protect a lead",
+      "call": "Tampa 2",
+      "traits": [
+        "deep_shots"
+      ],
+      "before": {
+        "objective": {
+          "id": "no_quick_td",
+          "label": "No Quick TD",
+          "text": "Protect against a quick touchdown, accepting short gains. If a field goal can beat you, choose Get a Stop.",
+          "situation": "Base"
+        },
+        "settings": [
+          {
+            "setting": "Zone Strategy",
+            "value": "Conservative",
+            "why": "Keep zone defenders above developing routes before driving on the short throw.",
+            "tradeoff": "Short gains may be available. Reconsider this objective if those gains put the offense in winning field-goal range."
+          }
+        ],
+        "tools": [
+          {
+            "setting": "Coverage Shell",
+            "value": "Show Cover 3",
+            "why": "Present one-high before rotating to the selected two-high call after the snap.",
+            "tradeoff": "Do not sacrifice getting lined up just to disguise the call."
+          }
+        ],
+        "preset": null,
+        "alerts": [
+          {
+            "when": "A field goal can beat you",
+            "action": "Choose Get a Stop and defend the line to gain instead of conceding short gains."
+          }
+        ],
+        "userKey": {
+          "title": "Keep the deep help intact",
+          "text": "Leave the deep defenders in coverage. Play your own assignment first, then rally after the throw; do not pull a deep defender down to chase a short route."
+        }
+      },
+      "after": {
+        "objective": {
+          "id": "no_quick_td",
+          "label": "No Quick TD",
+          "text": "Protect against a quick touchdown, accepting short gains. If a field goal can beat you, choose Get a Stop.",
+          "situation": "Base"
+        },
+        "settings": [
+          {
+            "setting": "Zone Strategy",
+            "value": "Conservative",
+            "why": "Keep zone defenders above developing routes before driving on the short throw.",
+            "tradeoff": "Short gains may be available. Reconsider this objective if those gains put the offense in winning field-goal range."
+          }
+        ],
+        "tools": [
+          {
+            "setting": "Plaster",
+            "value": "Off",
+            "why": "Optional when keeping the zone structure on extended plays matters more than attaching to receivers.",
+            "tradeoff": "Receivers can settle into gaps. This does not disable the called play’s match rules or replace defending seams and deep sidelines."
+          },
+          {
+            "setting": "Coverage Shell",
+            "value": "Show Cover 3",
+            "why": "Present one-high before rotating to the selected two-high call after the snap.",
+            "tradeoff": "Do not sacrifice getting lined up just to disguise the call."
+          }
+        ],
+        "preset": null,
+        "alerts": [
+          {
+            "when": "A field goal can beat you",
+            "action": "Choose Get a Stop and defend the line to gain instead of conceding short gains."
+          }
+        ],
+        "userKey": {
+          "title": "Keep the deep help intact",
+          "text": "Leave the deep defenders in coverage. Play your own assignment first, then rally after the throw; do not pull a deep defender down to chase a short route."
+        }
+      }
+    },
+    {
+      "title": "Hash tendency",
+      "call": "Cover 4 Quarters",
+      "traits": [
+        "field_hash"
+      ],
+      "before": {
+        "objective": {
+          "label": "Stay balanced",
+          "text": "Use the selected call as drawn, then make one change only when the scouting report points to a clear problem.",
+          "situation": "Base"
+        },
+        "settings": [],
+        "tools": [
+          {
+            "setting": "Coverage Shell",
+            "value": "Show Cover 3",
+            "why": "Present one-high before rotating to the selected two-high call after the snap.",
+            "tradeoff": "Do not sacrifice getting lined up just to disguise the call."
+          },
+          {
+            "setting": "Safety Midpoint",
+            "value": "Field",
+            "why": "Lean the safeties toward the wide side the offense prefers to attack.",
+            "tradeoff": "The opposite side receives less immediate safety help."
+          }
+        ],
+        "preset": null,
+        "alerts": [],
+        "userKey": {
+          "title": "Protect your space first",
+          "text": "Handle the threat entering your assignment before chasing another route. Make the quarterback hold the ball and throw outside."
+        }
+      },
+      "after": {
+        "objective": {
+          "label": "Stay balanced",
+          "text": "Use the selected call as drawn, then make one change only when the scouting report points to a clear problem.",
+          "situation": "Base"
+        },
+        "settings": [],
+        "tools": [
+          {
+            "setting": "Coverage Shell",
+            "value": "Show Cover 3",
+            "why": "Present one-high before rotating to the selected two-high call after the snap.",
+            "tradeoff": "Do not sacrifice getting lined up just to disguise the call."
+          },
+          {
+            "setting": "Safety Midpoint",
+            "value": "Field",
+            "why": "Lean the safeties toward the wide side the offense prefers to attack.",
+            "tradeoff": "The opposite side receives less immediate safety help. If your menu lists only Left/Right, choose the actual field side after locating the ball; Field is not always Right."
+          }
+        ],
+        "preset": null,
+        "alerts": [],
+        "userKey": {
+          "title": "Protect your space first",
+          "text": "Handle the threat entering your assignment before chasing another route. Make the quarterback hold the ball and throw outside."
+        }
+      }
+    }
+  ]
+}

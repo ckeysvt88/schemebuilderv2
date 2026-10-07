@@ -2,6 +2,12 @@
 // supported controls; these notes never fabricate per-position assignments.
 // Sources and remaining device checks: docs/BIAS_MACRO_AUDIT_PHASE23.md.
 const rows = {
+  texas_four: ['balanced', 'Create a different rush path without adding a blitzer.', 'Cover your assignment through the first read; watch the QB escape without abandoning a receiver.', 'A stunt can lose rush-lane spacing. Four linemen do not guarantee pressure.'],
+  texas_contain: ['contain', 'Keep the preferred escape edge while changing the opposite rush.', 'Read the rollout direction on the field. Keep coverage on the late throw.', 'Contain and a stunt on the same edge can overwrite one another; inspect the final paths.'],
+  press_inside: ['inside', 'Contest repeated inside releases with two-high man help.', 'Stay with your assigned receiver or deep area; an RB release still belongs to his man defender.', 'Outside breaks, lost presses and double moves can win. Route commit is a tendency guess.'],
+  inside_ten: ['quick', 'Contest immediate scores in a compressed field.', 'Finish the full setup before the snap. Stay responsible for your receiver or zone, especially the back corner.', 'This is a manually altered call. Aggressive reactions can expose routes behind them; use a simpler call if there is no setup time.'],
+  protect_lead: ['deep', 'Keep the touchdown in front of the defense.', 'Carry the seam through your zone and rally to the throw. Keep track of clock and field-goal range.', 'Short catches, seams and extended plays still need defending. A field-goal stop needs a different plan.'],
+  tampa_mable: ['outside', 'Give short and deeper sideline routes different defenders.', 'Protect the inside space left by the reassigned underneath helper.', 'Global drops affect both sides. Layering one sideline can weaken the middle or the opposite side.'],
   inside_power: ['run', 'Close the inside crease before chasing the ball.', 'Read the near guard. Fill your assigned gap; do not follow a puller out of it.', 'Play action can open the space behind the linebackers.'],
   outside_zone: ['edge', 'Force the runner to cut back toward help.', 'Keep outside leverage if you own the edge. Inside defenders pursue without overrunning the cutback.', 'Widening the whole front can open inside lanes.'],
   counter_trap: ['run', 'Stay home through the first step of misdirection.', 'Read the pulling guard, then fit your gap. Let the force defender turn the runner back inside.', 'Following the back too early opens the counter lane.'],
