@@ -13,6 +13,7 @@ import FormationDetail from './FormationDetail.jsx';
 import PlanPresentation, { PlanLayoutPicker } from './PlanPresentation.jsx';
 import CallPlanPanel from './CallPlanPanel.jsx';
 import { readPlanLayout, savePlanLayout } from '../utils/planLayout.js';
+import { getTeamHeaderColors } from '../utils/teamColors.js';
 import { ExportPDFButton } from './CallSheetPDF.jsx';
 import DriveLogger from './DriveLogger.jsx';
 import { userProfileLabels } from '../data/userProfile.js';
@@ -71,6 +72,7 @@ export default function GamePlanScreen({
   const [planLayout, setPlanLayout] = useState(readPlanLayout);
   const [formationBrowserOpen, setFormationBrowserOpen] = useState(Boolean(selFm));
   const profileLabels = userProfileLabels(userProfile);
+  const teamHeader = getTeamHeaderColors(selectedTeam);
 
   const openCallTest = (fm, selection = {}) => {
     const plan = selection.plan;
@@ -261,20 +263,22 @@ export default function GamePlanScreen({
                   {/* ── Collapsible Team Info ── */}
                   {selectedTeam && (<>
                     <button
+                      type="button"
+                      aria-expanded={showTeamInfo}
                       onClick={() => setShowTeamInfo(v => !v)}
                       style={{
                         width: "100%", display: "flex", alignItems: "center", justifyContent: "space-between",
-                        background: `color-mix(in srgb, ${selectedTeam.color || "#507890"} 18%, var(--color-surface-1))`, border: "1px solid color-mix(in srgb, var(--color-text-3) 65%, var(--color-surface-1))",
-                        borderLeft: "3px solid color-mix(in srgb, var(--color-text-3) 65%, var(--color-surface-1))",
+                        background: teamHeader.primary, border: "1px solid color-mix(in srgb, var(--color-text-3) 65%, var(--color-surface-1))",
+                        borderLeft: `6px solid ${teamHeader.secondary}`,
                         borderRadius: showTeamInfo ? "var(--r-md) var(--r-md) 0 0" : "var(--r-md)",
                         padding: "9px 14px", marginBottom: showTeamInfo ? 0 : 12,
                         cursor: "pointer", textAlign: "left",
                       }}
                     >
-                      <span style={{ fontSize: 16, color: "var(--color-text-1)", letterSpacing: "0.5px", fontFamily: "var(--font-mono)", fontWeight: "700" }}>
+                      <span style={{ fontSize: 16, color: teamHeader.primaryText, letterSpacing: "0.5px", fontFamily: "var(--font-mono)", fontWeight: "700", minWidth: 0, overflowWrap: "anywhere" }}>
                         Team Info — {selectedTeam.name}
                       </span>
-                      <span style={{ fontSize: 11, color: "var(--color-text-3)", fontFamily: "var(--font-mono)", flexShrink: 0, marginLeft: 8 }}>
+                      <span style={{ fontSize: 11, color: teamHeader.secondaryText, background: teamHeader.secondary, fontFamily: "var(--font-mono)", fontWeight: "700", flexShrink: 0, marginLeft: 8, padding: "6px 9px", minHeight: 32, display: "inline-flex", alignItems: "center", borderRadius: "var(--r-sm)" }}>
                         {showTeamInfo ? "▲ Hide" : "▼ Show"}
                       </span>
                     </button>
