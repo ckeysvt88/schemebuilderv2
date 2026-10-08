@@ -265,9 +265,11 @@ export default function GamePlanScreen({
                     <button
                       type="button"
                       aria-expanded={showTeamInfo}
+                      className="team-info-header"
                       onClick={() => setShowTeamInfo(v => !v)}
                       style={{
                         width: "100%", display: "flex", alignItems: "center", justifyContent: "space-between",
+                        "--team-primary": teamHeader.primary,
                         background: teamHeader.primary, border: "1px solid color-mix(in srgb, var(--color-text-3) 65%, var(--color-surface-1))",
                         borderLeft: `6px solid ${teamHeader.secondary}`,
                         borderRadius: showTeamInfo ? "var(--r-md) var(--r-md) 0 0" : "var(--r-md)",
@@ -283,7 +285,7 @@ export default function GamePlanScreen({
                       </span>
                     </button>
                     {showTeamInfo && (
-                      <div style={{ background: `color-mix(in srgb, ${selectedTeam.color || "#507890"} 8%, var(--color-surface-1))`, border: "1px solid color-mix(in srgb, var(--color-text-3) 65%, var(--color-surface-1))", borderLeft: "3px solid color-mix(in srgb, var(--color-text-3) 65%, var(--color-surface-1))", borderTop: "none", borderRadius: "0 0 var(--r-md) var(--r-md)", padding: "12px 14px", marginBottom: 12 }}>
+                      <div className="team-info-details" style={{ "--team-primary": teamHeader.primary, "--team-light-tint": teamHeader.lightDetails, border: "1px solid color-mix(in srgb, var(--color-text-3) 65%, var(--color-surface-1))", borderLeft: "3px solid color-mix(in srgb, var(--color-text-3) 65%, var(--color-surface-1))", borderTop: "none", borderRadius: "0 0 var(--r-md) var(--r-md)", padding: "12px 14px", marginBottom: 12 }}>
                         {selectedTeam.notes && (
                           <div style={{ marginBottom: 10, paddingBottom: 10, borderBottom: "1px solid var(--color-border-subtle)" }}>
                             <div style={{ fontSize: 10, color: "var(--color-text-2)", letterSpacing: "2px", textTransform: "uppercase", marginBottom: 4, fontFamily: "var(--font-mono)" }}>Scouting Report</div>
