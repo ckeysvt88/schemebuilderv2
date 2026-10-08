@@ -24,9 +24,11 @@ test('objective changes the actual winner and returning to balanced restores the
   assert.notEqual(solid(protect).recommendedCoverage, solid(before).recommendedCoverage);
   const protectedCall = solid(protect).rankedCoverages.find(c => c.name === solid(protect).recommendedCoverage);
   assert.ok(protectedCall.matchup.facts.deep >= 3);
-  // The stop objective adds an inside-run threat; an outside-flat bonus alone
-  // must not force the same winner as a balanced quick-pass plan.
-  assert.equal(solid(stop).recommendedCoverage, 'Cover 3 Sky Wk');
+  // Needing a stop retains a run answer, without inventing its direction or
+  // forcing a different winner simply because the objective changed.
+  const stopThreats = solid(stop).personalizedCall.matchup.concept.scenarios;
+  assert.ok(stopThreats.some(s => s.id === 'run-choice' && s.source === 'objective'));
+  assert.ok(!stopThreats.some(s => s.id === 'inside-run'));
   assert.deepEqual(recommend(base), before);
 });
 

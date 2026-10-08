@@ -10,6 +10,7 @@ import { scoreAll, groupByPersonnel } from '../engine/scoring.js';
 import { getAvailableFamilies } from '../data/personnel.js';
 import FormationCard, { PC, PL } from './FormationCard.jsx';
 import FormationDetail from './FormationDetail.jsx';
+import CallPlanPanel from './CallPlanPanel.jsx';
 import { ExportPDFButton } from './CallSheetPDF.jsx';
 import DriveLogger from './DriveLogger.jsx';
 import { userProfileLabels } from '../data/userProfile.js';
@@ -229,6 +230,7 @@ export default function GamePlanScreen({
           {recommendation.familyLabel} · {recommendation.context.label} · Opponent: <strong>{RUN_PASS_LABELS[recommendation.runPass]}</strong>. Fit scores are rankings, not success probabilities.
         </p>
         {!planList.length && <p role="status">No recommended call fits this scout, situation and playbook. Check the current offensive look or choose another defensive playbook.</p>}
+        <CallPlanPanel plan={recommendation.callPlan} />
         {/* ── Tempo warning ── */}
         {(flat.includes("hurry_up") || flat.includes("tempo_shift")) && (
           <div style={{ background: "var(--color-gold-surface)", border: "1px solid var(--color-gold-border)", borderLeft: "4px solid var(--color-gold)", borderRadius: "var(--r-md)", padding: "12px 14px", marginBottom: 16 }}>

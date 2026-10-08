@@ -3,7 +3,6 @@
 // assembles a structured data object consumed by CallSheetPDF.jsx.
 // Pure JS — no JSX, no React.
 
-import { getSituationTip } from './downDistance.js';
 import { recommend } from './recommendations.js';
 import { TRAIT_LABELS, TRAITS } from '../data/traits.js';
 import { getFrontStructure } from './frontStructure.js';
@@ -50,6 +49,15 @@ function pluck(f) {
   };
 }
 
+function pluckPlan(entry, formations) {
+  if (!entry) return null;
+  const formation = formations.find(f => f.name === entry.formation);
+  if (!formation) return null;
+  return { ...pluck(formation), coverage: entry.call, sc: entry.sc, matchup: entry.matchup,
+    quickSetup: entry.quickSetup, useWhen: entry.useWhen, switchWhen: entry.switchWhen,
+    watchFor: entry.watchFor, userJob: entry.userJob };
+}
+
 export function buildCallSheetData({ input, sel = {} }) {
   const current = recommend(input);
   const selected = new Set(input?.traits || Object.values(sel).flat());
@@ -61,9 +69,11 @@ export function buildCallSheetData({ input, sel = {} }) {
   const remaining = [...selected].filter(id => !groupedIds.has(id)).map(id => TRAIT_LABELS[id] || id);
   if (remaining.length) profile.push({ group: "Other scouted traits", traits: remaining });
   const situationMatrix = SITUATIONS.map(sit => {
-    const ranked = recommend({ ...input, down: sit.down, distance: sit.distance }).formations;
-    return { ...sit, primary: pluck(ranked[0]), secondary: pluck(ranked[1]),
-      dcTip: current.gameObjective.id === 'balanced' ? getSituationTip(sit.down, sit.distance) : current.gameObjective.text };
+    const result = recommend({ ...input, down: sit.down, distance: sit.distance });
+    const ranked = result.formations;
+    return { ...sit, primary: pluckPlan(result.callPlan.primary, ranked), secondary: pluckPlan(result.callPlan.changeup, ranked),
+      pressure: pluckPlan(result.callPlan.pressure, ranked), callPlan: result.callPlan,
+      purpose: result.purpose, dcTip: result.purpose.text };
   });
   // These labels alone do not specify an objective or the offensive alignment.
   // Do not manufacture a Goal Line / Prevent recommendation from the label.
@@ -75,6 +85,7 @@ export function buildCallSheetData({ input, sel = {} }) {
   );
   return {
     profile, situationMatrix,
+    callPlan: current.callPlan, purpose: current.purpose,
     topFormations: current.formations.slice(0, 4).map(pluck),
     situationGuide: situationMatrix.map(row => ({ ...row, likelyPersonnel: '' })),
     contextLabel: `${current.familyLabel} · ${current.context.label}${current.gameObjective.id === 'balanced' ? '' : ' · ' + current.gameObjective.label}`,

@@ -25,9 +25,9 @@ test('personalized exports describe the selected call, including differing assig
   }
   for (const row of pdf.situationMatrix.filter(row => row.down)) {
     const formations = recommend({ ...input, down: row.down, distance: row.distance }).formations;
-    for (const [i, exported] of [row.primary, row.secondary].entries()) {
+    for (const exported of [row.primary, row.secondary, row.pressure]) {
       if (!exported) continue;
-      const call = formations[i].rankedCoverages.find(c => c.name === exported.coverage);
+      const call = formations.find(f => f.name === exported.name).rankedCoverages.find(c => c.name === exported.coverage);
       assert.equal(exported.sc, call.sc);
       assert.deepEqual(exported.matchup, call.matchup);
     }

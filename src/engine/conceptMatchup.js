@@ -190,7 +190,10 @@ export function buildConceptScenarios(traits = [], situation = 'base', gameObjec
       addScenario(scenarios, 'vertical', 'Conversion throw', 1, 'objective', 'The player needs a stop at the line to gain.');
       addScenario(scenarios, 'sideline', 'Sideline conversion', 0.65, 'objective', 'Protect the sideline at the sticks.');
     } else {
-      addScenario(scenarios, 'inside-run', 'Run for a first down', 0.8, 'objective', 'Keep the run fit when the offense can sustain the drive.');
+      if (!hasRunAction) {
+        addScenario(scenarios, 'run-choice', 'Run for a first down — direction unknown', 0.8, 'objective', 'Keep a run answer without treating the objective as evidence of an inside run.');
+        scenarios.get('run-choice').supportScope = 'direction-unknown';
+      }
       addScenario(scenarios, 'quick', 'Quick conversion throw', 0.8, 'objective', 'Challenge the short completion that sustains the drive.');
     }
   }
