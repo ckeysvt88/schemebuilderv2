@@ -79,10 +79,14 @@ export function buildComplementaryPlan(candidates = [], primary = null, { traits
       || Number(b.candidate.formation === primary.formation) - Number(a.candidate.formation === primary.formation)
       || b.candidate.call.sc - a.candidate.call.sc || a.order - b.order)[0] : null;
   if (!change) notes.push('Keep the primary call: no competitive changeup improves a credible weakness enough without exposing another threat.');
-  if (!pressure) notes.push(primaryPressure
-    ? 'The primary already sends extra rushers; use the changeup to restore coverage if the hot throw wins.'
-    : gameObjective === 'no_quick_td' ? 'Keep pressure out of this plan while preventing a quick touchdown is the priority.'
-      : 'No competitive extra-rusher option keeps enough coverage against this scout. Use the primary instead.');
+  const pressureDecision = pressure
+    ? { status: 'available', label: 'Conditional pressure available', text: 'Use only after the QB holds the ball, protection is vulnerable and the hot outlet is accounted for.' }
+    : primaryPressure
+      ? { status: 'primary', label: 'Pressure is already in your primary', text: 'The primary already sends extra rushers; use the changeup to restore coverage if the hot throw wins.' }
+      : gameObjective === 'no_quick_td'
+        ? { status: 'objective', label: 'Hold coverage for your objective', text: 'Keep pressure out of this plan while preventing a quick touchdown is the priority.' }
+        : { status: 'unavailable', label: 'Stay with the primary', text: 'No extra-rusher option meets this plan’s matchup, fit and personnel checks. Use the primary instead.' };
+  if (!pressure) notes.push(pressureDecision.text);
   if (tempo) notes.push('Tempo: alternatives stay in the same formation. Check your available audibles before the game.');
   const switchText = target => target.source === 'observed'
     ? `Switch if ${target.label.toLowerCase()} starts beating the primary.`
@@ -109,6 +113,7 @@ export function buildComplementaryPlan(candidates = [], primary = null, { traits
       reason: getPressureProfile(pressure.candidate.call).label,
       formationChange: pressure.candidate.formation !== primary.formation,
     }) : null,
+    pressureDecision,
     notes,
     basis: 'Deterministic pairing of evaluated calls. No anti-repeat penalty, forced variety, pressure-arrival prediction or extra score bonus.',
   };

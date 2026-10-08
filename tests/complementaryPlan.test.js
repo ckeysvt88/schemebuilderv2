@@ -83,6 +83,26 @@ test('tempo keeps alternatives in the same formation; output does not mutate inp
   assert.deepEqual(buildComplementaryPlan([], null), { primary: null, changeup: null, pressure: null, notes: [] });
 });
 
+test('missing pressure has a reason without inventing another call', () => {
+  const primary = candidate('Primary', 60, 80);
+  const extra = candidate('Five rushers', 60, 80, { rushers: 5 });
+  const available = buildComplementaryPlan([primary, extra], primary);
+  assert.equal(available.pressureDecision.status, 'available');
+  assert.equal(available.pressure.call, 'Five rushers');
+  for (const [calls, start, context, expected] of [
+    [[primary], primary, {}, 'unavailable'],
+    [[primary, extra], primary, { gameObjective: 'no_quick_td' }, 'objective'],
+    [[primary, extra], extra, {}, 'primary'],
+    [[primary, { ...extra, formation: 'Other Front' }], primary, { traits: ['hurry_up'] }, 'unavailable'],
+  ]) {
+    const plan = buildComplementaryPlan(calls, start, context);
+    assert.equal(plan.pressure, null);
+    assert.equal(plan.pressureDecision.status, expected);
+    assert.ok(plan.notes.includes(plan.pressureDecision.text));
+    assert.equal(plan.primary.call, start.call.name);
+  }
+});
+
 test('every selected alternative exists in the chosen book and preserves risk, fit and tempo constraints', () => {
   for (const book of ['All', '4-2-5', '3-4 Multiple']) for (const traits of [
     ['p10', 'flat_attack', 'quick_game'], ['p11', 'deep_shots', 'seam_routes'],

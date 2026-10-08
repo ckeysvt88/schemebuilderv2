@@ -10,7 +10,9 @@ import { scoreAll, groupByPersonnel } from '../engine/scoring.js';
 import { getAvailableFamilies } from '../data/personnel.js';
 import FormationCard, { PC, PL } from './FormationCard.jsx';
 import FormationDetail from './FormationDetail.jsx';
+import PlanPresentation, { PlanLayoutPicker } from './PlanPresentation.jsx';
 import CallPlanPanel from './CallPlanPanel.jsx';
+import { readPlanLayout, savePlanLayout } from '../utils/planLayout.js';
 import { ExportPDFButton } from './CallSheetPDF.jsx';
 import DriveLogger from './DriveLogger.jsx';
 import { userProfileLabels } from '../data/userProfile.js';
@@ -66,6 +68,8 @@ export default function GamePlanScreen({
   const [showAlignment, setShowAlignment] = useState(false);
   const [showTeamInfo, setShowTeamInfo] = useState(false);
   const [callTestDefaults, setCallTestDefaults] = useState(null);
+  const [planLayout, setPlanLayout] = useState(readPlanLayout);
+  const [formationBrowserOpen, setFormationBrowserOpen] = useState(Boolean(selFm));
   const profileLabels = userProfileLabels(userProfile);
 
   const openCallTest = (fm, selection = {}) => {
@@ -166,42 +170,35 @@ export default function GamePlanScreen({
 
   return (
     <>
-    <div className="screen-enter" style={{ fontFamily: "var(--font-sans)", background: "var(--color-bg)", minHeight: "100dvh", color: "var(--color-text-1)", maxWidth: 720, margin: "0 auto" }}>
+    <div className="screen-enter" style={{ fontFamily: "var(--font-sans)", background: "var(--color-bg)", minHeight: "100dvh", color: "var(--color-text-1)", maxWidth: planLayout === 'board' ? 960 : 720, margin: "0 auto" }}>
 
       {/* ── Header ── */}
       <div className="app-page-header" data-sticky-header="" style={{ background: "linear-gradient(135deg, var(--color-surface-1), var(--color-surface-2))", borderBottom: "2px solid var(--color-gold)", padding: "12px 16px 10px", paddingTop: "calc(env(safe-area-inset-top) + 12px)", position: "sticky", top: 0, zIndex: 80 }}>
-        <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", marginBottom: 10, gap: 8 }}>
+        <div className="plan-header-summary" style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", marginBottom: 10, gap: 8 }}>
           <div style={{ minWidth: 0 }}>
             <div style={{ fontSize: 10, letterSpacing: "2px", color: "var(--color-gold-dim)", textTransform: "uppercase", fontWeight: "700", fontFamily: "var(--font-mono)", marginBottom: 2 }}>
               Scheme Builders
             </div>
-            <div style={{ fontSize: 21, fontWeight: "700", color: "var(--color-text-1)", fontFamily: "var(--font-mono)", letterSpacing: "-0.2px", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+            <div className="plan-header-title" style={{ fontSize: 21, fontWeight: "700", color: "var(--color-text-1)", fontFamily: "var(--font-mono)", letterSpacing: "-0.2px", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
               Defensive Gameplan
             </div>
             <div style={{ fontSize: 15, fontWeight: "600", color: "var(--color-text-3)", fontFamily: "var(--font-mono)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
               {planList.length} Formation{planList.length !== 1 ? "s" : ""}{myBook !== "All" ? " · " + myBook : ""}
             </div>
           </div>
-          <div style={{ display: "flex", gap: 6, alignItems: "flex-start", flexShrink: 0 }}>
-            {selectedTeam && (
-              <button onClick={() => setStep("teams")} style={{ ...hdrBtn, padding: "0 10px" }} aria-label="Back to Team Picker">
-                ←
-              </button>
-            )}
-            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-              <ExportPDFButton variant="compact" label="Call Sheet" input={recommendationInput} sel={sel} />
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 6 }}>
-                <button onClick={() => setStep("notes")} style={hdrBtn} aria-label="Notes">
-                  Notes
-                </button>
-                <button
-                  onClick={() => setQuickAdjOpen(v => !v)}
-                  style={{ ...hdrBtn, ...(quickAdjOpen ? { background: "var(--color-gold-surface)", borderColor: "var(--color-gold)", color: "var(--color-gold)" } : {}) }}
-                  aria-label="Quick Adjust"
-                >
-                  Adjust
-                </button>
-              </div>
+          <div className="plan-header-actions" style={{ display: "flex", flexDirection: "column", gap: 6, flexShrink: 0 }}>
+            <div className="plan-header-top-row" style={{ display: "flex", alignItems: "stretch", gap: 6 }}>
+              {selectedTeam && <button onClick={() => setStep("teams")} style={{ ...hdrBtn, width: 32, padding: "0 8px", flexShrink: 0 }} aria-label="Back to Team Picker">←</button>}
+              <div style={{ flex: 1, minWidth: 0 }}><ExportPDFButton variant="compact" label="Call Sheet" input={recommendationInput} sel={sel} /></div>
+            </div>
+            <div className="plan-header-bottom-row" style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 6 }}>
+              <button onClick={() => setStep("notes")} style={hdrBtn} aria-label="Notes">Notes</button>
+              <button
+                onClick={() => setQuickAdjOpen(v => !v)}
+                style={{ ...hdrBtn, ...(quickAdjOpen ? { background: "var(--color-gold-surface)", borderColor: "var(--color-gold)", color: "var(--color-gold)" } : {}) }}
+                aria-label="Quick Adjust"
+              >Adjust</button>
+              <PlanLayoutPicker layout={planLayout} onChange={layout => { setPlanLayout(layout); savePlanLayout(layout); }} />
             </div>
           </div>
         </div>
@@ -230,7 +227,11 @@ export default function GamePlanScreen({
           {recommendation.familyLabel} · {recommendation.context.label} · Opponent: <strong>{RUN_PASS_LABELS[recommendation.runPass]}</strong>. Fit scores are rankings, not success probabilities.
         </p>
         {!planList.length && <p role="status">No recommended call fits this scout, situation and playbook. Check the current offensive look or choose another defensive playbook.</p>}
-        <CallPlanPanel plan={recommendation.callPlan} />
+        {planLayout === 'original' ? <CallPlanPanel plan={recommendation.callPlan} /> : <PlanPresentation plan={recommendation.callPlan} layout={planLayout} userPosition={profileLabels.position}
+          onLogCall={entry => {
+            const fm = planList.find(formation => formation.name === entry.formation);
+            if (fm) openCallTest(fm, { call: entry.call, plan: entry.adjustmentPlan });
+          }} />}
         {/* ── Tempo warning ── */}
         {(flat.includes("hurry_up") || flat.includes("tempo_shift")) && (
           <div style={{ background: "var(--color-gold-surface)", border: "1px solid var(--color-gold-border)", borderLeft: "4px solid var(--color-gold)", borderRadius: "var(--r-md)", padding: "12px 14px", marginBottom: 16 }}>
@@ -241,6 +242,11 @@ export default function GamePlanScreen({
           </div>
         )}
 
+        <section className={planLayout === 'original' ? undefined : 'plan-formation-browser'} aria-label="Formation browser">
+          {planLayout !== 'original' && <button type="button" aria-expanded={formationBrowserOpen} aria-controls="plan-formation-list" onClick={() => setFormationBrowserOpen(open => !open)}>
+            Browse formations · {planList.length}<span>{formationBrowserOpen ? 'Hide' : 'Show'}</span>
+          </button>}
+          <div id="plan-formation-list" hidden={planLayout !== 'original' && !formationBrowserOpen}>
         {/* ── PERSONNEL TAB ── */}
         {mainTab === "personnel" && (
           <div>
@@ -392,6 +398,8 @@ export default function GamePlanScreen({
             ))}
           </div>
         )}
+          </div>
+        </section>
       </div>
 
     </div>
