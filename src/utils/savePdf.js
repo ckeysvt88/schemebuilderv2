@@ -1,7 +1,13 @@
-// Invoke sharing directly from the Save tap to preserve browser activation.
-// The native sheet offers Save to Files on supported Apple devices.
+// iPadOS can identify as a Mac when requesting desktop websites.
+export function isAppleMobileDevice(nav = navigator) {
+  return /iPhone|iPad|iPod/i.test(nav.userAgent || '')
+    || (nav.platform === 'MacIntel' && nav.maxTouchPoints > 1);
+}
+
+// Invoke Apple mobile sharing directly from the Save tap to preserve activation.
+// Desktop browsers can also support sharing, but should download the file.
 export async function savePdf(file, url, nav = navigator, doc = document) {
-  if (nav.share && nav.canShare?.({ files: [file] })) {
+  if (isAppleMobileDevice(nav) && nav.share && nav.canShare?.({ files: [file] })) {
     try {
       await nav.share({ files: [file], title: 'Defensive Call Sheet' });
       return 'shared';
@@ -14,8 +20,6 @@ export async function savePdf(file, url, nav = navigator, doc = document) {
   const link = doc.createElement('a');
   link.href = url;
   link.download = file.name;
-  link.target = '_blank';
-  link.rel = 'noopener noreferrer';
   doc.body.appendChild(link);
   link.click();
   link.remove();

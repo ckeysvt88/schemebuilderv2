@@ -4,6 +4,7 @@ import WhySelected from './WhySelected.jsx';
 import { getFrontStructure } from '../engine/frontStructure.js';
 import { getCoverageGuidance } from '../engine/coverageGuidance.js';
 import { buildAdjustmentPlan } from '../engine/adjustmentPlan.js';
+import CallPlanPanel from './CallPlanPanel.jsx';
 
 function AdjustmentsPanel({ fm, flat, situation, onLogCall }) {
   const plan = fm.personalizedCall?.adjustmentPlan || buildAdjustmentPlan(fm, flat, situation);
@@ -210,13 +211,17 @@ export default function FormationDetail({ fm, flat, situation, onLogCall }) {
               <div style={{ fontSize: 10, color: "var(--color-gold)", fontWeight: 800, textTransform: "uppercase", letterSpacing: "1px" }}>{situationPlan.objective.situation}: {situationPlan.objective.label}</div>
               <div style={{ fontSize: 11, color: "var(--color-text-2)", lineHeight: 1.45, marginTop: 3 }}>{situationPlan.objective.text}</div>
             </div>
-            {choices.map((call, index) => <CoverageCard key={call.name} call={call} index={index} flat={flat} recommended={call.name === fm.recommendedCoverage} playerChoice={call.name === fm.personalizedCoverage} onLogCall={onLogCall} />)}
+            <CallPlanPanel plan={fm.callPlan} showFormation={false} heading="Plan in this formation" />
+            <details>
+              <summary style={{ cursor: 'pointer', color: 'var(--color-gold)', fontSize: 11, fontWeight: 700, marginBottom: 10 }}>Call coaching and other options</summary>
+              {choices.map((call, index) => <CoverageCard key={call.name} call={call} index={index} flat={flat} recommended={call.name === fm.recommendedCoverage} playerChoice={call.name === fm.personalizedCoverage} onLogCall={onLogCall} />)}
             {more.length > 0 && (
               <details style={{ marginTop: 8 }}>
                 <summary style={{ cursor: "pointer", color: "var(--color-gold)", fontSize: 11, fontWeight: 700, marginBottom: 10 }}>More calls in this formation ({more.length})</summary>
                 {more.map((call, index) => <CoverageCard key={call.name} call={call} index={index + choices.length} flat={flat} onLogCall={onLogCall} />)}
               </details>
             )}
+            </details>
           </>;
         })()}
 

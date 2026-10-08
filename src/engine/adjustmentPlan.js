@@ -1,39 +1,11 @@
 import { normalizeRunPass } from '../data/runPassBias.js';
 import { getGameObjective } from '../data/gameObjectives.js';
 import { getCoverageFamily } from './coverageGuidance.js';
-import { normalizeSituation, coverageSituation } from './context.js';
+import { getSituationalPurpose } from './situationalPurpose.js';
 
 const hasAny = (traits, ids) => ids.some(id => traits.includes(id));
 const ZONE_FAMILIES = new Set(['quarters', 'split', 'tampa2', 'cover2', 'cover3']);
 const TWO_HIGH_FAMILIES = new Set(['quarters', 'split', 'tampa2', 'cover2', 'twoMan']);
-
-function situationContext(situation = {}) {
-  const context = normalizeSituation(situation.down, situation.distance);
-  return { context, key: coverageSituation(context) };
-}
-
-function objectiveFor(key) {
-  if (key === '3md') return {
-    label: 'Contest the conversion window',
-    text: 'Defend routes at the line to gain. A short completion can move the chains; keep help behind the underneath defenders.',
-  };
-  if (key === '3lg') return {
-    label: 'Protect the sticks',
-    text: 'Keep every throw in front of the deep coverage. Make the offense catch it short and tackle before the line to gain.',
-  };
-  if (key === '3sh') return {
-    label: 'Win the line to gain',
-    text: 'The run, quarterback keep, RPO, and quick throw are all live. Keep the fit sound and close short windows without giving up a free shot.',
-  };
-  if (key === 'rz') return {
-    label: 'Protect the goal line',
-    text: 'The field is compressed. Tighten leverage, identify the best target, and do not create an uncovered receiver with extra adjustments.',
-  };
-  return {
-    label: 'Stay balanced',
-    text: 'Use the selected call as drawn, then make one change only when the scouting report points to a clear problem.',
-  };
-}
 
 function presetMacroFor(traits, situationKey) {
   const quick = hasAny(traits, ['quick_game', 'west_coast', 'slant_heavy', 'qb_checkdown']);
@@ -82,6 +54,7 @@ function publicAdjustment(item) {
     value: item.value,
     why: item.why,
     tradeoff: item.tradeoff,
+    ...(item.reset ? { reset: true } : {}),
   };
 }
 
@@ -125,18 +98,28 @@ function shellTool(family) {
   return null;
 }
 
-function userKeyFor(traits, situationKey) {
+function userKeyFor(traits, situationKey, purpose) {
   if (situationKey === '3md') return {
     title: 'Defend the catch point at the sticks',
     text: 'Read the inside break or crossing route near the line to gain. Keep your leverage and tackle at the catch; do not follow a short decoy out of your zone.',
   };
   if (situationKey === '3lg') return {
     title: 'Guard the line to gain first',
-    text: 'Gain depth with the first inside route, then break downhill. Do not chase a short route that cannot reach the sticks.',
+    text: purpose.context.distance <= 9 && hasAny(traits, ['quick_game', 'west_coast', 'slant_heavy'])
+      ? 'Contest the inside catch near the sticks. Keep your assigned leverage and tackle before the receiver gains the remaining yards; do not give an easy catch by retreating blindly.'
+      : 'Gain depth with the first inside route, then break downhill. Do not chase a short route that cannot reach the sticks.',
   };
   if (situationKey === '3sh') return {
     title: 'Read run to quick throw',
     text: 'Stay square through the mesh, fit the run if the ball is handed off, and close the first inside throw if the quarterback pulls it.',
+  };
+  if (purpose.shotOpportunity) return {
+    title: 'Read the run without losing the shot',
+    text: 'Read through the mesh before stepping downhill. Keep your assigned pass responsibility against the fake, then rally to the run or quick throw.',
+  };
+  if (purpose.recoveryDown) return {
+    title: 'Rally without opening the next window',
+    text: 'Keep your assigned route covered, then close on the underneath catch. Read releasing blockers for a screen and keep the draw or QB escape in view.',
   };
   if (hasAny(traits, ['rpo', 'dual_threat', 'option_run'])) return {
     title: 'Slow-play the conflict',
@@ -186,8 +169,9 @@ export function buildAdjustmentPlan(fm, traits = [], situation = {}) {
   const selectedCall = fm?.rankedCoverages?.find(call => call.name === activeCoverage);
   const family = getCoverageFamily(activeCoverage, selectedCall?.tag);
   const isZone = ZONE_FAMILIES.has(family);
-  const { context, key: situationKey } = situationContext(situation);
   const gameObjective = getGameObjective(fm?.gameObjective);
+  const purpose = getSituationalPurpose(situation.down, situation.distance, gameObjective.id);
+  const { context, coverageKey: situationKey } = purpose;
   if (gameObjective.id === 'no_quick_td') return {
     objective: { ...gameObjective, situation: context.label },
     settings: isZone ? [{ setting: 'Zone Strategy', value: 'Conservative', why: 'Keep zone defenders above developing routes before driving on the short throw.', tradeoff: 'Short gains may be available. Reconsider this objective if those gains put the offense in winning field-goal range.' }] : [],
@@ -211,12 +195,13 @@ export function buildAdjustmentPlan(fm, traits = [], situation = {}) {
   const runThreat = hasAny(traits, ['inside_run', 'outside_run', 'hb_stretch', 'counter_trap', 'fb_lead', 'option_run', 'strong_oline', 'run_heavy_1st', 'short_yardage_run']);
   const mobileQb = hasAny(traits, ['mobile_qb', 'qb_scramble', 'dual_threat']);
   const runHeavy = normalizeRunPass(fm?.runPass) >= 6;
+  const nearConversion = situationKey === '3lg' && context.distance <= 9 && quick && !deep;
 
   if (situationKey === '3lg') {
     if (isZone) add(settings, 'zone-depth', {
-      setting: 'Zone Strategy', value: 'Conservative',
-      why: 'Long yardage: zone defenders protect deeper routes before driving on the checkdown.',
-      tradeoff: 'The offense can complete a short throw. Rally and tackle before the line to gain.',
+      setting: 'Zone Strategy', value: nearConversion ? 'Default' : 'Conservative', reset: nearConversion,
+      why: nearConversion ? 'The line to gain is close enough for the scouted quick throw plus a few yards after the catch. Keep normal reactions instead of automatically backing off.' : 'Long yardage: zone defenders protect deeper routes before driving on the checkdown.',
+      tradeoff: nearConversion ? 'Deeper breaks still need help. Default does not guarantee a tackle short of the sticks.' : 'The offense can complete a short throw. Rally and tackle before the line to gain.',
     });
     if (deep) add(settings, 'safety-depth', {
       setting: 'Safety Depth', value: '16 yards',
@@ -224,13 +209,12 @@ export function buildAdjustmentPlan(fm, traits = [], situation = {}) {
       tradeoff: 'Safeties arrive later on underneath throws and the run.',
     });
     else add(settings, 'cb-depth', {
-      setting: 'Cornerback Depth', value: '10 yards',
-      why: 'Put the corners in position to see the route develop and protect the line to gain.',
-      tradeoff: 'Quick hitches and outs will be available underneath.',
+      setting: 'Cornerback Depth', value: nearConversion ? '5 yards' : '10 yards',
+      why: nearConversion ? 'Against the scouted quick throw, do not give ten yards of cushion when the offense needs only seven to nine.' : 'Put the corners in position to see the route develop and protect the line to gain.',
+      tradeoff: nearConversion ? 'Keep the call’s deep help; a tighter starting alignment exposes double moves.' : 'Quick hitches and outs will be available underneath.',
     });
-    // A run-heavy scout or a designed QB-run threat is evidence against
-    // automatically abandoning the run just because the down is long.
-    add(runHeavy || hasAny(traits, ['option_run', 'triple_option', 'inside_run', 'outside_run', 'hb_stretch', 'counter_trap']) ? tools : settings, 'commit', {
+    // Down/distance alone cannot confirm the next snap is a pass.
+    add(tools, 'commit', {
       setting: 'Pass Commit', value: 'Pass',
       why: 'Use only when the offense is clearly passing; do not commit against a live draw or quarterback-run threat.',
       tradeoff: 'A draw or quarterback run can punish this. Skip it if the offense has already run successfully from long yardage.',
@@ -284,16 +268,16 @@ export function buildAdjustmentPlan(fm, traits = [], situation = {}) {
       why: 'The opponent’s clearest passing tendency is vertical. Keep zone defenders above the deep route.',
       tradeoff: 'Short completions will have more room underneath.',
     });
-    if (isZone && quick && !deep && !playAction && !runHeavy && context.key !== '2_short') add(settings, 'zone-depth', {
+    if (isZone && quick && !deep && !playAction && !runHeavy && !purpose.shotOpportunity && !purpose.recoveryDown) add(settings, 'zone-depth', {
       setting: 'Zone Strategy', value: 'Aggressive',
       why: 'The opponent’s clearest passing tendency is quick game. Break downhill on short routes.',
       tradeoff: 'Routes breaking behind the underneath defender become more dangerous.',
     });
 
-    if (isZone && quick && context.key === '2_short') add(settings, 'zone-depth', {
-      setting: 'Zone Strategy', value: 'Default',
-      why: 'Second and short leaves a shot opportunity. Keep normal reactions instead of chasing the short route before the play develops.',
-      tradeoff: 'The quick throw is less tightly contested; rally and tackle without surrendering the play-action shot.',
+    if (isZone && quick && (purpose.shotOpportunity || purpose.recoveryDown)) add(settings, 'zone-depth', {
+      setting: 'Zone Strategy', value: 'Default', reset: true,
+      why: purpose.shotOpportunity ? 'Second and short leaves a shot opportunity. Return to normal reactions instead of carrying aggressive short-zone reactions into this snap.' : 'Second and long keeps intermediate throws and screens live. Return to normal reactions instead of driving blindly on the first short route.',
+      tradeoff: 'The quick throw is less tightly contested; rally and tackle while keeping help behind the underneath coverage.',
     });
 
   }
@@ -412,7 +396,7 @@ export function buildAdjustmentPlan(fm, traits = [], situation = {}) {
     action: 'Keep the call and the first adjustment you trust. Get lined up before opening another menu.',
   });
 
-  const changes = settings.filter(item => !['Default', 'Balanced', 'Normal'].includes(item.value));
+  const changes = settings.filter(item => item.reset || !['Default', 'Balanced', 'Normal'].includes(item.value));
   const visibleSettings = changes.slice(0, 3);
   // Settings beyond the quick-setup budget remain available; do not silently
   // lose QB contain or prescribe duplicate/conflicting controls in the toolbox.
@@ -423,12 +407,13 @@ export function buildAdjustmentPlan(fm, traits = [], situation = {}) {
     const note = resetFor(item);
     return note ? [{ setting: item.setting, ...note }] : [];
   });
+  const preset = traits.includes('play_action') && !deep ? null : presetMacroFor(runHeavy && situationKey === 'base' ? traits.filter(t => !['quick_game', 'west_coast', 'slant_heavy', 'qb_checkdown'].includes(t)) : traits, situationKey);
   return {
-    objective: { ...(gameObjective.id === 'balanced' ? objectiveFor(situationKey) : gameObjective), situation: context.label },
+    objective: { ...gameObjective, label: purpose.label, text: purpose.text, situation: context.label },
     settings: visibleSettings.map(publicAdjustment),
     tools: displayedTools.map(publicAdjustment),
-    preset: traits.includes('play_action') && !deep ? null : presetMacroFor(runHeavy && situationKey === 'base' ? traits.filter(t => !['quick_game', 'west_coast', 'slant_heavy', 'qb_checkdown'].includes(t)) : traits, situationKey),
+    preset: (purpose.shotOpportunity || purpose.recoveryDown) && preset?.value === 'Play Short Routes' ? null : preset,
     alerts: [...settingAlerts, ...alerts].slice(0, 2),
-    userKey: userKeyFor(traits, situationKey),
+    userKey: userKeyFor(traits, situationKey, purpose),
   };
 }

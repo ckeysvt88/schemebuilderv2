@@ -1,6 +1,6 @@
 import { memo, useEffect, useRef, useState } from 'react';
 import SetupDialog from './SetupDialog.jsx';
-import { savePdf } from '../utils/savePdf.js';
+import { isAppleMobileDevice, savePdf } from '../utils/savePdf.js';
 import CallSheetPreview from './CallSheetPreview.jsx';
 import { Document, Page, Text, View, StyleSheet, pdf } from '@react-pdf/renderer';
 import { buildCallSheetData } from '../engine/buildCallSheet.js';
@@ -152,15 +152,19 @@ const S = StyleSheet.create({
   p2Brand: { fontSize: 6, color: C.gold, fontFamily: 'Helvetica-Bold', letterSpacing: 2, marginBottom: 2 },
   p2Sub:   { fontSize: 7, color: C.text3 },
 
-  guideEntry:  { marginBottom: 1, paddingBottom: 1, borderBottomWidth: 1, borderBottomColor: '#E8EDF4' },
+  guideEntry:  { marginBottom: 3, paddingBottom: 3, borderBottomWidth: 1, borderBottomColor: '#E8EDF4' },
   guideHdrRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: 2 },
   guideSitLbl: { fontSize: 8, fontFamily: 'Helvetica-Bold' },
   guidePers:   { fontSize: 5.5, color: C.text3, fontStyle: 'italic' },
   guideCallRow:{ flexDirection: 'row', alignItems: 'center', marginBottom: 2 },
   guideCallLbl:{ fontSize: 5.5, color: C.text3, fontFamily: 'Helvetica-Bold', letterSpacing: 0.8, marginRight: 5 },
-  guideCallTxt:{ fontSize: 6.5, fontFamily: 'Helvetica-Bold', marginRight: 6, flexShrink: 1 },
+  guideCallTxt:{ fontSize: 7, fontFamily: 'Helvetica-Bold', marginRight: 6, flexShrink: 1 },
   guideCallPct:{ fontSize: 6, color: C.text3, flexShrink: 0 },
   guideSetup:  { fontSize: 6, color: C.text2, lineHeight: 1.3, marginBottom: 2 },
+  guideOption: { marginLeft: 8, paddingLeft: 7, marginTop: 2, marginBottom: 2, borderLeftWidth: 1.5, borderLeftColor: C.borderMid },
+  guideOptionHdr: { fontSize: 6.5, fontFamily: 'Helvetica-Bold', color: C.text1, lineHeight: 1.3, marginBottom: 2 },
+  guideCue: { fontFamily: 'Helvetica-Bold' },
+  guideCoaching: { marginTop: 1 },
   guideTipLbl: { fontSize: 5.5, color: C.gold, fontFamily: 'Helvetica-Bold', letterSpacing: 0.8, marginBottom: 1.5 },
   guideTipTxt: { fontSize: 6.5, color: C.text2, lineHeight: 1.4 },
   guideNoCall: { fontSize: 6.5, color: C.text3, fontStyle: 'italic', marginBottom: 2 },
@@ -281,25 +285,41 @@ function GuideEntry({ entry, isLast }) {
 
       {hasPrimary ? (
         <View style={S.guideCallRow}>
-          <Text style={S.guideCallLbl}>CALL</Text>
+          <Text style={S.guideCallLbl}>PRIMARY CALL</Text>
           <Text style={[S.guideCallTxt, { color: PC[entry.primary.priority] || C.text1 }]}>
             {entry.primary.name} · {entry.primary.coverage}
           </Text>
           <Text style={S.guideCallPct}>{entry.primary.sc}/100</Text>
         </View>
       ) : (
-        <Text style={S.guideNoCall}>No formation matched for this situation</Text>
+        <Text style={S.guideNoCall}>Set the live personnel, down and objective.</Text>
       )}
 
       {hasPrimary && entry.primary.quickSetup ? (
-        <Text style={S.guideSetup}>SETUP · {entry.primary.quickSetup}</Text>
+        <Text style={S.guideSetup}><Text style={S.guideCue}>SETUP · </Text>{entry.primary.quickSetup}</Text>
       ) : null}
 
+      {entry.secondary && <View style={S.guideOption}>
+        <Text style={S.guideOptionHdr}>CHANGEUP · {entry.secondary.name} · {entry.secondary.coverage}</Text>
+        <Text style={S.guideTipTxt}><Text style={S.guideCue}>USE WHEN · </Text>{entry.secondary.useWhen}</Text>
+        {entry.secondary.quickSetup && <Text style={S.guideSetup}><Text style={S.guideCue}>SETUP · </Text>{entry.secondary.quickSetup}</Text>}
+      </View>}
+      {entry.pressure && <View style={[S.guideOption, { borderLeftColor: C.pressure }]}>
+        <Text style={S.guideOptionHdr}>CONDITIONAL PRESSURE · {entry.pressure.name} · {entry.pressure.coverage}</Text>
+        <Text style={S.guideTipTxt}><Text style={S.guideCue}>USE WHEN · </Text>{entry.pressure.useWhen}</Text>
+        {entry.pressure.quickSetup && <Text style={S.guideSetup}><Text style={S.guideCue}>SETUP · </Text>{entry.pressure.quickSetup}</Text>}
+        <Text style={S.guideTipTxt}><Text style={S.guideCue}>RESET WHEN · </Text>{entry.pressure.switchWhen}</Text>
+      </View>}
+      {hasPrimary && <View style={S.guideCoaching}>
+        <Text style={S.guideTipTxt}><Text style={S.guideCue}>WATCH · </Text>{entry.primary.watchFor}</Text>
+        <Text style={S.guideTipTxt}><Text style={S.guideCue}>YOUR JOB · </Text>{entry.primary.userJob}</Text>
+      </View>}
+
       {entry.dcTip ? (
-        <>
+        <View style={S.guideCoaching}>
           <Text style={S.guideTipLbl}>DEFENSIVE KEYS</Text>
           <Text style={S.guideTipTxt}>{entry.dcTip}</Text>
-        </>
+        </View>
       ) : null}
     </View>
   );
@@ -311,6 +331,13 @@ export function CallSheetDocument({ data }) {
     profile, situationMatrix, topFormations, situationGuide,
     myBook, runPassLabel, date, totalFormations, contextLabel,
   } = data;
+  // Four detailed calls per printed guide page. Context-only rows stay with
+  // the last group so they do not create a nearly empty extra page.
+  const guidePages = [];
+  for (const entry of situationGuide) {
+    if (!guidePages.length || (entry.primary && guidePages.at(-1).filter(row => row.primary).length >= 4)) guidePages.push([]);
+    guidePages.at(-1).push(entry);
+  }
 
   return (
     <Document title="Defensive Call Sheet" author="Scheme Builders">
@@ -380,7 +407,7 @@ export function CallSheetDocument({ data }) {
               <View style={S.cSitH}><Text style={S.matHdrTxt}>SITUATION</Text></View>
               <View style={S.cPrimH}><Text style={S.matHdrTxt}>PRIMARY CALL</Text></View>
               <View style={S.cPctH}><Text style={S.matHdrTxt}>FIT</Text></View>
-              <View style={S.cSecH}><Text style={S.matHdrTxt}>SECONDARY CALL</Text></View>
+              <View style={S.cSecH}><Text style={S.matHdrTxt}>CHANGEUP</Text></View>
               <View style={S.cPct2H}><Text style={S.matHdrTxt}>FIT</Text></View>
             </View>
 
@@ -397,7 +424,7 @@ export function CallSheetDocument({ data }) {
       </Page>
 
       {/* ══ PAGE 2: Situational Coaching Guide ══ */}
-      <Page size="LETTER" style={S.page}>
+      {guidePages.map((entries, pageIndex) => <Page key={pageIndex} size="LETTER" style={S.page}>
         <View style={S.p2Hdr}>
           <View>
             <Text style={S.p2Brand}>SCHEME BUILDERS</Text>
@@ -406,11 +433,11 @@ export function CallSheetDocument({ data }) {
           <Text style={S.p2Sub}>Fit scores: 0–100, not success probabilities. Same scouted look across rows.</Text>
         </View>
 
-        {situationGuide.map((entry, i) => (
+        {entries.map((entry, i) => (
           <GuideEntry
             key={i}
             entry={entry}
-            isLast={i === situationGuide.length - 1}
+            isLast={i === entries.length - 1}
           />
         ))}
 
@@ -418,7 +445,7 @@ export function CallSheetDocument({ data }) {
           <Text style={S.footerTxt}>Scheme Builders · Fit: 0–100 heuristic, not success probability</Text>
           <Text style={S.footerTxt} render={({ pageNumber, totalPages }) => `Page ${pageNumber} of ${totalPages}`} />
         </View>
-      </Page>
+      </Page>)}
 
     </Document>
   );
@@ -435,6 +462,7 @@ export const ExportPDFButton = memo(function ExportPDFButton({ input, sel, varia
   const [viewing, setViewing] = useState(false);
   const [saving, setSaving] = useState(false);
   const [saveMessage, setSaveMessage] = useState('');
+  const appleMobile = isAppleMobileDevice();
   const generation = useRef(0);
   const objectUrl = useRef(null);
   useEffect(() => () => {
@@ -463,8 +491,11 @@ export const ExportPDFButton = memo(function ExportPDFButton({ input, sel, varia
   const save = async () => {
     if (saving || !file) return;
     setSaving(true); setSaveMessage('');
-    try { await savePdf(file, url); }
-    catch { setSaveMessage('Could not open the save options. Please try again.'); }
+    try {
+      const result = await savePdf(file, url);
+      if (result === 'download') setSaveMessage('Download started. Check your browser’s downloads.');
+    }
+    catch { setSaveMessage('Could not save the PDF. Please try again.'); }
     finally { setSaving(false); }
   };
   if (!input?.traits?.length) return null;
@@ -481,9 +512,9 @@ export const ExportPDFButton = memo(function ExportPDFButton({ input, sel, varia
       </div>
       {status === 'error' && <button type="button" onClick={generate} style={linkStyle}>Try again</button>}
       {url && <>
-        <button type="button" onClick={save} disabled={saving} style={linkStyle}>{saving ? 'Opening save options…' : 'Save PDF'}</button>
+        <button type="button" onClick={save} disabled={saving} style={linkStyle}>{saving ? (appleMobile ? 'Opening save options…' : 'Starting download…') : 'Save PDF'}</button>
         <button type="button" onClick={() => setViewing(value => !value)} style={linkStyle}>{viewing ? 'Hide Preview' : 'View PDF'}</button>
-        <p role="status" style={{ fontSize: 12, color: 'var(--color-text-2)' }}>{saveMessage || 'On iPhone, choose Save to Files if the share sheet opens.'}</p>
+        <p role="status" style={{ fontSize: 12, color: 'var(--color-text-2)' }}>{saveMessage || (appleMobile ? 'Choose Save to Files if the share sheet opens.' : 'Save PDF downloads a copy to your browser’s download location.')}</p>
         {viewing && <CallSheetPreview file={file} />}
       </>}
     </SetupDialog>}

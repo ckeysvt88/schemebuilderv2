@@ -60,7 +60,7 @@ test('red-zone and short-yardage settings require the live situation', () => {
 test('long yardage overrides quick-game scouting and never recommends underneath coverage', () => {
   for (const down of [3, 4]) {
     const plan = buildAdjustmentPlan(fm('Cover 3 Sky'), ['quick_game', 'inside_run'], { down, distance: 'long' });
-    assert.equal(plan.objective.label, 'Protect the sticks');
+    assert.equal(plan.objective.label, down === 3 ? 'Protect the sticks' : 'Deny the conversion');
     assert.match(JSON.stringify(plan.settings), /Zone Strategy.*Conservative|Cornerback Depth.*10 yards/);
     assert.doesNotMatch(JSON.stringify(plan.settings), /Pass Commit/);
     assert.match(JSON.stringify(plan.tools), /Pass Commit/);
@@ -71,7 +71,7 @@ test('long yardage overrides quick-game scouting and never recommends underneath
 
 test('fourth and long plus a deep-shot tendency produces an explicit deep-pass plan', () => {
   const plan = buildAdjustmentPlan(fm('Cover 3 Sky'), ['deep_shots'], { down: 4, distance: 'long' });
-  assert.equal(plan.objective.label, 'Protect the sticks');
+  assert.equal(plan.objective.label, 'Deny the conversion');
   assert.equal(plan.preset.value, 'No Deep Passes');
   assert.match(JSON.stringify(plan.settings), /Conservative|10 yards|Pass Commit/);
   assert.doesNotMatch(JSON.stringify(plan.settings), /Gap Integrity|Underneath/);
@@ -134,7 +134,8 @@ test('reset notes correspond to displayed controls and vary with the adjustment'
   assert.match(quick.alerts[0].action,/Zone Strategy to Default/);
   assert.notDeepEqual(quick.alerts,deep.alerts);
   const long=buildAdjustmentPlan(fm('Cover 3 Sky'),['deep_shots','mobile_qb'],{down:4,distance:'long'});
-  assert.ok(long.tools.some(s=>s.value==='QB Contain'));
+  assert.ok(long.settings.some(s=>s.value==='QB Contain'));
+  assert.ok(long.tools.some(s=>s.setting==='Pass Commit'));
 });
 test('every catalog call has consistent setup, toolbox and reset instructions', () => {
   let count=0;
