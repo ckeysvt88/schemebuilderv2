@@ -95,13 +95,15 @@ function Alternative({ entry, board, onLogCall, userPosition, expanded, onExpand
   </details>;
 }
 
-function PressureStatus({ plan }) {
+function PressureStatus({ plan, userPosition, onLogCall, board = false, expanded, onExpandedChange }) {
   const decision = plan.pressureDecision;
-  return <section className="plan-alternative plan-alternative-pressure plan-pressure-status" aria-label="Pressure status">
+  return <section className={`plan-alternative plan-alternative-pressure plan-pressure-status${expanded ? ' plan-alternative-expanded' : ''}`} aria-label="Pressure status">
     <span className="plan-role plan-role-pressure">Pressure check</span>
     <h4 className="plan-alternative-title">{decision?.label || 'No separate pressure call'}</h4>
     <p>{decision?.text || 'Use the primary call. A separate pressure option is not included in this plan.'}</p>
-    {decision?.status === 'primary' && <p><strong>Already selected:</strong> {plan.primary.formation} · {plan.primary.call}</p>}
+    <p><strong>{decision?.status === 'primary' ? 'Already selected:' : 'Use primary setup:'}</strong> {plan.primary.formation} · {plan.primary.call}</p>
+    <CoachingDetails entry={plan.primary} includeAssignment userPosition={userPosition} onLogCall={onLogCall}
+      open={board ? expanded : undefined} onToggle={board ? event => onExpandedChange('pressure', event.currentTarget.open) : undefined} />
   </section>;
 }
 
@@ -146,7 +148,7 @@ function FormationFirst({ plan, userPosition, onLogCall }) {
     <p className="plan-one-setup">Start with the primary formation. Open another formation for its call, setup and your job.</p>
     <div className="plan-formation-groups">{[...groups].map(([formation, entries]) =>
       <FormationGroup key={`${formation}-${entries.some(entry => entry.role === 'primary')}`} formation={formation} entries={entries} userPosition={userPosition} onLogCall={onLogCall} />)}</div>
-    {!plan.pressure && <PressureStatus plan={plan} />}
+    {!plan.pressure && <PressureStatus plan={plan} userPosition={userPosition} onLogCall={onLogCall} />}
     <p className="plan-one-setup">Apply one call’s setup at a time. Change personnel between snaps.</p>
     <PlanNotes plan={plan} pressureShown={!plan.pressure} />
   </section>;
@@ -177,7 +179,8 @@ export default function PlanPresentation({ plan, layout = 'quick', userPosition,
           expanded={expandedAlternative === 'changeup'} onExpandedChange={changeExpansion} />
         <Alternative entry={plan.pressure} board={board} onLogCall={onLogCall} userPosition={userPosition}
           expanded={expandedAlternative === 'pressure'} onExpandedChange={changeExpansion} />
-        {board && !plan.pressure && <PressureStatus plan={plan} />}
+        {board && !plan.pressure && <PressureStatus plan={plan} board userPosition={userPosition} onLogCall={onLogCall}
+          expanded={expandedAlternative === 'pressure'} onExpandedChange={changeExpansion} />}
       </div>
       <p className="plan-one-setup">Switch for a problem you see. Apply one call’s setup at a time.</p>
     </>}
