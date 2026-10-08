@@ -325,15 +325,37 @@ button, label { user-select: none; -webkit-user-select: none; }
   text-shadow: none !important;
 }
 
-/* Preserve the existing muted primary-color details in dark mode. */
+/* One neutral frame connects the team header and expanded details in light mode. */
+.team-info-panel {
+  --team-outline: color-mix(in srgb, var(--color-text-3) 65%, var(--color-surface-1));
+  --team-info-radius: var(--r-md);
+  margin-bottom: 12px;
+  border-radius: var(--r-md);
+}
+.team-info-header {
+  border: 1px solid var(--team-outline);
+  border-left: 6px solid var(--team-secondary);
+}
+/* Preserve the existing muted primary-color details and borders in dark mode. */
 .team-info-details {
   background: color-mix(in srgb, var(--team-primary) 8%, var(--color-surface-1));
+  border: 1px solid var(--team-outline);
+  border-left: 3px solid var(--team-outline);
+  border-top: none;
 }
-/* Use a light secondary tint, falling back to the primary when secondary is white. */
+[data-theme="light"] .team-info-panel {
+  --team-info-radius: calc(var(--r-md) - 1px);
+  border: 1px solid var(--team-outline);
+}
+[data-theme="light"] .team-info-header {
+  border: 0;
+  border-left: 6px solid var(--team-secondary);
+}
+[data-theme="light"] .team-info-header[aria-expanded="true"] {
+  border-bottom: 1px solid var(--team-outline);
+}
+/* Use a light secondary tint, falling back to primary when secondary is white. */
 [data-theme="light"] .team-info-details {
   background: color-mix(in srgb, var(--team-light-tint) 18%, #ffffff);
-}
-/* Outline the outside of the secondary stripe, including white team accents. */
-[data-theme="light"] .team-info-header {
-  box-shadow: 0 0 0 1px var(--team-primary);
+  border: 0;
 }
