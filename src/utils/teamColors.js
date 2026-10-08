@@ -29,6 +29,7 @@ export function getTeamHeaderColors(team) {
   return {
     primary,
     secondary,
+    lightDetails: secondary === '#FFFFFF' ? primary : secondary,
     primaryText: textColor(primary),
     secondaryText: textColor(secondary),
   };
