@@ -261,7 +261,8 @@ export default function GamePlanScreen({
               return (
                 <div>
                   {/* ── Collapsible Team Info ── */}
-                  {selectedTeam && (<>
+                  {selectedTeam && (
+                    <div className="team-info-panel" style={{ "--team-primary": teamHeader.primary, "--team-secondary": teamHeader.secondary, "--team-light-tint": teamHeader.lightDetails }}>
                     <button
                       type="button"
                       aria-expanded={showTeamInfo}
@@ -269,11 +270,9 @@ export default function GamePlanScreen({
                       onClick={() => setShowTeamInfo(v => !v)}
                       style={{
                         width: "100%", display: "flex", alignItems: "center", justifyContent: "space-between",
-                        "--team-primary": teamHeader.primary,
-                        background: teamHeader.primary, border: "1px solid color-mix(in srgb, var(--color-text-3) 65%, var(--color-surface-1))",
-                        borderLeft: `6px solid ${teamHeader.secondary}`,
-                        borderRadius: showTeamInfo ? "var(--r-md) var(--r-md) 0 0" : "var(--r-md)",
-                        padding: "9px 14px", marginBottom: showTeamInfo ? 0 : 12,
+                        background: teamHeader.primary,
+                        borderRadius: showTeamInfo ? "var(--team-info-radius) var(--team-info-radius) 0 0" : "var(--team-info-radius)",
+                        padding: "9px 14px",
                         cursor: "pointer", textAlign: "left",
                       }}
                     >
@@ -285,7 +284,7 @@ export default function GamePlanScreen({
                       </span>
                     </button>
                     {showTeamInfo && (
-                      <div className="team-info-details" style={{ "--team-primary": teamHeader.primary, "--team-light-tint": teamHeader.lightDetails, border: "1px solid color-mix(in srgb, var(--color-text-3) 65%, var(--color-surface-1))", borderLeft: "3px solid color-mix(in srgb, var(--color-text-3) 65%, var(--color-surface-1))", borderTop: "none", borderRadius: "0 0 var(--r-md) var(--r-md)", padding: "12px 14px", marginBottom: 12 }}>
+                      <div className="team-info-details" style={{ borderRadius: "0 0 var(--team-info-radius) var(--team-info-radius)", padding: "12px 14px" }}>
                         {selectedTeam.notes && (
                           <div style={{ marginBottom: 10, paddingBottom: 10, borderBottom: "1px solid var(--color-border-subtle)" }}>
                             <div style={{ fontSize: 10, color: "var(--color-text-2)", letterSpacing: "2px", textTransform: "uppercase", marginBottom: 4, fontFamily: "var(--font-mono)" }}>Scouting Report</div>
@@ -314,7 +313,8 @@ export default function GamePlanScreen({
                         </div>
                       </div>
                     )}
-                  </>)}
+                    </div>
+                  )}
 
                   {/* ── Collapsible DC Guidance ── */}
                   <button
