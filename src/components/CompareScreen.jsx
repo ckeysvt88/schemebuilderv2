@@ -1,8 +1,13 @@
+import { useState } from 'react';
 import { PLAYBOOKS } from '../data/playbooks.js';
 import { FDB } from '../data/formations.js';
+import { TEAMS } from '../data/teams.js';
 import { PC, PL } from './FormationCard.jsx';
+import CompareSchoolList from './CompareSchoolList.jsx';
 
 const BOOK_NAMES = ["All", ...Object.keys(PLAYBOOKS)];
+const SCHOOLS = [...TEAMS].sort((a, b) => a.name.localeCompare(b.name));
+const getSchools = book => SCHOOLS.filter(team => book === 'All' || team.defPlaybook === book);
 
 const pbColor = (book) =>
   book === "All" ? "var(--color-text-2)" : (PLAYBOOKS[book]?.color || "var(--color-text-2)");
@@ -38,6 +43,7 @@ function FmList({ fms, borderColor }) {
 }
 
 export default function CompareScreen({ compareA, setCompareA, compareB, setCompareB }) {
+  const [schoolBook, setSchoolBook] = useState(null);
   const fmsA   = getFormations(compareA);
   const fmsB   = getFormations(compareB);
   const namesA = new Set(fmsA.map(f => f.name));
@@ -138,17 +144,22 @@ export default function CompareScreen({ compareA, setCompareA, compareB, setComp
         )}
 
         {/* Descriptions */}
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
-          {[compareA, compareB].map(book => (
-            <div key={book} style={{ background: "var(--color-surface-2)", border: `1px solid color-mix(in srgb, ${PLAYBOOKS[book]?.color || "var(--color-border)"} 40%, var(--color-surface-2))`, borderLeft: `3px solid ${PLAYBOOKS[book]?.color || "var(--color-border)"}`, borderRadius: "var(--r-md)", padding: "12px 13px" }}>
-              <div style={{ fontSize: 12, fontWeight: "700", color: PLAYBOOKS[book]?.color || "var(--color-text-2)", fontFamily: "var(--font-mono)", marginBottom: 5 }}>{book}</div>
-              <div style={{ fontSize: 12, color: "var(--color-text-2)", lineHeight: 1.55 }}>
+        <div style={{ display: "grid", gridTemplateColumns: "minmax(0, 1fr) minmax(0, 1fr)", gap: 10 }}>
+          {[compareA, compareB].map((book, index) => (
+            <div key={index} style={{ background: "var(--color-surface-2)", border: `1px solid color-mix(in srgb, ${PLAYBOOKS[book]?.color || "var(--color-border)"} 40%, var(--color-surface-2))`, borderLeft: `3px solid ${PLAYBOOKS[book]?.color || "var(--color-border)"}`, borderRadius: "var(--r-md)", padding: "12px 13px", display: "flex", flexDirection: "column", minWidth: 0 }}>
+              <div style={{ fontSize: 12, fontWeight: "700", color: "var(--color-text-1)", fontFamily: "var(--font-mono)", marginBottom: 5, overflowWrap: "anywhere" }}>{book}</div>
+              <div style={{ fontSize: 12, color: "var(--color-text-2)", lineHeight: 1.55, flex: 1 }}>
                 {book === "All" ? "All formations from every playbook." : (PLAYBOOKS[book]?.desc || "")}
               </div>
+              <button type="button" className="compare-school-button" aria-haspopup="dialog" aria-label={`View schools with ${book === 'All' ? 'all playbooks' : book}`} onClick={() => setSchoolBook(book)}>
+                <span>View schools<span className="compare-school-count">{getSchools(book).length} {getSchools(book).length === 1 ? 'school' : 'schools'} listed</span></span>
+                <span aria-hidden="true">›</span>
+              </button>
             </div>
           ))}
         </div>
       </div>
+      {schoolBook !== null && <CompareSchoolList key={schoolBook} book={schoolBook} schools={getSchools(schoolBook)} onClose={() => setSchoolBook(null)} />}
     </div>
   );
 }

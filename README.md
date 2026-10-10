@@ -34,7 +34,7 @@ You can also start from **Teams** and adjust the supplied team profile to match 
 | **In-game Adjust** | Update the tendencies you are seeing and refresh the plan during a game. |
 | **Macros** | Build a reference loadout of up to 10 problem-based adjustment packages, with setup steps, at-the-line changes, your job, and tradeoffs. |
 | **Play Art — Beta** | Edit individual defender assignments and alignment on an interactive field, then save your custom setup. |
-| **Playbook comparison** | See the formations two defensive playbooks share and what each book adds. |
+| **Playbook comparison** | See the formations two defensive playbooks share and what each book adds. Use View schools under either playbook to see an alphabetical list of schools assigned to that exact defensive playbook. |
 | **Formation reference** | Explore personnel, alignments, strengths, weaknesses, and catalogued play capabilities; open a formation in Play Art with Customize. |
 | **Saved profiles and notes** | Reuse opponent scouts, export/import profile backups, and keep game observations. |
 | **Call sheets and sharing** | Save or view a PDF call sheet and share or copy your current recommendation summary. |
