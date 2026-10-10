@@ -1,13 +1,9 @@
-import { useEffect, useId, useRef, useState } from 'react';
+import { useEffect, useId, useRef } from 'react';
 import './CompareSchoolList.css';
-
-const PAGE_SIZE = 10;
 
 export default function CompareSchoolList({ book, schools, onClose }) {
   const dialogRef = useRef(null);
   const titleId = useId();
-  const [page, setPage] = useState(0);
-  const pageSchools = schools.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE);
 
   useEffect(() => {
     const dialog = dialogRef.current;
@@ -37,19 +33,12 @@ export default function CompareSchoolList({ book, schools, onClose }) {
         </div>
         <button type="button" className="compare-school-close" onClick={onClose} autoFocus>Close</button>
       </header>
-      <div className="compare-school-body">
+      <div className="compare-school-body" role="region" aria-label="Schools" tabIndex={0}>
         {schools.length > 0 ? (
           <ul className="compare-school-list">
-            {pageSchools.map(school => <li key={school.id} style={{ borderLeftColor: school.color }}><span>{school.name}</span></li>)}
+            {schools.map(school => <li key={school.id} style={{ borderLeftColor: school.color }}><span>{school.name}</span></li>)}
           </ul>
         ) : <p className="compare-school-empty">No schools are listed with this exact playbook in the current scouting data.</p>}
-        {schools.length > PAGE_SIZE && (
-          <div className="compare-school-pagination">
-            <button type="button" onClick={() => setPage(page - 1)} disabled={page === 0}>Previous</button>
-            <span role="status">{page * PAGE_SIZE + 1}–{Math.min((page + 1) * PAGE_SIZE, schools.length)} of {schools.length}</span>
-            <button type="button" onClick={() => setPage(page + 1)} disabled={(page + 1) * PAGE_SIZE >= schools.length}>Next</button>
-          </div>
-        )}
       </div>
     </dialog>
   );

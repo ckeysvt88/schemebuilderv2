@@ -1,6 +1,5 @@
 .compare-school-button,
-.compare-school-close,
-.compare-school-pagination button {
+.compare-school-close {
   min-height: 44px;
   padding: 10px 12px;
   border: 1px solid var(--color-border);
@@ -34,10 +33,10 @@
   inset: auto 12px max(12px, env(safe-area-inset-bottom));
   width: calc(100% - 24px);
   max-width: 688px;
-  max-height: calc(100dvh - 24px - env(safe-area-inset-bottom));
+  max-height: min(80dvh, calc(100dvh - 24px - env(safe-area-inset-bottom)));
   margin: 0 auto;
   padding: 0;
-  overflow-y: auto;
+  overflow: hidden;
   overscroll-behavior: contain;
   border: 1px solid var(--color-border);
   border-radius: 14px;
@@ -48,8 +47,10 @@
 }
 
 .compare-school-dialog::backdrop { background: rgba(7, 8, 15, .55); }
+.compare-school-dialog[open] { display: flex; flex-direction: column; }
 
 .compare-school-header {
+  flex-shrink: 0;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -70,7 +71,14 @@
 
 .compare-school-subtitle { margin-top: 5px; color: var(--color-text-3); font-size: 13px; }
 .compare-school-close { flex-shrink: 0; }
-.compare-school-body { padding: 16px; }
+.compare-school-body {
+  min-height: 0;
+  padding: 16px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+}
 .compare-school-list { margin: 0; padding: 0; list-style: none; }
 
 .compare-school-list li {
@@ -94,10 +102,6 @@
 }
 
 .compare-school-empty { margin: 0; padding: 18px 12px; color: var(--color-text-2); line-height: 1.5; text-align: center; }
-.compare-school-pagination { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-top: 12px; }
-.compare-school-pagination span { color: var(--color-text-3); font-size: 12px; text-align: center; }
-.compare-school-pagination button { padding: 10px; }
-.compare-school-pagination button:disabled { opacity: .45; cursor: default; }
 
 @media (max-width: 380px) {
   .compare-school-header h2 { font-size: 16px; }
