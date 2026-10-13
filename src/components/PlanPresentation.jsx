@@ -1,13 +1,14 @@
 import { useState } from 'react';
 import SetupDialog from './SetupDialog.jsx';
+import PlannedCallMix from './PlannedCallMix.jsx';
 import './planPresentation.css';
 
 export function PlanLayoutPicker({ layout, onChange }) {
   const [open, setOpen] = useState(false);
   const choices = [
     { value: 'original', label: 'Original', description: 'Full call plan and formation list.' },
-    { value: 'quick', label: 'Quick Call', description: 'Primary call first, alternatives on demand.' },
-    { value: 'board', label: 'Coaching Board', description: 'Primary, changeup and pressure together.' },
+    { value: 'quick', label: 'Quick Call', description: 'Foundation first, other calls on demand.' },
+    { value: 'board', label: 'Coaching Board', description: 'Call mix and coaching cues together.' },
     { value: 'formation', label: 'Formation First', description: 'Group your planned calls by defensive formation.' },
   ];
   return <>
@@ -154,9 +155,10 @@ function FormationFirst({ plan, userPosition, onLogCall }) {
   </section>;
 }
 
-export default function PlanPresentation({ plan, layout = 'quick', userPosition, onLogCall }) {
+export default function PlanPresentation({ plan, mix, layout = 'quick', userPosition, onLogCall }) {
   const [expandedAlternative, setExpandedAlternative] = useState(null);
   const changeExpansion = (role, open) => setExpandedAlternative(current => open ? role : current === role ? null : current);
+  if (mix?.calls?.length) return <PlannedCallMix mix={mix} purpose={plan?.purpose} layout={layout} userPosition={userPosition} onLogCall={onLogCall} />;
   if (!plan?.primary) return null;
   if (layout === 'formation') return <FormationFirst plan={plan} userPosition={userPosition} onLogCall={onLogCall} />;
   const entry = plan.primary;

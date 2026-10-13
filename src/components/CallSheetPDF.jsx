@@ -4,6 +4,7 @@ import { isAppleMobileDevice, savePdf } from '../utils/savePdf.js';
 import CallSheetPreview from './CallSheetPreview.jsx';
 import { Document, Page, Text, View, StyleSheet, pdf } from '@react-pdf/renderer';
 import { buildCallSheetData } from '../engine/buildCallSheet.js';
+import MixCallSheetDocument from './MixCallSheetPDF.jsx';
 
 // ── Print-friendly light theme ────────────────────────────────────────────────
 const C = {
@@ -327,6 +328,7 @@ function GuideEntry({ entry, isLast }) {
 
 // ── PDF Document ──────────────────────────────────────────────────────────────
 export function CallSheetDocument({ data }) {
+  if (data.plannedMix?.calls?.length) return <MixCallSheetDocument data={data} />;
   const {
     profile, situationMatrix, topFormations, situationGuide,
     myBook, runPassLabel, date, totalFormations, contextLabel,

@@ -1,4 +1,4 @@
-const CACHE = 'schemebuilders-v3-2';
+const CACHE = 'schemebuilders-planned-mix-2026-10-13';
 const BASE  = '/';
 const SHELL = BASE + 'index.html';
 const ASSETS = [

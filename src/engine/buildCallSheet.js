@@ -8,6 +8,7 @@ import { TRAIT_LABELS, TRAITS } from '../data/traits.js';
 import { getFrontStructure } from './frontStructure.js';
 
 import { RUN_PASS_LABELS } from '../data/runPassBias.js';
+import { splitSharedCallInstructions } from './sharedCallInstructions.js';
 
 // Down/distance seeds for each situation row in the matrix
 const SITUATIONS = [
@@ -73,6 +74,7 @@ export function buildCallSheetData({ input, sel = {} }) {
     const ranked = result.formations;
     return { ...sit, primary: pluckPlan(result.callPlan.primary, ranked), secondary: pluckPlan(result.callPlan.changeup, ranked),
       pressure: pluckPlan(result.callPlan.pressure, ranked), callPlan: result.callPlan,
+      plannedMix: result.plannedMix, mixInstructions: splitSharedCallInstructions(result.plannedMix.calls),
       purpose: result.purpose, dcTip: result.purpose.text };
   });
   // These labels alone do not specify an objective or the offensive alignment.
@@ -85,7 +87,8 @@ export function buildCallSheetData({ input, sel = {} }) {
   );
   return {
     profile, situationMatrix,
-    callPlan: current.callPlan, purpose: current.purpose,
+    callPlan: current.callPlan, plannedMix: current.plannedMix, purpose: current.purpose,
+    userPosition: current.userProfileLabels.position,
     topFormations: current.formations.slice(0, 4).map(pluck),
     situationGuide: situationMatrix.map(row => ({ ...row, likelyPersonnel: '' })),
     contextLabel: `${current.familyLabel} · ${current.context.label}${current.gameObjective.id === 'balanced' ? '' : ' · ' + current.gameObjective.label}`,

@@ -14,6 +14,8 @@ import { TRAIT_LABELS } from '../data/traits.js';
 import { PERSONNEL_FAMILIES } from '../data/personnel.js';
 import { normalizeUserProfile, userProfileLabels } from '../data/userProfile.js';
 import { buildComplementaryPlan } from './complementaryPlan.js';
+import { buildPlannedCallMix } from './plannedCallMix.js';
+import { splitSharedCallInstructions, MIX_ROLE_LABELS } from './sharedCallInstructions.js';
 
 // The single entry point for live cards, details, sharing and PDF rows.
 export function recommend({ traits = [], book = 'All', runPass = 4, familyId = null, down = 'base', distance = '', userProfile = {}, gameObjective = 'balanced' } = {}) {
@@ -65,8 +67,9 @@ export function recommend({ traits = [], book = 'All', runPass = 4, familyId = n
   }
   const first = formations[0];
   const callPlan = buildComplementaryPlan(candidates, first ? { formation: first.name, personnel: first.personnel, priority: first.priority, call: first.personalizedCall } : null, planningContext);
-  return { context, purpose, gameObjective: objective, familyId, familyLabel: PERSONNEL_FAMILIES[familyId]?.label || 'All scouted looks', book, runPass,
+  const result = { context, purpose, gameObjective: objective, familyId, familyLabel: PERSONNEL_FAMILIES[familyId]?.label || 'All scouted looks', book, runPass,
     userProfile: normalizedUserProfile, userProfileLabels: userProfileLabels(normalizedUserProfile), formations, callPlan };
+  return { ...result, plannedMix: buildPlannedCallMix(result, traits) };
 }
 
 export function buildRecommendationShareText(result, traits = []) {
@@ -75,7 +78,26 @@ export function buildRecommendationShareText(result, traits = []) {
   if (result.gameObjective?.id !== 'balanced') lines.push(`Game objective: ${result.gameObjective.label}`, '');
   if (result.purpose) lines.push(`Purpose: ${result.purpose.label}`, result.purpose.target || '', result.purpose.text, '');
   if (traits.length) lines.push('Scouted: ' + traits.map(t => TRAIT_LABELS[t] || t).join(', '), '');
-  if (result.callPlan?.primary) {
+  if (result.plannedMix?.calls?.length) {
+    const { shared, calls } = splitSharedCallInstructions(result.plannedMix.calls);
+    lines.push('PLANNED CALL MIX — not a fixed sequence');
+    for (const entry of calls) {
+      lines.push(`${MIX_ROLE_LABELS[entry.role].toUpperCase()}: ${entry.formation} · ${entry.call} — ${entry.sc}/100`, entry.useWhen);
+      if (entry.opponentRead) lines.push(`Possible offensive response (anticipated, not observed): ${entry.opponentRead}`);
+      if (entry.localSetup.length) lines.push(`Additional setup: ${entry.localSetup.join(' · ')}`);
+      if (entry.localUserJob) lines.push(`Your job: ${entry.localUserJob}`);
+      if (entry.localWatchFor) lines.push(`Watch for: ${entry.localWatchFor}`);
+      for (const tradeoff of entry.tradeoffs) lines.push(`What you give up: ${tradeoff.threat} — ${tradeoff.watchFor}`);
+      lines.push(entry.setupWarning);
+    }
+    if (shared.setup.length || shared.userJob || shared.watchFor) {
+      lines.push('APPLIES TO ALL CALLS IN THIS SITUATION');
+      if (shared.setup.length) lines.push(`Setup: ${shared.setup.join(' · ')}`);
+      if (shared.userJob) lines.push(`Your job: ${shared.userJob}`);
+      if (shared.watchFor) lines.push(`Watch for: ${shared.watchFor}`);
+    }
+    lines.push(...result.plannedMix.notes, '');
+  } else if (result.callPlan?.primary) {
     lines.push('COORDINATED CALL PLAN');
     for (const role of ['primary', 'changeup', 'pressure']) {
       const entry = result.callPlan[role];

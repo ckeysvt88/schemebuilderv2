@@ -55,11 +55,13 @@ All four views use the same recommendations. The optional layouts include an exp
 
 The Coaching Board pressure section includes **Setup, your job & coaching**. If a separate pressure call qualifies, its own assignment and setup are shown. Otherwise, the section explains the pressure decision and identifies the **primary call** whose setup and job apply—including when that primary already sends extra rushers.
 
-### Your call plan
+### Your planned call mix
 
-The plan explains the purpose of the current down and distance, including the line to gain when distance is supplied. Its primary call is the starting point; a changeup addresses a credible weakness, and a conditional pressure call includes guidance on when to use it and when to return to the primary.
+The plan builds up to four meaningful answers for the current situation: a **Foundation**, proactive coverage **Variation**, a **Counter** to a possible offensive response, and qualifying **Pressure** or another variation. These are choices to mix during a game, not a fixed repeating sequence. Pressure is conditional; it is never added just to fill a tile.
 
-Each planned call keeps its own setup, user assignment, coaching cues, and formation-change warning. Apply one call's setup at a time. Against tempo, planned alternatives stay in the same defensive formation; confirm your available audibles before the game.
+Original uses a compact **2×2 play matrix**; Quick Call puts the foundation first, Coaching Board adds short coaching cues, and Formation First groups the mix by formation. Tap a play to open its full coaching, adjustments, tradeoffs and audible checks; return to the mix with the back button. The existing formation browser remains available.
+
+Instructions identical across every call appear once in **Applies to all calls**, below the plays and collapsed by default. Only the common settings and responsibilities are shared; each call retains its differences. Changing the scout or situation recomputes the shared section. Against tempo, alternatives stay in the same defensive formation; confirm available audibles before the game.
 
 **Test This Call** carries the selected planned call and its setup into the observation form, including when you choose a changeup or pressure option.
 
@@ -109,7 +111,7 @@ The recommendation pipeline combines:
 - Your defensive user position, preferred style, and game objective.
 - The purpose of the exact down and distance, including early-down balance, second-and-short shot risk, and protecting the line to gain on conversion downs.
 
-After evaluating calls, the engine builds a coordinated plan. A changeup must improve an identified weakness while preserving coverage against other credible threats and staying competitive in overall fit. A separate pressure option needs verified extra rushers and must pass the matchup, fit, objective, and personnel checks. The plan explains when no alternative qualifies.
+After evaluating calls, the engine builds a planned mix from verified, available stock plays. Coverage assignments must differ meaningfully; changing formation names alone is not variation. It considers hypothetical offensive responses to repeated coverage, then selects alternatives within bounded fit and threat tradeoffs. It preserves objective, personnel, tempo and existing QB-control safeguards. These responses are anticipated possibilities, not observed tendencies or predictions of the next snap. Scores remain unchanged. Limited playbooks may yield fewer than four calls.
 
 The shared recommendation service supplies the live plan, call details, share text, and PDF call-sheet recommendations.
 
@@ -127,7 +129,7 @@ Saved profiles, notes, call tests, and macros stay in the browser on the device 
 
 The call sheet offers **Save PDF** and **View PDF** without leaving your plan. On iPhone and supported iPads, Save PDF opens the share sheet; choose **Save to Files**. On a desktop, Save PDF starts a direct download.
 
-The PDF includes a situational coaching guide with the primary call, qualifying changeup and pressure options, setup, your job, and defensive keys. Clear headings, emphasized cues, and indented alternatives make it easier to scan. PDF recommendations use the same engine as the live plan.
+The PDF opens with a quick-reference matrix of all twelve down/distance situations and their planned mixes. Companion coaching pages show the calls in a 2×2 arrangement, with shared setup and responsibilities once above each situation's calls. Each call keeps its unique coaching and tradeoffs. PDF recommendations use the same engine as the live plan.
 
 ## Run locally
 
@@ -198,7 +200,9 @@ GitHub Actions deploys `main` to **GitHub Pages** at [schemebuilders.com](https:
 
 The deployment workflow installs locked dependencies, audits for high-severity vulnerabilities, runs tests, builds the app, and publishes `dist/`. The custom domain is configured in `public/CNAME`.
 
-The version before the optional Plan layouts is preserved on [`rollback/pre-plan-layouts-2026-10-08`](https://github.com/ckeysvt88/schemebuilderv2/tree/rollback/pre-plan-layouts-2026-10-08). See the [rollback notes](docs/reviews/PLAN_LAYOUTS_ROLLBACK.md) and [layout review](docs/reviews/PLAN_LAYOUTS_SCOPE.md) for release details. Subsequent fixes can be reverted separately.
+The version before the planned call mix is preserved on [`rollback/pre-planned-call-mix-2026-10-13`](https://github.com/ckeysvt88/schemebuilderv2/tree/rollback/pre-planned-call-mix-2026-10-13), at commit `64e76b06593122cc70cd8691ee1af4c79d5ec312`. Revert the planned-mix release commit to restore that behavior without rewriting main's history. Browser profiles, notes and saved data use the existing storage formats.
+
+The version before the optional Plan layouts is also preserved on [`rollback/pre-plan-layouts-2026-10-08`](https://github.com/ckeysvt88/schemebuilderv2/tree/rollback/pre-plan-layouts-2026-10-08). See the [rollback notes](docs/reviews/PLAN_LAYOUTS_ROLLBACK.md) for that earlier release.
 
 ## Feedback and contributions
 

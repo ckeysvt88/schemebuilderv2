@@ -1,3 +1,5 @@
+import PlannedCallMix from './PlannedCallMix.jsx';
+
 const card = { background: 'var(--color-surface-1)', border: '1px solid var(--color-border-subtle)', borderRadius: 6, padding: '10px 12px', marginTop: 8 };
 const text = { fontSize: 11, lineHeight: 1.5, color: 'var(--color-text-2)', margin: '5px 0 0' };
 
@@ -24,7 +26,8 @@ function PlanEntry({ entry, primary = false, showFormation = true }) {
   </div>;
 }
 
-export default function CallPlanPanel({ plan, showFormation = true, heading = 'Your call plan' }) {
+export default function CallPlanPanel({ plan, mix, userPosition, onLogCall, showFormation = true, heading = 'Your call plan' }) {
+  if (mix?.calls?.length) return <PlannedCallMix mix={mix} purpose={plan?.purpose} userPosition={userPosition} onLogCall={onLogCall} />;
   if (!plan?.primary) return null;
   return <section aria-label={heading} style={{ border: '1px solid var(--color-gold-border)', background: 'var(--color-gold-surface)', borderRadius: 8, padding: '11px 12px', margin: '12px 0 16px' }}>
     <h3 style={{ fontSize: 13, margin: 0, color: 'var(--color-text-1)' }}>{heading}</h3>

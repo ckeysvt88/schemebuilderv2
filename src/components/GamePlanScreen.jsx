@@ -229,7 +229,11 @@ export default function GamePlanScreen({
           {recommendation.familyLabel} · {recommendation.context.label} · Opponent: <strong>{RUN_PASS_LABELS[recommendation.runPass]}</strong>. Fit scores are rankings, not success probabilities.
         </p>
         {!planList.length && <p role="status">No recommended call fits this scout, situation and playbook. Check the current offensive look or choose another defensive playbook.</p>}
-        {planLayout === 'original' ? <CallPlanPanel plan={recommendation.callPlan} /> : <PlanPresentation plan={recommendation.callPlan} layout={planLayout} userPosition={profileLabels.position}
+        {planLayout === 'original' ? <CallPlanPanel key={JSON.stringify(recommendationInput)} plan={recommendation.callPlan} mix={recommendation.plannedMix} userPosition={profileLabels.position}
+          onLogCall={entry => {
+            const fm = planList.find(formation => formation.name === entry.formation);
+            if (fm) openCallTest(fm, { call: entry.call, plan: entry.adjustmentPlan });
+          }} /> : <PlanPresentation key={`${planLayout}:${JSON.stringify(recommendationInput)}`} plan={recommendation.callPlan} mix={recommendation.plannedMix} layout={planLayout} userPosition={profileLabels.position}
           onLogCall={entry => {
             const fm = planList.find(formation => formation.name === entry.formation);
             if (fm) openCallTest(fm, { call: entry.call, plan: entry.adjustmentPlan });

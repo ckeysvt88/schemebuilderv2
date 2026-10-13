@@ -135,7 +135,8 @@ test('PDF and sharing consume the same primary, changeup, setup and switch trigg
   const result = recommend(input);
   const pdf = buildCallSheetData({ input });
   assert.deepEqual(pdf.callPlan, result.callPlan);
-  assert.match(buildRecommendationShareText(result), /COORDINATED CALL PLAN/);
+  assert.match(buildRecommendationShareText(result), /PLANNED CALL MIX/);
+  assert.deepEqual(pdf.plannedMix, result.plannedMix);
   for (const row of pdf.situationMatrix.filter(r => r.down)) {
     const live = recommend({ ...input, down: row.down, distance: row.distance }).callPlan;
     for (const [exported, entry] of [[row.primary, live.primary], [row.secondary, live.changeup], [row.pressure, live.pressure]]) {
