@@ -131,6 +131,16 @@ export function getAvailableFamilies(flat, teamId) {
   return withPersonnelSupplement(base, flat);
 }
 
+// Inventory order is not an offensive tendency. Start with a scouted personnel
+// family present in the inventory; leave every other available look selectable.
+export function getDefaultFamily(traits = [], teamId) {
+  const available = getAvailableFamilies(traits, teamId);
+  const inferred = inferFamiliesFromTraits(traits);
+  const personnel = traits.filter(tag => /^p\d\d$/.test(tag));
+  const basic = personnel.flatMap(tag => [`${tag}_gun`, `${tag}_iForm`, `${tag}_jumbo`]);
+  return basic.find(id => available.includes(id)) || inferred.find(id => available.includes(id)) || available[0] || 'p11_gun';
+}
+
 // Option 2 personnel supplement — mirrors diff_families.mjs exactly.
 // Manifest = alignment evidence. Explicit personnel tags (CK Phase-8) = WR/TE/back
 // COUNT the scrape's family field can't see. Only p10/p12/p20 are supplemented;

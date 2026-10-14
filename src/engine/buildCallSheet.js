@@ -86,6 +86,7 @@ export function buildCallSheetData({ input, sel = {} }) {
       dcTip: 'Use down, distance, score, clock and timeouts to set the objective. Two minutes alone does not justify Prevent or conceding short throws.' }
   );
   return {
+    opponentName: input?.opponentName || '',
     profile, situationMatrix,
     callPlan: current.callPlan, plannedMix: current.plannedMix, purpose: current.purpose,
     userPosition: current.userProfileLabels.position,

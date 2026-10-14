@@ -129,7 +129,7 @@ Saved profiles, notes, call tests, and macros stay in the browser on the device 
 
 The call sheet offers **Save PDF** and **View PDF** without leaving your plan. On iPhone and supported iPads, Save PDF opens the share sheet; choose **Save to Files**. On a desktop, Save PDF starts a direct download.
 
-The PDF opens with a quick-reference matrix of all twelve down/distance situations and their planned mixes. Companion coaching pages show the calls in a 2×2 arrangement, with shared setup and responsibilities once above each situation's calls. Each call keeps its unique coaching and tradeoffs. PDF recommendations use the same engine as the live plan.
+The PDF is a **two-page quick reference**. Page one lists all twelve down/distance situations with a starting call and eligible variations, counters and pressure options. Page two collects shared setup and user responsibilities once, keyed to each call. Full watch-outs, adjustment reasons and tradeoffs remain in the app; unusually large instruction sets are explicitly marked **APP**. PDF recommendations use the same engine as the live plan, including situational conversion-window costs and second-and-short shot protection. The starting column is part of a mix, not an every-snap prescription.
 
 ## Run locally
 
@@ -216,3 +216,11 @@ Open a [GitHub issue](https://github.com/ckeysvt88/schemebuilderv2/issues) for b
 For code changes, use a branch and pull request. Run `npm test` and `npm run build`, plus lint checks relevant to the changed files. Explain the resulting behavior and include evidence for changes to football assignments or scoring.
 
 Example Play Art references link to [CFB Labs](https://www.cfblabs.com/) from the editor. This is an independent community project and is not affiliated with or endorsed by EA SPORTS.
+
+### Situational recommendation rules
+
+All teams and custom scouts use the same engine in the app and PDF. Short conversion downs apply explicit short-yardage formation suitability and warnings. Long conversion downs reduce purely run-based formation penalties while retaining personnel, quick-pass and tempo warnings; explicit run-heavy scouting limits this reduction. Equal formation scores use the conversion situation's purpose before alphabetical order.
+
+Eligible long-yardage menus can include a **Pressure look**: a documented mugged formation with four or fewer stock rushers and deep help. This is distinct from an extra-rusher blitz and does not promise a successful disguise or verified simulated-pressure exchange. **No Quick TD** retains at least two deep defenders and limits stock rushers to four for primary calls and alternatives, including personalized choices.
+
+Regression coverage includes every saved team across twelve call-sheet situations and every personnel-family/playbook pairing with varied tendencies, objectives and preferences. This is broad coverage, not an exhaustive test of every possible input combination.

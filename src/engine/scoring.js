@@ -81,7 +81,7 @@ export function scoreAll(traits = [], book = 'All', runPass = 4, familyId = null
       { id: 'formation:bounds', label: 'Formation score bounds before tendency', delta: neutralBounds },
       { id: 'clamp', label: rawSc <= 0 ? 'Kept for matchup review' : 'Score bounds', delta: sc - rawSc },
     ];
-    return [{ ...d, name, sc, coreHits, suppHits, threatCoverage: coverage, effectiveTraits: flat, ledger,
+    return [{ ...d, name, sc, runPass, coreHits, suppHits, threatCoverage: coverage, effectiveTraits: flat, ledger,
       blitz: getBlitz(d, flat), blitzLedger: blitzBreakdown(d, flat) }];
   }).sort((a, b) => b.sc - a.sc || a.name.localeCompare(b.name));
 }

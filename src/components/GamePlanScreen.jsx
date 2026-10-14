@@ -191,7 +191,7 @@ export default function GamePlanScreen({
           <div className="plan-header-actions" style={{ display: "flex", flexDirection: "column", gap: 6, flexShrink: 0 }}>
             <div className="plan-header-top-row" style={{ display: "flex", alignItems: "stretch", gap: 6 }}>
               {selectedTeam && <button onClick={() => setStep("teams")} style={{ ...hdrBtn, width: 32, padding: "0 8px", flexShrink: 0 }} aria-label="Back to Team Picker">←</button>}
-              <div style={{ flex: 1, minWidth: 0 }}><ExportPDFButton variant="compact" label="Call Sheet" input={recommendationInput} sel={sel} /></div>
+              <div style={{ flex: 1, minWidth: 0 }}><ExportPDFButton variant="compact" label="Call Sheet" input={{ ...recommendationInput, opponentName: selectedTeam?.name }} sel={sel} /></div>
             </div>
             <div className="plan-header-bottom-row" style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 6 }}>
               <button onClick={() => setStep("notes")} style={hdrBtn} aria-label="Notes">Notes</button>

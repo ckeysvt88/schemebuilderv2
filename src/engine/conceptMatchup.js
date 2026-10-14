@@ -168,6 +168,8 @@ export function buildConceptScenarios(traits = [], situation = 'base', gameObjec
     if (profile.down === 2 && profile.distance === 'short') {
       addScenario(scenarios, 'play-action', 'Second-and-short shot opportunity', 0.55, 'situation',
         'The offense has room to try play action before a manageable third down; keep deep help.');
+      addScenario(scenarios, 'vertical', 'Shot off the short-yardage look', 0.65, 'situation',
+        'Keep a cap on the shot as well as the intermediate play-action route. This is a possible complement, not a scouted frequency.');
     }
     if (profile.down === 2 && profile.distance === 'long') {
       addScenario(scenarios, 'vertical', 'Second-and-long intermediate / deep throw', 0.55, 'situation',
@@ -248,11 +250,11 @@ export function buildConceptScenarios(traits = [], situation = 'base', gameObjec
   return result.map(scenario => ({ ...scenario, normalizedWeight: total ? scenario.weight / total : 0 }));
 }
 
-function coverageStructure(play) {
+function coverageStructure(play, coverageName) {
   if (play.deep === 0) return 'zero-deep';
   if (play.badge === 'MAN' && play.deep >= 2) return 'two-man';
   if (play.badge === 'MAN') return 'one-man';
-  if (play.shell === 'tampa') return 'tampa-two';
+  if (getCoverageResponsibilities(play, coverageName)?.pole) return 'tampa-two';
   if (play.shell === '6') return 'split-field-six';
   if (play.deep >= 4) return 'quarters';
   if (play.deep === 3) return play.badge === 'MATCH' ? 'three-match' : 'three-zone';
@@ -274,7 +276,7 @@ function gradeScenario(play, coverageName, scenario) {
         rpo: 'Do not abandon your pass responsibility just because the QB shows a handoff.',
       })[scenario.id] || 'Read your assignment before chasing the ball.' };
   }
-  const structure = coverageStructure(play || {});
+  const structure = coverageStructure(play || {}, coverageName);
   const responsibilities = getCoverageResponsibilities(play, coverageName);
   const fit = getCoverageRunSupport(coverageName);
   const base = { grade: 55, support: 'The call has a neutral starting point against this threat.', concession: 'Be ready to help the defender the offense puts in conflict.' };
@@ -283,7 +285,7 @@ function gradeScenario(play, coverageName, scenario) {
     const grades = [12, 35, 60, 72, 82];
     let grade = structure === 'quarters' && play.badge === 'MATCH'
       ? 88
-      : grades[Math.min(play.deep, 4)];
+      : grades[responsibilities?.pole ? 3 : Math.min(play.deep, 4)];
     if (scenario.attack === 'seam' || scenario.attack === 'mixed') {
       // One scenario holds both threats: do not double-count seam_routes.
       let seamGrade = grade;
@@ -436,7 +438,29 @@ export function assessConceptMatchups(play, coverageName, traits = [], situation
   const scenarios = buildConceptScenarios(traits, situation, gameObjective, runPass);
   if (!scenarios.length) return null;
   const riskWeight = Math.max(situationProfile(situation).riskWeight, getGameObjective(gameObjective).id === 'no_quick_td' ? 0.45 : 0);
-  const grades = scenarios.map(scenario => ({ ...scenario, ...gradeScenario(play, coverageName, scenario) }));
+  const profile = situationProfile(situation);
+  const responsibilities = getCoverageResponsibilities(play, coverageName);
+  const fit = getCoverageRunSupport(coverageName);
+  const grades = scenarios.map(scenario => {
+    const assessment = gradeScenario(play, coverageName, scenario);
+    // A catch conceded underneath a pole runner has a different cost at two
+    // or five yards than at ten. This is an authored leverage judgment, not a
+    // claim that the catalog stores actual player depth or tackle probability.
+    let situationDelta = 0, situationReason = '';
+    const shortGain = profile.short || (profile.down === 1 && profile.distance === 'short');
+    const mediumGain = profile.medium || (profile.down === 2 && profile.distance === 'medium');
+    if (play && responsibilities?.pole && (shortGain || mediumGain)
+      && ['quick', 'crossers'].includes(scenario.id)) {
+      situationDelta = shortGain ? -12 : -8;
+      situationReason = 'The pole carry opens short middle space; a catch there can already reach the line to gain.';
+    }
+    if (play && shortGain && scenario.id === 'inside-run' && fit.fitIn) {
+      situationDelta = 2;
+      situationReason = 'Documented safety run support matters more when the handoff needs only a short gain; the actual gap fit still needs checking.';
+    }
+    return { ...scenario, ...assessment, baseGrade: assessment.grade, situationDelta, situationReason,
+      grade: Math.max(0, Math.min(100, assessment.grade + situationDelta)) };
+  });
   const weightedMean = grades.reduce((sum, item) => sum + item.grade * item.normalizedWeight, 0);
   const badCase = grades.reduce((worst, item) => item.grade < worst.grade ? item : worst, grades[0]);
   const priorityRisk = grades

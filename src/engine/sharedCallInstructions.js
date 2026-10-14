@@ -16,4 +16,4 @@ export function splitSharedCallInstructions(calls = []) {
   })) };
 }
 
-export const MIX_ROLE_LABELS = Object.freeze({ foundation: 'Foundation', 'coverage-variation': 'Variation', 'response-counter': 'Counter', 'conditional-pressure': 'Pressure', 'additional-variation': 'Extra variation' });
+export const MIX_ROLE_LABELS = Object.freeze({ foundation: 'Foundation', 'coverage-variation': 'Variation', 'response-counter': 'Counter', 'conditional-pressure': 'Pressure', 'pressure-look': 'Pressure look', 'additional-variation': 'Extra variation' });

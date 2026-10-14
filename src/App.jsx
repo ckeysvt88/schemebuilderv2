@@ -3,7 +3,7 @@ import { normalizeOpponentProfile, readOpponentProfiles, writeOpponentProfiles }
 import { useState, useCallback, useEffect, useMemo, lazy, Suspense } from 'react';
 import { recommend, buildRecommendationShareText } from './engine/recommendations.js';
 import { scoreAll } from './engine/scoring.js';
-import { getAvailableFamilies } from './data/personnel.js';
+import { getAvailableFamilies, getDefaultFamily } from './data/personnel.js';
 import { DEFAULT_USER_PROFILE, normalizeUserProfile } from './data/userProfile.js';
 
 import TeamsScreen from './components/TeamsScreen.jsx';
@@ -243,9 +243,7 @@ export default function App() {
         setSetupSelections(current => ({ ...current, book: false }));
         try { localStorage.removeItem("cfb26_myBook"); } catch(e) {}
         setSel({ _team: team.traits });
-        // Use getAvailableFamilies to pick the most contextually relevant starting family
-        const teamFams = getAvailableFamilies(team.traits, team.id);
-        setActiveP(teamFams[0] || "p11_gun");
+        setActiveP(getDefaultFamily(team.traits, team.id));
         setSelFm(null); setMainTab("personnel");
         setSelectedTeam(team);
         setSituDown("base"); setSituDist(""); setGameObjective("balanced"); setSetupSelections(current => ({ ...current, objective: false }));

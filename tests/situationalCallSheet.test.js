@@ -43,7 +43,10 @@ test('call-sheet regression: repetitive quick-game scouts respond to down/distan
     assert.equal(rows.length, 12);
     assert.ok(rows.some(row => row.label === '4TH & MEDIUM'));
     const calls = rows.map(row => row.primary.name + '::' + row.primary.coverage);
-    assert.ok(new Set(calls).size >= 3, input.traits.join(','));
+    // Correcting the Tampa assignment encoding can legitimately leave two
+    // starting calls. Require situation response, not a forced third winner.
+    assert.ok(new Set(calls).size >= 2, input.traits.join(','));
+    assert.ok(rows.every(row => row.plannedMix.calls.length >= 2));
     for (const row of rows) {
       const live = recommend({ ...input, down: row.down, distance: row.distance }).formations[0];
       assert.equal(row.primary.name, live.name);

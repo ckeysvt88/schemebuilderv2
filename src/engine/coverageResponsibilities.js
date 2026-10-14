@@ -7,6 +7,11 @@ const HARD_FLATS = new Set([
 ]);
 const BUZZ = new Set(['Cover 3 Buzz', 'Cover 3 Buzz Strong']);
 const CLOUD = new Set(['Cover 3 Cloud']);
+// The catalog stores Tampa two ways: a third deep pole, or a middle-hole
+// defender among five underneath assignments. Both describe the same carry.
+// Restrict this normalization to documented stock names and zone structures.
+const TAMPA = new Set(['Tampa 2', 'Tampa 2 Show 3', 'Tampa 2 Contain',
+  'Tampa 2 Spy', 'Tampa 2 Drop', 'Cover 2 Tampa Drop', 'Tampa Sim Pressure']);
 
 export function getCoverageResponsibilities(play, coverageName) {
   if (!play || play.n !== coverageName) return null;
@@ -15,7 +20,7 @@ export function getCoverageResponsibilities(play, coverageName) {
   const three = zone && play.deep === 3 && String(play.shell) === '3';
   const four = zone && play.deep === 4 && String(play.shell) === '4';
   return {
-    pole: zone && play.deep === 3 && play.shell === 'tampa',
+    pole: zone && ((play.deep === 3 && play.shell === 'tampa') || (two && TAMPA.has(coverageName))),
     hardFlat: zone && (two || three) && HARD_FLATS.has(coverageName),
     buzz: three && BUZZ.has(coverageName),
     cloud: three && CLOUD.has(coverageName),

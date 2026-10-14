@@ -2,7 +2,7 @@ import { useId, useRef, useState } from 'react';
 import { MIX_ROLE_LABELS, splitSharedCallInstructions } from '../engine/sharedCallInstructions.js';
 import './plannedCallMix.css';
 
-const cues = { foundation: 'Keep your base answer sound.', 'coverage-variation': 'Change coverage before it becomes a tell.', 'response-counter': 'Answer their possible adjustment.', 'conditional-pressure': 'Check the hot outlet first.', 'additional-variation': 'Keep another coverage answer ready.' };
+const cues = { foundation: 'Keep your base answer sound.', 'coverage-variation': 'Change coverage before it becomes a tell.', 'response-counter': 'Answer their possible adjustment.', 'conditional-pressure': 'Check the hot outlet first.', 'pressure-look': 'Present pressure while retaining coverage.', 'additional-variation': 'Keep another coverage answer ready.' };
 
 function AdjustmentNotes({ settings }) {
   return settings.map(item => <div className="mix-adjustment" key={item.setting}>

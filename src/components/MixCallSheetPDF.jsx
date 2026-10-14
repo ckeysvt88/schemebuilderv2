@@ -1,89 +1,84 @@
 import { Document, Page, Text, View, StyleSheet } from '@react-pdf/renderer';
-import { MIX_ROLE_LABELS } from '../engine/sharedCallInstructions.js';
+import { buildPrintCallSheet } from '../engine/printCallSheet.js';
 
-const C = { text: '#0E1525', muted: '#364A5E', gold: '#996600', border: '#CDD5DF', panel: '#F4F6FA' };
-const roleColors = { foundation: C.gold, 'coverage-variation': '#1A4FA8', 'response-counter': '#2A7040', 'conditional-pressure': '#A02020', 'additional-variation': '#6A40A8' };
+const C = { text: '#142235', muted: '#46566B', gold: '#8A621A', border: '#CED6DF', panel: '#F1F4F7' };
 const S = StyleSheet.create({
-  page: { padding: 28, fontFamily: 'Helvetica', fontSize: 8, color: C.text },
-  header: { borderBottomWidth: 2, borderBottomColor: '#C8960C', paddingBottom: 8, marginBottom: 10 },
-  brand: { color: C.gold, fontSize: 7, letterSpacing: 2, fontFamily: 'Helvetica-Bold', marginBottom: 4 },
-  title: { fontSize: 17, fontFamily: 'Helvetica-Bold' },
-  context: { color: C.muted, fontSize: 8, lineHeight: 1.4, marginBottom: 5 },
-  tableHeader: { flexDirection: 'row', backgroundColor: '#07090F', color: '#FFFFFF' },
-  row: { flexDirection: 'row', borderBottomWidth: .5, borderBottomColor: C.border },
-  situation: { width: 68, padding: 6, borderRightWidth: .5, borderRightColor: C.border },
-  cell: { flex: 1, padding: 6, borderRightWidth: .5, borderRightColor: C.border },
-  heading: { fontSize: 7, fontFamily: 'Helvetica-Bold', lineHeight: 1.3 },
-  play: { fontSize: 7.5, fontFamily: 'Helvetica-Bold', lineHeight: 1.3 },
-  formation: { fontSize: 7, color: C.muted, lineHeight: 1.3, marginTop: 2 },
-  cue: { fontSize: 8, color: C.muted, lineHeight: 1.4, marginTop: 5 },
-  cueLabel: { color: C.gold, fontFamily: 'Helvetica-Bold' },
-  shared: { backgroundColor: '#F2EAD6', borderWidth: .5, borderColor: C.border, padding: 9, marginBottom: 10 },
-  sharedTitle: { fontSize: 10, fontFamily: 'Helvetica-Bold' },
-  cards: { flexDirection: 'row', gap: 10, marginBottom: 10 },
-  card: { width: 273, padding: 10, backgroundColor: C.panel, borderWidth: .5, borderColor: C.border, borderLeftWidth: 3 },
-  cardTitle: { fontFamily: 'Helvetica-Bold', fontSize: 12, marginTop: 4 },
-  footer: { position: 'absolute', left: 28, right: 28, bottom: 18, flexDirection: 'row', justifyContent: 'space-between', fontSize: 6, color: C.muted },
+  page: { padding: 26, height: 792, minHeight: 792, fontFamily: 'Helvetica', fontSize: 8.5, color: C.text },
+  header: { borderBottomWidth: 2, borderBottomColor: C.gold, paddingBottom: 8, marginBottom: 10 },
+  brand: { color: C.gold, fontSize: 7, letterSpacing: 1.8, fontFamily: 'Helvetica-Bold', marginBottom: 4 },
+  title: { fontSize: 20, fontFamily: 'Helvetica-Bold' },
+  context: { color: C.muted, fontSize: 8, lineHeight: 1.4, marginTop: 4 },
+  tableHeader: { flexDirection: 'row', backgroundColor: C.text, color: '#FFFFFF' },
+  row: { flexDirection: 'row', borderBottomWidth: .5, borderBottomColor: C.border, minHeight: 40 },
+  situation: { width: 70, padding: 6, borderRightWidth: .5, borderRightColor: C.border },
+  cell: { flex: 1, padding: 4, borderRightWidth: .5, borderRightColor: C.border },
+  heading: { fontSize: 7.5, fontFamily: 'Helvetica-Bold', lineHeight: 1.3 },
+  play: { fontSize: 7.5, fontFamily: 'Helvetica-Bold', lineHeight: 1.2 },
+  formation: { fontSize: 6.5, color: C.muted, lineHeight: 1.2, marginTop: 2 },
+  refs: { color: C.gold, fontSize: 6.5, marginTop: 2, fontFamily: 'Helvetica-Bold' },
+  note: { fontSize: 8, lineHeight: 1.4, marginTop: 8, color: C.muted },
+  columns: { flexDirection: 'row', gap: 16, marginTop: 6 },
+  column: { width: 272 },
+  section: { fontFamily: 'Helvetica-Bold', fontSize: 11, marginBottom: 6, color: C.gold },
+  entry: { borderBottomWidth: .5, borderBottomColor: C.border, paddingBottom: 7, marginBottom: 7 },
+  entryText: { fontSize: 8.5, lineHeight: 1.35 },
+  tag: { fontFamily: 'Helvetica-Bold', color: C.gold },
+  box: { backgroundColor: C.panel, borderWidth: .5, borderColor: C.border, padding: 10, marginTop: 10 },
+  footer: { position: 'absolute', left: 26, right: 26, bottom: 17, flexDirection: 'row', justifyContent: 'space-between', fontSize: 6.5, color: C.muted },
 });
 const clean = text => String(text || '').replace(/[—–‑]/g, '-').replace(/’/g, "'");
-function Cue({ label, children }) { return <Text style={S.cue}><Text style={S.cueLabel}>{label} </Text>{clean(children)}</Text>; }
-function Header({ title }) { return <View style={S.header}><Text style={S.brand}>SCHEME BUILDERS</Text><Text style={S.title}>{title}</Text></View>; }
-function Footer() { return <View style={S.footer} fixed><Text>Fit scores are rankings, not success probabilities. | schemebuilders.com</Text><Text render={({ pageNumber, totalPages }) => `${pageNumber} / ${totalPages}`} /></View>; }
-function CoachingCard({ call }) {
-  return <View wrap={false} style={[S.card, { borderLeftColor: roleColors[call.role] }]}>
-    <Text style={[S.heading, { color: roleColors[call.role] }]}>{MIX_ROLE_LABELS[call.role].toUpperCase()}</Text>
-    <Text style={S.cardTitle}>{call.call}</Text><Text style={S.formation}>{call.formation} | {call.sc}/100 fit</Text>
-    <Cue label="USE">{call.useWhen}</Cue>
-    {call.opponentRead && <Cue label="POSSIBLE OFFENSIVE READ">{`${call.opponentRead} Anticipated, not observed.`}</Cue>}
-    {!!call.localSetup.length && <Cue label="ADDITIONAL SETUP">{call.localSetup.join(' · ')}</Cue>}
-    {call.localUserJob && <Cue label="YOUR JOB">{call.localUserJob}</Cue>}
-    {call.localWatchFor && <Cue label="WATCH">{call.localWatchFor}</Cue>}
-    {!!call.tradeoffs.length && <Cue label="TRADEOFFS">{call.tradeoffs.map(t => `${t.threat}: ${t.watchFor}`).join(' ')}</Cue>}
-    {call.localAdjustmentSettings.map(item => <Cue key={item.setting} label={item.setting.toUpperCase()}>{`${item.value}. ${item.why || ''} ${item.tradeoff ? 'Tradeoff: ' + item.tradeoff : ''}`}</Cue>)}
-    <Cue label="CALL CHECK">{call.setupWarning}</Cue>
-  </View>;
-}
+function Header({ title, data }) { return <View style={S.header}>
+  <Text style={S.brand}>SCHEME BUILDERS / DEFENSIVE GAMEPLAN</Text>
+  <Text style={S.title}>{title}</Text>
+  <Text style={S.context}>{clean(`${data.opponentName ? data.opponentName + ' | ' : ''}${data.contextLabel} | ${data.myBook} | ${data.runPassLabel}`)}</Text>
+</View>; }
+function Footer() { return <View style={S.footer} fixed><Text>Fit scores are rankings, not probabilities. Full call details: schemebuilders.com</Text><Text render={({ pageNumber, totalPages }) => `${pageNumber} / ${totalPages}`} /></View>; }
+function Note({ label, children }) { return <Text style={S.note}><Text style={S.tag}>{label} </Text>{clean(children)}</Text>; }
 
 export default function MixCallSheetDocument({ data }) {
-  const rows = data.situationMatrix.filter(row => row.down);
-  return <Document title="Defensive Call Mix" author="Scheme Builders">
-    <Page size="LETTER" style={S.page}>
-      <Header title="DEFENSIVE CALL MIX" />
-      <Text style={S.context}>{data.contextLabel} | Playbook: {data.myBook} | User: {data.userPosition} | {data.date}</Text>
-      <Text style={S.context}>Opponent: {data.runPassLabel} · {data.profile.flatMap(group => group.traits).join(' · ') || 'No traits scouted'}</Text>
-      <Text style={S.context}>Use a mix, not a fixed sequence. Match the actual down, personnel and offensive response. Detailed coaching follows for each situation.</Text>
-      <View style={S.tableHeader}><View style={S.situation}><Text style={S.heading}>SITUATION</Text></View>{['FOUNDATION', 'VARIATION', 'COUNTER', 'EXTRA / PRESSURE'].map(label => <View style={S.cell} key={label}><Text style={S.heading}>{label}</Text></View>)}</View>
-      {rows.map((row, index) => <View key={row.label} wrap={false} style={[S.row, index % 2 === 1 ? { backgroundColor: C.panel } : {}]}>
-        <View style={S.situation}><Text style={S.heading}>{row.label}</Text><Text style={S.formation}>{row.distance} yards</Text></View>
+  const { rows, setups, jobs, hasAppReferences } = buildPrintCallSheet(data);
+  return <Document title={`${data.opponentName || 'Defensive'} Call Sheet`} author="Scheme Builders">
+    <Page size="LETTER" style={S.page} wrap={false}>
+      <Header title="SITUATIONAL CALL MENU" data={data} />
+      <Text style={[S.context, { marginBottom: 9 }]}>Pick within each row; the first column is a starting option, not an every-snap prescription. S = setup; J = your job (page 2). Match the actual offensive personnel.</Text>
+      <View style={S.tableHeader}><View style={S.situation}><Text style={S.heading}>DOWN / GAIN</Text></View>{['STARTING CALL', 'CHANGE THE LOOK', 'COUNTER', 'EXTRA / PRESSURE'].map(label => <View style={S.cell} key={label}><Text style={S.heading}>{label}</Text></View>)}</View>
+      {rows.map((row, index) => <View key={row.label} style={[S.row, index % 2 ? { backgroundColor: C.panel } : {}]}>
+        <View style={S.situation}><Text style={S.heading}>{row.label.replace(' & ', '\n')}</Text><Text style={S.formation}>Sample: {row.distance} yd</Text></View>
         {['foundation', 'coverage-variation', 'response-counter', 'extra'].map(role => {
-          const call = row.plannedMix.calls.find(c => role === 'extra' ? ['additional-variation', 'conditional-pressure'].includes(c.role) : c.role === role);
+          const call = row.calls.find(c => role === 'extra' ? ['additional-variation', 'conditional-pressure', 'pressure-look'].includes(c.role) : c.role === role);
           return <View key={role} style={S.cell}>{call ? <>
-            {call.pressure && <Text style={[S.heading, { color: roleColors['conditional-pressure'] }]}>PRESSURE</Text>}
             <Text style={S.play}>{call.call}</Text><Text style={S.formation}>{call.formation}</Text>
-          </> : <Text style={S.formation}>No qualifying call</Text>}</View>;
+            <Text style={S.refs}>{call.setupRef} / {call.jobRef}{call.pressure ? ' / PRESSURE' : call.presentation ? ' / LOOK' : ''}</Text>
+          </> : <Text style={S.formation}>No qualifying option</Text>}</View>;
         })}
       </View>)}
-      <Cue label="MIXING KEY">Foundation is part of the mix. Variation changes the coverage; a counter addresses a possible offensive answer. Pressure is conditional and requires an answer to the hot outlet.</Cue>
-      <Cue label="GOAL LINE / TWO-MINUTE">Set the actual personnel, down, distance and game objective. Field location or clock alone does not justify goal-line personnel or Prevent.</Cue>
+      <Note label="MIX, THEN READ.">Vary coverage before the offense settles on one tell. PRESSURE sends extra rushers; cover the hot outlet. LOOK presents a mugged front with four or fewer stock rushers and deep help. Neither is mandatory.</Note>
+      <Note label="DISTANCE KEY.">Short: 1-3 yards. Medium: 4-6. Long: 7+. Rows use the sample distances shown; set the exact distance in the app. A formation change requires a between-snap personnel / audible check.</Note>
       <Footer />
     </Page>
-    {rows.map(row => {
-      const { shared, calls } = row.mixInstructions;
-      return <Page key={row.label} size="LETTER" style={S.page}>
-        <Header title="SITUATIONAL COACHING GUIDE" />
-        <Text style={S.sharedTitle}>{row.label} - {row.distance} YARDS</Text><Text style={[S.context, { marginTop: 5 }]}>{clean(row.purpose.text)}</Text>
-        {(shared.setup.length > 0 || shared.userJob || shared.watchFor) && <View style={S.shared} wrap={false}>
-          <Text style={S.sharedTitle}>APPLIES TO ALL {calls.length} CALLS - {row.label}</Text>
-          {!!shared.setup.length && <Cue label="SETUP">{shared.setup.join(' · ')}</Cue>}
-          {shared.userJob && <Cue label={`YOUR JOB - ${data.userPosition.toUpperCase()}`}>{shared.userJob}</Cue>}
-          {shared.watchFor && <Cue label="WATCH">{shared.watchFor}</Cue>}
-          {shared.adjustmentSettings.map(item => <Cue label="SETUP TRADEOFF" key={item.setting}>{`${item.setting}: ${item.why || ''} ${item.tradeoff || ''}`}</Cue>)}
-        </View>}
-        {[0, 2].filter(i => calls[i]).map(i => <View key={i} style={S.cards}>{calls.slice(i, i + 2).map(call => <CoachingCard key={call.role} call={call} />)}</View>)}
-        {row.plannedMix.status === 'limited' && <Cue label="LIMITED MIX">No safe meaningful variation qualifies. Broaden your playbook or scout for more options.</Cue>}
-        {!calls.length && <Cue label="NO VERIFIED MIX">Set the actual offensive look and use the verified calls in your playbook.</Cue>}
-        <Footer />
-      </Page>;
-    })}
+    <Page size="LETTER" style={S.page} wrap={false}>
+      <Header title="SETUP & COACHING KEY" data={data} />
+      <Text style={S.context}>Apply only the S / J references printed in your selected call. Shared instructions appear once here. User position: {data.userPosition}.</Text>
+      <View style={S.columns}>
+        <View style={S.column}><Text style={S.section}>S / QUICK SETUP</Text>
+          {setups.map(item => <View style={[S.entry, { flexDirection: 'row' }]} key={item.id}><Text style={[S.entryText, S.tag, { width: 22 }]}>{item.id}</Text><View style={{ flex: 1 }}>{clean(item.text).split(' · ').map((line, i) => <Text key={i} style={S.entryText}>{line}</Text>)}</View></View>)}
+          {!setups.length && <Text style={S.entryText}>No verified calls for this scout. Select the offensive look and your available playbook in the app.</Text>}
+          <Note label="RESET BETWEEN CALLS.">Do not stack different setup profiles. Restore settings to the values prescribed by the next call. Confirm audibles and assignments.</Note>
+          <Note label="SETUP TRADEOFFS.">Aggressive zones contest short throws but expose deeper windows. Conservative zones protect depth while conceding underneath space. Deeper corners give more cushion. Check the exact match-coverage effect in the app.</Note>
+        </View>
+        <View style={S.column}><Text style={S.section}>J / YOUR JOB</Text>
+          {jobs.map(item => <View style={S.entry} key={item.id}><Text style={S.entryText}><Text style={S.tag}>{item.id}  </Text>{clean(item.text)}</Text></View>)}
+          {!jobs.length && <Text style={S.entryText}>Keep your assigned receiver or zone covered. Rebuild the sheet after adding scouting information.</Text>}
+        </View>
+      </View>
+      <View style={S.box}>
+        <Text style={S.heading}>SITUATIONAL CHECKS</Text>
+        <Note label="SHORT / MEDIUM">Win the gain required. Keep the run, QB keeper and immediate throw covered. On second-and-short, retain help against a shot. Tackle at the catch on conversion downs.</Note>
+        <Note label="LONG">Protect the sticks and deeper routes, then rally to the underneath catch. Account for screens, draws and QB escapes. Long yardage does not prove a pass.</Note>
+        <Note label="GOAL LINE / TWO-MINUTE">Use actual personnel, distance and game objective. Neither field location nor the clock alone justifies goal-line personnel or Prevent.</Note>
+      </View>
+      <Note label={hasAppReferences ? 'APP REFERENCE.' : 'DETAILS.'}>{hasAppReferences ? 'APP means this call has additional setup or user detail that exceeds the quick-reference space. Open that call in the app before using it.' : 'This sheet is a quick reference. Expand a call in the app for its individual watch-outs, adjustment reasons, tradeoffs and offensive-response explanation.'}</Note>
+      <Footer />
+    </Page>
   </Document>;
 }

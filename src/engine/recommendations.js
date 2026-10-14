@@ -1,7 +1,7 @@
 import { normalizeRunPass, RUN_PASS_LABELS } from '../data/runPassBias.js';
 import { getGameObjective } from '../data/gameObjectives.js';
 import { scoreAll } from './scoring.js';
-import { applyDownDistance } from './downDistance.js';
+import { applyDownDistance, compareFormationPurpose } from './downDistance.js';
 import { getSituationalPurpose } from './situationalPurpose.js';
 import { rankCoveragesForSituation } from './coverageRank.js';
 import { selectFormationCalls } from './callSelection.js';
@@ -58,7 +58,7 @@ export function recommend({ traits = [], book = 'All', runPass = 4, familyId = n
       personalizedFit: playerCall?.personalFit || null,
       inventoryOmissions: f.coverages.length - verified.length }];
   });
-  formations.sort((a, b) => b.sc - a.sc || a.name.localeCompare(b.name));
+  formations.sort((a, b) => b.sc - a.sc || compareFormationPurpose(a, b, context) || a.name.localeCompare(b.name));
   const planningContext = { traits, situation: sit, gameObjective: objective.id, purpose };
   const candidates = formations.flatMap(f => f.rankedCoverages.map(call => ({ formation: f.name, personnel: f.personnel, priority: f.priority, call })));
   for (const f of formations) {

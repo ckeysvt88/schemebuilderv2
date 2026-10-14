@@ -7,6 +7,7 @@
 .mix-role-coverage-variation { --mix-role-color:var(--color-pass); }
 .mix-role-response-counter { --mix-role-color:var(--color-success); }
 .mix-role-conditional-pressure { --mix-role-color:var(--color-pressure); }
+.mix-role-pressure-look { --mix-role-color:var(--color-hybrid); }
 .mix-role-additional-variation { --mix-role-color:var(--color-hybrid); }
 .mix-role-label { font-size:11px; font-weight:750; color:var(--mix-role-color); }
 .mix-play { font-size:14px; font-weight:750; line-height:1.25; color:var(--color-text-1); overflow-wrap:anywhere; }

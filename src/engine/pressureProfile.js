@@ -21,3 +21,14 @@ export function getPressureProfile(call = {}) {
   return { type, extraRush: true, label,
     reason: `Send ${facts.rushers} rushers when you want to challenge the protection. ${coverage} Extra rushers do not guarantee pressure arrives before the throw.` };
 }
+
+// These exact formation descriptions document a mugged front. Names alone
+// cannot establish a simulated-pressure exchange or successful disguise.
+const MUG_LOOKS = new Set(['Nickel Load Dbl Mug', 'Nickel 3-3 Dbl Mug', 'Nickel Double Mug', 'Nickel 2-4 Dbl Mug']);
+export function getPressurePresentation(formationName, call) {
+  const rush = getPressureProfile(call);
+  if (!MUG_LOOKS.has(formationName) || !rush || rush.extraRush || call.matchup.facts.deep < 2) return null;
+  return { kind: 'mug-coverage', label: 'Pressure look', rushers: call.matchup.facts.rushers,
+    reason: `The authored formation presents a mugged front, while this stock call sends ${call.matchup.facts.rushers} rushers and retains deep help. Confirm the alignment before the snap; protection confusion and pressure arrival are not verified.`,
+    basis: 'Authored formation description plus transcribed exact-call counts. This does not establish a simulated-pressure rush exchange.' };
+}
