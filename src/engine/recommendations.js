@@ -1,5 +1,8 @@
+import { PLAN_SITUATIONS, balanceFoundations, foundationCandidates } from './planBalance.js';
+import { normalizeSituation } from './context.js';
 import { normalizeRunPass, RUN_PASS_LABELS } from '../data/runPassBias.js';
 import { getGameObjective } from '../data/gameObjectives.js';
+import { assessPersonnelFit } from './personnelFit.js';
 import { scoreAll } from './scoring.js';
 import { applyDownDistance, compareFormationPurpose } from './downDistance.js';
 import { getSituationalPurpose } from './situationalPurpose.js';
@@ -18,7 +21,7 @@ import { buildPlannedCallMix } from './plannedCallMix.js';
 import { splitSharedCallInstructions, MIX_ROLE_LABELS } from './sharedCallInstructions.js';
 
 // The single entry point for live cards, details, sharing and PDF rows.
-export function recommend({ traits = [], book = 'All', runPass = 4, familyId = null, down = 'base', distance = '', userProfile = {}, gameObjective = 'balanced' } = {}) {
+export function rankSituation({ traits = [], book = 'All', runPass = 4, familyId = null, down = 'base', distance = '', userProfile = {}, gameObjective = 'balanced' } = {}, planningOnly = false) {
   runPass = normalizeRunPass(runPass);
   const objective = getGameObjective(gameObjective);
   const normalizedUserProfile = normalizeUserProfile(userProfile);
@@ -31,6 +34,7 @@ export function recommend({ traits = [], book = 'All', runPass = 4, familyId = n
     // There is no clock/lead objective in this first phase: do not prescribe
     // Prevent from a red-zone or two-minute label alone. It stays in Reference.
     if (f.personnel === 'Prevent') return [];
+    const personnelFit = assessPersonnelFit(f.name, { familyId, traits: f.effectiveTraits, runPass, context });
     const plays = PLAYS[f.name] || [];
     const verified = f.coverages.filter(c => plays.some(p => p.n === c.name));
     const eligible = sit === '3lg'
@@ -42,7 +46,10 @@ export function recommend({ traits = [], book = 'All', runPass = 4, familyId = n
       const evidence = getPlayAssignmentEvidence(f.name, c.name, plays.find(p => p.n === c.name));
       const adjustmentPlan = buildAdjustmentPlan({ ...f, runPass, gameObjective: objective.id, recommendedCoverage: c.name, rankedCoverages: [c] }, f.effectiveTraits, { down, distance });
       const evaluated = evaluateCoverage(c, plays.find(p => p.n === c.name), f.effectiveTraits, f.sc, evidence, sit, objective.id, runPass, adjustmentPlan, conceptSituation);
-      return evaluated && { ...evaluated, baselineOrder: index };
+      if (!evaluated) return null;
+      const sc = Math.max(0, evaluated.sc + personnelFit.delta);
+      return { ...evaluated, sc, personnelFit, baselineOrder: index, ledger: [...evaluated.ledger,
+        { id: 'personnel:fit', label: 'Personnel matchup', delta: sc - evaluated.sc, reason: personnelFit.reason }] };
     }).filter(c => c && c.sc > 0).sort((a, b) => b.sc - a.sc || a.baselineOrder - b.baselineOrder);
     if (!rankedCoverages.length) return [];
     const selection = selectFormationCalls(rankedCoverages, f.effectiveTraits, sit, normalizedUserProfile);
@@ -59,6 +66,7 @@ export function recommend({ traits = [], book = 'All', runPass = 4, familyId = n
       inventoryOmissions: f.coverages.length - verified.length }];
   });
   formations.sort((a, b) => b.sc - a.sc || compareFormationPurpose(a, b, context) || a.name.localeCompare(b.name));
+  if (planningOnly) return { formations, context, purpose, gameObjective: objective, runPass };
   const planningContext = { traits, situation: sit, gameObjective: objective.id, purpose };
   const candidates = formations.flatMap(f => f.rankedCoverages.map(call => ({ formation: f.name, personnel: f.personnel, priority: f.priority, call })));
   for (const f of formations) {
@@ -70,6 +78,46 @@ export function recommend({ traits = [], book = 'All', runPass = 4, familyId = n
   const result = { context, purpose, gameObjective: objective, familyId, familyLabel: PERSONNEL_FAMILIES[familyId]?.label || 'All scouted looks', book, runPass,
     userProfile: normalizedUserProfile, userProfileLabels: userProfileLabels(normalizedUserProfile), formations, callPlan };
   return { ...result, plannedMix: buildPlannedCallMix(result, traits) };
+}
+
+// Cache only the small selected schedule, not mutable recommendation objects.
+// All consumers use the same input key; PDF generation and live navigation
+// cannot influence each other's results by call order.
+const planCache = new Map();
+export function recommend(input = {}) {
+  const result = rankSituation(input);
+  if (!result.context.down || !result.context.distance || !result.formations.length) return result;
+  const base = { traits: [...new Set(input.traits || [])].sort(), book: result.book,
+    runPass: result.runPass, familyId: result.familyId, userProfile: result.userProfile,
+    gameObjective: result.gameObjective.id };
+  const eligible = foundationCandidates(result, base.traits);
+  if (eligible.length <= 1) return result;
+  const key = JSON.stringify(base);
+  let schedule = planCache.get(key);
+  if (!schedule) {
+    const rows = PLAN_SITUATIONS.map(([down, distance]) => rankSituation({ ...base, down, distance }, true));
+    schedule = balanceFoundations(rows, base.traits);
+    planCache.set(key, schedule);
+    if (planCache.size > 8) planCache.delete(planCache.keys().next().value);
+  }
+  const index = PLAN_SITUATIONS.findIndex(([down, distance]) => normalizeSituation(down, distance).key === result.context.key);
+  const selected = schedule[index];
+  const candidate = selected && eligible.find(c => c.formation === selected.formation && c.call.name === selected.call);
+  if (!candidate || candidate.formation === result.formations[0].name) return result;
+  const chosen = result.formations.find(f => f.name === candidate.formation);
+  // Keep the planned foundation first; preserve every numerical fit score and
+  // each formation's personalized choice. Remaining formations retain fit order.
+  const formations = [chosen, ...result.formations.filter(f => f !== chosen)];
+  const candidates = formations.flatMap(f => f.rankedCoverages.map(call => ({ formation: f.name, personnel: f.personnel, priority: f.priority, call })));
+  const callPlan = buildComplementaryPlan(candidates,
+    { formation: chosen.name, personnel: chosen.personnel, priority: chosen.priority, call: chosen.personalizedCall },
+    { traits: base.traits, situation: result.purpose.coverageKey, gameObjective: result.gameObjective.id, purpose: result.purpose });
+  const reason = `Planned variation: selected within ${candidate.loss} fit points of the isolated best to reduce repeated answers across the situational plan. This is not a fixed play sequence.`;
+  const planned = { ...result, formations, callPlan,
+    planningSelection: { isolatedBest: result.callPlan.primary, fitLoss: candidate.loss, reason } };
+  const plannedMix = buildPlannedCallMix(planned, base.traits);
+  if (plannedMix.calls[0]) plannedMix.calls[0].useWhen += ' ' + reason;
+  return { ...planned, plannedMix };
 }
 
 export function buildRecommendationShareText(result, traits = []) {

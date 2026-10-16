@@ -243,6 +243,7 @@ export default function App() {
         setSetupSelections(current => ({ ...current, book: false }));
         try { localStorage.removeItem("cfb26_myBook"); } catch(e) {}
         setSel({ _team: team.traits });
+        setRunPass(4); // Team presets describe available concepts, not measured frequency.
         setActiveP(getDefaultFamily(team.traits, team.id));
         setSelFm(null); setMainTab("personnel");
         setSelectedTeam(team);

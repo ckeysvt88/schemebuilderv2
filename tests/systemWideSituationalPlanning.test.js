@@ -95,7 +95,12 @@ test('formation score ties use short/long purpose rather than alphabetical label
   const team = TEAMS.find(t => t.id === 'air-force');
   const base = { traits: team.traits, familyId: getDefaultFamily(team.traits, team.id), down: 3 };
   assert.equal(FDB[recommend({ ...base, distance: 2 }).callPlan.primary.formation].priority, 'run');
-  assert.equal(FDB[recommend({ ...base, distance: 10 }).callPlan.primary.formation].priority, 'pass');
+  const long = recommend({ ...base, distance: 10 }).callPlan.primary;
+  // Grizzly is now correctly pressure-oriented. A run-capable front can still
+  // supply deep coverage against this heavy offensive package; inspect the call.
+  assert.ok(isDeepSafeCall(long.call));
+  assert.ok(long.matchup.facts.deep >= 2);
+  assert.notEqual(long.call, recommend({ ...base, distance: 2 }).callPlan.primary.call);
 });
 
 test('custom scouts and team scouts share the same engine and PDF selections', () => {

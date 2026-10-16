@@ -26,7 +26,7 @@ function stockPlay(candidate) {
   return (PLAYS[candidate.formation] || []).find(play => play.n === candidate.call.name);
 }
 
-function describe(candidate) {
+export function describe(candidate) {
   const facts = candidate.call.matchup?.facts;
   const play = stockPlay(candidate);
   if (!facts || !play || !getPressureProfile(candidate.call)) return null;
@@ -77,17 +77,22 @@ function projectedResponseGrade(candidate, response, result, traits) {
   return grades.reduce((sum, grade) => sum + grade, 0) / grades.length;
 }
 
-function eligible(anchor, candidate, result, traits, tempo) {
+export function eligible(anchor, candidate, result, traits, tempo) {
   if (!describe(candidate) || candidate.call.matchup.status !== 'verified' || !Number.isFinite(candidate.call.sc)) return false;
   if (candidate.call.sc < anchor.call.sc - MIX_POLICY.maxFitLoss || !assessCallRisk(candidate.call, traits, result.purpose.coverageKey).eligible) return false;
   if (result.purpose.coverageKey === '3lg' && !isDeepSafeCall(candidate.call.name)) return false;
   if (result.gameObjective.id === 'no_quick_td' && getPressureProfile(candidate.call).extraRush) return false;
   if (tempo && candidate.formation !== anchor.formation) return false;
   if (result.purpose.coverageKey === '3sh' && !anchor.shortYardageWarning && candidate.shortYardageWarning) return false;
-  // Keep personnel stable in the ordinary mix; a nickel/dime package change is
-  // considered only on long conversion downs and is labelled between-snaps.
-  const longCoveragePackages = result.purpose.coverageKey === '3lg' && [anchor.personnel, candidate.personnel].every(p => ['Nickel', 'Dime', 'Dollar'].includes(p));
-  if (candidate.personnel !== anchor.personnel && !longCoveragePackages) return false;
+  // A game plan may include substitutions between snaps. Tempo still forbids
+  // them; personnel fit cannot deteriorate materially just to add variety.
+  if (candidate.personnel !== anchor.personnel) {
+    const packages = ['Base', 'Nickel', 'Dime', 'Dollar'];
+    if (![anchor.personnel, candidate.personnel].every(p => packages.includes(p))) return false;
+    const before = anchor.call.personnelFit, after = candidate.call.personnelFit;
+    if (!before || !after || before.dbs == null || after.dbs == null || before.receivers == null) return false;
+    if (after.delta < before.delta - 3) return false;
+  }
   if (traits.some(t => ['mobile_qb', 'dual_threat', 'qb_scramble'].includes(t)) && hasVerifiedQbControl(anchor.call) && !hasVerifiedQbControl(candidate.call)) return false;
   return threatSafe(anchor, candidate, result);
 }
@@ -130,7 +135,10 @@ export function buildPlannedCallMix(result, traits = []) {
   const anchorStructure = anchor && describe(anchor);
   if (!anchorStructure) return { calls: [], status: 'unverified', notes: ['Assignment evidence is needed before building a call mix.'] };
   const tempo = traits.some(t => TEMPO.has(t));
-  const pool = candidates.filter(c => key(c) !== key(anchor) && eligible(anchor, c, result, traits, tempo));
+  const isolated = result.planningSelection?.isolatedBest;
+  const guard = isolated && candidates.find(c => c.formation === isolated.formation && c.call.name === isolated.call);
+  const pool = candidates.filter(c => key(c) !== key(anchor) && eligible(anchor, c, result, traits, tempo)
+    && (!guard || eligible(guard, c, result, traits, tempo)));
   const chosen = [anchor], calls = [entry(anchor, anchor, 'foundation')];
 
   function choose(role, reference, sameFormation = false, pressureOnly = false) {
