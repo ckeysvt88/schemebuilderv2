@@ -114,9 +114,6 @@
 #sb-play-art .nm-header h1{font:700 20px/1.35 var(--font-mono);color:var(--color-text-1);margin:0;overflow-wrap:anywhere}
 #sb-play-art .nm-pickers{grid-template-columns:minmax(0,.8fr) minmax(0,1.2fr) minmax(0,1.3fr);gap:6px}
 #sb-play-art .nm-pickers label{min-width:0}
-#sb-play-art .nm-reference{margin:8px 0;border:1px solid var(--nm-border);border-radius:7px;background:var(--nm-paper)}
-#sb-play-art .nm-reference img{display:block;width:100%;height:auto}
-#sb-play-art .nm-reference a{display:block;padding:8px;color:var(--nm-gold);font-size:12px}
 
 /* One field, three comparison modes. Preview controls never edit the macro. */
 #sb-play-art .nm-compare{grid-template-columns:minmax(0,1fr) minmax(0,1fr) minmax(0,1.45fr) auto;gap:5px}

@@ -92,7 +92,7 @@ Choose **Family → Formation → Play**, then tap a defender to open that posit
 - **Alignment controls:** corner and safety depth/width, linebacker shifts, and Show Blitz. Secondary Show Blitz brings safeties to 6 yards while keeping corners in place.
 - **Defensive line controls:** technique, point of attack, compatible stunts, and left/right/both-edge QB contain.
 - **Before / After / Step through comparison** on the same field. Before shows the selected example call or empty Custom canvas; After is your editable macro. Step through previews cumulative changes without editing your setup or saved macros.
-- **Show changes** highlights affected defenders, with dashed original positions and assignment paths where they differ. Turn it off for an uncluttered diagram; assignment colors keep their existing meaning. A collapsed change list explains alignment, zone-drop, individual-assignment, and rush-plan differences.
+- **Show changes** is off by default, including when reopening saved macros. Enable it to highlight affected defenders, with dashed original positions and assignment paths where they differ; assignment colors keep their existing meaning. A collapsed change list explains alignment, zone-drop, individual-assignment, and rush-plan differences.
 - **Assignments / Pre-snap views**, reset, and named saved macros. Before/step previews are read-only; select After to edit. Saving during a preview always saves the complete macro, not the intermediate step. Comparison is reconstructed for saved macros and every supported formation without changing the storage format.
 
 When a stunt and contain setting need the same defender, the latest selection takes priority. Unavailable stunts explain why they cannot be used.
@@ -190,7 +190,7 @@ The regression suite covers recommendation behavior, assignment evidence, run su
 |---|---|
 | `src/App.jsx` | App navigation, scouting state, preferences, and session restoration. |
 | `src/components/` | Scouting, planning, comparison, reference, notes, and PDF interfaces. |
-| `src/components/playArt/` | Interactive Play Art editor, formation catalog, example art, storage, and feedback. |
+| `src/components/playArt/` | Interactive Play Art editor, formation catalog, macro comparisons, storage, and feedback. |
 | `src/data/` | Formations, plays, playbooks, team profiles, assignment evidence, macro recipes, and tutorial content. |
 | `src/engine/` | Scoring, exact-call evaluation, threat analysis, personalization, adjustments, and call sheets. |
 | `src/utils/` | Browser utilities, including PDF saving and remembered Plan layout preferences. |
@@ -222,7 +222,7 @@ Open a [GitHub issue](https://github.com/ckeysvt88/schemebuilderv2/issues) for b
 
 For code changes, use a branch and pull request. Run `npm test` and `npm run build`, plus lint checks relevant to the changed files. Explain the resulting behavior and include evidence for changes to football assignments or scoring.
 
-Example Play Art references link to [CFB Labs](https://www.cfblabs.com/) from the editor. This is an independent community project and is not affiliated with or endorsed by EA SPORTS.
+Example call assignments were transcribed from [CFB Labs](https://www.cfblabs.com/) play art. The editor does not include the limited original-image reference panel; use the interactive Before / After comparison to review your macro. This is an independent community project and is not affiliated with or endorsed by EA SPORTS.
 
 ### Situational recommendation rules
 
