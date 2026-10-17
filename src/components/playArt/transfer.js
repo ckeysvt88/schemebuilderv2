@@ -4,6 +4,23 @@ import { zoneGroup } from './zoneLayout.js';
 
 const clone = value => JSON.parse(JSON.stringify(value));
 const same = (a, b) => a.length === b.length && a.every((id, i) => id === b[i]);
+// Unnumbered labels represent the first slot only, never every numbered player.
+const canonical = id => ({ SLB: 'SLB1', DT: 'DT1', SLCB: 'SLCB1' })[id] || id;
+export function matchMacroPositions(from, to) {
+  const sourceToTarget = new Map(), targetToSource = new Map();
+  function pair(source, target) { sourceToTarget.set(source[0], target[0]); targetToSource.set(target[0], source[0]); }
+  // Exact labels take priority. Aliases must be unambiguous and one-to-one.
+  for (const source of from) {
+    const target = to.find(p => p[0] === source[0] && p[3] === source[3]);
+    if (target) pair(source, target);
+  }
+  for (const source of from.filter(p => !sourceToTarget.has(p[0]))) {
+    const candidates = to.filter(p => !targetToSource.has(p[0]) && p[3] === source[3] && canonical(p[0]) === canonical(source[0]));
+    const sources = from.filter(p => !sourceToTarget.has(p[0]) && p[3] === source[3] && canonical(p[0]) === canonical(source[0]));
+    if (candidates.length === 1 && sources.length === 1) pair(source, candidates[0]);
+  }
+  return { sourceToTarget, targetToSource };
+}
 // Only x is used to select front participants. Match the renderer's alignment.
 function positions(players, state) {
   return Object.fromEntries(players.map(([id, bx, , group]) => {
@@ -23,14 +40,16 @@ function positions(players, state) {
 export function applyMacroToFormation(source, baseline, target) {
   const state = clone(target), applied = [], skipped = [];
   const from = PLAY_ART_FORMATIONS[source.formation], to = PLAY_ART_FORMATIONS[target.formation];
-  const matching = new Set(to.filter(p => from.some(q => q[0] === p[0] && q[3] === p[3])).map(p => p[0]));
+  const { sourceToTarget, targetToSource } = matchMacroPositions(from, to);
+  const matching = new Set(targetToSource.keys());
   const safe = ids => ids.length > 0 && ids.every(id => matching.has(id));
   for (const [id, a] of Object.entries(source.a)) {
     const base = baseline.a[id];
     if (!a.custom && ['job', 'area', 'shade'].every(key => a[key] === base[key])) continue;
-    if (!matching.has(id)) { skipped.push(id + ' (no matching position)'); continue; }
-    state.a[id] = clone(a);
-    applied.push(id);
+    const targetId = sourceToTarget.get(id);
+    if (!targetId) { skipped.push(id + ' (no matching position)'); continue; }
+    state.a[targetId] = clone(a);
+    applied.push(id === targetId ? id : id + ' → ' + targetId);
   }
   function setting(section, key, label, ids) {
     if (source[section][key] === baseline[section][key]) return;
@@ -61,14 +80,14 @@ export function applyMacroToFormation(source, baseline, target) {
     const se = selectedContainIds(from, sp, source.front.contain), te = selectedContainIds(to, tp, candidate.front.contain);
     const stuntIds = Object.keys(tr.map);
     let compatible = !tr.reason;
-    if (source.stunt !== baseline.stunt) compatible &&= !sr.reason && same(Object.keys(sr.map), stuntIds) && safe(stuntIds);
-    if (source.front.contain !== baseline.front.contain) compatible &&= same(se, te) && safe(te);
+    if (source.stunt !== baseline.stunt) compatible &&= !sr.reason && same(Object.keys(sr.map).map(id => sourceToTarget.get(id)), stuntIds) && safe(stuntIds);
+    if (source.front.contain !== baseline.front.contain) compatible &&= same(se.map(id => sourceToTarget.get(id)), te) && safe(te);
     if (source.front.attack !== baseline.front.attack) compatible &&= safe(groups(['dl', 'edge']));
     // A compatible stunt/contain carries its necessary rush assignments, even
     // when those were already stock assignments in the saved source call.
     const required = [...new Set([...(source.stunt !== baseline.stunt ? stuntIds : []), ...(source.front.contain !== baseline.front.contain ? te : [])])];
-    compatible &&= required.every(id => matching.has(id) && isRush(source.a[id].job));
-    for (const id of required) if (compatible) candidate.a[id] = clone(source.a[id]);
+    compatible &&= required.every(id => matching.has(id) && isRush(source.a[targetToSource.get(id)].job));
+    for (const id of required) if (compatible) candidate.a[id] = clone(source.a[targetToSource.get(id)]);
     compatible &&= stuntIds.every(id => isRush(candidate.a[id].job) && !te.includes(id)) && te.every(id => isRush(candidate.a[id].job));
     if (compatible) {
       state.stunt = candidate.stunt; state.front = candidate.front; state.a = candidate.a; applied.push('Rush plan');
