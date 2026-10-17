@@ -144,3 +144,10 @@
 #sb-play-art .nm-change-list>.nm-sub{padding:0 12px 10px;margin:0}
 #sb-play-art .nm-player:disabled{cursor:default}
 #sb-play-art button:focus-visible,#sb-play-art input:focus-visible,#sb-play-art summary:focus-visible{outline:2px solid var(--nm-gold);outline-offset:2px}
+
+#sb-play-art .nm-save-item{flex-wrap:wrap;align-items:flex-start}
+#sb-play-art .nm-save-item>span{flex:1 1 160px;min-width:0}
+#sb-play-art .nm-save-item small{display:block;margin-top:3px}
+#sb-play-art .nm-save-item .nm-inline{flex:1 1 310px;display:grid;grid-template-columns:auto minmax(0,1fr) auto}
+#sb-play-art .nm-save-item button{min-height:44px}
+#sb-play-art .nm-transfer-status:empty{display:none}

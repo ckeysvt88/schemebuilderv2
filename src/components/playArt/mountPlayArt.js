@@ -1,4 +1,5 @@
 import { isRush, selectedContainIds, stuntRoutes } from './front.js';
+import { applyMacroToFormation } from './transfer.js';
 import { buildMacroComparison } from './comparison.js';
 import { layoutCoverageZones } from './zoneLayout.js';
 import { PLAY_ART_FORMATIONS, FORMATION_FAMILIES, familyOf, formationDepth, shiftLinebacker, blitzEndpoint } from './catalog.js';
@@ -70,13 +71,13 @@ function underneathArea(p,call,job){
  if(['middle','rec3'].includes(job))return 'middle';
  return p[1]<50?'left':'right';
 }
-function preset(key){
+function preset(key,sourceFormation=formation){
  const a={};
- players.forEach(([id,x,,group])=>{
-  const [job,area]=(key==='blank'?['blank',x<50?'left':'right']:callAssignments[formation]?.[key]?.[id])||[['dl','edge'].includes(group)?'standardRush':'rush',x<50?'left':'right'];
+ formations[sourceFormation].forEach(([id,x,,group])=>{
+  const [job,area]=(key==='blank'?['blank',x<50?'left':'right']:callAssignments[sourceFormation]?.[key]?.[id])||[['dl','edge'].includes(group)?'standardRush':'rush',x<50?'left':'right'];
   a[id]={job,area,shade:'default'};
  });
- return{formation,template:key,a,stunt:'none',front:{technique:'default',attack:'default',contain:'none'},zones:{flats:'default',curls:'default',hooks:'default'},team:{cbDepth:'default',sDepth:'default',cbWidth:'default',sWidth:'default',lbShift:'default',show:'none'},view:'assignments'};
+ return{formation:sourceFormation,template:key,a,stunt:'none',front:{technique:'default',attack:'default',contain:'none'},zones:{flats:'default',curls:'default',hooks:'default'},team:{cbDepth:'default',sDepth:'default',cbWidth:'default',sWidth:'default',lbShift:'default',show:'none'},view:'assignments'};
 }
 
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -331,7 +332,23 @@ function roster(){const list=app.querySelector('.nm-roster');list.innerHTML=play
 function review(){app.querySelector('.nm-review').innerHTML='<h3>Assignment checklist</h3><div class="nm-review-list">'+players.map(([id])=>'<div class="nm-review-line"><b>'+id+'</b><span>'+esc(assignmentLabel(state.a[id]))+(state.a[id].shade!=='default'?' · '+state.a[id].shade+' leverage':'')+'</span></div>').join('')+'</div><div class="nm-sub">'+Object.entries(state.team).filter(([,v])=>v!=='default'&&v!=='none').map(([k,v])=>({cbDepth:'Outside CB depth',sDepth:'Safety depth',cbWidth:'Outside CB width',sWidth:'Safety width',show:'Show blitz'}[k])+': '+(k.endsWith('Depth')?v+' yards':v)).join(' · ')+'</div>';}
 function refresh(){
 app.querySelector('.nm-report').href=buildBugReportUrl(state,names[state.template]);app.querySelector('.nm-family').value=familyOf(formation);app.querySelector('.nm-formation-select').innerHTML=menu(formationMenu(),formation);draw();editor();roster();review();app.querySelectorAll('[data-team]').forEach(el=>{el.value=displayedState().team[el.dataset.team];el.disabled=comparing;});app.querySelectorAll('[data-zone]').forEach(el=>{el.value=displayedState().zones[el.dataset.zone];el.disabled=comparing;});refreshFront();app.querySelector('.nm-view').value=state.view;app.querySelector('.nm-template').innerHTML=menu(callMenu().some(([k])=>k===state.template)?callMenu():[[state.template,names[state.template]+' (saved)'],...callMenu()],state.template);const team=app.querySelector('.nm-team'),rosterEl=app.querySelector('.nm-roster'),editorEl=app.querySelector('.nm-editor'),reviewEl=app.querySelector('.nm-review');if(layout==='board'){team.hidden=tab!=='team';team.open=tab==='team';rosterEl.hidden=tab!=='players';editorEl.hidden=tab!=='players'||!open;app.querySelectorAll('[data-tab]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.tab===tab)));}if(layout==='guided'){rosterEl.hidden=step!==0;editorEl.hidden=step!==0;team.hidden=step!==1;team.open=step===1;reviewEl.hidden=step!==2;app.querySelectorAll('[data-step]').forEach(b=>b.setAttribute('aria-pressed',String(Number(b.dataset.step)===step)));app.querySelector('[data-action=back]').disabled=step===0;app.querySelector('[data-action=next]').textContent=step===0?'Next · Alignment':step===1?'Next · Review':'Back to assignments';}root.querySelectorAll('.nm-app button,.nm-app select,.nm-app summary').forEach(e=>e.classList.add('cursor-interaction'));}
-function savedRender(){app.querySelector('.nm-saved-count').textContent='('+saved.length+')';app.querySelector('.nm-saved-list').innerHTML=saved.length?saved.map((s,i)=>'<div class="nm-save-item"><span>'+esc(s.name)+'</span><div class="nm-inline"><button type="button" data-load="'+i+'">Load</button><button type="button" data-delete="'+i+'" aria-label="Delete '+esc(s.name)+'">Delete</button></div></div>').join(''):'<div class="nm-empty">Saved macros stay on this device.</div>';app.querySelectorAll('[data-load]').forEach(b=>b.addEventListener('click',()=>{const savedMacro=saved[Number(b.dataset.load)];switchFormation(savedMacro.state.formation);mutate(()=>state=clone(savedMacro.state));app.querySelector('.nm-name').value=savedMacro.name;app.querySelector('.nm-status').textContent='Saved macro loaded.';}));app.querySelectorAll('[data-delete]').forEach(b=>b.addEventListener('click',()=>{saved.splice(Number(b.dataset.delete),1);savedRender();persist();}));}
+function savedRender(){
+ app.querySelector('.nm-saved-count').textContent='('+saved.length+')';
+ app.querySelector('.nm-saved-list').innerHTML=saved.length?'<p class="nm-sub">Load opens the saved formation. Apply to current formation transfers matching position adjustments only.</p>'+saved.map((s,i)=>'<div class="nm-save-item"><span><strong>'+esc(s.name)+'</strong><small class="nm-sub">'+esc(s.state.formation)+'</small></span><div class="nm-inline"><button type="button" data-load="'+i+'">Load</button><button type="button" data-apply="'+i+'">Apply to current formation</button><button type="button" data-delete="'+i+'" aria-label="Delete '+esc(s.name)+'">Delete</button></div></div>').join(''):'<div class="nm-empty">Saved macros stay on this device.</div>';
+ app.querySelectorAll('[data-load]').forEach(b=>b.addEventListener('click',()=>{
+  const savedMacro=saved[Number(b.dataset.load)];switchFormation(savedMacro.state.formation);mutate(()=>state=clone(savedMacro.state));app.querySelector('.nm-name').value=savedMacro.name;app.querySelector('.nm-status').textContent='Saved macro loaded.';
+ }));
+ app.querySelectorAll('[data-apply]').forEach(b=>b.addEventListener('click',()=>{
+  const source=saved[Number(b.dataset.apply)].state;
+  const result=applyMacroToFormation(source,preset(source.template,source.formation),state);
+  closeEditor();mutate(()=>state=result.state);
+  const message=(result.applied.length?'Applied to '+formation+': '+result.applied.join(', ')+'.':'No compatible adjustments to apply.')+(result.skipped.length?' Skipped: '+result.skipped.join('; ')+'.':'');
+  app.querySelector('.nm-transfer-status').textContent=message;
+ }));
+ app.querySelectorAll('[data-delete]').forEach(b=>b.addEventListener('click',()=>{saved.splice(Number(b.dataset.delete),1);savedRender();persist();}));
+ const status=document.createElement('p');status.className='nm-transfer-status nm-sub';status.setAttribute('role','status');app.querySelector('.nm-saved-list').append(status);
+}
+
 const drafts=persisted.drafts,undoByFormation={},namesByFormation={};
 function switchFormation(next){
  if(next===formation)return;
