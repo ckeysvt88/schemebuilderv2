@@ -52,7 +52,7 @@ export const ONBOARDING_PAGES = [
     points: [
       'Tap a defender to choose from that position’s assignments. Your choice immediately updates the diagram.',
       'Compare Before and After, or Step through the changes. Show changes is off by default; enable it to highlight affected defenders and their original art; previews do not edit your macro. Reset restores the starting call or clears Custom assignments.',
-      'Saved macros: Load opens the original formation. Apply to current formation keeps your current formation and transfers matching position adjustments; skipped settings are listed.',
+      'Saved macros: Load opens the original formation. Apply here keeps your current formation and transfers matching position adjustments; skipped settings are listed.',
       '71 formations have a Custom canvas. Example calls are currently available for four formations; the Beta does not include every play.',
     ],
   },
