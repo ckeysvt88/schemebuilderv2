@@ -117,3 +117,33 @@
 #sb-play-art .nm-reference{margin:8px 0;border:1px solid var(--nm-border);border-radius:7px;background:var(--nm-paper)}
 #sb-play-art .nm-reference img{display:block;width:100%;height:auto}
 #sb-play-art .nm-reference a{display:block;padding:8px;color:var(--nm-gold);font-size:12px}
+
+/* One field, three comparison modes. Preview controls never edit the macro. */
+#sb-play-art .nm-compare{grid-template-columns:minmax(0,1fr) minmax(0,1fr) minmax(0,1.45fr) auto;gap:5px}
+#sb-play-art .nm-compare button{min-height:44px;padding:8px 5px;font-family:var(--font-sans,system-ui,sans-serif);white-space:nowrap}
+#sb-play-art .nm-compare [data-action=reset]{padding:8px;color:var(--nm-muted)}
+#sb-play-art .nm-comparison-summary{display:flex;justify-content:space-between;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:4px}
+#sb-play-art .nm-compare-status{font:600 12px var(--font-sans,system-ui,sans-serif);margin:0;overflow-wrap:anywhere}
+#sb-play-art .nm-show-changes{display:flex;align-items:center;gap:5px;min-height:44px;color:var(--nm-text);font-size:12px}
+#sb-play-art .nm-show-changes input{appearance:auto;-webkit-appearance:checkbox;width:16px;height:16px;margin:0;accent-color:var(--nm-gold)}
+#sb-play-art .nm-comparison-nav{display:grid;grid-template-columns:44px minmax(0,1fr) 44px;align-items:center;gap:10px;margin:4px 0 8px}
+#sb-play-art .nm-comparison-nav button{min-height:44px;font-size:20px}
+#sb-play-art .nm-comparison-progress{font:600 12px var(--font-sans,system-ui,sans-serif);color:var(--nm-text);font-variant-numeric:tabular-nums;text-align:center;overflow-wrap:anywhere}
+#sb-play-art .nm-comparison-ghost{fill:var(--nm-grass);stroke:var(--nm-muted);stroke-width:1.5;stroke-dasharray:3 3}
+#sb-play-art .nm-comparison-move{fill:none;stroke:var(--nm-muted);stroke-width:1;stroke-dasharray:3 4;stroke-opacity:.7}
+#sb-play-art .nm-comparison-original path,#sb-play-art .nm-comparison-original ellipse,#sb-play-art .nm-comparison-original circle{stroke:var(--nm-muted);stroke-width:1;stroke-opacity:.55;stroke-dasharray:4 4;fill:none}
+#sb-play-art .nm-comparison-original polygon{display:none}
+#sb-play-art .nm-player.nm-changed:before{content:"";position:absolute;left:50%;top:50%;width:20px;height:20px;border:1.5px solid var(--nm-field-gold);border-radius:50%;transform:translate(-50%,-50%);pointer-events:none}
+#sb-play-art .nm-change-legend{display:flex;justify-content:center;gap:16px;margin-top:7px;color:var(--nm-muted);font-size:12px}
+#sb-play-art .nm-change-legend span{display:flex;align-items:center;gap:5px}
+#sb-play-art .nm-change-ring,#sb-play-art .nm-change-ghost{display:inline-block;width:12px;height:12px;border:1.5px solid var(--nm-field-gold);border-radius:50%}
+#sb-play-art .nm-change-ghost{border-color:var(--nm-muted);border-style:dashed}
+#sb-play-art .nm-change-review{margin-top:9px;background:var(--nm-paper);border:1px solid var(--nm-border);border-radius:7px;overflow:hidden}
+#sb-play-art .nm-current-change{padding:10px 12px;border-left:3px solid var(--nm-gold-border);font-size:13px}
+#sb-play-art .nm-current-change p,#sb-play-art .nm-change-list p{font-size:12px;color:var(--nm-muted);overflow-wrap:anywhere}
+#sb-play-art .nm-change-list summary{min-height:44px}
+#sb-play-art .nm-change-list ol{padding:0 14px 0 32px;margin:0 0 10px;font-size:12px}
+#sb-play-art .nm-change-list li+li{margin-top:10px}
+#sb-play-art .nm-change-list>.nm-sub{padding:0 12px 10px;margin:0}
+#sb-play-art .nm-player:disabled{cursor:default}
+#sb-play-art button:focus-visible,#sb-play-art input:focus-visible,#sb-play-art summary:focus-visible{outline:2px solid var(--nm-gold);outline-offset:2px}

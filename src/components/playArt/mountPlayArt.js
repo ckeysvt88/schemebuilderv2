@@ -1,4 +1,6 @@
 import { isRush, selectedContainIds, stuntRoutes } from './front.js';
+import { buildMacroComparison } from './comparison.js';
+import { layoutCoverageZones } from './zoneLayout.js';
 import { EXAMPLE_ART } from './examples.js';
 import { PLAY_ART_FORMATIONS, FORMATION_FAMILIES, familyOf, formationDepth, shiftLinebacker, blitzEndpoint } from './catalog.js';
 import { buildBugReportUrl } from './feedback.js';
@@ -93,21 +95,26 @@ const persisted=readPlayArtStorage(validState);
 if(persisted.current){formation=persisted.current.formation;players=formations[formation];}
 if(initialFormation&&Object.hasOwn(formations,initialFormation)){formation=initialFormation;players=formations[formation];}
 
-const layout=app.dataset.layout;let state=(initialFormation?persisted.drafts[formation]:persisted.current)||preset(initialFormation?'blank':defaultCall()),selected=players[0][0],open=false,comparing=false,keyboardMode=false,tab='players',step=0,saved=persisted.saved,history=[];let width=450;const uid='nm'+index;
-app.innerHTML='<header class="nm-header app-page-header"><div class="nm-brand">Scheme Builders</div><h1>Design Your Play Macro Builder - Beta</h1></header><main class="nm-main"><div class="nm-pickers"><label>Family<select class="nm-family">'+menu(FORMATION_FAMILIES.map(n=>[n,n]),familyOf(formation))+'</select></label><label class="nm-formation-picker">Formation<select class="nm-formation-select">'+menu(formationMenu(),formation)+'</select></label><label>Play<select class="nm-template">'+menu(callMenu(),defaultCall())+'</select></label></div>'+(layout==='guided'?'<div class="nm-steps" aria-label="Builder steps"><button type="button" data-step="0" aria-pressed="true">1 · Assign</button><button type="button" data-step="1" aria-pressed="false">2 · Align</button><button type="button" data-step="2" aria-pressed="false">3 · Review</button></div>':'')+'<div class="nm-compare" role="group" aria-label="Compare with base call"><button type="button" data-compare="base" aria-pressed="false">Base call</button><button type="button" data-compare="macro" aria-pressed="true">My macro</button><button type="button" data-action="reset">Reset</button></div><div class="nm-compare-status" aria-live="polite"></div><div class="nm-field-feedback nm-sub" role="status" hidden></div><div class="nm-hint">'+(layout==='board'?'Select a player below, or tap a marker on the field.':'Tap a defender to open their assignment popup.')+'</div><div class="nm-field-wrap"><div class="nm-field"><svg role="img" aria-label="Nickel Over custom defensive assignments"></svg><div class="nm-markers"></div></div></div><details class="nm-reference" hidden><summary>Original example play art</summary><img loading="lazy" alt="Original example play art"><a target="_blank" rel="noopener noreferrer">Source: CFB Labs</a></details><div class="nm-custom-note">Coverage areas, not fixed stopping points. Numbered drops show your set depth.</div><div class="nm-art-tools"><details class="nm-art-key"><summary>Play-art key</summary><div class="nm-legend"><span><i class="nm-swatch"></i>Deep zone</span><span><i class="nm-swatch" style="background:var(--nm-flat)"></i>Hard / cloud / soft squat</span><span><i class="nm-swatch" style="background:var(--nm-curl)"></i>Curl flat</span><span><i class="nm-swatch" style="background:var(--nm-hook)"></i>Hook / curl</span><span><i class="nm-swatch" style="background:var(--nm-vertical)"></i>Read / vertical hook</span><span><i class="nm-swatch" style="background:var(--nm-seam)"></i>Seam / quarter flat</span><span><i class="nm-swatch" style="background:var(--nm-rush)"></i>Rush</span><span><i class="nm-swatch" style="background:var(--nm-contain)"></i>Contain</span><span><i class="nm-swatch" style="background:var(--nm-spy);height:8px;border-radius:50%"></i>QB spy</span><span><i class="nm-swatch" style="background:none;height:12px;width:12px;border:1px dashed var(--nm-man);border-radius:50%"></i>Man · label only</span></div></details><div class="nm-toggle-row"><label><span class="nm-sr">Diagram</span><select class="nm-view" aria-label="Diagram">'+menu([['assignments','Assignments'],['alignment','Pre-snap']],'assignments')+'</select></label></div></div>'+(layout==='board'?'<div class="nm-tabbar"><button type="button" data-tab="players" aria-pressed="true">Players</button><button type="button" data-tab="team" aria-pressed="false">Alignment</button></div>':'')+'<div class="nm-roster"'+(layout==='field'?' hidden':'')+'></div><div class="nm-editor" role="dialog" aria-modal="false" hidden></div><details class="nm-zone"><summary>Zone drops</summary><div class="nm-details-body"><div class="nm-zone-grid">'+['flats','curls','hooks'].map(k=>'<label>'+({flats:'Flats',curls:'Curl flats',hooks:'Hooks'}[k])+'<select data-zone="'+k+'">'+menu(zoneMenu,'default')+'</select></label>').join('')+'</div><p class="nm-sub">Applies to every defender in that zone group.</p></div></details><details class="nm-front"><summary>Defensive line</summary><div class="nm-details-body"><label>Stunt<select data-stunt>'+menu(stuntMenu,'none')+'</select></label><p class="nm-stunt-note nm-sub" aria-live="polite"></p><div class="nm-grid"><label>Technique<select data-front="technique">'+menu([['default','Default'],['pinch','Pinch'],['right','Right'],['left','Left'],['spread','Spread']],'default')+'</select></label><label>Point of attack<select data-front="attack">'+menu([['default','Default'],['outside','Outside'],['left','Left'],['right','Right'],['inside','Inside']],'default')+'</select></label><label class="nm-wide">QB contain<select data-front="contain">'+menu([['none','Off'],['left','Left edge'],['right','Right edge'],['both','Both edges']],'none')+'</select></label></div><p class="nm-front-message nm-sub" aria-live="polite"></p><details><summary>About stunt arrows</summary><p class="nm-sub">Arrows illustrate rush lanes, not timing or guaranteed pressure. Check the exact path in game before saving a competitive setup.</p></details></div></details><details class="nm-team"><summary>Player alignment &amp; show blitz</summary><div class="nm-details-body"><div class="nm-grid"><label>Outside CB depth<select data-team="cbDepth">'+menu([['default','Formation default'],['press','Press'],['3','3 yards'],['5','5 yards'],['7','7 yards'],['9','9 yards'],['12','12 yards'],['20','20 yards']],'default')+'</select></label><label>Safety depth<select data-team="sDepth">'+menu([['default','Formation default'],['5','5 yards'],['9','9 yards'],['12','12 yards'],['16','16 yards'],['25','25 yards'],['32','32 yards']],'default')+'</select></label><label>Outside CB width<select data-team="cbWidth">'+menu([['default','Default'],['inside','Tight'],['outside','Wide']],'default')+'</select></label><label>Safety width<select data-team="sWidth">'+menu([['default','Default'],['pinch','Pinch'],['spread','Spread'],['wide','Wide']],'default')+'</select></label><label>Linebacker shift<select data-team="lbShift">'+menu([['default','Default'],['left','Left'],['right','Right'],['pinch','Pinch'],['spread','Spread']],'default')+'</select></label><label>Show blitz<select data-team="show">'+menu([['none','Off'],['lb','Linebackers'],['secondary','Secondary'],['both','Linebackers + secondary']],'none')+'</select></label></div><p class="nm-sub">Depth moves the starting alignment. Secondary Show Blitz sets safeties to 6 yards; corners stay put. Blitz arrows stop before the defensive line. Linebacker blitzes point straight ahead; secondary blitzes angle toward the QB. DL Rush and Blitz point straight ahead unless adjusted.</p></div></details><div class="nm-review" hidden></div>'+(layout==='guided'?'<div class="nm-step-footer"><button type="button" data-action="back">Back</button><button type="button" data-action="next" class="nm-primary">Next · Alignment</button></div>':'')+'<div class="nm-save-row"><label>Macro name<input type="text" class="nm-name" maxlength="42" value="'+formation+' · My Macro"></label><button type="button" class="nm-primary" data-action="save">Save macro</button></div><div class="nm-status" aria-live="polite"></div><div class="nm-footer-actions"><details class="nm-saved"><summary>Saved macros <span class="nm-saved-count">(0)</span></summary><div class="nm-details-body nm-saved-list"><div class="nm-empty">Saved macros stay on this device.</div></div></details><a class="nm-report" href="mailto:help@schemebuilders.com" aria-label="Report a Play Art bug by email">Report a bug</a></div><div class="nm-storage-notice" role="status" hidden></div></main>';
+const layout=app.dataset.layout;let state=(initialFormation?persisted.drafts[formation]:persisted.current)||preset(initialFormation?'blank':defaultCall()),selected=players[0][0],open=false,comparing=false,comparisonMode='after',comparisonIndex=0,showChanges=true,keyboardMode=false,tab='players',step=0,saved=persisted.saved,history=[];let width=450;const uid='nm'+index;
+app.innerHTML='<header class="nm-header app-page-header"><div class="nm-brand">Scheme Builders</div><h1>Design Your Play Macro Builder - Beta</h1></header><main class="nm-main"><div class="nm-pickers"><label>Family<select class="nm-family">'+menu(FORMATION_FAMILIES.map(n=>[n,n]),familyOf(formation))+'</select></label><label class="nm-formation-picker">Formation<select class="nm-formation-select">'+menu(formationMenu(),formation)+'</select></label><label>Play<select class="nm-template">'+menu(callMenu(),defaultCall())+'</select></label></div>'+(layout==='guided'?'<div class="nm-steps" aria-label="Builder steps"><button type="button" data-step="0" aria-pressed="true">1 · Assign</button><button type="button" data-step="1" aria-pressed="false">2 · Align</button><button type="button" data-step="2" aria-pressed="false">3 · Review</button></div>':'')+'<div class="nm-compare" role="group" aria-label="Before and after macro"><button type="button" data-compare="before" aria-pressed="false">Before</button><button type="button" data-compare="after" aria-pressed="true">After</button><button type="button" data-compare="steps" aria-label="Step through changes" aria-pressed="false" disabled>Step through</button><button type="button" data-action="reset">Reset</button></div><div class="nm-comparison-summary"><div class="nm-compare-status" aria-live="polite"></div><label class="nm-show-changes" hidden><input type="checkbox" checked> Show changes</label></div><div class="nm-comparison-nav" role="group" aria-label="Adjustment preview steps" hidden><button type="button" data-comparison-prev aria-label="Previous"><span aria-hidden="true">‹</span></button><span class="nm-comparison-progress"></span><button type="button" data-comparison-next aria-label="Next"><span aria-hidden="true">›</span></button></div><div class="nm-field-feedback nm-sub" role="status" hidden></div><div class="nm-hint">'+(layout==='board'?'Select a player below, or tap a marker on the field.':'Tap a defender to open their assignment popup.')+'</div><div class="nm-field-wrap"><div class="nm-field"><svg role="img" aria-label="Nickel Over custom defensive assignments"></svg><div class="nm-markers"></div></div></div><div class="nm-change-legend" hidden><span><i class="nm-change-ring"></i>Changed</span><span><i class="nm-change-ghost"></i>Before</span></div><section class="nm-change-review" aria-label="Macro changes" hidden><div class="nm-current-change" aria-live="polite" hidden></div><details class="nm-change-list"><summary></summary><ol></ol><p class="nm-sub">Preview order explains the final setup; it is not a game input sequence. Movement and paths are schematic.</p></details></section><details class="nm-reference" hidden><summary>Original example play art</summary><img loading="lazy" alt="Original example play art"><a target="_blank" rel="noopener noreferrer">Source: CFB Labs</a></details><div class="nm-custom-note">Coverage areas, not fixed stopping points. Numbered drops show your set depth.</div><div class="nm-art-tools"><details class="nm-art-key"><summary>Play-art key</summary><div class="nm-legend"><span><i class="nm-swatch"></i>Deep zone</span><span><i class="nm-swatch" style="background:var(--nm-flat)"></i>Hard / cloud / soft squat</span><span><i class="nm-swatch" style="background:var(--nm-curl)"></i>Curl flat</span><span><i class="nm-swatch" style="background:var(--nm-hook)"></i>Hook / curl</span><span><i class="nm-swatch" style="background:var(--nm-vertical)"></i>Read / vertical hook</span><span><i class="nm-swatch" style="background:var(--nm-seam)"></i>Seam / quarter flat</span><span><i class="nm-swatch" style="background:var(--nm-rush)"></i>Rush</span><span><i class="nm-swatch" style="background:var(--nm-contain)"></i>Contain</span><span><i class="nm-swatch" style="background:var(--nm-spy);height:8px;border-radius:50%"></i>QB spy</span><span><i class="nm-swatch" style="background:none;height:12px;width:12px;border:1px dashed var(--nm-man);border-radius:50%"></i>Man · label only</span></div></details><div class="nm-toggle-row"><label><span class="nm-sr">Diagram</span><select class="nm-view" aria-label="Diagram">'+menu([['assignments','Assignments'],['alignment','Pre-snap']],'assignments')+'</select></label></div></div>'+(layout==='board'?'<div class="nm-tabbar"><button type="button" data-tab="players" aria-pressed="true">Players</button><button type="button" data-tab="team" aria-pressed="false">Alignment</button></div>':'')+'<div class="nm-roster"'+(layout==='field'?' hidden':'')+'></div><div class="nm-editor" role="dialog" aria-modal="false" hidden></div><details class="nm-zone"><summary>Zone drops</summary><div class="nm-details-body"><div class="nm-zone-grid">'+['flats','curls','hooks'].map(k=>'<label>'+({flats:'Flats',curls:'Curl flats',hooks:'Hooks'}[k])+'<select data-zone="'+k+'">'+menu(zoneMenu,'default')+'</select></label>').join('')+'</div><p class="nm-sub">Applies to every defender in that zone group.</p></div></details><details class="nm-front"><summary>Defensive line</summary><div class="nm-details-body"><label>Stunt<select data-stunt>'+menu(stuntMenu,'none')+'</select></label><p class="nm-stunt-note nm-sub" aria-live="polite"></p><div class="nm-grid"><label>Technique<select data-front="technique">'+menu([['default','Default'],['pinch','Pinch'],['right','Right'],['left','Left'],['spread','Spread']],'default')+'</select></label><label>Point of attack<select data-front="attack">'+menu([['default','Default'],['outside','Outside'],['left','Left'],['right','Right'],['inside','Inside']],'default')+'</select></label><label class="nm-wide">QB contain<select data-front="contain">'+menu([['none','Off'],['left','Left edge'],['right','Right edge'],['both','Both edges']],'none')+'</select></label></div><p class="nm-front-message nm-sub" aria-live="polite"></p><details><summary>About stunt arrows</summary><p class="nm-sub">Arrows illustrate rush lanes, not timing or guaranteed pressure. Check the exact path in game before saving a competitive setup.</p></details></div></details><details class="nm-team"><summary>Player alignment &amp; show blitz</summary><div class="nm-details-body"><div class="nm-grid"><label>Outside CB depth<select data-team="cbDepth">'+menu([['default','Formation default'],['press','Press'],['3','3 yards'],['5','5 yards'],['7','7 yards'],['9','9 yards'],['12','12 yards'],['20','20 yards']],'default')+'</select></label><label>Safety depth<select data-team="sDepth">'+menu([['default','Formation default'],['5','5 yards'],['9','9 yards'],['12','12 yards'],['16','16 yards'],['25','25 yards'],['32','32 yards']],'default')+'</select></label><label>Outside CB width<select data-team="cbWidth">'+menu([['default','Default'],['inside','Tight'],['outside','Wide']],'default')+'</select></label><label>Safety width<select data-team="sWidth">'+menu([['default','Default'],['pinch','Pinch'],['spread','Spread'],['wide','Wide']],'default')+'</select></label><label>Linebacker shift<select data-team="lbShift">'+menu([['default','Default'],['left','Left'],['right','Right'],['pinch','Pinch'],['spread','Spread']],'default')+'</select></label><label>Show blitz<select data-team="show">'+menu([['none','Off'],['lb','Linebackers'],['secondary','Secondary'],['both','Linebackers + secondary']],'none')+'</select></label></div><p class="nm-sub">Depth moves the starting alignment. Secondary Show Blitz sets safeties to 6 yards; corners stay put. Blitz arrows stop before the defensive line. Linebacker blitzes point straight ahead; secondary blitzes angle toward the QB. DL Rush and Blitz point straight ahead unless adjusted.</p></div></details><div class="nm-review" hidden></div>'+(layout==='guided'?'<div class="nm-step-footer"><button type="button" data-action="back">Back</button><button type="button" data-action="next" class="nm-primary">Next · Alignment</button></div>':'')+'<div class="nm-save-row"><label>Macro name<input type="text" class="nm-name" maxlength="42" value="'+formation+' · My Macro"></label><button type="button" class="nm-primary" data-action="save">Save macro</button></div><div class="nm-status" aria-live="polite"></div><div class="nm-footer-actions"><details class="nm-saved"><summary>Saved macros <span class="nm-saved-count">(0)</span></summary><div class="nm-details-body nm-saved-list"><div class="nm-empty">Saved macros stay on this device.</div></div></details><a class="nm-report" href="mailto:help@schemebuilders.com" aria-label="Report a Play Art bug by email">Report a bug</a></div><div class="nm-storage-notice" role="status" hidden></div></main>';
 const popup=app.querySelector('.nm-editor');popup.id=uid+'-popup';popup.setAttribute('aria-labelledby',uid+'-popup-title');app.querySelector('.nm-field-wrap').append(popup);
 const markers=app.querySelector('.nm-markers');
 function buildMarkers(){markers.innerHTML='';players.forEach(([id,,,group,desc])=>{const b=document.createElement('button');b.type='button';b.className='nm-player';b.dataset.player=id;b.dataset.group=group;b.innerHTML='<span class="nm-glyph" aria-hidden="true"></span><span class="nm-player-label">'+id+'</span>';b.setAttribute('aria-label',id+' · '+desc+' · edit assignment');b.setAttribute('aria-pressed','false');b.setAttribute('aria-haspopup','dialog');b.setAttribute('aria-controls',uid+'-popup');b.setAttribute('aria-expanded','false');b.addEventListener('click',()=>{selected=id;open=true;tab='players';if(layout==='guided')step=0;refresh();if(keyboardMode)popup.querySelector('[data-edit=job]').focus();});markers.append(b);});}
 buildMarkers();
 function snapshot(){history.push(clone(state));if(history.length>30)history.shift();}
-function mutate(fn){snapshot();comparing=false;fn();refresh();persist();app.querySelector('.nm-status').textContent='';}
+function mutate(fn){snapshot();comparing=false;comparisonMode='after';comparisonIndex=0;fn();refresh();persist();app.querySelector('.nm-status').textContent='';}
 const LOS=354,FIELD_HEIGHT=430;
 let scale=15;
 const yardY=depth=>LOS-Number(depth)*scale;
-const zoneGroup=job=>['hard','cloud','soft'].includes(job)?'flats':['curl','seam','quarterflat'].includes(job)?'curls':['hook','vertical','middle','rec3'].includes(job)?'hooks':null;
-// Default coordinates are compact play-art landmarks, not claims of AI stopping depths.
-const defaultDrop={hard:1.5,cloud:3.2,soft:3.2,curl:5.5,seam:5.5,quarterflat:5.5,hook:6,vertical:6,middle:9,rec3:5.5,bluff:3.5,third:13,half:13,quarter:13};
-function displayedState(){if(!comparing)return state;const base=preset(state.template);base.view=state.view;return base;}
+function comparisonData(){
+ return buildMacroComparison(preset(state.template),state,players,assignmentLabel,key=>stuntMenu.find(([value])=>value===key)?.[1]||key);
+}
+function displayedState(){
+ if(!comparing)return state;
+ const data=comparisonData();
+ const shown=comparisonMode==='steps'?(data.steps[Math.min(comparisonIndex,data.steps.length-1)]?.state||data.baseline):data.baseline;
+ return {...shown,view:state.view};
+}
 function coords(p,shown=displayedState()){
  const [,bx,by,g]=p;let x=bx,depth=formationDepth(by);
  if(g==='lb')x=shiftLinebacker(x,shown.team.lbShift);
@@ -154,46 +161,21 @@ function rushPath(p,shown,positions,plan){
  const startY=y<LOS?Math.min(y+3,LOS-8):y+5;
  return{kind:'rush',d:`M ${x} ${startY} L ${target} ${endpoint.y}`};
 }
-function draw(){
- const svg=app.querySelector('.nm-field svg');if(!width)return;
- const shown=displayedState();
- const numericDrops=Object.values(shown.zones).filter(v=>v!=='default').map(Number);
- const numericAlign=[shown.team.cbDepth,shown.team.sDepth].filter(v=>!['default','press'].includes(v)).map(Number);
- const maxDepth=Math.max(20,...numericDrops.map(n=>n+3),...numericAlign.map(n=>n+6));
- scale=300/maxDepth;
- const positions=Object.fromEntries(players.map(p=>[p[0],coords(p,shown)])),zones=[],labels=[],rushes=[];
- const plan=stuntPlan(shown,positions),showYards=numericDrops.length>0||numericAlign.length>0;
- svg.setAttribute('viewBox','0 0 '+width+' '+FIELD_HEIGHT);
- let base='<defs>'+['rush','contain'].map(k=>'<marker id="'+uid+'-'+k+'" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto"><path d="M0 0 L6 3 L0 6 Z" fill="var(--nm-'+k+')"/></marker>').join('')+'</defs>',lines='',shapes='',text='';
- for(let depth=0;depth<=maxDepth-1;depth+=5){
-  const y=yardY(depth);
-  base+='<line x1="24" y1="'+y+'" x2="'+(width-10)+'" y2="'+y+'" stroke="'+(depth===0?'var(--nm-field-gold)':'var(--nm-field-grid)')+'" stroke-opacity="'+(depth===0?'.8':'.5')+'"/>';
-  if(showYards)base+='<text x="5" y="'+(y+4)+'" style="fill:var(--nm-muted);font-size:11px">'+depth+'</text>';
- }
- base+='<text x="12" y="20" style="fill:var(--nm-muted);font-size:11px">'+(showYards?'ZONE DROP / ALIGNMENT · YARDS':'PLAY ART · COVERAGE RESPONSIBILITIES')+'</text><text x="24" y="'+(LOS+15)+'" style="fill:var(--nm-muted);font-size:11px">LOS</text>';
+function assignmentArt(shown,positions,plan){
+ let lines='',shapes='';const zones=shown.view==='assignments'?layoutCoverageZones(players,shown,positions,width,scale,LOS):[],rushes=[],playerArt={};
+ const zoneById=new Map(zones.map(zone=>[zone.id,zone]));
  if(shown.view==='assignments')players.forEach(p=>{
-  const [id,bx,,g]=p,a=shown.a[id],{x,y}=positions[id],kind=options[a.job][1];
+  const [id]=p,a=shown.a[id],{x,y}=positions[id],kind=options[a.job][1];
   if(a.job==='blank')return;
+  const lineStart=lines.length,shapeStart=shapes.length;
   const tampahook=(shown.template==='two'||['3-4 Over','3-3-5 Stack'].includes(formation))&&a.job==='hook'&&!a.custom;
   const color='var(--nm-'+(tampahook?'tampa':jobColor(a.job))+')',sw=open&&id===selected?2.3:1.7;
   const attrs=' data-assignment="'+a.job+'" data-defender="'+id+'"';
   if(kind==='deep'||kind==='under'){
-   const group=zoneGroup(a.job),setting=group?shown.zones[group]:'default';
-   let depth=setting!=='default'?Number(setting):defaultDrop[a.job];
-   if(kind==='deep'&&shown.team.sDepth!=='default')depth=Math.max(depth,Number(shown.team.sDepth)+5);
-   let zx=x,zy=yardY(depth),rx=kind==='deep'?width*.125:Math.max(24,width*.088),ry=kind==='deep'?Math.min(22,scale*1.8):Math.min(16,scale*1.4);
-   if(a.job==='third')zx=width*({left:.18,middle:.5,right:.82}[a.area]||.5);
-   if(a.job==='half'){zx=width*(a.area==='left'?.27:.73);rx=width*.19;}
-   if(a.job==='quarter'){zx=width*({left:.14,middle:.38,right:.86,innerRight:.62}[a.area]||.38);rx=width*.10;}
-   if(['hard','cloud','soft','curl','seam','quarterflat'].includes(a.job))zx=width*((g==='dl'?a.area==='left':bx<50)?.17:.83);
-   if(['hook','vertical'].includes(a.job))zx=width*({left:.36,middle:.5,right:.64}[a.area]);
-   if(['middle','rec3'].includes(a.job))zx=width*.5;
-   if(a.job==='bluff'){zx=x;rx=width*.07;}
-   zx=Math.max(rx+24,Math.min(width-rx-10,zx));
-   zones.push({id,job:a.job,group,depth,explicit:setting!=='default',x:zx,y:zy,rx,ry});
+   const {group,depth,x:zx,y:zy,rx,ry}=zoneById.get(id);
    const line=a.job==='bluff'?`M ${x} ${y+5} L ${x} ${LOS+14} Q ${x+16} ${LOS-3} ${zx} ${zy}`:`M ${x} ${y} L ${zx} ${zy}`;
    lines+='<path'+attrs+' d="'+line+'" fill="none" stroke="'+color+'" stroke-width="'+sw+'"'+(a.job==='bluff'?' stroke-dasharray="4 3"':'')+'/>';
-   shapes+='<ellipse'+attrs+' data-zone-group="'+(group||'deep')+'" data-depth="'+depth+'" cx="'+zx+'" cy="'+zy+'" rx="'+rx+'" ry="'+ry+'" fill="'+color+'" fill-opacity=".23" stroke="'+color+'" stroke-width="'+sw+'"/>';
+   shapes+='<ellipse'+attrs+' data-zone-group="'+(group||'deep')+'" data-depth="'+depth+'" cx="'+zx+'" cy="'+zy+'" rx="'+rx+'" ry="'+ry+'" fill="'+color+'" fill-opacity=".18" stroke="'+color+'" stroke-width="'+sw+'"/>';
   }else if(kind==='spy')shapes+='<ellipse'+attrs+' data-symbol="spy" cx="'+x+'" cy="'+y+'" rx="15" ry="10" fill="'+color+'" fill-opacity=".2" stroke="'+color+'" stroke-width="1.5"/>';
   else if(kind==='man')shapes+='<circle'+attrs+' data-symbol="man-label" cx="'+x+'" cy="'+y+'" r="12" fill="none" stroke="'+color+'" stroke-width="1" stroke-dasharray="3 3"/>';
   else{
@@ -205,7 +187,48 @@ function draw(){
    const bx=tx-8*ux,by=ty-8*uy;
    shapes+='<polygon data-rush-arrowhead="'+id+'" points="'+tx+','+ty+' '+(bx-4*uy)+','+(by+4*ux)+' '+(bx+4*uy)+','+(by-4*ux)+'" fill="var(--nm-'+route.kind+')"/>';
   }
+  playerArt[id]=lines.slice(lineStart)+shapes.slice(shapeStart);
  });
+ return {lines,shapes,zones,rushes,playerArt};
+}
+function draw(){
+ const svg=app.querySelector('.nm-field svg');if(!width)return;
+ const data=comparisonData();
+ comparisonIndex=Math.max(0,Math.min(comparisonIndex,data.steps.length-1));
+ const shown=displayedState();
+ // Keep one coordinate scale across Before/After and all cumulative steps.
+ const numericDrops=[...Object.values(state.zones),...Object.values(data.baseline.zones)].filter(v=>v!=='default').map(Number);
+ const numericAlign=[state.team.cbDepth,state.team.sDepth,data.baseline.team.cbDepth,data.baseline.team.sDepth].filter(v=>!['default','press'].includes(v)).map(Number);
+ const maxDepth=Math.max(20,...numericDrops.map(n=>n+3),...numericAlign.map(n=>n+6));
+ scale=300/maxDepth;
+ const positions=Object.fromEntries(players.map(p=>[p[0],coords(p,shown)])),labels=[];
+ const plan=stuntPlan(shown,positions),showYards=numericDrops.length>0||numericAlign.length>0;
+ const art=assignmentArt(shown,positions,plan),{zones,rushes}=art;
+ const reference={...(comparisonMode==='steps'&&comparisonIndex>0?data.steps[comparisonIndex-1].state:data.baseline),view:state.view};
+ const beforePositions=frontPositions(reference),beforeArt=assignmentArt(reference,beforePositions,stuntPlan(reference,beforePositions));
+ // Rendering can affect more than the directly edited group (for example a
+ // depth setting or a stunt partner), so highlight actual geometry differences.
+ const candidates=comparisonMode==='before'?[]:players.map(p=>p[0]);
+ const changedIds=candidates.filter(id=>Math.abs(positions[id].x-beforePositions[id].x)>.1||Math.abs(positions[id].y-beforePositions[id].y)>.1
+  ||art.playerArt[id]!==beforeArt.playerArt[id]||['job','area','shade'].some(key=>shown.a[id][key]!==reference.a[id][key]));
+ const highlightIds=showChanges?changedIds:[];
+ let overlay='';
+ for(const id of highlightIds){
+  const from=beforePositions[id],to=positions[id];
+  if(Math.abs(from.x-to.x)>.1||Math.abs(from.y-to.y)>.1){
+   overlay+='<path class="nm-comparison-move" d="M '+from.x+' '+from.y+' L '+to.x+' '+to.y+'"/><circle class="nm-comparison-ghost" data-original-position="'+id+'" cx="'+from.x+'" cy="'+from.y+'" r="7"/>';
+  }
+  if(beforeArt.playerArt[id]&&beforeArt.playerArt[id]!==art.playerArt[id])overlay+='<g class="nm-comparison-original" aria-hidden="true">'+beforeArt.playerArt[id]+'</g>';
+ }
+ svg.setAttribute('viewBox','0 0 '+width+' '+FIELD_HEIGHT);
+ let base='<defs>'+['rush','contain'].map(k=>'<marker id="'+uid+'-'+k+'" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto"><path d="M0 0 L6 3 L0 6 Z" fill="var(--nm-'+k+')"/></marker>').join('')+'</defs>',text='';
+ for(let depth=0;depth<=maxDepth-1;depth+=5){
+  const y=yardY(depth);
+  base+='<line x1="24" y1="'+y+'" x2="'+(width-10)+'" y2="'+y+'" stroke="'+(depth===0?'var(--nm-field-gold)':'var(--nm-field-grid)')+'" stroke-opacity="'+(depth===0?'.8':'.5')+'"/>';
+  if(showYards)base+='<text x="5" y="'+(y+4)+'" style="fill:var(--nm-muted);font-size:11px">'+depth+'</text>';
+ }
+ base+='<text x="12" y="20" style="fill:var(--nm-muted);font-size:11px">'+(showYards?'ZONE DROP / ALIGNMENT · YARDS':'PLAY ART · COVERAGE RESPONSIBILITIES')+'</text><text x="24" y="'+(LOS+15)+'" style="fill:var(--nm-muted);font-size:11px">LOS</text>';
+
  players.forEach(p=>{
   const q=positions[p[0]],onLine=p[2]>=63;
   const front=players.filter(other=>other[2]>=63).sort((a,b)=>positions[a[0]].x-positions[b[0]].x);
@@ -215,17 +238,40 @@ function draw(){
   labels.push({id:p[0],x:labelX,y:labelY});
   text+='<text data-player-label="'+p[0]+'" x="'+labelX+'" y="'+labelY+'" text-anchor="'+anchor+'" style="fill:var(--nm-field-text);paint-order:stroke;stroke:var(--nm-grass);stroke-width:3px;stroke-linejoin:round;font:700 11px monospace">'+p[0]+'</text>';
  });
- svg.innerHTML=base+lines+shapes+text;
- svg.setAttribute('aria-label',formation+' · '+(comparing?(state.template==='blank'?'Custom':'Base call'):'My macro')+' · '+names[state.template]);
- app.artLayout={labels,zones,positions,rushes,stunt:plan,scale,los:LOS,mode:comparing?'base':'macro'};
+ svg.innerHTML=base+'<g aria-hidden="true">'+overlay+'</g>'+art.lines+art.shapes+text;
+ svg.setAttribute('aria-label',formation+' · '+(comparisonMode==='before'?'Before':comparisonMode==='steps'?'Preview step '+(comparisonIndex+1):'After')+' · '+names[state.template]);
+ app.artLayout={labels,zones,positions,rushes,stunt:plan,scale,los:LOS,mode:comparisonMode==='before'?'base':comparisonMode==='steps'?'steps':'macro',changedIds,comparisonIndex,changeCount:data.steps.length};
  players.forEach(p=>{
   const b=markers.querySelector('[data-player="'+p[0]+'"]'),q=positions[p[0]];
   const nearest=Math.min(...players.filter(other=>other[0]!==p[0]).map(other=>{const t=positions[other[0]];return Math.max(Math.abs(t.x-q.x),Math.abs(t.y-q.y));}));
-  const hit=Math.min(44,Math.max(12,nearest));b.style.width=hit+'px';b.style.height=hit+'px';b.style.minHeight=hit+'px';b.style.left=(100*q.x/width)+'%';b.style.top=q.y+'px';b.dataset.kind=options[shown.a[p[0]].job][1];b.disabled=comparing;
-  b.setAttribute('aria-pressed',String(open&&!comparing&&p[0]===selected));b.setAttribute('aria-expanded',String(open&&!comparing&&p[0]===selected));b.setAttribute('aria-label',p[0]+' · '+assignmentLabel(shown.a[p[0]])+' · edit');
+  const hit=Math.min(44,Math.max(12,nearest));b.style.width=hit+'px';b.style.height=hit+'px';b.style.minHeight=hit+'px';b.style.left=(100*q.x/width)+'%';b.style.top=q.y+'px';b.dataset.kind=options[shown.a[p[0]].job][1];b.disabled=comparing;b.classList.toggle('nm-changed',highlightIds.includes(p[0]));
+  b.setAttribute('aria-pressed',String(open&&!comparing&&p[0]===selected));b.setAttribute('aria-expanded',String(open&&!comparing&&p[0]===selected));b.setAttribute('aria-label',p[0]+' · '+assignmentLabel(shown.a[p[0]])+(changedIds.includes(p[0])?' · changed':'')+(comparing?' · preview':' · edit'));
  });
- app.querySelectorAll('[data-compare]').forEach(b=>b.setAttribute('aria-pressed',String((b.dataset.compare==='base')===comparing)));
- app.querySelector('.nm-compare-status').textContent=(comparing?(state.template==='blank'?'Custom':'Base call'):'My macro')+' · '+names[state.template];
+ renderComparison(data,highlightIds);
+}
+function renderComparison(data,highlightIds){
+ const count=data.steps.length,source=state.template==='blank'?'custom canvas':'base call';
+ app.querySelectorAll('[data-compare]').forEach(b=>{
+  b.setAttribute('aria-pressed',String(b.dataset.compare===comparisonMode));
+  if(b.dataset.compare==='steps')b.disabled=!count;
+ });
+ app.querySelector('.nm-compare-status').textContent=comparisonMode==='before'?'Before · '+(state.template==='blank'?'Custom canvas':names[state.template])
+  :comparisonMode==='steps'?'Preview · '+(comparisonIndex+1)+' of '+count:count?'After · '+count+' change'+(count===1?'':'s'):'No changes from '+source;
+ app.querySelector('.nm-show-changes').hidden=!count||comparisonMode==='before';
+ app.querySelector('.nm-show-changes input').checked=showChanges;
+ app.querySelector('.nm-comparison-nav').hidden=comparisonMode!=='steps';
+ app.querySelector('.nm-comparison-progress').textContent=(comparisonIndex+1)+' / '+count+' · '+(data.steps[comparisonIndex]?.title||'');
+ app.querySelector('[data-comparison-prev]').disabled=comparisonIndex===0;
+ app.querySelector('[data-comparison-next]').disabled=comparisonIndex>=count-1;
+ app.querySelector('.nm-change-legend').hidden=!highlightIds.length;
+ app.querySelector('.nm-change-review').hidden=!count||comparisonMode==='before';
+ const current=app.querySelector('.nm-current-change'),item=data.steps[comparisonIndex];
+ current.hidden=comparisonMode!=='steps';
+ current.innerHTML=item?'<strong>'+esc(item.title)+'</strong><p>'+esc(item.detail)+'</p>':'';
+ const list=app.querySelector('.nm-change-list');list.hidden=comparisonMode==='steps';
+ list.querySelector('summary').textContent='View '+count+' change'+(count===1?'':'s')+' from '+source;
+ list.querySelector('ol').innerHTML=data.steps.map(item=>'<li><strong>'+esc(item.title)+'</strong><p>'+esc(item.detail)+'</p></li>').join('');
+ app.querySelector('.nm-hint').textContent=comparing?'Preview only. Select After to edit your macro.':layout==='board'?'Select a player below, or tap a marker on the field.':'Tap a defender to open their assignment popup.';
 }
 
 function counts(){const c={rush:0,contain:0,deep:0,under:0,man:0,spy:0,blank:0};const shown=displayedState();players.forEach(p=>{const a=shown.a[p[0]],contained=isContained(p,shown);c[contained?'contain':options[a.job][1]]++;});return c;}
@@ -293,18 +339,18 @@ const drafts=persisted.drafts,undoByFormation={},namesByFormation={};
 function switchFormation(next){
  if(next===formation)return;
  drafts[formation]=clone(state);undoByFormation[formation]=history;namesByFormation[formation]=app.querySelector('.nm-name').value;
- formation=next;players=formations[formation];state=clone(drafts[formation]||preset(defaultCall()));history=undoByFormation[formation]||[];selected=players[0][0];open=false;comparing=false;
+ formation=next;players=formations[formation];state=clone(drafts[formation]||preset(defaultCall()));history=undoByFormation[formation]||[];selected=players[0][0];open=false;comparing=false;comparisonMode='after';comparisonIndex=0;
  buildMarkers();app.querySelector('.nm-name').value=namesByFormation[formation]||formation+' · My Macro';refresh();persist();
 }
 function refreshFront(){
  const shown=displayedState(),plan=app.artLayout.stunt,positions=frontPositions(shown);
  const select=app.querySelector('[data-stunt]');
  select.innerHTML=stuntMenu.map(([key,label])=>{const reason=stuntRoutes(players,positions,width,key).reason;return '<option value="'+key+'"'+(reason?' disabled':'')+'>'+label+(reason?' — '+reason:'')+'</option>';}).join('');
- select.value=shown.stunt;select.disabled=false;
- app.querySelectorAll('[data-front]').forEach(el=>{el.value=shown.front[el.dataset.front];el.disabled=false;});
+ select.value=shown.stunt;select.disabled=comparing;
+ app.querySelectorAll('[data-front]').forEach(el=>{el.value=shown.front[el.dataset.front];el.disabled=comparing;});
  app.querySelector('.nm-stunt-note').textContent=shown.stunt==='none'?'Selecting a stunt sets its participating linemen to Rush.':(stuntNotes[plan.type]||'');
  const messages=[];
- if(comparing)messages.push('Changing a front setting opens My macro.');
+ if(comparing)messages.push('Preview only. Select After to edit your macro.');
  if(plan.reason)messages.push(plan.reason);
  if(plan.conflicts.length)messages.push('Stunt paused: '+plan.conflicts.join(', ')+'. Select the stunt again to restore its rush assignments.');
  if(plan.active)messages.push('Stunt rushers: '+plan.participants.join(', ')+'.');
@@ -344,7 +390,15 @@ app.querySelector('.nm-formation-select').addEventListener('change',e=>switchFor
 app.addEventListener('pointerdown',e=>{keyboardMode=false;if(open&&!e.target.closest('.nm-editor,.nm-player'))closeEditor();});
 app.addEventListener('keydown',e=>{keyboardMode=true;if(open&&e.key==='Escape'){e.preventDefault();closeEditor(true);}});
 app.querySelectorAll('[data-zone]').forEach(el=>el.addEventListener('change',()=>mutate(()=>state.zones[el.dataset.zone]=el.value)));
-app.querySelectorAll('[data-compare]').forEach(b=>b.addEventListener('click',()=>{closeEditor();comparing=b.dataset.compare==='base';refresh();}));
+app.querySelectorAll('[data-compare]').forEach(b=>b.addEventListener('click',()=>{
+ closeEditor();comparisonMode=b.dataset.compare;comparing=comparisonMode!=='after';comparisonIndex=0;refresh();
+}));
+app.querySelector('.nm-show-changes input').addEventListener('change',e=>{showChanges=e.target.checked;draw();});
+for(const [selector,delta] of [['[data-comparison-prev]',-1],['[data-comparison-next]',1]]){
+ app.querySelector(selector).addEventListener('click',()=>{
+  comparisonIndex=Math.max(0,Math.min(comparisonData().steps.length-1,comparisonIndex+delta));refresh();
+ });
+}
 app.querySelector('.nm-template').addEventListener('change',e=>mutate(()=>state=preset(e.target.value)));
 app.querySelector('.nm-view').addEventListener('change',e=>{state.view=e.target.value;draw();refreshFront();persist();});
 app.querySelectorAll('[data-team]').forEach(el=>el.addEventListener('change',()=>mutate(()=>state.team[el.dataset.team]=el.value)));

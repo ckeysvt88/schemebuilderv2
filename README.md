@@ -88,11 +88,18 @@ Choose **Family → Formation → Play**, then tap a defender to open that posit
 - **Example calls in four formations:** Nickel Over, 4-3 Over Wide, 3-4 Over, and 3-3-5 Stack. The example library does not include every catalogued play.
 - **Position-specific assignments:** supported zones, rushes, blitzes, QB spies, and contain responsibilities.
 - **Zone drops:** Default or 0–30 yards in 5-yard increments for flats, curl flats, and hooks.
+- **Lane-aware coverage bubbles:** flatter, responsive ovals distinguish deep halves, thirds, quarters, and underneath areas. Crowded underneath symbols spread within their assigned lane in the defenders' original left-to-right order. Explicit deep areas and numeric drop depths stay fixed; neighboring areas may still overlap intentionally. Placement is schematic, not a measured coverage boundary.
 - **Alignment controls:** corner and safety depth/width, linebacker shifts, and Show Blitz. Secondary Show Blitz brings safeties to 6 yards while keeping corners in place.
 - **Defensive line controls:** technique, point of attack, compatible stunts, and left/right/both-edge QB contain.
-- **Base call / My macro comparison**, Assignments / Pre-snap views, reset, and named saved macros.
+- **Before / After / Step through comparison** on the same field. Before shows the selected example call or empty Custom canvas; After is your editable macro. Step through previews cumulative changes without editing your setup or saved macros.
+- **Show changes** highlights affected defenders, with dashed original positions and assignment paths where they differ. Turn it off for an uncluttered diagram; assignment colors keep their existing meaning. A collapsed change list explains alignment, zone-drop, individual-assignment, and rush-plan differences.
+- **Assignments / Pre-snap views**, reset, and named saved macros. Before/step previews are read-only; select After to edit. Saving during a preview always saves the complete macro, not the intermediate step. Comparison is reconstructed for saved macros and every supported formation without changing the storage format.
 
 When a stunt and contain setting need the same defender, the latest selection takes priority. Unavailable stunts explain why they cannot be used.
+
+Comparison steps explain the final settings, not your edit history or a required game-button sequence. Related stunt/contain settings and their rush-assignment changes are previewed together. All comparison modes share the same field scale so depth changes remain directly comparable.
+
+Bubble proportions and spacing were visually reviewed against CFB Labs' published CFB 27 [Nickel Over Cover 3 Sky](https://www.cfblabs.com/plays/NICKEL/OVER/COVER%203%20SKY), [Tampa 2](https://www.cfblabs.com/plays/NICKEL/OVER/TAMPA%202), and [Cover 4 Quarters](https://www.cfblabs.com/plays/NICKEL/OVER/COVER%204%20QUARTERS) art. [Civil's macro guide](https://www.civil.gg/tips/best-defensive-macros-cfb-27) provides context for layered flat/curl-flat drops; separating display symbols does not alter those settings or create new assignments.
 
 Man coverage is a label in the diagram; select the receiver matchup in game. Paths illustrate responsibilities and rush lanes rather than exact animation, timing, or guaranteed pressure. Saved Play Art setups do not change the recommendation engine.
 

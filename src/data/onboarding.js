@@ -51,7 +51,7 @@ export const ONBOARDING_PAGES = [
     body: 'Open Play Art, then choose Family → Formation → Play. Pick Custom to start with just the defenders, or use an example call where available.',
     points: [
       'Tap a defender to choose from that position’s assignments. Your choice immediately updates the diagram.',
-      'Use Base call and My macro to compare. Reset restores the selected starting call; on Custom, it clears the assignments.',
+      'Compare Before and After, or Step through the changes. Show changes highlights affected defenders and their original art; previews do not edit your macro. Reset restores the starting call or clears Custom assignments.',
       '71 formations have a Custom canvas. Example calls are currently available for four formations; the Beta does not include every play.',
     ],
   },
