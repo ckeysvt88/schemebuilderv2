@@ -61,7 +61,10 @@ export function layoutCoverageZones(players, shown, positions, width, scale, los
       const start = Math.max(min, Math.min(max - span, anchor - span / 2));
       cluster.forEach((zone, index) => {
         zone.x = start + spacing * index;
-        zone.rx = Math.min(zone.rx, Math.max(8, spacing * .56), zone.x - left, right - zone.x);
+        // Retain the coverage footprint: spacing may reduce each radius by at
+        // most 5%. Allow overlap instead of implying a smaller responsibility.
+        zone.rx = Math.max(zone.rx * .95, Math.min(zone.rx, spacing * .56));
+        zone.x = Math.max(left + zone.rx, Math.min(right - zone.rx, zone.x));
         zone.ry = zone.rx * zone.aspect;
       });
     }

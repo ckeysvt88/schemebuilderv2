@@ -1,3 +1,4 @@
+import PlaybookFinder from './PlaybookFinder.jsx';
 import { useState } from 'react';
 import { PLAYBOOKS } from '../data/playbooks.js';
 import { FDB } from '../data/formations.js';
@@ -43,6 +44,8 @@ function FmList({ fms, borderColor }) {
 }
 
 export default function CompareScreen({ compareA, setCompareA, compareB, setCompareB }) {
+  const [finderOpen, setFinderOpen] = useState(false);
+  const [wanted, setWanted] = useState([]);
   const [schoolBook, setSchoolBook] = useState(null);
   const fmsA   = getFormations(compareA);
   const fmsB   = getFormations(compareB);
@@ -54,12 +57,14 @@ export default function CompareScreen({ compareA, setCompareA, compareB, setComp
   const colA   = pbColor(compareA);
   const colB   = pbColor(compareB);
 
+  if (finderOpen) return <PlaybookFinder wanted={wanted} setWanted={setWanted} onBack={() => setFinderOpen(false)} onCompare={name => {setCompareA(name);setFinderOpen(false);}}/>;
+
   return (
     <div className="screen-enter" style={{ fontFamily: "var(--font-sans)", background: "var(--color-bg)", minHeight: "100dvh", color: "var(--color-text-1)", maxWidth: 720, margin: "0 auto" }}>
 
       {/* Header */}
       <div className="app-page-header" style={{ background: "linear-gradient(135deg, var(--color-surface-1), var(--color-surface-2))", borderBottom: "2px solid var(--color-gold)", padding: "12px 16px 12px", paddingTop: "calc(env(safe-area-inset-top) + 12px)", position: "sticky", top: 0, zIndex: 80 }}>
-        <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between" }}>
+        <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 8 }}>
           <div>
             <div style={{ fontSize: 10, color: "var(--color-gold-dim)", letterSpacing: "2px", textTransform: "uppercase", fontFamily: "var(--font-mono)", marginBottom: 2 }}>
               Scheme Builders
@@ -68,6 +73,7 @@ export default function CompareScreen({ compareA, setCompareA, compareB, setComp
               Compare Playbooks
             </div>
           </div>
+          <button className="ft-action" onClick={() => setFinderOpen(true)}>Find my playbook</button>
         </div>
       </div>
 

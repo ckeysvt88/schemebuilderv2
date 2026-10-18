@@ -35,7 +35,7 @@ You can also start from **Teams** and adjust the supplied team profile to match 
 | **Macros** | Build a reference loadout of up to 10 problem-based adjustment packages, with setup steps, at-the-line changes, your job, and tradeoffs. |
 | **Play Art — Beta** | Edit individual defender assignments and alignment on an interactive field, then save your custom setup. |
 | **Playbook comparison** | See the formations two defensive playbooks share and what each book adds. Use View schools under either playbook to scroll an alphabetical list of schools assigned to that exact defensive playbook. |
-| **Formation reference** | Explore personnel, alignments, strengths, weaknesses, and catalogued play capabilities; open a formation in Play Art with Customize. |
+| **Formation reference** | Explore personnel, alignments, strengths, weaknesses, and catalogued play capabilities; open a formation in Play Art with Customize, or compare two starting alignments on one field. |
 | **Saved profiles and notes** | Reuse opponent scouts, export/import profile backups, and keep game observations. |
 | **Call sheets and sharing** | Save or view a PDF call sheet and share or copy your current recommendation summary. |
 | **Test This Call** | Record the call, setup, result, yards, and what beat it for later review. |
@@ -88,7 +88,7 @@ Choose **Family → Formation → Play**, then tap a defender to open that posit
 - **Example calls in four formations:** Nickel Over, 4-3 Over Wide, 3-4 Over, and 3-3-5 Stack. The example library does not include every catalogued play.
 - **Position-specific assignments:** supported zones, rushes, blitzes, QB spies, and contain responsibilities.
 - **Zone drops:** Default or 0–30 yards in 5-yard increments for flats, curl flats, and hooks.
-- **Lane-aware coverage bubbles:** flatter, responsive ovals distinguish deep halves, thirds, quarters, and underneath areas. Crowded underneath symbols spread within their assigned lane in the defenders' original left-to-right order. Explicit deep areas and numeric drop depths stay fixed; neighboring areas may still overlap intentionally. Placement is schematic, not a measured coverage boundary.
+- **Lane-aware coverage bubbles:** flatter, responsive ovals distinguish deep halves, thirds, quarters, and underneath areas. Crowded underneath symbols retain at least 95% of their original width and height and spread within their assigned lane in the defenders' original left-to-right order. Explicit deep areas and numeric drop depths stay fixed; neighboring areas may still overlap intentionally. Placement is schematic, not a measured coverage boundary.
 - **Alignment controls:** corner and safety depth/width, linebacker shifts, and Show Blitz. Secondary Show Blitz brings safeties to 6 yards while keeping corners in place.
 - **Defensive line controls:** technique, point of attack, compatible stunts, and left/right/both-edge QB contain.
 - **Before / After / Step through comparison** on the same field. Before shows the selected example call or empty Custom canvas; After is your editable macro. Step through previews cumulative changes without editing your setup or saved macros.
@@ -244,3 +244,8 @@ For down/distance recommendations, the shared engine reviews the twelve situatio
 Between-snap package alternatives can cross Base/Nickel/Dime categories when their personnel fit qualifies. Tempo still keeps alternatives in one formation; every formation change requires checking substitutions and available audibles. The mix retains the original best call's safeguards as well as the chosen foundation's safeguards. The app, sharing and the two-page PDF use the same selection logic.
 
 Football context: [USA Football — defending 20 personnel](https://blogs.usafootball.com/blog/7188/learn-how-to-defend-the-20-personnel-run-game) and [X&O Labs — defending the spread with quarters](https://www.xandolabs.com/the-lab/defense/coverage/two-high-coverage-structures/defending-the-spread-with-quarters-coverage/) explain the hybrid/slot responsibilities behind personnel matching. They do not validate this app's numeric weights or CFB gameplay results.
+
+### Formation comparison and playbook finder
+
+- **Forms → Compare formations** overlays two catalog alignments on the same field. Each side uses **Family → Formation** selectors to keep the formation list focused. On a formation detail, **Compare** sits beside **Customize** and starts with that formation selected. Filled blue circles and outlined purple circles distinguish the two formations; a dot inside a ring identifies a shared starting location; hide either layer, tap a marker, or enable position labels. These are schematic starting alignments, not coverage assignments.
+- **Compare → Find my playbook** lets you search/filter formations and select multiple requirements. Exact matches rank first, followed by books containing the most selections; each result lists included and missing formations. Start with three results and expand for more. Open a result in playbook comparison or view its schools. Matching uses the current catalog, treats distinct formation names separately, and excludes the “All” aggregate.

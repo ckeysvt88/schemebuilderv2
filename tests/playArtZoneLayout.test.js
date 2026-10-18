@@ -75,7 +75,8 @@ test('crowded custom zones stay finite and bounded in every supported formation 
     for (const width of [270, 390, 720]) for (const zone of draw(players, state, width)) {
       assert.ok([zone.x, zone.y, zone.rx, zone.ry].every(Number.isFinite), name);
       assert.ok(zone.x - zone.rx >= 24 - .001 && zone.x + zone.rx <= width - 24 + .001, name);
-      assert.ok(zone.rx > 0 && zone.ry > 0, name);
+      assert.ok(zone.rx >= (width - 48) * .11 * .95 - 1e-9, name);
+      assert.ok(zone.ry >= (width - 48) * .11 * .37 * .95 - 1e-9, name);
       assert.equal(zone.depth, 6, name);
     }
     assert.equal(JSON.stringify(state), original, name);
