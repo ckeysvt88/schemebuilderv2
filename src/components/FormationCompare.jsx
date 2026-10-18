@@ -32,15 +32,16 @@ export default function FormationCompare({ initialFormation = 'Nickel Over', onB
           {points.filter(p=>visible[p.side]).map(p=><g className="ft-marker" key={p.side+p.id} role="button" tabIndex={0} aria-label={`${p.side.toUpperCase()} · ${p.name} · ${p.id}`} aria-pressed={selected.includes(p)} onClick={()=>setPicked({x:p.x,y:p.y})} onKeyDown={e=>{if(['Enter',' '].includes(e.key)){e.preventDefault();setPicked({x:p.x,y:p.y});}}}>
             <circle className="ft-hit" cx={px(p.x)} cy={py(p.y)} r="18"/>
             <circle cx={px(p.x)} cy={py(p.y)}
-              r={points.some(other=>other.side!==p.side&&visible[other.side]&&other.x===p.x&&other.y===p.y)?(p.side==='a'?6:11):9}
-              fill={p.side==='a'?'var(--color-pass)':'none'}
-              stroke={p.side==='a'?'var(--color-surface-1)':'var(--color-hybrid)'}
-              strokeWidth={p.side==='a'?1.5:2.5}/>
+              r={9}
+              fill={p.side==='a'?'var(--ft-red)':'var(--ft-blue)'}
+              stroke="var(--ft-marker-border)"
+              strokeWidth="0.75" fillOpacity="0.7"/>
+            {p.side==='b'&&visible.a&&points.some(other=>other.side==='a'&&other.x===p.x&&other.y===p.y)&&<path d={`M${px(p.x)} ${py(p.y)-9}a9 9 0 0 0 0 18Z`} fill="var(--ft-red)" stroke="var(--ft-marker-border)" strokeWidth="0.75" fillOpacity="0.7"/>}
             {selected.includes(p)&&<circle cx={px(p.x)} cy={py(p.y)} r="15" fill="none" stroke="var(--color-text-1)" strokeDasharray="2 3"/>}
             {labels&&<text x={px(p.x)} y={py(p.y)+(p.side==='a'?-14:24)} textAnchor="middle" fontSize="11" fill="var(--color-text-1)" stroke="var(--color-surface-1)" strokeWidth="3" paintOrder="stroke">{p.id}</text>}
           </g>)}
         </svg>
-        <div className="ft-inspect" aria-live="polite">{selected.length?selected.map(p=><div key={p.side+p.id}><strong>{p.side.toUpperCase()} · {p.id}</strong> — {p.name}</div>):'Tap a marker to identify its position. A filled dot inside a ring means both formations share that location.'}</div>
+        <div className="ft-inspect" aria-live="polite">{selected.length?selected.map(p=><div key={p.side+p.id}><strong>{p.side.toUpperCase()} · {p.id}</strong> — {p.name}</div>):'Tap a marker to identify its position. A split red/blue circle means both formations share that location.'}</div>
       </div>
       <label className="ft-check"><input type="checkbox" checked={labels} onChange={e=>setLabels(e.target.checked)}/>Show position labels</label>
       <p className="ft-sub">Both formations use the same field scale and orientation. Markers show starting alignments; they do not show coverage assignments.</p>
