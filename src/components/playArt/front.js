@@ -42,3 +42,15 @@ export function stuntRoutes(players, positions, width, key) {
   if(type==='texas') { tex(le,lt);tex(re,rt); }
   return {map,type,reason:''};
 }
+
+// Shared by the macro drawing and recommendation setup evaluator.
+export function assessRushCompatibility(players, positions, width, state) {
+  const routes = stuntRoutes(players, positions, width, state.stunt || 'none');
+  const participants = Object.keys(routes.map);
+  const selected = selectedContainIds(players, positions, state.front?.contain || 'none');
+  const conflicts = participants.filter(id => !isRush(state.a?.[id]?.job) || selected.includes(id));
+  const containConflicts = selected.filter(id => !isRush(state.a?.[id]?.job));
+  const active = state.stunt !== 'none' && participants.length > 0 && !conflicts.length;
+  return { ...routes, map: active ? routes.map : {}, participants, conflicts, containConflicts, active,
+    containReady: selected.length > 0 && !containConflicts.length && !conflicts.length && !routes.reason };
+}

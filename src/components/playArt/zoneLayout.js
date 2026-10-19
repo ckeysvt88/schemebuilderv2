@@ -18,6 +18,11 @@ export function layoutCoverageZones(players, shown, positions, width, scale, los
     const deep = ['third', 'half', 'quarter'].includes(a.job);
     const group = zoneGroup(a.job), setting = group ? shown.zones[group] : 'default';
     let depth = setting === 'default' ? defaultDrop[a.job] : Number(setting);
+    // One schematic yard of bias, never a calibrated game-depth claim.
+    // Explicit numeric drops take precedence; only LB Hook Curl jobs shift.
+    if (setting === 'default' && positionGroup === 'lb' && a.job === 'hook') {
+      depth += ({underneath:-1,overtop:1})[shown.zones.shading] || 0;
+    }
     // Preserve the editor's existing deep-landmark policy for safety alignment.
     if (deep && shown.team.sDepth !== 'default') depth = Math.max(depth, Number(shown.team.sDepth) + 5);
     let center = .5, radius = .105, aspect = .38, lane = 'middle';

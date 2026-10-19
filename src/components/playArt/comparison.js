@@ -47,6 +47,12 @@ export function buildMacroComparison(base, macro, players, assignmentLabel, stun
     add(title, `${setting(base.zones[key])} → ${setting(macro.zones[key])}. Applies to defenders with a matching zone assignment.`,
       allIds.filter(id => jobs.includes(macro.a[id].job) || jobs.includes(base.a[id].job)), () => { current.zones[key] = macro.zones[key]; });
   }
+  if ((base.zones.shading || 'default') !== (macro.zones.shading || 'default')) {
+    const value = macro.zones.shading || 'default';
+    add('Coverage shading', `${base.zones.shading || 'default'} → ${value}. Slight LB Hook Curl landmark shift; numeric hook drops take priority.`,
+      players.filter(([id,,,group]) => group === 'lb' && [base.a[id].job, macro.a[id].job].includes('hook')).map(p => p[0]),
+      () => { current.zones.shading = value; });
+  }
   const rushChanged = base.stunt !== macro.stunt || ['attack', 'contain'].some(key => base.front[key] !== macro.front[key]);
   const bundled = rushChanged ? allIds.filter(id => !sameAssignment(base.a[id], macro.a[id])
     && (isRush(base.a[id].job) || isRush(macro.a[id].job))) : [];

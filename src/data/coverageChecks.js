@@ -94,6 +94,19 @@ export function checkResponsibilities(scheme,check,lookId,pattern){
     if(check==='bingo'&&!['cross','shortOne'].includes(pattern))assign('corner','1','#1 remains outside: use the outside lock branch.');
     else result.corner.text=check==='bingo'?'#1 goes inside: return to the deep-outside Box responsibility.':'Own the deep-outside quadrant; do not preselect a receiver.';
     result.safety.text='Own the deep-inside quadrant.';result.flat.text='Own the short-outside quadrant.';result.hook.text='Own the short-inside quadrant.';
+    // Declare a match only when this schematic release has one unambiguous
+    // receiver in that quadrant. Multiple verticals remain a read, not a guess.
+    const groups={corner:[],safety:[],flat:[],hook:[]};
+    for(const r of routes.filter(r=>['1','2','3'].includes(r.id))){
+      const deep=r.endY<=120, outside=r.endX>=80;
+      groups[deep?(outside?'corner':'safety'):(outside?'flat':'hook')].push(r);
+    }
+    for(const [role,candidates] of Object.entries(groups)){
+      if(!result[role].target&&candidates.length===1){
+        const r=candidates[0];
+        assign(role,r.id,`Read the release, then match #${r.id} entering your ${role==='corner'?'deep outside':role==='safety'?'deep inside':role==='flat'?'short outside':'short inside'} responsibility in this example.`);
+      }
+    }
   }else{
     if(!['cross','shortOne'].includes(pattern))assign('corner','1','Carry the outside vertical release.');
     if(routes.find(r=>r.id==='2')?.endY<=120)assign('safety','2','Carry the inside vertical in this example.');else result.safety.text='No inside vertical: retain deep help and continue the coverage read.';

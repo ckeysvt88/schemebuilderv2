@@ -77,6 +77,7 @@ export default function PlannedCallMix({ mix, purpose, layout = 'original', user
           <button type="button" className="mix-back" ref={backButton} onClick={close}>‹ Call mix</button></div>
         <div className="mix-detail-title"><h4>{entry.call}</h4><span>{entry.sc}/100 fit</span></div>
         <p className="mix-detail-formation">{entry.formation} · {entry.personnel}</p>
+        {entry.setupEvidence?.preSnap && <div className="mix-section"><strong>Starting look</strong><p>{entry.setupEvidence.preSnap.label}. Post-snap: {entry.setupEvidence.responsibilities.deep} deep zones.</p><p>Based on existing schematic Play Art. Starting safety alignment is separate from zone count.</p></div>}
         {purpose && <div className="mix-section"><strong>Situation</strong><p>{purpose.context.label}{purpose.target ? ` · ${purpose.target}` : ''}. {purpose.text}</p></div>}
         <div className="mix-section"><strong>Use this call</strong><p>{entry.useWhen}</p></div>
         {entry.opponentRead && <div className="mix-section"><strong>Possible offensive response</strong><p>{entry.opponentRead}</p><p>Anticipated, not an observed tendency.</p></div>}

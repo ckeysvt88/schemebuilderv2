@@ -87,10 +87,10 @@ test('short and long yardage produce materially different setup instructions', (
   assert.doesNotMatch(JSON.stringify(long.settings), /Pass Commit/);
 });
 
-test('advanced counters expose shell, leverage, matchup, match-check, and individual tools when supported', () => {
+test('advanced counters expose supported tools without inventing a starting shell', () => {
   const plan = buildAdjustmentPlan(fm('Cover 4 Palms'), ['bunch', 'slant_heavy', 'elite_wr']);
   const text = JSON.stringify(plan.tools);
-  assert.match(text, /Coverage Shell/);
+  assert.doesNotMatch(text, /Coverage Shell/);
   assert.match(text, /Coverage Leverage.*Inside/);
   assert.doesNotMatch(text, /Roll Coverage/);
   assert.match(text, /Palms Bunch.*Box/);

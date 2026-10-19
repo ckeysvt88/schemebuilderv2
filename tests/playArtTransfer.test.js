@@ -101,3 +101,10 @@ test('matching prioritizes exact names and does not guess across roles or number
   assert.equal(matchMacroPositions([p('DT','dl')],[p('NT','dl')]).sourceToTarget.size,0);
   assert.equal(matchMacroPositions([p('SLCB','slot')],[p('CB1','cb')]).sourceToTarget.size,0);
 });
+
+test('shading transfers to matching LB hooks but not unrelated linebackers',()=>{
+ const baseline=base(),source=clone(baseline);source.a.SLB1={job:'hook',area:'left',shade:'default',custom:true};source.zones.shading='underneath';
+ const result=applyMacroToFormation(source,baseline,base());assert.equal(result.state.zones.shading,'underneath');
+ const target=base('4-3 Over Wide');target.a.MIKE={job:'hook',area:'middle',shade:'default'};
+ const other=applyMacroToFormation(source,baseline,target);assert.notEqual(other.state.zones.shading,'underneath');assert(other.skipped.some(s=>s.startsWith('Coverage shading')));
+});

@@ -1,0 +1,4 @@
+import {build} from 'vite';import react from '@vitejs/plugin-react';import fs from 'node:fs';import postcss from 'postcss';
+await build({configFile:false,plugins:[react()],define:{'process.env.NODE_ENV':'"production"'},build:{lib:{entry:'prototypes/defense-review/implementation-mount.jsx',name:'ImplementationReview',formats:['iife'],fileName:()=> 'review.js'},outDir:'tmp/implementation-review-build',minify:true}});
+const css=postcss.parse(fs.readFileSync('tmp/implementation-review-build/schemebuilders-v2.css','utf8'));css.walkRules(r=>{if(r.parent.type==='atrule'&&r.parent.name.includes('keyframes'))return;r.selector=r.selectors.map(s=>'#implementation-review '+s).join(',');});
+fs.writeFileSync('/workspace/defensive-setup-review.html','<div id="implementation-review"></div>\n<style>'+css.toString()+'</style>\n<script>'+fs.readFileSync('tmp/implementation-review-build/review.js','utf8').replaceAll('</script','<\\/script')+'</script>');

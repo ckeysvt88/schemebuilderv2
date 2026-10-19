@@ -58,7 +58,7 @@
 #sb-play-art .nm-compare button{flex:1;font-family:monospace}
 #sb-play-art .nm-compare-status{font:700 11px monospace;color:var(--nm-gold);margin:6px 0}
 #sb-play-art .nm-front,#sb-play-art .nm-zone{border:1px solid var(--nm-border);border-radius:8px;background:var(--nm-paper);margin-top:12px}
-#sb-play-art .nm-zone-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
+#sb-play-art .nm-zone-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}
 #sb-play-art .nm-zone select{padding:9px 3px}
 #sb-play-art .nm-zone .nm-sub{margin-top:8px;font-size:11px}
 
@@ -155,3 +155,6 @@
 #sb-play-art .nm-pickers{grid-template-columns:minmax(0,.8fr) minmax(0,1.2fr)}
 #sb-play-art .nm-compare{grid-template-columns:minmax(0,1fr) minmax(0,1fr) auto}
 #sb-play-art .nm-compare [data-action=responsibilities]{grid-column:1/-1;grid-row:2;white-space:normal;color:var(--nm-gold);border-color:var(--nm-gold-border)}
+
+#sb-play-art .nm-setup-check{margin:10px 0;color:var(--nm-text)}
+#sb-play-art :is(h1,h2,h3,p,strong,label,summary){color:inherit}

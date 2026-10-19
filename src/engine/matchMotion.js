@@ -54,7 +54,7 @@ export function buildMatchMotion(scheme,check,lookId,pattern){
   });
   // Show an underneath read without fabricating a game-specific carry or exchange.
   const hook=roles.find(r=>r.id==='hook');
-  if(hook&&!hook.target){
+  if(hook&&!hook.target&&check!=='zoneIt'){
     hook.readTargets=routes.filter(r=>!r.id.startsWith('X')&&r.endY>120&&r.endX<r.x&&!roles.some(role=>role.target===r.id)).map(r=>r.id);
     if(hook.readTargets.length){
       const receivers=hook.readTargets.map(id=>'#'+id).join(', ');

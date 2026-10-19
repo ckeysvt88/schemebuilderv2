@@ -1,0 +1,20 @@
+import {useState} from 'react';
+import {MotionPlayer} from '../../src/components/AdjustmentResponsibilities.jsx';
+import PlayArtBuilder from '../../src/components/PlayArtBuilder.jsx';
+import {buildMatchMotion} from '../../src/engine/matchMotion.js';
+import {assessAuthoredSetup} from '../../src/engine/defensiveSetup.js';
+import {assessAdjustmentMatchup} from '../../src/engine/adjustmentMatchup.js';
+import {PLAYS} from '../../src/data/plays.js';
+import './implementation.css';
+export default function ImplementationReview(){
+ const [theme,setTheme]=useState('light'),[tab,setTab]=useState('match'),[check,setCheck]=useState('box'),[call,setCall]=useState('Cover 4 Quarters'),[scenario,setScenario]=useState('crossers'),[shading,setShading]=useState(true),[stunt,setStunt]=useState('texas');
+ const evidence=assessAuthoredSetup('Nickel Over',call);
+ const setup=assessAdjustmentMatchup(PLAYS['Nickel Over'].find(p=>p.n==='Cover 3 Sky'),'Cover 3 Sky',{scenarios:[{id:scenario,normalizedWeight:1}]},{formation:'Nickel Over',settings:shading?[{setting:'Coverage Shading',value:'Underneath'}]:[]});
+ const front=assessAuthoredSetup('Nickel Over','Cover 3 Sky',[{setting:'Pass Rush',value:'QB Contain'},{setting:'Stunt',value:stunt}]);
+ return <section className="ir-app ft-page" data-theme={theme} style={{colorScheme:theme}}><header className="ir-header"><strong>SCHEME BUILDERS · LOCAL REVIEW</strong><button onClick={()=>setTheme(theme==='light'?'dark':'light')}>{theme==='light'?'Dark mode':'Light mode'}</button></header><nav className="ir-nav">{[['match','Match visualizer'],['look','Starting look'],['setup','Setup evaluation'],['art','Play Art']].map(([id,label])=><button key={id} aria-pressed={tab===id} onClick={()=>setTab(id)}>{label}</button>)}</nav><main className="ir-main">
+ {tab==='match'&&<><h2>Quarters · Bunch Tight</h2><label>Match adjustment<select aria-label="Match adjustment" value={check} onChange={e=>setCheck(e.target.value)}><option value="box">Box · Match the release</option><option value="zoneIt">Zone It · Defend space</option></select></label><MotionPlayer key={check} scene={buildMatchMotion('quarters',check,'bunchTight','out')}/></>}
+ {tab==='look'&&<><h2>Starting look ≠ deep-zone count</h2><label>Authored call<select aria-label="Authored call" value={call} onChange={e=>setCall(e.target.value)}>{['Cover 3 Sky','Tampa 2','Cover 4 Quarters','Cover 1 Robber Press'].map(c=><option key={c}>{c}</option>)}</select></label>{evidence?<><p><strong>Pre-snap:</strong> {evidence.preSnap.label}</p><p><strong>Post-snap:</strong> {evidence.responsibilities.deep} deep zones · {evidence.responsibilities.underneath} underneath · {evidence.responsibilities.rush} rushers</p><p>{evidence.preSnap.basis}</p></>:<p>No authored starting-look evidence for this call. No shell or disguise claim is made.</p>}</>}
+ {tab==='setup'&&<><h2>Evaluate the applied setup</h2><label>Passing threat<select aria-label="Passing threat" value={scenario} onChange={e=>setScenario(e.target.value)}><option value="crossers">Short inside crossers</option><option value="vertical">Vertical routes</option></select></label><label className="ir-check"><input type="checkbox" checked={shading} onChange={e=>setShading(e.target.checked)}/>Shade underneath</label><p><strong>Setup contribution:</strong> {setup.delta>0?'+':''}{setup.delta} ranking points</p><p>Small heuristic tradeoff, capped at ±4 overall. Not a measured success probability or an exact drop-depth change.</p><label>Stunt with both edges containing<select aria-label="Stunt with both edges containing" value={stunt} onChange={e=>setStunt(e.target.value)}><option value="texas">Texas</option><option value="left_tom">Left Tom</option><option value="none">None</option></select></label><p role="status">{front.rush.containReady?'Compatible in the authored schematic. No guarantee of containment.':'Conflict: '+front.rush.conflicts.join(', ')+'. No added contain credit.'}</p></>}
+ {tab==='art'&&<PlayArtBuilder initialFormation="Nickel Over"/>}
+ </main></section>;
+}

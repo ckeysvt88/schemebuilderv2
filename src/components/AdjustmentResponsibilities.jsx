@@ -12,10 +12,11 @@ export function MotionPlayer({scene}){
   const finished=progress>=1;
   useEffect(()=>{if(!playing||reduced||finished)return;let frame,last=null;function tick(now){if(last!==null){const delta=(now-last)*2/7500;setProgress(p=>Math.min(1,p+delta));}last=now;frame=requestAnimationFrame(tick);}frame=requestAnimationFrame(tick);return()=>cancelAnimationFrame(frame);},[playing,reduced,finished]);
   const running=playing&&progress<1&&!reduced,selected=scene.roles.find(r=>r.id===follow),phase=progress<.12?0:progress<.48?1:2;
-  const px=x=>20+(width-40)*(flipped?100-x:x)/100,h=310;
+  const px=x=>20+(width-40)*(flipped?100-x:x)/100,h=270;
   const leftLabel=scene.type==='single'?'Isolated side':scene.type==='base'?'Other side':'Backside',rightLabel=scene.type==='single'?'Trips side':'Focus side';
   const focusRoute=scene.routes.find(r=>r.id===selected.target);
   const landmark=responsibilityLandmark(selected,progress),reveal=responsibilityReveal(progress);
+  const zoneRoles=scene.check==='zoneIt'?scene.roles:[];
   const underneath=scene.roles.find(r=>r.readTargets?.length);
   const text=phase===0?selected.before:phase===1?selected.read:selected.after;
   function scrub(n){setPlaying(false);setProgress(n);}
@@ -25,12 +26,12 @@ export function MotionPlayer({scene}){
       <text x="12" y="18" fill="var(--color-text-2)" fontSize="11">{flipped?rightLabel:leftLabel}</text><text x={width-12} y="18" textAnchor="end" fill="var(--color-text-2)" fontSize="11">{flipped?leftLabel:rightLabel}</text>
       {[60,110,160,210].map(y=><line key={y} x1="10" x2={width-10} y1={y} y2={y} stroke="var(--color-border-subtle)"/>)}
       <line data-field-center="true" x1={px(50)} x2={px(50)} y1="28" y2="258" stroke="var(--color-text-2)" opacity=".4" strokeDasharray="3 5"/>
-      <text x={px(50)} y="275" textAnchor="middle" fontSize="11" fill="var(--color-text-2)">Field center</text>
       <ellipse data-ball="true" cx={px(50)} cy="224" rx="3" ry="6" fill="var(--color-text-1)"/>
       <line x1="10" x2={width-10} y1="224" y2="224" stroke="var(--color-gold)"/><text x="12" y="240" fontSize="11" fill="var(--color-text-2)">LOS</text>
+      {zoneRoles.map(r=><ellipse key={r.id} data-zone-owner={r.id} cx={px(r.zone[0])} cy={r.zone[1]} rx={Math.min(46,(width-40)*.14)} ry="28" fill="var(--color-pass)" fillOpacity={.08+.07*reveal} stroke="var(--color-pass)" strokeOpacity={r.id===follow?.8:.4}/>) }
       {landmark&&<g data-landmark={landmark.kind} opacity={landmark.opacity}>
-        <ellipse cx={px(selected.zone[0])} cy={selected.zone[1]} rx={Math.min(46,(width-40)*.14)} ry={landmark.area?28:18} fill="var(--color-pass)" fillOpacity=".1" stroke="var(--color-pass)" strokeOpacity=".65" strokeDasharray={landmark.area?undefined:'4 3'}/>
-        <text x={width/2} y="297" textAnchor="middle" fontSize="12" fill="var(--color-text-1)">{landmark.label}</text>
+        {landmark.area&&scene.check!=='zoneIt'&&<ellipse cx={px(selected.zone[0])} cy={selected.zone[1]} rx={Math.min(46,(width-40)*.14)} ry={landmark.area?28:18} fill="var(--color-pass)" fillOpacity=".1" stroke="var(--color-pass)" strokeOpacity=".65" strokeDasharray={landmark.area?undefined:'4 3'}/>}
+        <title>{landmark.label}</title>
       </g>}
       {scene.roles.flatMap(r=>[...(r.target?[{id:r.target,read:false}]:[]),...(r.readTargets||[]).map(id=>({id,read:true}))].map(link=>{
         const point=defenderPoint(scene,r,progress),receiver=routePoint(scene.routes.find(route=>route.id===link.id),progress);
@@ -46,15 +47,16 @@ export function MotionPlayer({scene}){
         <rect x={px(point[0])-11} y={point[1]-10} width="22" height="20" rx="3" fill="var(--color-surface-1)" stroke="var(--color-pass)" strokeWidth="2"/>
         <text x={px(point[0])} y={point[1]+4} textAnchor="middle" fontSize="12" fill="var(--color-text-1)">{r.mark}</text>
       </g>;})}
-    </svg><div className="mm-cue" aria-live="polite"><strong>{['Before the snap','Watch the first steps','Responsibility'][phase]} · {selected.mark}</strong><span>{text}{phase===2&&selected.target?` → ${selected.mode==='bracket'?'Bracket':'Match'} ${selected.target==='X'?'X':'#'+selected.target}`:phase===2?` · ${selected.mode==='poach'?'Help toward trips':selected.mode==='zone'?'Defend space':'Maintain the read'}`:''}</span></div></div>
-    <p className="mm-legend">Circles = receivers · Squares = defenders · Gold ring = your focus{scene.type==='bunch'?' · #2 = point':''}{scene.type==='stack'?' · #1 = front, #2 = rear':''} · H = inside underneath (often LB) · Solid link = match · Dashed link = read / bracket help · Dimmed receivers = context</p>
-    {underneath&&<p className="mm-underneath">H reads {underneath.readTargets.map(id=>`#${id}`).join(', ')} underneath. Dashed links show threats, not a confirmed pickup.</p>}
+    </svg><div className="mm-cue mm-sr-only" aria-live="polite"><strong>{['Before the snap','Watch the first steps','Responsibility'][phase]} · {selected.mark}</strong><span>{text}{phase===2&&selected.target?` → ${selected.mode==='bracket'?'Bracket':'Match'} ${selected.target==='X'?'X':'#'+selected.target}`:phase===2?` · ${selected.mode==='poach'?'Help toward trips':selected.mode==='zone'?'Defend space':'Maintain the read'}`:''}</span></div></div>
     <div className="mm-playback"><button disabled={reduced} className="ft-primary" onClick={()=>{if(progress>=1)setProgress(0);setPlaying(!running);}}>{running?'Pause':progress>=1?'Replay':'Play'}</button><button onClick={()=>scrub(0)}>Restart</button></div>
     {reduced&&<p className="ft-sub">Reduced motion is on. Use the timeline or stage buttons.</p>}
     <label className="mm-timeline">Scrub the play <span className="mm-progress">{Math.round(progress*100)}%</span><input aria-label="Play progress" aria-valuetext={`${Math.round(progress*100)}% · ${['Alignment','First steps','Response'][phase]}`} style={{'--mm-progress':`${progress*100}%`}} type="range" min="0" max="1000" value={Math.round(progress*1000)} onChange={e=>scrub(Number(e.target.value)/1000)}/></label>
     <div className="mm-stages">{[['Alignment',0],['First steps',.35],['Response',1]].map(([label,n])=><button key={label} onClick={()=>scrub(n)} aria-pressed={phase===(n===0?0:n===1?2:1)}>{label}</button>)}</div>
     <label className="ft-check"><input type="checkbox" checked={flipped} onChange={e=>setFlipped(e.target.checked)}/>Flip field</label>
     {selected.uncertain&&<p className="mm-scope">Read landmarks show responsibility, not exact coverage boundaries. A receiver pickup is only shown as a match when this example assigns it; unresolved exchanges remain reads.</p>}
+    <details className="ft-details"><summary>Diagram key &amp; reads</summary>    <p className="mm-legend">Circles = receivers · Squares = defenders · Gold ring = your focus{scene.type==='bunch'?' · #2 = point':''}{scene.type==='stack'?' · #1 = front, #2 = rear':''} · H = inside underneath (often LB) · Solid link = match · Dashed link = read / bracket help · Dimmed receivers = context</p>
+    {underneath&&<p className="mm-underneath">H reads {underneath.readTargets.map(id=>`#${id}`).join(', ')} underneath. Dashed links show threats, not a confirmed pickup.</p>}
+</details>
     <details className="ft-details"><summary>All responsibilities</summary><div className="ft-details-body">{scene.roles.map(r=><div className="mm-assignment" key={r.id}><button aria-pressed={follow===r.id} onClick={()=>setFollow(r.id)}>{r.mark} · {r.label}</button><p>{r.after}{r.uncertain?' Read landmark; no fixed receiver assignment.':''}</p></div>)}</div></details>
   </>;
 }

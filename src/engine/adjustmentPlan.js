@@ -1,3 +1,4 @@
+import { getCheckRule } from '../data/coverageChecks.js';
 import { normalizeRunPass } from '../data/runPassBias.js';
 import { getGameObjective } from '../data/gameObjectives.js';
 import { getCoverageFamily } from './coverageGuidance.js';
@@ -5,7 +6,6 @@ import { getSituationalPurpose } from './situationalPurpose.js';
 
 const hasAny = (traits, ids) => ids.some(id => traits.includes(id));
 const ZONE_FAMILIES = new Set(['quarters', 'split', 'tampa2', 'cover2', 'cover3']);
-const TWO_HIGH_FAMILIES = new Set(['quarters', 'split', 'tampa2', 'cover2', 'twoMan']);
 
 function presetMacroFor(traits, situationKey) {
   const quick = hasAny(traits, ['quick_game', 'west_coast', 'slant_heavy', 'qb_checkdown']);
@@ -70,7 +70,7 @@ function matchCheckFor(family, coverageName, traits) {
   }
   if (family === 'cover3') {
     if (bunch) return { value: 'Cover 3 Bunch — Skate', why: 'Widen the underneath defenders toward the bunch and the likely Flood release.' };
-    if (stack) return { value: 'Cover 3 Stack — Combo', why: 'Exchange the stacked releases instead of letting them create traffic.' };
+    if (stack) return { value: 'Cover 3 Stack — Combo', why: getCheckRule('cover3','combo').read };
     if (trips) return { value: 'Cover 3 Trips — Skinny', why: 'Use the built-in trips distribution so #2 and #3 are not passed off blindly.' };
   }
   if (family === 'quarters' || family === 'split') {
@@ -84,19 +84,9 @@ function matchCheckFor(family, coverageName, traits) {
   return null;
 }
 
-function shellTool(family) {
-  if (['cover1', 'cover3'].includes(family)) return {
-    setting: 'Coverage Shell', value: 'Show Cover 2',
-    why: 'Hide the one-high rotation until the snap. The selected play still controls the post-snap coverage.',
-    tradeoff: 'Confirm the defense actually aligns correctly; shell behavior can vary by play.',
-  };
-  if (TWO_HIGH_FAMILIES.has(family)) return {
-    setting: 'Coverage Shell', value: 'Show Cover 3',
-    why: 'Present one-high before rotating to the selected two-high call after the snap.',
-    tradeoff: 'Do not sacrifice getting lined up just to disguise the call.',
-  };
-  return null;
-}
+// No shell override is recommended from a post-snap coverage family alone.
+// Supported authored starting looks are attached separately to the call mix.
+function shellTool() { return null; }
 
 function userKeyFor(traits, situationKey, purpose) {
   if (situationKey === '3md') return {
@@ -173,6 +163,7 @@ export function buildAdjustmentPlan(fm, traits = [], situation = {}) {
   const purpose = getSituationalPurpose(situation.down, situation.distance, gameObjective.id);
   const { context, coverageKey: situationKey } = purpose;
   if (gameObjective.id === 'no_quick_td') return {
+    formation: fm?.name,
     objective: { ...gameObjective, situation: context.label },
     settings: isZone ? [{ setting: 'Zone Strategy', value: 'Conservative', why: 'Keep zone defenders above developing routes before driving on the short throw.', tradeoff: 'Short gains may be available. Reconsider this objective if those gains put the offense in winning field-goal range.' }] : [],
     tools: [
@@ -396,6 +387,11 @@ export function buildAdjustmentPlan(fm, traits = [], situation = {}) {
     action: 'Keep the call and the first adjustment you trust. Get lined up before opening another menu.',
   });
 
+  if (isZone && traits.includes('crossers') && !deep && !playAction && !runHeavy && !purpose.shotOpportunity && !purpose.recoveryDown && situationKey !== '3lg' && !settings.some(s=>s.setting==='Zone Strategy'&&s.value!=='Default')) add(settings, 'coverage-shading', {
+    setting:'Coverage Shading', value:'Underneath', why:'Challenge the scouted short inside crossing window.',
+    tradeoff:'More space can open behind underneath defenders. This is not a receiver-specific man assignment or an exact zone-depth instruction.',
+  });
+
   const changes = settings.filter(item => item.reset || !['Default', 'Balanced', 'Normal'].includes(item.value));
   const visibleSettings = changes.slice(0, 3);
   // Settings beyond the quick-setup budget remain available; do not silently
@@ -409,6 +405,7 @@ export function buildAdjustmentPlan(fm, traits = [], situation = {}) {
   });
   const preset = traits.includes('play_action') && !deep ? null : presetMacroFor(runHeavy && situationKey === 'base' ? traits.filter(t => !['quick_game', 'west_coast', 'slant_heavy', 'qb_checkdown'].includes(t)) : traits, situationKey);
   return {
+    formation: fm?.name,
     objective: { ...gameObjective, label: purpose.label, text: purpose.text, situation: context.label },
     settings: visibleSettings.map(publicAdjustment),
     tools: displayedTools.map(publicAdjustment),

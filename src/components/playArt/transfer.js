@@ -67,6 +67,11 @@ export function applyMacroToFormation(source, baseline, target) {
   for (const key of ['flats', 'curls', 'hooks']) {
     setting('zones', key, key + ' drops', to.filter(([id]) => zoneGroup(state.a[id].job) === key).map(p => p[0]));
   }
+  if ((source.zones.shading || 'default') !== (baseline.zones.shading || 'default')) {
+    const ids = to.filter(([id,,,group]) => group === 'lb' && state.a[id].job === 'hook').map(p => p[0]);
+    if (safe(ids)) { state.zones.shading = source.zones.shading || 'default'; applied.push('Coverage shading'); }
+    else skipped.push('Coverage shading (unmatched or absent LB hook players)');
+  }
   // Rush controls can select different players in a different front. Apply as a
   // unit only when the same participants can execute it without reassignment.
   const rushChanged = source.stunt !== baseline.stunt || ['attack', 'contain'].some(key => source.front[key] !== baseline.front[key]);

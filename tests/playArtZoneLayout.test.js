@@ -82,3 +82,18 @@ test('crowded custom zones stay finite and bounded in every supported formation 
     assert.equal(JSON.stringify(state), original, name);
   }
 });
+
+test('shading biases only LB hook curls; numeric drops stay authoritative', () => {
+  const players=PLAY_ART_FORMATIONS['Nickel Over'];
+  const state=setup(players,{SLB1:{job:'hook'},SLB2:{job:'vertical'},FS:{job:'hook'},CB1:{job:'third'}});
+  const base=Object.fromEntries(draw(players,state).map(z=>[z.id,z]));
+  for(const [shading,depth] of [['underneath',5],['overtop',7],['default',6]]){
+    state.zones.shading=shading;
+    for(const z of draw(players,state)){
+      assert.equal(z.depth,z.id==='SLB1'?depth:base[z.id].depth);
+      assert.equal(z.rx,base[z.id].rx);assert.equal(z.ry,base[z.id].ry);
+    }
+  }
+  state.zones.shading='underneath';state.zones.hooks='15';
+  assert.equal(draw(players,state).find(z=>z.id==='SLB1').depth,15);
+});

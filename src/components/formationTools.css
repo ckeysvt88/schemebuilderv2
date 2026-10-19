@@ -35,3 +35,7 @@
 .ft-priority-row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:6px;min-width:0}
 .ft-priority-row label,.ft-priority-row label span{min-width:0;overflow-wrap:anywhere}
 .ft-priority-row input{flex-shrink:0}.ft-priority-actions{padding:1px}
+
+.ft-page :is(h1,h2,h3,strong,summary,label){color:var(--color-text-1)}
+
+.ft-page .ft-primary{color:var(--color-gold)}

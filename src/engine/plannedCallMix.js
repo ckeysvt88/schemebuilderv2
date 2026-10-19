@@ -1,3 +1,4 @@
+import { assessAuthoredSetup } from './defensiveSetup.js';
 import { PLAYS } from '../data/plays.js';
 import { assessConceptMatchups } from './conceptMatchup.js';
 import { getCoverageResponsibilities } from './coverageResponsibilities.js';
@@ -100,6 +101,9 @@ export function eligible(anchor, candidate, result, traits, tempo) {
 function entry(candidate, anchor, role, response = null, gain = null) {
   const settings = candidate.call.adjustmentPlan?.settings || [];
   const structure = describe(candidate);
+  const setupEvidence = assessAuthoredSetup(candidate.formation,candidate.call.name,settings);
+  const anchorEvidence = assessAuthoredSetup(anchor.formation,anchor.call.name,anchor.call.adjustmentPlan?.settings || []);
+  const sharedStartingLook = !!setupEvidence?.preSnap && setupEvidence.preSnap.signature === anchorEvidence?.preSnap?.signature;
   const presentation = role === 'pressure-look' ? getPressurePresentation(candidate.formation, candidate.call) : null;
   const before = new Map((anchor.call.matchup?.concept?.scenarios || []).map(s => [s.id, s]));
   const tradeoffs = (candidate.call.matchup?.concept?.scenarios || []).flatMap(s => {
@@ -111,6 +115,7 @@ function entry(candidate, anchor, role, response = null, gain = null) {
   return { role, formation: candidate.formation, call: candidate.call.name, sc: candidate.call.sc,
     personnel: candidate.personnel, signature: presentation ? `${structure.signature}:mug-look` : structure.signature, coverageFamily: structure.family,
     presentation,
+    setupEvidence, sharedStartingLook,
     pressure: structure.pressure, formationChange: candidate.formation !== anchor.formation,
     quickSetup: settings.map(s => `${s.setting}: ${s.value}`).join(' · '),
     adjustmentPlan: candidate.call.adjustmentPlan, matchup: candidate.call.matchup,
@@ -123,7 +128,7 @@ function entry(candidate, anchor, role, response = null, gain = null) {
     opponentRead: response?.text || null, responseGain: gain, tradeoffs,
     responseBasis: response ? 'Possible offensive adaptation, not an observed tendency or a prediction of their next play.' : null,
     setupWarning: candidate.formation !== anchor.formation ? 'Change formations between snaps; confirm personnel and available audibles.'
-      : 'Same formation, different assignments. Confirm the call is in your audible menu; the pre-snap picture is not verified identical.' };
+      : sharedStartingLook ? 'Shared starting alignment in authored Play Art; different post-snap responsibilities. Confirm available audibles and the actual look in game.' : 'Same formation, different assignments. Confirm the call is in your audible menu; the pre-snap picture is not verified identical.' };
 }
 
 export function buildPlannedCallMix(result, traits = []) {
@@ -140,6 +145,10 @@ export function buildPlannedCallMix(result, traits = []) {
   const pool = candidates.filter(c => key(c) !== key(anchor) && eligible(anchor, c, result, traits, tempo)
     && (!guard || eligible(guard, c, result, traits, tempo)));
   const chosen = [anchor], calls = [entry(anchor, anchor, 'foundation')];
+  const startingSignature = c => assessAuthoredSetup(c.formation,c.call.name,c.call.adjustmentPlan?.settings || [])?.preSnap?.signature;
+  const anchorSignature = startingSignature(anchor);
+  const sameAuthoredLook = c => !!anchorSignature && startingSignature(c) === anchorSignature;
+
 
   function choose(role, reference, sameFormation = false, pressureOnly = false) {
     const structure = describe(reference), response = structure.response;
@@ -155,6 +164,7 @@ export function buildPlannedCallMix(result, traits = []) {
       })
       .filter(option => Number.isFinite(option.gain) && (role !== 'response-counter' || option.gain > 0))
       .sort((a, b) => b.gain - a.gain
+        || Number(sameAuthoredLook(b.candidate)) - Number(sameAuthoredLook(a.candidate))
         || Number(b.candidate.formation === anchor.formation) - Number(a.candidate.formation === anchor.formation)
         || b.candidate.call.sc - a.candidate.call.sc || key(a.candidate).localeCompare(key(b.candidate)));
     if (!options.length) return false;

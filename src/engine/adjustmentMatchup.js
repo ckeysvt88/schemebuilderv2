@@ -1,3 +1,4 @@
+import { assessAuthoredSetup } from './defensiveSetup.js';
 import { getCoverageRunSupport } from './coverageRunSupport.js';
 
 // Small ordinal tradeoffs, not measured game performance. Only the recommended
@@ -10,6 +11,9 @@ const ZONE_EFFECTS = Object.freeze({
 
 function effectFor(item, scenario, play, coverageName) {
   const zone = play.man === 0 && play.und > 0;
+  if (item.setting === 'Coverage Shading' && item.value === 'Underneath' && zone) {
+    return ({quick:2,crossers:2,vertical:-3,sideline:-2})[scenario.id] || 0;
+  }
   if (item.setting === 'Zone Strategy' && zone) return ZONE_EFFECTS[item.value]?.[scenario.id] || 0;
   if (item.setting === 'Safety Depth' && item.value === '16 yards' && play.deep >= 2) {
     if (scenario.id === 'vertical') return 3;
@@ -31,15 +35,16 @@ export function assessAdjustmentMatchup(play, coverageName, concept, plan) {
   const settings = (plan?.settings || []).filter((item, index, all) =>
     !['Default', 'Balanced', 'Normal'].includes(item.value)
     && all.findIndex(other => other.setting === item.setting) === index);
+  const authored = assessAuthoredSetup(plan?.formation, coverageName, settings);
   const effects = settings.map(item => {
     const scenarios = concept.scenarios.map(scenario => ({
       id: scenario.id, label: scenario.label, weight: scenario.normalizedWeight,
-      delta: effectFor(item, scenario, play, coverageName),
+      delta: item.setting === 'Coverage Shading' && settings.some(s => s.setting === 'Zone Strategy' && s.value !== 'Default') ? 0 : item.setting === 'Pass Rush' && authored && !authored.rush.containReady ? 0 : effectFor(item, scenario, play, coverageName),
     })).filter(s => s.delta !== 0);
     return { setting: item.setting, value: item.value, why: item.why, tradeoff: item.tradeoff,
       scenarios, weightedDelta: scenarios.reduce((sum, s) => sum + s.weight * s.delta, 0) };
   }).filter(item => item.scenarios.length);
   const weightedDelta = effects.reduce((sum, item) => sum + item.weightedDelta, 0);
   return { delta: Math.max(-MAX_SETUP_DELTA, Math.min(MAX_SETUP_DELTA, Math.round(weightedDelta))),
-    weightedDelta, effects, settings: settings.map(({ setting, value }) => ({ setting, value })) };
+    weightedDelta, effects, authored, settings: settings.map(({ setting, value }) => ({ setting, value })) };
 }
