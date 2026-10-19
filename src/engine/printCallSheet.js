@@ -15,7 +15,7 @@ export function buildPrintCallSheet(data) {
   const rows = data.situationMatrix.filter(row => row.down).map(row => ({ ...row,
     calls: (row.plannedMix?.calls || []).map(call => ({ ...call,
       setupRef: reference(setups, call.quickSetup || 'No additional quick setup prescribed.', 'S', 200),
-      jobRef: reference(jobs, call.userJob, 'J', 230),
+      jobRef: data.includeCoaching === false ? '-' : reference(jobs, call.userJob, 'J', 230),
     })),
   }));
   return { rows, setups, jobs,

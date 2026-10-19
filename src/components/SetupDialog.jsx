@@ -21,7 +21,7 @@ export default function SetupDialog({ title, description, onClose, children, clo
   const onKeyDown = event => {
     if (event.key === 'Escape') { event.preventDefault(); onClose(); }
     if (event.key !== 'Tab') return;
-    const buttons = panel.current.querySelectorAll('button');
+    const buttons = panel.current.querySelectorAll('button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), a[href], summary, [tabindex="0"]');
     const first = buttons[0];
     const last = buttons[buttons.length - 1];
     if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last.focus(); }

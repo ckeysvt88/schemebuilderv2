@@ -48,10 +48,10 @@ export const ONBOARDING_PAGES = [
   },
   {
     topic: 'Play Art: create a macro', icon: '✏️', title: 'Design Your Play — Beta',
-    body: 'Open Play Art, then choose Family → Formation → Play. Pick Custom to start with just the defenders, or use an example call where available.',
+    body: 'Open Play Art, then choose Family → Formation. Each new session starts with a blank Custom setup; saved macros can still be loaded.',
     points: [
       'Tap a defender to choose from that position’s assignments. Your choice immediately updates the diagram.',
-      'Compare Before and After, or Step through the changes. Show changes is off by default; enable it to highlight affected defenders and their original art; previews do not edit your macro. Reset restores the starting call or clears Custom assignments.',
+      'Compare Before and After. Show changes is off by default; enable it to highlight affected defenders and their original art; previews do not edit your macro. Reset clears assignments to Custom. Match Responsibilities · Beta opens animated coverage checks with 1×/2× playback. Your current macro stays in place when you return.',
       'Saved macros: Load opens the original formation. Apply here keeps your current formation and transfers matching position adjustments, including SLB/SLB1, DT/DT1 and SLCB/SLCB1 aliases; skipped settings are listed.',
       '71 formations have a Custom canvas. Example calls are currently available for four formations; the Beta does not include every play.',
     ],
@@ -72,14 +72,14 @@ export const ONBOARDING_PAGES = [
       'Teams offers team profiles as a starting point. Change the scout when your actual opponent plays differently.',
       'Compare shows which formations two defensive playbooks share and what each adds. Find my playbook matches your selected formations to books, showing included and missing formations. Use Must/Nice priorities, search, and bulk selection to handle large formation lists. Your priorities are remembered on this browser.',
       'On Forms, Compare formations overlays two starting alignments. You can also open Compare beside Customize on a formation detail.',
-      'Forms explains alignments, personnel, strengths, and weaknesses. Customize opens that formation in Play Art.',
+      'Forms explains alignments, personnel, strengths, and weaknesses. Customize opens that formation in Play Art. Match responsibilities animates the available coverage checks: follow a defender, pause, scrub, and change the receiver releases. These are schematic teaching examples.',
     ],
   },
   {
     topic: 'Save, review, and share', icon: '💾', title: 'Keep what worked',
     body: 'Use the Call Sheet and Notes buttons on Plan to keep useful calls and game observations close at hand.',
     points: [
-      'Call Sheet offers Save PDF or View PDF without leaving your plan. On iPhone, use Save to Files when the share sheet opens.',
+      'Call Sheet offers Save PDF, View PDF, and Edit call sheet without leaving your plan. Promote or exclude existing calls per situation, then Update PDF; the live plan stays unchanged. On iPhone, use Save to Files when the share sheet opens.',
       'Notes and Drive Log keep game observations. Share lets you send or copy your current recommendation summary.',
       'Export / Import backs up saved opponent profiles. Play Art macros save separately on this device; profile exports do not include them.',
     ],

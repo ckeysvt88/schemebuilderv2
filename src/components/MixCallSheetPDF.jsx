@@ -40,16 +40,16 @@ export default function MixCallSheetDocument({ data }) {
   return <Document title={`${data.opponentName || 'Defensive'} Call Sheet`} author="Scheme Builders">
     <Page size="LETTER" style={S.page} wrap={false}>
       <Header title="SITUATIONAL CALL MENU" data={data} />
-      <Text style={[S.context, { marginBottom: 9 }]}>Pick within each row; the first column is a starting option, not an every-snap prescription. S = setup; J = your job (page 2). Match the actual offensive personnel.</Text>
-      <View style={S.tableHeader}><View style={S.situation}><Text style={S.heading}>DOWN / GAIN</Text></View>{['STARTING CALL', 'CHANGE THE LOOK', 'COUNTER', 'EXTRA / PRESSURE'].map(label => <View style={S.cell} key={label}><Text style={S.heading}>{label}</Text></View>)}</View>
+      <Text style={[S.context, { marginBottom: 9 }]}>Pick within each row; the first column is a starting option, not an every-snap prescription. S = setup (page 2). {data.includeCoaching !== false ? 'J = your job (page 2).' : 'User coaching hidden.'} Match the actual offensive personnel.</Text>
+      <View style={S.tableHeader}><View style={S.situation}><Text style={S.heading}>DOWN / GAIN</Text></View>{(data.edited ? ['YOUR STARTING CALL', 'ALTERNATIVE 1', 'ALTERNATIVE 2', 'ALTERNATIVE 3'] : ['STARTING CALL', 'CHANGE THE LOOK', 'COUNTER', 'EXTRA / PRESSURE']).map(label => <View style={S.cell} key={label}><Text style={S.heading}>{label}</Text></View>)}</View>
       {rows.map((row, index) => <View key={row.label} style={[S.row, index % 2 ? { backgroundColor: C.panel } : {}]}>
         <View style={S.situation}><Text style={S.heading}>{row.label.replace(' & ', '\n')}</Text><Text style={S.formation}>Sample: {row.distance} yd</Text></View>
-        {['foundation', 'coverage-variation', 'response-counter', 'extra'].map(role => {
-          const call = row.calls.find(c => role === 'extra' ? ['additional-variation', 'conditional-pressure', 'pressure-look'].includes(c.role) : c.role === role);
+        {['foundation', 'coverage-variation', 'response-counter', 'extra'].map((role,slot) => {
+          const call = data.edited ? row.calls[slot] : row.calls.find(c => role === 'extra' ? ['additional-variation', 'conditional-pressure', 'pressure-look'].includes(c.role) : c.role === role);
           return <View key={role} style={S.cell}>{call ? <>
             <Text style={S.play}>{call.call}</Text><Text style={S.formation}>{call.formation}</Text>
-            <Text style={S.refs}>{call.setupRef} / {call.jobRef}{call.pressure ? ' / PRESSURE' : call.presentation ? ' / LOOK' : ''}</Text>
-          </> : <Text style={S.formation}>No qualifying option</Text>}</View>;
+            <Text style={S.refs}>{call.setupRef}{data.includeCoaching !== false ? ' / '+call.jobRef : ''}{call.pressure ? ' / PRESSURE' : call.presentation ? ' / LOOK' : ''}</Text>
+          </> : <Text style={S.formation}>{row.editorExcluded ? 'Excluded by you' : data.edited ? '-' : 'No qualifying option'}</Text>}</View>;
         })}
       </View>)}
       <Note label="MIX, THEN READ.">Vary coverage before the offense settles on one tell. PRESSURE sends extra rushers; cover the hot outlet. LOOK presents a mugged front with four or fewer stock rushers and deep help. Neither is mandatory.</Note>
@@ -57,26 +57,27 @@ export default function MixCallSheetDocument({ data }) {
       <Footer />
     </Page>
     <Page size="LETTER" style={S.page} wrap={false}>
-      <Header title="SETUP & COACHING KEY" data={data} />
+      <Header title={data.includeCoaching === false ? "QUICK SETUP KEY" : "SETUP & COACHING KEY"} data={data} />
       <Text style={S.context}>Apply only the S / J references printed in your selected call. Shared instructions appear once here. User position: {data.userPosition}.</Text>
       <View style={S.columns}>
-        <View style={S.column}><Text style={S.section}>S / QUICK SETUP</Text>
+        <View style={[S.column,data.includeCoaching === false ? {width:560} : {}]}><Text style={S.section}>S / QUICK SETUP</Text>
           {setups.map(item => <View style={[S.entry, { flexDirection: 'row' }]} key={item.id}><Text style={[S.entryText, S.tag, { width: 22 }]}>{item.id}</Text><View style={{ flex: 1 }}>{clean(item.text).split(' · ').map((line, i) => <Text key={i} style={S.entryText}>{line}</Text>)}</View></View>)}
-          {!setups.length && <Text style={S.entryText}>No verified calls for this scout. Select the offensive look and your available playbook in the app.</Text>}
+          {!setups.length && <Text style={S.entryText}>{data.edited ? "No included calls. Restore calls in the editor to print their setup." : "No verified calls for this scout. Select the offensive look and your available playbook in the app."}</Text>}
           <Note label="RESET BETWEEN CALLS.">Do not stack different setup profiles. Restore settings to the values prescribed by the next call. Confirm audibles and assignments.</Note>
           <Note label="SETUP TRADEOFFS.">Aggressive zones contest short throws but expose deeper windows. Conservative zones protect depth while conceding underneath space. Deeper corners give more cushion. Check the exact match-coverage effect in the app.</Note>
         </View>
-        <View style={S.column}><Text style={S.section}>J / YOUR JOB</Text>
+        {data.includeCoaching !== false && <View style={S.column}><Text style={S.section}>J / YOUR JOB</Text>
           {jobs.map(item => <View style={S.entry} key={item.id}><Text style={S.entryText}><Text style={S.tag}>{item.id}  </Text>{clean(item.text)}</Text></View>)}
           {!jobs.length && <Text style={S.entryText}>Keep your assigned receiver or zone covered. Rebuild the sheet after adding scouting information.</Text>}
-        </View>
+        </View>}
       </View>
-      <View style={S.box}>
+      {data.includeCoaching !== false && <View style={S.box}>
         <Text style={S.heading}>SITUATIONAL CHECKS</Text>
         <Note label="SHORT / MEDIUM">Win the gain required. Keep the run, QB keeper and immediate throw covered. On second-and-short, retain help against a shot. Tackle at the catch on conversion downs.</Note>
         <Note label="LONG">Protect the sticks and deeper routes, then rally to the underneath catch. Account for screens, draws and QB escapes. Long yardage does not prove a pass.</Note>
         <Note label="GOAL LINE / TWO-MINUTE">Use actual personnel, distance and game objective. Neither field location nor the clock alone justifies goal-line personnel or Prevent.</Note>
       </View>
+      }
       <Note label={hasAppReferences ? 'APP REFERENCE.' : 'DETAILS.'}>{hasAppReferences ? 'APP means this call has additional setup or user detail that exceeds the quick-reference space. Open that call in the app before using it.' : 'This sheet is a quick reference. Expand a call in the app for its individual watch-outs, adjustment reasons, tradeoffs and offensive-response explanation.'}</Note>
       <Footer />
     </Page>

@@ -150,3 +150,8 @@
 #sb-play-art .nm-save-item .nm-inline{flex-wrap:nowrap;gap:4px}
 #sb-play-art .nm-save-item button{min-height:44px;padding:8px 7px;white-space:nowrap}
 #sb-play-art .nm-transfer-status:empty{display:none}
+
+/* Custom setup, compact comparison actions and the responsibility teaching view. */
+#sb-play-art .nm-pickers{grid-template-columns:minmax(0,.8fr) minmax(0,1.2fr)}
+#sb-play-art .nm-compare{grid-template-columns:minmax(0,1fr) minmax(0,1fr) auto}
+#sb-play-art .nm-compare [data-action=responsibilities]{grid-column:1/-1;grid-row:2;white-space:normal;color:var(--nm-gold);border-color:var(--nm-gold-border)}

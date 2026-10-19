@@ -1,3 +1,4 @@
+import AdjustmentResponsibilities from './AdjustmentResponsibilities.jsx';
 import FormationCompare from './FormationCompare.jsx';
 import { canCustomizeFormation } from './playArt/catalog.js';
 import { useState, useMemo, useEffect } from 'react';
@@ -115,6 +116,7 @@ function Section({ title, count, tone, children, defaultOpen = false }) {
 
 export default function FormationInfo({ onCustomize }) {
   const [comparing, setComparing] = useState(false);
+  const [responsibilities,setResponsibilities] = useState(false);
   const [fam, setFam] = useState(null);
   const [sel, setSel] = useState(null);
 
@@ -141,6 +143,7 @@ export default function FormationInfo({ onCustomize }) {
   const cap = sel ? getCapabilities(sel) : null;
   const pri = d ? (PRI[d.priority] || { c: "var(--color-gold)", l: d.priority }) : null;
 
+  if (responsibilities) return <AdjustmentResponsibilities initialFormation={sel || 'Nickel Over'} onBack={()=>setResponsibilities(false)}/>;
   if (comparing) return <FormationCompare initialFormation={sel || 'Nickel Over'} onBack={() => setComparing(false)}/>;
 
   return (
@@ -150,7 +153,7 @@ export default function FormationInfo({ onCustomize }) {
         <div style={{ fontSize: 10, color: "var(--color-gold-dim)", letterSpacing: "2px", textTransform: "uppercase", fontFamily: "var(--font-mono)", marginBottom: 5 }}>Scheme Builders</div>
         <div style={{ display: "grid", gridTemplateColumns: "minmax(0, 1fr) auto", alignItems: "center", gap: 8 }}>
           <div style={{ fontSize: 20, fontWeight: "700", lineHeight: 1.2, color: "var(--color-text-1)", fontFamily: "var(--font-mono)" }}>Formation Info</div>
-          {!sel && <button className="ft-action" onClick={() => setComparing(true)}>Compare formations</button>}
+          {!sel && <div style={{display:"flex",gap:6,flexWrap:"wrap",justifyContent:"flex-end"}}><button className="ft-action" onClick={() => setComparing(true)}>Compare formations</button><button className="ft-action" onClick={()=>setResponsibilities(true)}>Match Responsibilities · Beta</button></div>}
           {sel && (
             <div style={{ display: "flex", alignItems: "center", justifyContent: "flex-end", gap: 5 }}>
               <button style={{ ...smallBtn, minHeight: 32, padding: "0 8px", whiteSpace: "nowrap" }} onClick={() => setSel(null)}>← All</button>
@@ -215,7 +218,7 @@ export default function FormationInfo({ onCustomize }) {
               <span style={pill("var(--color-text-3)")}>{d.personnel.toUpperCase()}</span>
               <span style={pill("var(--color-gold)")}>BLITZ BASE {d.blitzBase}%</span>
             </div>
-            <div style={{display:"flex",gap:6,flexWrap:"wrap",justifyContent:"flex-end"}}><button style={{...smallBtn,minHeight:32}} onClick={() => setComparing(true)}>Compare</button>{canCustomizeFormation(sel) && onCustomize && <button style={{ ...smallBtn, minHeight: 32, whiteSpace: "nowrap", color: "var(--color-gold)", borderColor: "var(--color-gold-border)", background: "var(--color-gold-surface)" }} onClick={() => onCustomize(sel)}>Customize</button>}</div>
+            <div style={{display:"flex",gap:6,flexWrap:"wrap",justifyContent:"flex-end"}}><button style={{...smallBtn,minHeight:32}} onClick={()=>setResponsibilities(true)}>Match Responsibilities · Beta</button><button style={{...smallBtn,minHeight:32}} onClick={() => setComparing(true)}>Compare</button>{canCustomizeFormation(sel) && onCustomize && <button style={{ ...smallBtn, minHeight: 32, whiteSpace: "nowrap", color: "var(--color-gold)", borderColor: "var(--color-gold-border)", background: "var(--color-gold-surface)" }} onClick={() => onCustomize(sel)}>Customize</button>}</div>
           </div>
           <div style={{ fontFamily: "var(--font-mono)", fontSize: 22, fontWeight: 700, color: "var(--color-gold-bright)", margin: "12px 0 9px" }}>{sel}</div>
           <div style={{ fontSize: 13.5, color: "var(--color-text-1)", lineHeight: 1.55 }}>{d.desc}</div>
