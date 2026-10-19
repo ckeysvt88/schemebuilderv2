@@ -1,5 +1,6 @@
 import PlaybookFinder from './PlaybookFinder.jsx';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { readPlaybookPreferences, savePlaybookPreferences } from '../utils/playbookPreferences.js';
 import { PLAYBOOKS } from '../data/playbooks.js';
 import { FDB } from '../data/formations.js';
 import { TEAMS } from '../data/teams.js';
@@ -45,7 +46,10 @@ function FmList({ fms, borderColor }) {
 
 export default function CompareScreen({ compareA, setCompareA, compareB, setCompareB }) {
   const [finderOpen, setFinderOpen] = useState(false);
-  const [wanted, setWanted] = useState([]);
+  const [savedPreferences] = useState(readPlaybookPreferences);
+  const [wanted, setWanted] = useState(savedPreferences.wanted);
+  const [priorities, setPriorities] = useState(savedPreferences.priorities);
+  useEffect(()=>{savePlaybookPreferences({wanted,priorities});},[wanted,priorities]);
   const [schoolBook, setSchoolBook] = useState(null);
   const fmsA   = getFormations(compareA);
   const fmsB   = getFormations(compareB);
@@ -57,7 +61,7 @@ export default function CompareScreen({ compareA, setCompareA, compareB, setComp
   const colA   = pbColor(compareA);
   const colB   = pbColor(compareB);
 
-  if (finderOpen) return <PlaybookFinder wanted={wanted} setWanted={setWanted} onBack={() => setFinderOpen(false)} onCompare={name => {setCompareA(name);setFinderOpen(false);}}/>;
+  if (finderOpen) return <PlaybookFinder wanted={wanted} setWanted={setWanted} priorities={priorities} setPriorities={setPriorities} onBack={() => setFinderOpen(false)} onCompare={name => {setCompareA(name);setFinderOpen(false);}}/>;
 
   return (
     <div className="screen-enter" style={{ fontFamily: "var(--font-sans)", background: "var(--color-bg)", minHeight: "100dvh", color: "var(--color-text-1)", maxWidth: 720, margin: "0 auto" }}>

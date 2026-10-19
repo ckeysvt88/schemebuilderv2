@@ -23,3 +23,13 @@ test('partial combinations show omissions and never substitute similarly named f
  assert.ok(results.every((r,i)=>!i||results[i-1].count>=r.count));
  assert.ok(findPlaybooks(['Nickel Over','Unknown formation']).every(r=>!r.complete&&r.missing.includes('Unknown formation')));
 });
+test('nice-to-have matches cannot compensate for missing required formations',()=>{
+ const data={A:{books:['Must book']},B:{books:['Nice book']},C:{books:['Nice book']}};
+ const result=findPlaybooks(['A','B','C'],data,{'Must book':{},'Nice book':{}},{B:'nice',C:'nice'});
+ assert.equal(result[0].name,'Must book');assert.equal(result[0].qualifies,true);assert.equal(result[1].qualifies,false);
+ assert.deepEqual(result[1].requiredMissing,['A']);
+});
+test('all-preferred searches rank by preference coverage with no fabricated requirement',()=>{
+ const result=findPlaybooks(['Nickel Over','3-3-5 Penny'],FDB,PLAYBOOKS,{'Nickel Over':'nice','3-3-5 Penny':'nice'});
+ assert.ok(result.every(r=>r.requiredTotal===0&&r.qualifies));assert.equal(result[0].preferredCount,2);
+});

@@ -70,7 +70,7 @@ export const ONBOARDING_PAGES = [
     body: 'Use Teams, Compare, and Forms to prepare without rebuilding a scout from scratch.',
     points: [
       'Teams offers team profiles as a starting point. Change the scout when your actual opponent plays differently.',
-      'Compare shows which formations two defensive playbooks share and what each adds. Find my playbook matches your selected formations to books, showing included and missing formations.',
+      'Compare shows which formations two defensive playbooks share and what each adds. Find my playbook matches your selected formations to books, showing included and missing formations. Use Must/Nice priorities, search, and bulk selection to handle large formation lists. Your priorities are remembered on this browser.',
       'On Forms, Compare formations overlays two starting alignments. You can also open Compare beside Customize on a formation detail.',
       'Forms explains alignments, personnel, strengths, and weaknesses. Customize opens that formation in Play Art.',
     ],
