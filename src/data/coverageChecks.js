@@ -47,19 +47,30 @@ export const CHECK_MENUS = {
   cover6:{stack:split.stack,bunch:split.bunch,trips:['stubbie','zoneIt'],base:['quarters','zoneIt']},
 };
 export function getCheckOptions(scheme,lookId){const look=OFFENSIVE_LOOKS.find(l=>l.id===lookId);return CHECK_MENUS[scheme]?.[look?.type]||[];}
+// The source does not name the resolved man-bunch default. Do not infer it
+// from display order, or call a base teaching example an in-game menu default.
+export function getCheckDefault(scheme,lookId){
+  const type=OFFENSIVE_LOOKS.find(l=>l.id===lookId)?.type;
+  if(type==='base'||(['cover1','twoMan'].includes(scheme)&&type==='bunch'))return null;
+  return getCheckOptions(scheme,lookId)[0]||null;
+}
+export function getCheckRule(scheme,check){
+  if(scheme==='cover3'&&check==='combo')return rule('Combo','Match the front and rear stack receivers with the deep-third and seam-flat roles.','The deep-third defender takes front #1; the seam-flat defender takes rear #2.','This front/rear assignment differs from the inside/outside exchange in man Combo.');
+  return CHECK_RULES[check];
+}
 export const RELEASE_PATTERNS = [
   ['verticals','All vertical'],['out','Inside receiver to flat'],['cross','Crossing releases'],['shortOne','Outside receiver short inside'],['threeOut','#3 to the flat'],['isolatedShort','Isolated X short inside'],
 ];
 export function receiverRoutes(lookId,pattern){
   const type=OFFENSIVE_LOOKS.find(l=>l.id===lookId)?.type;
   const tight=/Tight/.test(lookId), bunch=type==='bunch',stack=type==='stack';
-  const xs=bunch?(tight?[77,70,63]:[84,75,66]):stack?(tight?[72,72]:[84,84]):[90,70,54];
+  const xs=bunch?(tight?[77,70,63]:[84,75,66]):stack?(tight?[72,72]:[84,84]):type==='trips'&&tight?[76,65,54]:[90,70,54];
   const starts=xs.map((x,i)=>({id:String(i+1),x,y:bunch&&i===1?224:stack&&i===0?224:stack?252:242}));
   if(type==='base'){starts.splice(2);starts.push({id:'X1',x:10,y:240},{id:'X2',x:27,y:240});}
   // Receiver numbering is local to the focus side, counted outside-in; P is #2 in bunch.
-  const routes=starts.map((r,i)=>({...r,endX:(stack?[88,68]:bunch?[90,73,55]:[90,70,54])[i]??r.x,endY:60+i*20}));
+  const routes=starts.map((r,i)=>({...r,endX:(stack?[r.x+4,r.x-16]:bunch?[90,73,55]:[])[i]??r.x,endY:60+(i%3)*20}));
   for(const r of routes){if(pattern==='out'&&r.id==='2'){r.endX=96;r.endY=200;}if(pattern==='threeOut'&&r.id==='3'){r.endX=95;r.endY=202;}if(pattern==='shortOne'&&r.id==='1'&&type!=='single'){r.endX=35;r.endY=196;}if(pattern==='cross'&&r.id==='1'){r.endX=40;r.endY=140;}if(pattern==='cross'&&r.id===String(stack?2:3)){r.endX=93;r.endY=190;}}
-  if(type!=='base')routes.push({id:'X',x:lookId==='singleTight'?28:10,y:240,endX:(pattern==='shortOne'&&type==='single'||pattern==='isolatedShort')?42:10,endY:(pattern==='shortOne'&&type==='single'||pattern==='isolatedShort')?196:65});
+  if(type!=='base')routes.push({id:'X',x:lookId==='singleTight'?28:10,y:240,endX:(pattern==='shortOne'&&type==='single'||pattern==='isolatedShort')?42:lookId==='singleTight'?28:10,endY:(pattern==='shortOne'&&type==='single'||pattern==='isolatedShort')?196:65});
   return routes;
 }
 // Role-based teaching outcomes. These are not exact player assignments from the game.
@@ -86,12 +97,13 @@ export function checkResponsibilities(scheme,check,lookId,pattern){
   }else{
     if(!['cross','shortOne'].includes(pattern))assign('corner','1','Carry the outside vertical release.');
     if(routes.find(r=>r.id==='2')?.endY<=120)assign('safety','2','Carry the inside vertical in this example.');else result.safety.text='No inside vertical: retain deep help and continue the coverage read.';
-    if(pattern==='out'){assign('flat','2','Take the inside receiver to the flat.');delete result.safety.target;result.safety.text='No #2 vertical: maintain the applicable deep help/read.';}
+    const two=routes.find(r=>r.id==='2'),twoOut=two&&two.endY>120&&two.endX>two.x;
+    if(twoOut){assign('flat','2','Take the inside receiver releasing outside.');delete result.safety.target;result.safety.text='No #2 vertical: maintain the applicable deep help/read.';}
     if(has3)result.hook.text='Read #3; carry decisions depend on its release and the called coverage.';
-    if(check==='palms'&&pattern==='out'){assign('corner','2','Read #2 out: jump the flat in this branch.');assign('safety','1','Cover the deeper outside receiver after the corner takes #2.');delete result.flat.target;result.flat.text='Retain underneath support.';}
-    if(check==='skate'){result.flat.zone=[92,190];result.hook.zone=[68,174];result.flat.text='Expand toward the bunch-side quick throw.';result.hook.text='Widen toward the bunch while retaining the inside read.';}
-    if(['seam','skinny','skinnyMeg'].includes(check)){delete result.safety.target;result.safety.text='Retain deep middle support in the three-deep structure.';if(pattern==='verticals'||pattern==='out'||pattern==='threeOut')assign('flat','2',pattern==='out'?'Match #2 releasing to the flat.':'Carry #2 up the seam.');if(has3&&pattern==='threeOut')assign('hook','3','Match #3 releasing outside in this example.');}
-    if(check==='stress'&&pattern==='verticals'){delete result.corner.target;delete result.safety.target;result.corner.text='All three release vertically: maintain spaced deep zone leverage.';result.safety.text='All three release vertically: distribute the deep space rather than chase.';}
+    if(check==='palms'&&twoOut){assign('corner','2','Read #2 out: jump the outside release in this branch.');if(routes.find(r=>r.id==='1')?.endY<=120)assign('safety','1','Cover the deeper outside receiver after the corner takes #2.');else{delete result.safety.target;result.safety.text='Neither receiver stays vertical: the exact distribution needs route-specific confirmation.';}delete result.flat.target;result.flat.text='Retain underneath support.';}
+    if(check==='skate'){delete result.flat.target;result.flat.zone=[92,190];result.hook.zone=[68,174];result.flat.text='Expand toward the bunch-side quick throw.';result.hook.text='Widen toward the bunch while retaining the inside read.';}
+    if(['seam','skinny','skinnyMeg'].includes(check)){delete result.safety.target;result.safety.text='Retain deep middle support in the three-deep structure.';const two=routes.find(r=>r.id==='2');if(two&&(two.endY<=120||two.endX>two.x))assign('flat','2',two.endY<=120?'Carry #2 up the seam.':'Match #2 releasing outside.');if(has3&&pattern==='threeOut'){result.hook.text='Read #3 releasing outside; the exact carry or exchange needs game confirmation.';}}
+    if(check==='stress'&&routes.filter(r=>['1','2','3'].includes(r.id)).every(r=>r.endY<=120)){delete result.corner.target;delete result.safety.target;result.corner.text='All three release vertically: maintain spaced deep zone leverage.';result.safety.text='All three release vertically: distribute the deep space rather than chase.';}
     if(check==='stubbie'){assign('corner','1','Lock #1, including its short release.');if(routes.filter(r=>['2','3'].includes(r.id)).every(r=>r.endY<=120)){assign('flat','2','Both inside receivers vertical: carry #2.');assign('safety','3','Both inside receivers vertical: carry #3.');}else if(pattern==='out'){assign('flat','2','Read the quick out by #2.');assign('safety','3','Read #3 first; retain the remaining inside help.');}else if(pattern==='threeOut'){delete result.safety.target;delete result.flat.target;result.flat.text='Read #2 and #3; the detailed exchange for this release needs game confirmation.';result.safety.text='Read #3, then #2; the detailed exchange needs game confirmation.';}else{delete result.safety.target;result.safety.text='Read #3, then #2; this distribution needs route-specific confirmation.';}}
     if(['solo','soloCut','quarters'].includes(check)&&type==='single'){
       for(const key of ['corner','safety','flat','hook']){delete result[key].target;result[key].text='Strong-side responsibility is controlled by the separate trips check.';}

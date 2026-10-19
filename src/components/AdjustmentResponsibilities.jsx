@@ -1,47 +1,48 @@
 import { useEffect, useRef, useState } from 'react';
-import { CHECK_SCHEMES, OFFENSIVE_LOOKS, CHECK_RULES, CHECK_MENUS, RELEASE_PATTERNS, COVERAGE_CHECK_SOURCES, getCheckOptions } from '../data/coverageChecks.js';
+import { CHECK_SCHEMES, OFFENSIVE_LOOKS, CHECK_RULES, CHECK_MENUS, RELEASE_PATTERNS, COVERAGE_CHECK_SOURCES, getCheckOptions, getCheckDefault } from '../data/coverageChecks.js';
 import { buildMatchMotion, getReleaseOptions, routePoint, defenderPoint } from '../engine/matchMotion.js';
 import './formationTools.css';
 import './matchMotion.css';
 
 function MotionPlayer({scene}){
-  const [progress,setProgress]=useState(0),[playing,setPlaying]=useState(false),[speed,setSpeed]=useState(1),[follow,setFollow]=useState(scene.roles[0].id),[flipped,setFlipped]=useState(false);
+  const [progress,setProgress]=useState(0),[playing,setPlaying]=useState(false),[follow,setFollow]=useState(scene.roles[0].id),[flipped,setFlipped]=useState(false);
   const field=useRef(null),[width,setWidth]=useState(360),[reduced,setReduced]=useState(()=>window.matchMedia('(prefers-reduced-motion: reduce)').matches);
   useEffect(()=>{const m=window.matchMedia('(prefers-reduced-motion: reduce)'),change=()=>setReduced(m.matches);m.addEventListener('change',change);return()=>m.removeEventListener('change',change);},[]);
   useEffect(()=>{const observer=new ResizeObserver(([e])=>setWidth(Math.max(200,e.contentRect.width)));observer.observe(field.current);return()=>observer.disconnect();},[]);
   const finished=progress>=1;
-  useEffect(()=>{if(!playing||reduced||finished)return;let frame,last=null;function tick(now){if(last!==null)setProgress(p=>Math.min(1,p+(now-last)*speed/7500));last=now;frame=requestAnimationFrame(tick);}frame=requestAnimationFrame(tick);return()=>cancelAnimationFrame(frame);},[playing,speed,reduced,finished]);
+  useEffect(()=>{if(!playing||reduced||finished)return;let frame,last=null;function tick(now){if(last!==null){const delta=(now-last)*2/7500;setProgress(p=>Math.min(1,p+delta));}last=now;frame=requestAnimationFrame(tick);}frame=requestAnimationFrame(tick);return()=>cancelAnimationFrame(frame);},[playing,reduced,finished]);
   const running=playing&&progress<1&&!reduced,selected=scene.roles.find(r=>r.id===follow),phase=progress<.12?0:progress<.48?1:2;
   const px=x=>20+(width-40)*(flipped?100-x:x)/100,h=310;
+  const leftLabel=scene.type==='single'?'Isolated side':scene.type==='base'?'Other side':'Backside',rightLabel=scene.type==='single'?'Trips side':'Focus side';
   const focusRoute=scene.routes.find(r=>r.id===selected.target);
   const text=phase===0?selected.before:phase===1?selected.read:selected.after;
   function scrub(n){setPlaying(false);setProgress(n);}
   return <>
     <div className="mm-follow"><label>Follow a defender<select aria-label="Follow a defender" value={follow} onChange={e=>setFollow(e.target.value)}>{scene.roles.map(r=><option key={r.id} value={r.id}>{r.mark} · {r.label}</option>)}</select></label></div>
     <div ref={field} className="ft-field mm-field"><svg viewBox={`0 0 ${width} ${h}`} role="img" aria-label={`${scene.rule.label}; ${['alignment','first steps','response'][phase]}; following ${selected.label}`}>
-      <text x="12" y="18" fill="var(--color-text-2)" fontSize="11">{flipped?'← Sideline':'← Inside / ball'}</text><text x={width-12} y="18" textAnchor="end" fill="var(--color-text-2)" fontSize="11">{flipped?'Ball / inside →':'Sideline →'}</text>
+      <text x="12" y="18" fill="var(--color-text-2)" fontSize="11">{flipped?rightLabel:leftLabel}</text><text x={width-12} y="18" textAnchor="end" fill="var(--color-text-2)" fontSize="11">{flipped?leftLabel:rightLabel}</text>
       {[60,110,160,210].map(y=><line key={y} x1="10" x2={width-10} y1={y} y2={y} stroke="var(--color-border-subtle)"/>)}
       <line x1="10" x2={width-10} y1="224" y2="224" stroke="var(--color-gold)"/><text x="12" y="240" fontSize="11" fill="var(--color-text-2)">LOS</text>
       {progress>.12&&!selected.target&&<ellipse cx={px(selected.zone[0])} cy={selected.zone[1]} rx={Math.min(46,(width-40)*.14)} ry={selected.mode==='zone'?28:18} fill="var(--color-pass)" opacity=".12" stroke="var(--color-pass)" strokeDasharray="4 3"/>}
-      {scene.routes.map(r=>{const point=routePoint(r,progress),knee=routePoint(r,Math.min(progress,.4)),highlight=focusRoute?.id===r.id;return <g key={r.id} opacity={scene.type==='single'&&r.id!=='X'||r.id==='X'&&!scene.roles.some(role=>role.id==='backCorner')?.3:1}>
+      {scene.routes.map(r=>{const point=routePoint(r,progress),knee=routePoint(r,Math.min(progress,.4)),highlight=focusRoute?.id===r.id;return <g key={r.id} opacity={scene.type==='single'&&r.id!=='X'||r.id.startsWith('X')&&!scene.roles.some(role=>role.id==='backCorner')?.4:1}>
         {progress>0&&<polyline points={`${px(r.x)},${r.y} ${px(knee[0])},${knee[1]} ${px(point[0])},${point[1]}`} fill="none" stroke="var(--color-danger)" strokeWidth={highlight?2.5:1.5} opacity={highlight?.9:.4}/>}
         <circle cx={px(point[0])} cy={point[1]} r="11" fill="var(--color-surface-1)" stroke="var(--color-danger)" strokeWidth="2"/>
         <text x={px(point[0])} y={point[1]+4} textAnchor="middle" fontSize="12" fill="var(--color-text-1)">{r.id}</text>
       </g>;})}
-      {scene.roles.map(r=>{const point=defenderPoint(scene,r,progress),focused=r.id===follow;return <g key={r.id} opacity={focused?1:.4}>
+      {scene.roles.map(r=>{const point=defenderPoint(scene,r,progress),focused=r.id===follow;return <g key={r.id}>
         {focused&&<circle cx={px(point[0])} cy={point[1]} r="21" fill="none" stroke="var(--color-gold)" strokeWidth="2"/>}
         <rect x={px(point[0])-11} y={point[1]-10} width="22" height="20" rx="3" fill="var(--color-surface-1)" stroke="var(--color-pass)" strokeWidth="2"/>
         <text x={px(point[0])} y={point[1]+4} textAnchor="middle" fontSize="12" fill="var(--color-text-1)">{r.mark}</text>
       </g>;})}
     </svg><div className="mm-cue" aria-live="polite"><strong>{['Before the snap','Watch the first steps','Responsibility'][phase]} · {selected.mark}</strong><span>{text}{phase===2&&selected.target?` → ${selected.mode==='bracket'?'Bracket':'Match'} ${selected.target==='X'?'X':'#'+selected.target}`:phase===2?` · ${selected.mode==='poach'?'Help toward trips':selected.mode==='zone'?'Defend space':'Maintain the read'}`:''}</span></div></div>
-    <p className="mm-legend">Circles = receivers · Squares = defenders · Gold ring = your focus{scene.type==='bunch'?' · #2 = point':''}{scene.type==='stack'?' · #1 = front, #2 = rear':''}</p>
-    <div className="mm-playback"><button disabled={reduced} className="ft-primary" onClick={()=>{if(progress>=1)setProgress(0);setPlaying(!running);}}>{running?'Pause':progress>=1?'Replay':'Play slowly'}</button><button onClick={()=>scrub(0)}>Restart</button><label className="mm-speed">Speed<select aria-label="Playback speed" value={speed} onChange={e=>setSpeed(Number(e.target.value))}><option value="1">1×</option><option value="2">2×</option></select></label></div>
+    <p className="mm-legend">Circles = receivers · Squares = defenders · Gold ring = your focus{scene.type==='bunch'?' · #2 = point':''}{scene.type==='stack'?' · #1 = front, #2 = rear':''} · Dimmed receivers = context</p>
+    <div className="mm-playback"><button disabled={reduced} className="ft-primary" onClick={()=>{if(progress>=1)setProgress(0);setPlaying(!running);}}>{running?'Pause':progress>=1?'Replay':'Play'}</button><button onClick={()=>scrub(0)}>Restart</button></div>
     {reduced&&<p className="ft-sub">Reduced motion is on. Use the timeline or stage buttons.</p>}
-    <label className="mm-timeline">Scrub the play<input aria-label="Play progress" type="range" min="0" max="1000" value={Math.round(progress*1000)} onChange={e=>scrub(Number(e.target.value)/1000)}/></label>
+    <label className="mm-timeline">Scrub the play <span className="mm-progress">{Math.round(progress*100)}%</span><input aria-label="Play progress" aria-valuetext={`${Math.round(progress*100)}% · ${['Alignment','First steps','Response'][phase]}`} style={{'--mm-progress':`${progress*100}%`}} type="range" min="0" max="1000" value={Math.round(progress*1000)} onChange={e=>scrub(Number(e.target.value)/1000)}/></label>
     <div className="mm-stages">{[['Alignment',0],['First steps',.35],['Response',1]].map(([label,n])=><button key={label} onClick={()=>scrub(n)} aria-pressed={phase===(n===0?0:n===1?2:1)}>{label}</button>)}</div>
     <label className="ft-check"><input type="checkbox" checked={flipped} onChange={e=>setFlipped(e.target.checked)}/>Flip field</label>
-    {selected.uncertain&&<p className="mm-scope">The public description does not specify this entire branch. The defender holds a read landmark; the animation does not invent a receiver assignment.</p>}
-    <details className="ft-details"><summary>All responsibilities</summary><div className="ft-details-body">{scene.roles.map(r=><div className="mm-assignment" key={r.id}><button aria-pressed={follow===r.id} onClick={()=>setFollow(r.id)}>{r.mark} · {r.label}</button><p>{r.after}</p></div>)}</div></details>
+    {selected.uncertain&&<p className="mm-scope">Read landmark: this role is not assigned a specific receiver in this example. The public descriptions do not resolve every route exchange.</p>}
+    <details className="ft-details"><summary>All responsibilities</summary><div className="ft-details-body">{scene.roles.map(r=><div className="mm-assignment" key={r.id}><button aria-pressed={follow===r.id} onClick={()=>setFollow(r.id)}>{r.mark} · {r.label}</button><p>{r.after}{r.uncertain?' Read landmark; no fixed receiver assignment.':''}</p></div>)}</div></details>
   </>;
 }
 export default function AdjustmentResponsibilities({initialFormation='Nickel Over',onBack}){
@@ -51,14 +52,15 @@ export default function AdjustmentResponsibilities({initialFormation='Nickel Ove
   useEffect(()=>{heading.current?.focus();},[]);
   const availableLooks=OFFENSIVE_LOOKS.filter(l=>getCheckOptions(scheme,l.id).length);
   function changeScheme(value){setScheme(value);if(!getCheckOptions(value,look).length)setLook(OFFENSIVE_LOOKS.find(l=>getCheckOptions(value,l.id).length).id);}
-  const defaultId=options[0];
+  const defaultId=getCheckDefault(scheme,look);
   return <div className="ft-page mm-page screen-enter"><header className="ft-header app-page-header"><div className="ft-brand">Scheme Builders</div><div className="ft-heading"><h1 ref={heading} tabIndex={-1}>Match Responsibilities <span className="mm-beta">Beta</span></h1>{onBack&&<button onClick={onBack}>← Back</button>}</div></header><main className="ft-body">
+    <p className="mm-context">Coverage-role examples · Illustrative alignment, not {initialFormation} player assignments.</p>
     <div className="ft-pickers"><label>Called coverage<select aria-label="Called coverage" value={scheme} onChange={e=>changeScheme(e.target.value)}>{CHECK_SCHEMES.map(([id,label])=><option value={id} key={id}>{label}</option>)}</select></label><label>Offensive formation<select aria-label="Offensive formation" value={look} onChange={e=>setLook(e.target.value)}>{availableLooks.map(l=><option value={l.id} key={l.id}>{l.label}</option>)}</select></label></div>
-    <div className="ft-pickers"><label>Match adjustment<select aria-label="Match adjustment" value={check} onChange={e=>setChosen(e.target.value)}>{options.map(id=><option value={id} key={id}>{CHECK_RULES[id].label}{id===defaultId?' · Default':''}</option>)}</select></label><label>Receiver releases<select aria-label="Receiver releases" value={pattern} onChange={e=>setRelease(e.target.value)}>{RELEASE_PATTERNS.filter(([id])=>patterns.includes(id)).map(([id,label])=><option value={id} key={id}>{label}</option>)}</select></label></div>
+    <div className="ft-pickers"><label>Match adjustment<select aria-label="Match adjustment" value={check} onChange={e=>setChosen(e.target.value)}>{options.map(id=><option value={id} key={id}>{CHECK_RULES[id].label}{id===defaultId?' · Default':''}</option>)}</select></label><label>Receiver releases<select aria-label="Receiver releases" value={pattern} onChange={e=>setRelease(e.target.value)}>{RELEASE_PATTERNS.filter(([id])=>patterns.includes(id)).map(([id,label])=><option value={id} key={id}>{scene?.type==='single'?(id==='verticals'?'Isolated X vertical':'Isolated X short inside'):label}</option>)}</select></label></div>
     {look==='spread'&&<p className="ft-sub">Base coverage teaching; this is not a separate 2×2 adjustment menu.</p>}
     {scene&&<MotionPlayer key={[scheme,look,check,pattern].join(':')} scene={scene}/>}
-    <details className="ft-details"><summary>{CHECK_RULES[check].label} · why &amp; tradeoff</summary><div className="ft-details-body"><p className="ft-sub">{CHECK_RULES[check].summary}</p><p className="ft-sub">{CHECK_RULES[check].tradeoff}</p></div></details>
+    <details className="ft-details"><summary>{scene.rule.label} · Why &amp; Tradeoff</summary><div className="ft-details-body"><p className="ft-sub">{scene.rule.summary}</p><p className="ft-sub">{scene.rule.tradeoff}</p></div></details>
     <p className="mm-scope">Schematic teaching animation, not a game simulation. Letters identify coverage roles, not fixed player positions. Only the relevant coverage group is shown.</p>
-    <details className="ft-details"><summary>Menu coverage &amp; sources</summary><div className="ft-details-body"><p className="ft-sub">{new Set(Object.values(CHECK_MENUS).flatMap(looks=>Object.values(looks).flat())).size} concepts including base/default behaviors. Man checks, Cover 3 Match, Quarters, Palms and Cover 6. Defaults resolve to their named behavior; only documented pairings are selectable. Top Hat uses EA’s name; the CFB guide repeats “Combo” in that position. Stump remains excluded because the CFB-specific menu is unconfirmed.</p><p className="ft-sub">Opened from {initialFormation}. This focused diagram does not claim to reproduce that formation’s exact player assignments. Timing, spacing and bracket choice are illustrative.</p><p><a href={COVERAGE_CHECK_SOURCES.official} target="_blank" rel="noreferrer">EA gameplay explanation</a></p><p><a href={COVERAGE_CHECK_SOURCES.menus} target="_blank" rel="noreferrer">CFB-specific adjustment menus</a></p></div></details>
+    <details className="ft-details"><summary>Menu coverage &amp; sources</summary><div className="ft-details-body"><p className="ft-sub">{new Set(Object.values(CHECK_MENUS).flatMap(looks=>Object.values(looks).flat())).size} concepts including base/default behaviors. Man checks, Cover 3 Match, Quarters, Palms and Cover 6. Only source-identified defaults are labeled; man-bunch default behavior is not assumed. Only documented pairings are selectable. Top Hat uses EA’s name; the CFB guide repeats “Combo” in that position. Stump remains excluded because the CFB-specific menu is unconfirmed.</p><p className="ft-sub">Opened from {initialFormation}. This focused diagram does not claim to reproduce that formation’s exact player assignments. Timing, spacing and bracket choice are illustrative.</p><p><a href={COVERAGE_CHECK_SOURCES.official} target="_blank" rel="noreferrer">EA gameplay explanation</a></p><p><a href={COVERAGE_CHECK_SOURCES.menus} target="_blank" rel="noreferrer">CFB-specific adjustment menus</a></p></div></details>
   </main></div>;
 }

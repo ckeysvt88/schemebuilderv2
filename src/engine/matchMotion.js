@@ -1,10 +1,11 @@
-import { CHECK_RULES, OFFENSIVE_LOOKS, getCheckOptions, receiverRoutes, checkResponsibilities } from '../data/coverageChecks.js';
+import { OFFENSIVE_LOOKS, getCheckOptions, getCheckRule, receiverRoutes, checkResponsibilities } from '../data/coverageChecks.js';
 
 const clamp = n => Math.max(0, Math.min(1, Number.isFinite(n) ? n : 0));
 const mix = (a,b,t) => a.map((n,i)=>n+(b[i]-n)*t);
 export const MOTION_ROLE_MARKS={corner:'C',flat:'N',hook:'H',safety:'S',backCorner:'c',backSafety:'s'};
 export function getReleaseOptions(lookId){
   const type=OFFENSIVE_LOOKS.find(l=>l.id===lookId)?.type;
+  if(type==='single')return ['verticals','shortOne'];
   return ['verticals','out','cross','shortOne',...(['bunch','trips'].includes(type)?['threeOut']:[]),...(['bunch','stack','trips'].includes(type)?['isolatedShort']:[])];
 }
 // The route knee is the early release, not a teleport to the final receiver location.
@@ -17,36 +18,40 @@ export function buildMatchMotion(scheme,check,lookId,pattern){
   if(!getCheckOptions(scheme,lookId).includes(check)||!getReleaseOptions(lookId).includes(pattern))return null;
   const type=OFFENSIVE_LOOKS.find(l=>l.id===lookId)?.type;
   const routes=receiverRoutes(lookId,pattern),outcomes=checkResponsibilities(scheme,check,lookId,pattern);
+  const tripsVertical=routes.filter(r=>['1','2','3'].includes(r.id)).every(r=>r.endY<=120);
   let ids=type==='single'?['backCorner','backSafety']:['corner','flat',...(!['stack','base'].includes(type)?['hook']:[]),'safety'];
-  if(scheme==='cover3')ids.push('backCorner');
+  if(scheme==='cover3'&&type!=='base')ids.push('backCorner');
   if(['lock','combo','topHat','pointCombo'].includes(check)&&scheme!=='cover3')ids=ids.filter(id=>id!=='safety');
-  const starts={corner:[88,174],flat:[77,204],hook:[48,185],safety:['cover1','cover3'].includes(scheme)?[50,58]:[65,72],backCorner:[12,175],backSafety:[29,72]};
-  if(type==='stack'){starts.flat=[64,192];starts.corner=[90,158];}
+  const receiverX=id=>routes.find(r=>r.id===id)?.x;
+  const starts={corner:[Math.min(94,receiverX('1')+4),174],flat:[receiverX('2')-7,204],hook:[(receiverX('3')??54)-6,185],safety:['cover1','cover3'].includes(scheme)?[50,58]:[65,72],backCorner:[12,175],backSafety:[29,72]};
+  if(type==='stack'){starts.flat=[receiverX('2')-20,192];starts.corner=[receiverX('1')+6,158];}
   if(type==='single'&&/Tight/.test(lookId))starts.backCorner=[28,175];
-  // Top Hat changes the starting matchup, rather than waiting for routes to cross.
-  if(check==='topHat'){starts.corner=[88,174];starts.flat=[69,204];}
+  const rule=getCheckRule(scheme,check);
   const roles=ids.map(id=>{
     const outcome=outcomes[id],target=routes.find(r=>r.id===outcome.target);
     let mode=target?'carry':'read';
-    if(check==='zoneIt'||['box','bingo'].includes(check)&&!target||check==='stress'&&pattern==='verticals')mode='zone';
+    if(check==='zoneIt'||['box','bingo'].includes(check)&&!target||check==='stress'&&tripsVertical&&['corner','safety'].includes(id))mode='zone';
     if(['triangle','pointTriangle'].includes(check)&&id==='safety')mode='bracket';
     if(check==='solo'&&id==='backSafety'||check==='soloCut'&&pattern==='shortOne'&&id==='backCorner')mode='poach';
     if(check==='skate'&&['flat','hook'].includes(id))mode='zone';
     const initial=check==='topHat'?(id==='corner'?'2':'1'):id==='corner'?'1':id==='flat'?'2':id==='hook'?'3':id==='backCorner'?'X':null;
-    let read=CHECK_RULES[check].read;
+    let read=rule.read;
     if(['pointCombo','pointTriangle'].includes(check))read=id==='flat'?'Keep the point receiver #2 locked.':id==='safety'?'Read the two off-point routes for bracket help.':'Watch #1 and #3. #1 goes '+(pattern==='cross'||pattern==='shortOne'?'inside':'up/outside')+'; #3 goes '+(pattern==='cross'||pattern==='threeOut'?'outside':'up/inside')+'.';
     if(check==='combo')read=scheme==='cover3'?'Front #1 belongs to C; rear #2 belongs to N. This is not the man Combo exchange.':'Read the inside and outside releases; do not chase the original alignment.';
-    if(check==='palms')read=pattern==='out'?'#2 breaks outside. C jumps #2; S takes #1 deep.':'#2 stays vertical in this example. Keep the deep matching structure.';
-    if(check==='stress')read=pattern==='verticals'?'All three go vertical: gain evenly spaced deep leverage.':'This is not all vertical: use the normal Quarters reads.';
+    if(check==='palms')read=routes.find(r=>r.id==='2')?.endY<=120?'#2 stays vertical in this example. Keep the deep matching structure.':'#2 breaks outside. C responds outside; S checks the remaining deep threat.';
+    if(check==='stress')read=tripsVertical?'All three trips receivers go vertical: deep defenders gain spaced leverage.':'The trips releases are not all vertical: use the normal Quarters reads.';
     if(check==='soloCut')read=pattern==='shortOne'?'X breaks short inside: s cuts X; c is freed toward trips.':'X does not break short inside. Do not trigger the cut.';
     if(check==='zoneIt')read='Receivers move through your area. Drop to the landmark rather than attaching to one.';
     if(check==='bingo')read=['cross','shortOne'].includes(pattern)?'#1 releases inside: C returns to deep-outside Box rules.':'#1 stays outside: C locks #1; the other defenders retain Box rules.';
-    const uncertain=/confirmation|depends|depend on/.test(outcome.text);
+    let before=rule.summary;
+    if(check==='topHat')before=`Switched matchup: ${MOTION_ROLE_MARKS[id]} starts on #${initial}.`;
+    if(check==='lock')before=`Stay with ${initial==='X'?'X':'#'+initial} through the release.`;
+    if(['pointCombo','pointTriangle'].includes(check))before={flat:'Lock #2, the point receiver.',corner:'Start outside the off-point pair (#1 and #3). Read their releases.',hook:'Start inside the off-point pair (#1 and #3). Read their releases.',safety:'Provide help above the off-point pair (#1 and #3).'}[id];
+    const uncertain=/confirmation|depends|depend on/.test(outcome.text)||mode==='read';
     return {id,mark:MOTION_ROLE_MARKS[id],label:['pointCombo','pointTriangle'].includes(check)&&id==='flat'?'Point defender':outcome.label,start:starts[id],zone:outcome.zone,target:target?.id,mode,uncertain,
-      before:check==='topHat'?`Switched matchup: ${MOTION_ROLE_MARKS[id]} starts on #${initial}.`:check==='lock'?`Stay with ${initial==='X'?'X':'#'+initial} through the release.`:['pointCombo','pointTriangle'].includes(check)&&id==='flat'?'Lock #2, the point receiver.':CHECK_RULES[check].summary,
-      read,after:outcome.text};
+      before,read,after:outcome.text};
   });
-  return {scheme,check,lookId,pattern,type,routes,roles,rule:CHECK_RULES[check]};
+  return {scheme,check,lookId,pattern,type,routes,roles,rule};
 }
 export function defenderPoint(scene,role,progress){
   const t=clamp(progress),target=scene.routes.find(r=>r.id===role.target),q=clamp((t-.12)/.4);

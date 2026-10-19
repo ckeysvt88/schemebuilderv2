@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { CHECK_RULES,CHECK_SCHEMES,OFFENSIVE_LOOKS,CHECK_MENUS,RELEASE_PATTERNS,getCheckOptions,receiverRoutes,checkResponsibilities } from '../src/data/coverageChecks.js';
+import { CHECK_RULES,CHECK_SCHEMES,OFFENSIVE_LOOKS,CHECK_MENUS,RELEASE_PATTERNS,getCheckOptions,getCheckDefault,getCheckRule,receiverRoutes,checkResponsibilities } from '../src/data/coverageChecks.js';
 
 test('check menus exclude unsupported pairings and separate reference-only concepts',()=>{
  assert.ok(!getCheckOptions('cover1','bunch').includes('pointTriangle'));
@@ -32,4 +32,16 @@ test('route-conditioned checks do not force their special branch on other releas
 test('Zone It never assigns a receiver, and Cover 6 retains the opposite half side',()=>{
  for(const[scheme]of CHECK_SCHEMES)for(const look of OFFENSIVE_LOOKS)if(getCheckOptions(scheme,look.id).includes('zoneIt'))for(const[pattern]of RELEASE_PATTERNS)assert.ok(Object.values(checkResponsibilities(scheme,'zoneIt',look.id,pattern)).every(r=>!r.target));
  for(const check of getCheckOptions('cover6','bunch'))assert.match(checkResponsibilities('cover6',check,'bunch','cross').backSafety.text,/Cover 2 side/);
+});
+
+
+test('defaults and Combo descriptions are specific to the documented menu context',()=>{
+ assert.equal(getCheckDefault('cover1','bunch'),null);
+ assert.equal(getCheckDefault('twoMan','bunchTight'),null);
+ assert.equal(getCheckDefault('cover1','stack'),'lock');
+ assert.equal(getCheckDefault('cover3','bunch'),'skate');
+ assert.equal(getCheckDefault('quarters','spread'),null);
+ assert.match(getCheckRule('cover3','combo').read,/front #1/);
+ assert.match(getCheckRule('cover1','combo').read,/inside\/outside/);
+ assert.notEqual(getCheckRule('cover3','combo').summary,getCheckRule('cover1','combo').summary);
 });
