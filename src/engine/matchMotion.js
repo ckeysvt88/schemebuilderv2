@@ -19,7 +19,8 @@ export function buildMatchMotion(scheme,check,lookId,pattern){
   const type=OFFENSIVE_LOOKS.find(l=>l.id===lookId)?.type;
   const routes=receiverRoutes(lookId,pattern),outcomes=checkResponsibilities(scheme,check,lookId,pattern);
   const tripsVertical=routes.filter(r=>['1','2','3'].includes(r.id)).every(r=>r.endY<=120);
-  let ids=type==='single'?['backCorner','backSafety']:['corner','flat',...(!['stack','base'].includes(type)?['hook']:[]),'safety'];
+  const zoneScheme=!['cover1','twoMan'].includes(scheme);
+  let ids=type==='single'?['backCorner','backSafety']:['corner','flat',...(!['stack','base'].includes(type)||zoneScheme?['hook']:[]),'safety'];
   if(scheme==='cover3'&&type!=='base')ids.push('backCorner');
   if(['lock','combo','topHat','pointCombo'].includes(check)&&scheme!=='cover3')ids=ids.filter(id=>id!=='safety');
   const receiverX=id=>routes.find(r=>r.id===id)?.x;
@@ -51,7 +52,24 @@ export function buildMatchMotion(scheme,check,lookId,pattern){
     return {id,mark:MOTION_ROLE_MARKS[id],label:['pointCombo','pointTriangle'].includes(check)&&id==='flat'?'Point defender':outcome.label,start:starts[id],zone:outcome.zone,target:target?.id,mode,uncertain,
       before,read,after:outcome.text};
   });
+  // Show an underneath read without fabricating a game-specific carry or exchange.
+  const hook=roles.find(r=>r.id==='hook');
+  if(hook&&!hook.target){
+    hook.readTargets=routes.filter(r=>!r.id.startsWith('X')&&r.endY>120&&r.endX<r.x&&!roles.some(role=>role.target===r.id)).map(r=>r.id);
+    if(hook.readTargets.length){
+      const receivers=hook.readTargets.map(id=>'#'+id).join(', ');
+      hook.read=`${receivers} breaks inside toward the underneath coverage. H reads this threat; the exact pickup is not confirmed.`;
+      hook.after=`Underneath support for ${receivers}. H holds its area; a specific carry or handoff needs game confirmation.`;
+    }
+  }
   return {scheme,check,lookId,pattern,type,routes,roles,rule};
+}
+// Continuous, scrub-safe reveal: no clock-dependent CSS transition or sudden bubble.
+export function responsibilityReveal(progress){const t=clamp((clamp(progress)-.12)/.28);return t*t*(3-2*t);}
+export function responsibilityLandmark(role,progress){
+  if(role.target)return null;
+  const kind=role.mode==='zone'?'Zone area':role.mode==='poach'?'Help landmark':role.zone[1]<120?'Deep help / read':'Underneath read';
+  return {kind,label:`${role.mark} · ${kind}`,opacity:responsibilityReveal(progress),area:role.mode==='zone'};
 }
 export function defenderPoint(scene,role,progress){
   const t=clamp(progress),target=scene.routes.find(r=>r.id===role.target),q=clamp((t-.12)/.4);

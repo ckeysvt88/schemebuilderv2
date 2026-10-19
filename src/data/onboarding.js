@@ -51,7 +51,7 @@ export const ONBOARDING_PAGES = [
     body: 'Open Play Art, then choose Family → Formation. Each new session starts with a blank Custom setup; saved macros can still be loaded.',
     points: [
       'Tap a defender to choose from that position’s assignments. Your choice immediately updates the diagram.',
-      'Compare Before and After. Show changes is off by default; enable it to highlight affected defenders and their original art; previews do not edit your macro. Reset clears assignments to Custom. Match Responsibilities · Beta opens animated coverage checks with fixed 2× playback and a high-contrast timeline. Your current macro stays in place when you return.',
+      'Compare Before and After. Show changes is off by default; enable it to highlight affected defenders and their original art; previews do not edit your macro. Reset clears assignments to Custom. Match Responsibilities · Beta opens animated coverage checks with fixed 2× playback and a high-contrast timeline. Solid links show assigned matches; dashed links show reads or bracket help. H identifies underneath support; labeled landmarks fade with playback. Your current macro stays in place when you return.',
       'Saved macros: Load opens the original formation. Apply here keeps your current formation and transfers matching position adjustments, including SLB/SLB1, DT/DT1 and SLCB/SLCB1 aliases; skipped settings are listed.',
       '71 formations have a Custom canvas. Example calls are currently available for four formations; the Beta does not include every play.',
     ],

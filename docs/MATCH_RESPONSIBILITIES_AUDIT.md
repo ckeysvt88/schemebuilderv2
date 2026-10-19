@@ -35,3 +35,7 @@ Results: 280 automated tests passed; focused lint and production build passed. B
 - Browser checks cover every supported menu/release, defender selection, fixed playback timing, keyboard scrubbing, reduced motion, light/dark themes, and 320/390/430/720px widths.
 - Play Art → Responsibilities → Back preserves the current macro. The surrounding finder and call-sheet edit/export flows are checked for regressions.
 - Automated checks establish internal consistency and UI behavior; they do not establish frame-for-frame accuracy against the game.
+
+## Field and responsibility visualization follow-up
+
+See [the complete visual validation matrix](MATCH_VISUAL_VALIDATION.md) for the field reference, underneath role, responsibility links and fading landmark update. The matrix covers every supported menu/release case and distinguishes rendering checks from in-game verification.

@@ -1,10 +1,10 @@
 import { useEffect, useRef, useState } from 'react';
 import { CHECK_SCHEMES, OFFENSIVE_LOOKS, CHECK_RULES, CHECK_MENUS, RELEASE_PATTERNS, COVERAGE_CHECK_SOURCES, getCheckOptions, getCheckDefault } from '../data/coverageChecks.js';
-import { buildMatchMotion, getReleaseOptions, routePoint, defenderPoint } from '../engine/matchMotion.js';
+import { buildMatchMotion, getReleaseOptions, routePoint, defenderPoint, responsibilityReveal, responsibilityLandmark } from '../engine/matchMotion.js';
 import './formationTools.css';
 import './matchMotion.css';
 
-function MotionPlayer({scene}){
+export function MotionPlayer({scene}){
   const [progress,setProgress]=useState(0),[playing,setPlaying]=useState(false),[follow,setFollow]=useState(scene.roles[0].id),[flipped,setFlipped]=useState(false);
   const field=useRef(null),[width,setWidth]=useState(360),[reduced,setReduced]=useState(()=>window.matchMedia('(prefers-reduced-motion: reduce)').matches);
   useEffect(()=>{const m=window.matchMedia('(prefers-reduced-motion: reduce)'),change=()=>setReduced(m.matches);m.addEventListener('change',change);return()=>m.removeEventListener('change',change);},[]);
@@ -15,6 +15,8 @@ function MotionPlayer({scene}){
   const px=x=>20+(width-40)*(flipped?100-x:x)/100,h=310;
   const leftLabel=scene.type==='single'?'Isolated side':scene.type==='base'?'Other side':'Backside',rightLabel=scene.type==='single'?'Trips side':'Focus side';
   const focusRoute=scene.routes.find(r=>r.id===selected.target);
+  const landmark=responsibilityLandmark(selected,progress),reveal=responsibilityReveal(progress);
+  const underneath=scene.roles.find(r=>r.readTargets?.length);
   const text=phase===0?selected.before:phase===1?selected.read:selected.after;
   function scrub(n){setPlaying(false);setProgress(n);}
   return <>
@@ -22,26 +24,37 @@ function MotionPlayer({scene}){
     <div ref={field} className="ft-field mm-field"><svg viewBox={`0 0 ${width} ${h}`} role="img" aria-label={`${scene.rule.label}; ${['alignment','first steps','response'][phase]}; following ${selected.label}`}>
       <text x="12" y="18" fill="var(--color-text-2)" fontSize="11">{flipped?rightLabel:leftLabel}</text><text x={width-12} y="18" textAnchor="end" fill="var(--color-text-2)" fontSize="11">{flipped?leftLabel:rightLabel}</text>
       {[60,110,160,210].map(y=><line key={y} x1="10" x2={width-10} y1={y} y2={y} stroke="var(--color-border-subtle)"/>)}
+      <line data-field-center="true" x1={px(50)} x2={px(50)} y1="28" y2="258" stroke="var(--color-text-2)" opacity=".4" strokeDasharray="3 5"/>
+      <text x={px(50)} y="275" textAnchor="middle" fontSize="11" fill="var(--color-text-2)">Field center</text>
+      <ellipse data-ball="true" cx={px(50)} cy="224" rx="3" ry="6" fill="var(--color-text-1)"/>
       <line x1="10" x2={width-10} y1="224" y2="224" stroke="var(--color-gold)"/><text x="12" y="240" fontSize="11" fill="var(--color-text-2)">LOS</text>
-      {progress>.12&&!selected.target&&<ellipse cx={px(selected.zone[0])} cy={selected.zone[1]} rx={Math.min(46,(width-40)*.14)} ry={selected.mode==='zone'?28:18} fill="var(--color-pass)" opacity=".12" stroke="var(--color-pass)" strokeDasharray="4 3"/>}
+      {landmark&&<g data-landmark={landmark.kind} opacity={landmark.opacity}>
+        <ellipse cx={px(selected.zone[0])} cy={selected.zone[1]} rx={Math.min(46,(width-40)*.14)} ry={landmark.area?28:18} fill="var(--color-pass)" fillOpacity=".1" stroke="var(--color-pass)" strokeOpacity=".65" strokeDasharray={landmark.area?undefined:'4 3'}/>
+        <text x={width/2} y="297" textAnchor="middle" fontSize="12" fill="var(--color-text-1)">{landmark.label}</text>
+      </g>}
+      {scene.roles.flatMap(r=>[...(r.target?[{id:r.target,read:false}]:[]),...(r.readTargets||[]).map(id=>({id,read:true}))].map(link=>{
+        const point=defenderPoint(scene,r,progress),receiver=routePoint(scene.routes.find(route=>route.id===link.id),progress);
+        return <line key={`${r.id}-${link.id}`} data-responsibility={link.read?'read':r.mode==='bracket'?'bracket':'match'} data-owner={r.id} data-receiver={link.id} x1={px(point[0])} y1={point[1]} x2={px(receiver[0])} y2={receiver[1]} stroke="var(--color-pass)" strokeWidth={r.id===follow?2:1.5} opacity={reveal*(r.id===follow?.85:.5)} strokeDasharray={link.read||r.mode==='bracket'?'3 4':undefined}/>;
+      }))}
       {scene.routes.map(r=>{const point=routePoint(r,progress),knee=routePoint(r,Math.min(progress,.4)),highlight=focusRoute?.id===r.id;return <g key={r.id} opacity={scene.type==='single'&&r.id!=='X'||r.id.startsWith('X')&&!scene.roles.some(role=>role.id==='backCorner')?.4:1}>
         {progress>0&&<polyline points={`${px(r.x)},${r.y} ${px(knee[0])},${knee[1]} ${px(point[0])},${point[1]}`} fill="none" stroke="var(--color-danger)" strokeWidth={highlight?2.5:1.5} opacity={highlight?.9:.4}/>}
         <circle cx={px(point[0])} cy={point[1]} r="11" fill="var(--color-surface-1)" stroke="var(--color-danger)" strokeWidth="2"/>
         <text x={px(point[0])} y={point[1]+4} textAnchor="middle" fontSize="12" fill="var(--color-text-1)">{r.id}</text>
       </g>;})}
-      {scene.roles.map(r=>{const point=defenderPoint(scene,r,progress),focused=r.id===follow;return <g key={r.id}>
+      {scene.roles.map(r=>{const point=defenderPoint(scene,r,progress),focused=r.id===follow;return <g key={r.id} data-defender={r.id}>
         {focused&&<circle cx={px(point[0])} cy={point[1]} r="21" fill="none" stroke="var(--color-gold)" strokeWidth="2"/>}
         <rect x={px(point[0])-11} y={point[1]-10} width="22" height="20" rx="3" fill="var(--color-surface-1)" stroke="var(--color-pass)" strokeWidth="2"/>
         <text x={px(point[0])} y={point[1]+4} textAnchor="middle" fontSize="12" fill="var(--color-text-1)">{r.mark}</text>
       </g>;})}
     </svg><div className="mm-cue" aria-live="polite"><strong>{['Before the snap','Watch the first steps','Responsibility'][phase]} · {selected.mark}</strong><span>{text}{phase===2&&selected.target?` → ${selected.mode==='bracket'?'Bracket':'Match'} ${selected.target==='X'?'X':'#'+selected.target}`:phase===2?` · ${selected.mode==='poach'?'Help toward trips':selected.mode==='zone'?'Defend space':'Maintain the read'}`:''}</span></div></div>
-    <p className="mm-legend">Circles = receivers · Squares = defenders · Gold ring = your focus{scene.type==='bunch'?' · #2 = point':''}{scene.type==='stack'?' · #1 = front, #2 = rear':''} · Dimmed receivers = context</p>
+    <p className="mm-legend">Circles = receivers · Squares = defenders · Gold ring = your focus{scene.type==='bunch'?' · #2 = point':''}{scene.type==='stack'?' · #1 = front, #2 = rear':''} · H = inside underneath (often LB) · Solid link = match · Dashed link = read / bracket help · Dimmed receivers = context</p>
+    {underneath&&<p className="mm-underneath">H reads {underneath.readTargets.map(id=>`#${id}`).join(', ')} underneath. Dashed links show threats, not a confirmed pickup.</p>}
     <div className="mm-playback"><button disabled={reduced} className="ft-primary" onClick={()=>{if(progress>=1)setProgress(0);setPlaying(!running);}}>{running?'Pause':progress>=1?'Replay':'Play'}</button><button onClick={()=>scrub(0)}>Restart</button></div>
     {reduced&&<p className="ft-sub">Reduced motion is on. Use the timeline or stage buttons.</p>}
     <label className="mm-timeline">Scrub the play <span className="mm-progress">{Math.round(progress*100)}%</span><input aria-label="Play progress" aria-valuetext={`${Math.round(progress*100)}% · ${['Alignment','First steps','Response'][phase]}`} style={{'--mm-progress':`${progress*100}%`}} type="range" min="0" max="1000" value={Math.round(progress*1000)} onChange={e=>scrub(Number(e.target.value)/1000)}/></label>
     <div className="mm-stages">{[['Alignment',0],['First steps',.35],['Response',1]].map(([label,n])=><button key={label} onClick={()=>scrub(n)} aria-pressed={phase===(n===0?0:n===1?2:1)}>{label}</button>)}</div>
     <label className="ft-check"><input type="checkbox" checked={flipped} onChange={e=>setFlipped(e.target.checked)}/>Flip field</label>
-    {selected.uncertain&&<p className="mm-scope">Read landmark: this role is not assigned a specific receiver in this example. The public descriptions do not resolve every route exchange.</p>}
+    {selected.uncertain&&<p className="mm-scope">Read landmarks show responsibility, not exact coverage boundaries. A receiver pickup is only shown as a match when this example assigns it; unresolved exchanges remain reads.</p>}
     <details className="ft-details"><summary>All responsibilities</summary><div className="ft-details-body">{scene.roles.map(r=><div className="mm-assignment" key={r.id}><button aria-pressed={follow===r.id} onClick={()=>setFollow(r.id)}>{r.mark} · {r.label}</button><p>{r.after}{r.uncertain?' Read landmark; no fixed receiver assignment.':''}</p></div>)}</div></details>
   </>;
 }

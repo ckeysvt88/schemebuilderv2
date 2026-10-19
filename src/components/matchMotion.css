@@ -13,3 +13,5 @@
 
 
 .mm-page .ft-primary,.mm-page .mm-beta{color:var(--color-gold)}
+
+.mm-underneath{margin:8px 0;padding:8px 10px;border-left:3px solid var(--color-pass);color:var(--color-text-1);background:var(--color-surface-1);font-size:13px;line-height:1.5;}

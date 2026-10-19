@@ -65,3 +65,30 @@ test('Skate widening stays a space responsibility when #2 breaks outside',()=>{
  const s=buildMatchMotion('cover3','skate','bunch','out');
  for(const id of ['flat','hook']){assert.equal(role(s,id).mode,'zone');assert.equal(role(s,id).target,undefined);assert.deepEqual(defenderPoint(s,role(s,id),1),role(s,id).zone);}
 });
+
+test('stacks contain only the receiver pair and isolated X; underneath roles do not invent a third matchup',()=>{
+ for(const look of ['stack','stackTight'])for(const [scheme]of CHECK_SCHEMES)for(const check of getCheckOptions(scheme,look))for(const release of getReleaseOptions(look)){
+  const s=buildMatchMotion(scheme,check,look,release);
+  assert.deepEqual(s.routes.map(r=>r.id),['1','2','X']);
+  assert(s.roles.every(r=>r.target!=='3'));
+  if(!['cover1','twoMan'].includes(scheme))assert(role(s,'hook'));
+ }
+});
+test('underneath reads are visible but never presented as confirmed pickups',()=>{
+ const s=buildMatchMotion('quarters','quarters','stack','cross'),h=role(s,'hook');
+ assert.deepEqual(h.readTargets,['1']);assert.equal(h.target,undefined);assert.equal(h.mode,'read');assert.match(h.after,/confirmation/);
+ const confirmed=buildMatchMotion('cover1','pointCombo','bunch','cross');assert.equal(role(confirmed,'hook').target,'1');assert.equal(role(confirmed,'hook').readTargets,undefined);
+ for(const [scheme]of CHECK_SCHEMES)for(const look of OFFENSIVE_LOOKS)for(const check of getCheckOptions(scheme,look.id))for(const release of getReleaseOptions(look.id)){
+  const s=buildMatchMotion(scheme,check,look.id,release);
+  for(const r of s.roles)for(const id of r.readTargets||[]){assert.equal(r.target,undefined);assert(!s.roles.some(other=>other.target===id));assert(s.routes.some(route=>route.id===id));}
+ }
+});
+test('landmarks have explicit owners and continuous, reversible fades for every case',async()=>{
+ const {responsibilityReveal,responsibilityLandmark}=await import('../src/engine/matchMotion.js');
+ assert.equal(responsibilityReveal(0),0);assert.equal(responsibilityReveal(.12),0);assert.equal(responsibilityReveal(.4),1);assert.equal(responsibilityReveal(1),1);
+ assert(Math.abs(responsibilityReveal(.120001)-responsibilityReveal(.119999))<.0001);
+ for(const [scheme]of CHECK_SCHEMES)for(const look of OFFENSIVE_LOOKS)for(const check of getCheckOptions(scheme,look.id))for(const release of getReleaseOptions(look.id)){
+  const s=buildMatchMotion(scheme,check,look.id,release);
+  for(const r of s.roles){const mark=responsibilityLandmark(r,.26);if(r.target)assert.equal(mark,null);else{assert(mark.label.startsWith(r.mark+' · '));assert(Math.abs(mark.opacity-.5)<.00001);assert.equal(mark.area,r.mode==='zone');}}
+ }
+});
