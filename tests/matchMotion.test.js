@@ -12,12 +12,13 @@ test('every documented check and release animates with finite, continuous positi
  }
  assert.deepEqual([...seen].sort(),[...new Set(Object.values(CHECK_MENUS).flatMap(x=>Object.values(x).flat()))].sort());assert(combinations>400);
 });
-test('man Combo exchanges on crossing/out releases but Cover 3 Combo keeps front/rear structure',()=>{
- for(const pattern of ['cross','out']){const man=buildMatchMotion('cover1','combo','stack',pattern),three=buildMatchMotion('cover3','combo','stack',pattern);assert.equal(role(man,'corner').target,'2');assert.equal(role(man,'flat').target,'1');assert.equal(role(three,'corner').target,'1');assert.equal(role(three,'flat').target,'2');}
- const top=buildMatchMotion('cover1','topHat','stack','verticals');assert.equal(role(top,'corner').target,'2');assert.match(role(top,'corner').before,/Switched matchup/);
+test('man Combo exchanges but Cover 3 uses Seam, with no unsupported Top Hat or Combo path',()=>{
+ for(const pattern of ['cross','out']){const man=buildMatchMotion('cover1','combo','stack',pattern),three=buildMatchMotion('cover3','seam','stack',pattern);assert.equal(role(man,'corner').target,'2');assert.equal(role(man,'flat').target,'1');assert.equal(role(three,'flat').target,'2');}
+ assert.equal(buildMatchMotion('cover1','topHat','stack','verticals'),null);
+ assert.equal(buildMatchMotion('cover3','combo','stack','verticals'),null);
 });
-test('point stays locked while off-point roles exchange; safety brackets without occupying same spot',()=>{
- const s=buildMatchMotion('twoMan','pointTriangle','bunch','cross');assert.equal(role(s,'flat').target,'2');assert.match(role(s,'flat').before,/Lock #2/);assert.match(role(s,'corner').before,/Start outside/);assert.match(role(s,'hook').before,/Start inside/);assert.equal(role(s,'corner').target,'3');assert.equal(role(s,'hook').target,'1');assert.equal(role(s,'safety').mode,'bracket');const helper=role(s,'safety'),carrier=s.roles.find(r=>r.id!=='safety'&&r.target===helper.target);assert.notDeepEqual(defenderPoint(s,helper,1),defenderPoint(s,carrier,1));
+test('point stays locked while off-point roles exchange and safety retains deep help',()=>{
+ const s=buildMatchMotion('twoMan','pointCombo','bunch','cross');assert.equal(role(s,'flat').target,'2');assert.match(role(s,'flat').before,/Lock #2/);assert.match(role(s,'corner').before,/Start outside/);assert.match(role(s,'hook').before,/Start inside/);assert.equal(role(s,'corner').target,'3');assert.equal(role(s,'hook').target,'1');assert.equal(role(s,'safety').target,undefined);
 });
 test('Palms flat exchange, Stress condition, Solo Cut trigger and Meg lock differ from defaults',()=>{
  const palms=buildMatchMotion('palms','palms','stack','out');assert.equal(role(palms,'corner').target,'2');assert.equal(role(palms,'safety').target,'1');
@@ -42,11 +43,12 @@ test('compressed alignments move the matching defenders and keep isolated vertic
  const solo=buildMatchMotion('quarters','solo','singleTight','verticals'),x=solo.routes.find(r=>r.id==='X');assert.equal(x.x,x.endX);
  assert.deepEqual(getReleaseOptions('single'),['verticals','shortOne']);assert.deepEqual(getReleaseOptions('singleTight'),['verticals','shortOne']);
 });
-test('Cover 3 reads the actual seam release across presets and does not invent the #3 exchange',()=>{
+test('Cover 3 reads seam releases and distributes the receivers after their breaks',()=>{
  for(const look of OFFENSIVE_LOOKS)for(const check of getCheckOptions('cover3',look.id).filter(c=>['seam','skinny','skinnyMeg'].includes(c)))for(const pattern of getReleaseOptions(look.id)){
   const s=buildMatchMotion('cover3',check,look.id,pattern),two=s.routes.find(r=>r.id==='2');
-  if(two.endY<=120||two.endX>two.x)assert.equal(role(s,'flat').target,'2',`${check}/${look.id}/${pattern}`);
-  if(pattern==='threeOut'){assert.equal(role(s,'hook').target,undefined);assert(role(s,'hook').uncertain);}
+  if(!s.routes.some(r=>r.id==='3')&&(two.endY<=120||two.endX>two.x))assert.equal(role(s,'flat').target,'2',`${check}/${look.id}/${pattern}`);
+  if(pattern==='threeOut'){assert.equal(role(s,'hook').target,'2');assert.equal(role(s,'flat').target,'3');}
+  if(pattern==='threeIn'){assert.equal(role(s,'hook').target,'3');assert.equal(role(s,'hook').uncertain,false);}
  }
  assert(!buildMatchMotion('cover3','seam','spread','verticals').roles.some(r=>r.id==='backCorner'));
 });
@@ -56,7 +58,7 @@ test('Palms crossing-release explanation matches its actual outside and remainin
 });
 test('Stress uses the trips routes, and only converts the deep defenders to zone spacing',()=>{
  for(const release of ['verticals','isolatedShort']){
-  const s=buildMatchMotion('quarters','stress','trips',release);assert.equal(role(s,'corner').mode,'zone');assert.equal(role(s,'safety').mode,'zone');assert.equal(role(s,'flat').mode,'read');assert.equal(role(s,'hook').mode,'read');
+  const s=buildMatchMotion('quarters','stress','trips',release);assert.equal(role(s,'corner').mode,'zone');assert.equal(role(s,'safety').mode,'zone');assert.equal(role(s,'flat').mode,'read');assert.equal(role(s,'hook').target,'3');
  }
  assert.notEqual(role(buildMatchMotion('quarters','stress','trips','threeOut'),'corner').mode,'zone');
 });

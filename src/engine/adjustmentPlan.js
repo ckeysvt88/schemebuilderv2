@@ -70,13 +70,13 @@ function matchCheckFor(family, coverageName, traits) {
   }
   if (family === 'cover3') {
     if (bunch) return { value: 'Cover 3 Bunch — Skate', why: 'Widen the underneath defenders toward the bunch and the likely Flood release.' };
-    if (stack) return { value: 'Cover 3 Stack — Combo', why: getCheckRule('cover3','combo').read };
+    if (stack) return { value: 'Cover 3 Stack — Seam', why: getCheckRule('cover3','seam').read };
     if (trips) return { value: 'Cover 3 Trips — Skinny', why: 'Use the built-in trips distribution so #2 and #3 are not passed off blindly.' };
   }
   if (family === 'quarters' || family === 'split') {
     const prefix = family === 'split' ? 'Cover 6' : palms ? 'Palms' : 'Quarters';
     if (bunch) return { value: `${prefix} Bunch — Box`, why: 'Box the bunch with four defenders owning the four release directions.' };
-    if (stack) return { value: `${prefix} Stack — Triangle`, why: 'Bracket two stacked receivers with three defenders and exchange releases.' };
+    if (stack) return { value: `${prefix} Stack — ${palms ? 'Palms' : 'Quarters'}`, why: getCheckRule(palms ? 'palms' : 'quarters', palms ? 'palms' : 'quarters').read };
     if (trips && palms) return { value: 'Palms Trips — Stubbie', why: 'Lock #1 while three defenders distribute #2 and #3.' };
     if (trips && family === 'split') return { value: 'Cover 6 Trips — Stubbie', why: 'Point the match side at trips and distribute #2 and #3 with inside help.' };
     if (trips && traits.includes('deep_shots')) return { value: 'Quarters Trips — Stress', why: 'Consider only after seeing all three trips receivers go vertical. A deep-shot tendency alone does not prove that release pattern.' };
@@ -200,7 +200,7 @@ export function buildAdjustmentPlan(fm, traits = [], situation = {}) {
       tradeoff: 'Safeties arrive later on underneath throws and the run.',
     });
     else add(settings, 'cb-depth', {
-      setting: 'Cornerback Depth', value: nearConversion ? '5 yards' : '10 yards',
+      setting: 'Cornerback Depth', value: nearConversion ? '5 yards' : '9 yards',
       why: nearConversion ? 'Against the scouted quick throw, do not give ten yards of cushion when the offense needs only seven to nine.' : 'Put the corners in position to see the route develop and protect the line to gain.',
       tradeoff: nearConversion ? 'Keep the call’s deep help; a tighter starting alignment exposes double moves.' : 'Quick hitches and outs will be available underneath.',
     });
@@ -245,8 +245,8 @@ export function buildAdjustmentPlan(fm, traits = [], situation = {}) {
     });
     if (insideBreaks && !outsideBreaks) add(settings, 'cb-width', {
       setting: 'Cornerback Width', value: 'Tight',
-      why: 'Take away the slant, glance, and short inside window near the goal line.',
-      tradeoff: 'Quick outs and fades get more outside space.',
+      why: 'Tighten the corner alignment against inside throws. Against compressed receivers, Tight can still align outside the receiver.',
+      tradeoff: 'Check the actual leverage before the snap; Tight does not guarantee inside leverage. Quick outs and fades can gain space.',
     });
     if (outsideBreaks && !insideBreaks) add(settings, 'cb-width', {
       setting: 'Cornerback Width', value: 'Wide',
@@ -299,7 +299,7 @@ export function buildAdjustmentPlan(fm, traits = [], situation = {}) {
   if (shell) add(tools, 'shell', shell);
 
   if (situationKey === '3lg' && deep) add(tools, 'cb-depth', {
-    setting: 'Cornerback Depth', value: '10 yards',
+    setting: 'Cornerback Depth', value: '9 yards',
     why: 'Add cushion if intermediate sideline routes are reaching the sticks before the corner can react.',
     tradeoff: 'Quick hitches and outs will be available underneath.',
   });

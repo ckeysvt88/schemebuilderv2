@@ -21,7 +21,7 @@ const C = {
   back: control('Secondary Alignment', 'Back Off', 'Give the receiver cushion instead of risking a lost press.', 'Hitches and quick outs can be easy catches.', 'deep'),
   press: control('Secondary Alignment', 'Press', 'Disrupt the release before the route develops.', 'A lost press can become a deep shot.', 'man', 'Use with man coverage, deep help and corners who can win the matchup.'),
   tight: control('CB Depth', '5 yards', 'Start closer to short throws without automatically pressing.', 'Less cushion means less recovery time.', 'short'),
-  cushion: control('CB Depth', '10 yards', 'Give outside corners room against vertical speed.', 'The offense can take a short completion.', 'deep'),
+  cushion: control('CB Depth', '9 yards', 'Give outside corners room against vertical speed.', 'The offense can take a short completion.', 'deep'),
   safetyDeep: control('Safety Depth', '16 yards', 'Start the safeties deeper against a shot downfield.', 'Slower run support and more space underneath.', 'deep'),
   safetyInside: control('Safety Width', 'Pinch', 'Move safety help closer to inside vertical routes.', 'Outside verticals have more room.', 'deep'),
   safetyWide: control('Safety Width', 'Spread', 'Start safety help closer to outside vertical routes.', 'The middle gets less immediate help.', 'deep'),

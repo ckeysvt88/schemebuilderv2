@@ -52,7 +52,7 @@ test('second and short/long explicitly reset short-zone reactions and retain ass
   assert.equal(setting(first, 'Zone Strategy').value, 'Aggressive');
 });
 
-test('seven-to-nine yard conversions contest scouted quick throws rather than give automatic ten-yard cushion', () => {
+test('seven-to-nine yard conversions contest scouted quick throws rather than give automatic deep cushion', () => {
   for (const down of [3, 4]) for (const distance of [7, 8, 9]) {
     const plan = buildAdjustmentPlan(formation, ['quick_game'], { down, distance });
     assert.equal(setting(plan, 'Cornerback Depth').value, '5 yards');
@@ -61,7 +61,7 @@ test('seven-to-nine yard conversions contest scouted quick throws rather than gi
     assert.equal(getSituationalPurpose(down, distance).target, `Line to gain: ${distance} yards`);
   }
   const longer = buildAdjustmentPlan(formation, ['quick_game'], { down: 3, distance: 10 });
-  assert.equal(setting(longer, 'Cornerback Depth').value, '10 yards');
+  assert.equal(setting(longer, 'Cornerback Depth').value, '9 yards');
   assert.equal(setting(longer, 'Zone Strategy').value, 'Conservative');
 });
 

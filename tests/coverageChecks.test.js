@@ -4,10 +4,12 @@ import { CHECK_RULES,CHECK_SCHEMES,OFFENSIVE_LOOKS,CHECK_MENUS,RELEASE_PATTERNS,
 
 test('check menus exclude unsupported pairings and separate reference-only concepts',()=>{
  assert.ok(!getCheckOptions('cover1','bunch').includes('pointTriangle'));
- assert.ok(getCheckOptions('twoMan','bunch').includes('pointTriangle'));
+ assert.ok(!getCheckOptions('twoMan','bunch').includes('pointTriangle'));
  assert.deepEqual(getCheckOptions('cover3','single'),[]);
  assert.ok(CHECK_RULES.stump);
- assert.ok(Object.values(CHECK_MENUS).every(looks=>Object.values(looks).every(ids=>!ids.includes('stump'))));
+ assert.deepEqual(getCheckOptions('palms','trips'),['stubbie','stump','zoneIt']);
+ assert.deepEqual(getCheckOptions('cover6','trips'),['stubbie','stump','zoneIt']);
+ assert.ok(Object.values(CHECK_MENUS).every(looks=>Object.values(looks).every(ids=>!ids.some(id=>['triangle','pointTriangle','topHat'].includes(id)))));
 });
 test('every supported branch resolves to real receiver IDs or finite zone landmarks',()=>{
  for(const[scheme]of CHECK_SCHEMES)for(const look of OFFENSIVE_LOOKS)for(const check of getCheckOptions(scheme,look.id))for(const[pattern]of RELEASE_PATTERNS){
@@ -36,12 +38,15 @@ test('Zone It never assigns a receiver, and Cover 6 retains the opposite half si
 
 
 test('defaults and Combo descriptions are specific to the documented menu context',()=>{
- assert.equal(getCheckDefault('cover1','bunch'),null);
- assert.equal(getCheckDefault('twoMan','bunchTight'),null);
+ assert.equal(getCheckDefault('cover1','bunch'),'lock');
+ assert.equal(getCheckDefault('twoMan','bunchTight'),'lock');
  assert.equal(getCheckDefault('cover1','stack'),'lock');
  assert.equal(getCheckDefault('cover3','bunch'),'skate');
  assert.equal(getCheckDefault('quarters','spread'),null);
- assert.match(getCheckRule('cover3','combo').read,/front #1/);
+ assert.equal(getCheckRule('cover3','combo'),null);
  assert.match(getCheckRule('cover1','combo').read,/inside\/outside/);
- assert.notEqual(getCheckRule('cover3','combo').summary,getCheckRule('cover1','combo').summary);
+ assert.deepEqual(getCheckOptions('cover3','stack'),['seam','zoneIt']);
+ assert.deepEqual(getCheckOptions('cover3','trips'),['skinny','skate','skinnyMeg','zoneIt']);
+ assert.deepEqual(getCheckOptions('quarters','stack'),['quarters','zoneIt']);
+ assert.deepEqual(getCheckOptions('cover6','stack'),['quarters','palms','zoneIt']);
 });

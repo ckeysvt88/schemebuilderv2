@@ -61,7 +61,7 @@ test('long yardage overrides quick-game scouting and never recommends underneath
   for (const down of [3, 4]) {
     const plan = buildAdjustmentPlan(fm('Cover 3 Sky'), ['quick_game', 'inside_run'], { down, distance: 'long' });
     assert.equal(plan.objective.label, down === 3 ? 'Protect the sticks' : 'Deny the conversion');
-    assert.match(JSON.stringify(plan.settings), /Zone Strategy.*Conservative|Cornerback Depth.*10 yards/);
+    assert.match(JSON.stringify(plan.settings), /Zone Strategy.*Conservative|Cornerback Depth.*9 yards/);
     assert.doesNotMatch(JSON.stringify(plan.settings), /Pass Commit/);
     assert.match(JSON.stringify(plan.tools), /Pass Commit/);
     assert.doesNotMatch(JSON.stringify(plan.settings), /Underneath|Gap Integrity/);
@@ -73,7 +73,7 @@ test('fourth and long plus a deep-shot tendency produces an explicit deep-pass p
   const plan = buildAdjustmentPlan(fm('Cover 3 Sky'), ['deep_shots'], { down: 4, distance: 'long' });
   assert.equal(plan.objective.label, 'Deny the conversion');
   assert.equal(plan.preset.value, 'No Deep Passes');
-  assert.match(JSON.stringify(plan.settings), /Conservative|10 yards|Pass Commit/);
+  assert.match(JSON.stringify(plan.settings), /Conservative|9 yards|Pass Commit/);
   assert.doesNotMatch(JSON.stringify(plan.settings), /Gap Integrity|Underneath/);
 });
 
@@ -83,7 +83,7 @@ test('short and long yardage produce materially different setup instructions', (
   const long = buildAdjustmentPlan(fm('Cover 3 Sky'), traits, { down: 3, distance: 'long' });
   assert.notDeepEqual(short.settings, long.settings);
   assert.match(JSON.stringify(short.settings), /5 yards|Gap Integrity/);
-  assert.match(JSON.stringify(long.settings), /16 yards|10 yards/);
+  assert.match(JSON.stringify(long.settings), /16 yards|9 yards/);
   assert.doesNotMatch(JSON.stringify(long.settings), /Pass Commit/);
 });
 

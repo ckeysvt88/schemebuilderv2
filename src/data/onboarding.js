@@ -51,9 +51,10 @@ export const ONBOARDING_PAGES = [
     body: 'Open Play Art, then choose Family → Formation. Each new session starts with a blank Custom setup; saved macros can still be loaded.',
     points: [
       'Tap a defender to choose from that position’s assignments. Your choice immediately updates the diagram.',
-      'Compare Before and After. Show changes is off by default; enable it to highlight affected defenders and their original art; previews do not edit your macro. Reset restores Custom: LOS DL/edge players rush; other defenders are unassigned. Zone drops & shading offers Default, Underneath and Overtop; numeric hook drops take priority. Expand Setup & responsibilities for separate starting-safety and assignment counts; man receiver selection remains in game. Match Responsibilities · Beta opens animated coverage checks with fixed 2× playback and a high-contrast timeline. Solid links show assigned matches; dashed links show reads or bracket help. H identifies underneath support. Zone It shows zone areas; declared matches follow receivers without a zone bubble. Unresolved reads remain labeled. Your current macro stays in place when you return.',
+      'Compare Before and After without editing your macro. Reset restores Custom: LOS DL/edge players rush; other defenders are unassigned. Zone drops & shading offers Default, Underneath and Overtop; numeric hook drops take priority. Expand Setup & responsibilities for starting-safety and assignment counts; man receiver selection remains in game.',
+      'Match Responsibilities · Beta opens animated checks at fixed 2× speed, with a scrubbable timeline. Menus follow the Gaming Tailgate CFB27 guide. Try RB flat / #2 drag: matching defenders exchange pickups based on the releases. Numbers track the original receivers; fixed locks still follow the selected check. Solid links show matches; dashed links show reads or help. Zone It shows areas; declared matches follow receivers without bubbles. Why & Tradeoff explains limits. Your macro stays in place when you return.',
       'Saved macros: Load opens the original formation. Apply here keeps your current formation and transfers matching position adjustments, including SLB/SLB1, DT/DT1 and SLCB/SLCB1 aliases; skipped settings are listed.',
-      '71 formations have a Custom canvas. Example calls are currently available for four formations; the Beta does not include every play.',
+      'Custom canvases show schematic formation alignments. The Beta does not reproduce every stock play or exact in-game reaction.',
     ],
   },
   {

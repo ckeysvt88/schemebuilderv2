@@ -10,6 +10,20 @@ function setup(players, overrides = {}) {
 const positions = (players, width) => Object.fromEntries(players.map(([id, x, y]) => [id, { x: 26 + (width - 52) * x / 100, y }]));
 const draw = (players, state, width = 320, scale = 15) => layoutCoverageZones(players, state, positions(players, width), width, scale, 354);
 
+test('numeric Hooks drops move all three hook assignments but never Middle Read', () => {
+  const players = [['hook',25,45,'lb'],['vertical',40,45,'lb'],['rec3',60,45,'lb'],['middle',75,45,'lb']];
+  const state = setup(players,Object.fromEntries(players.map(([id])=>[id,{job:id}])));
+  const middle = draw(players,state).find(z=>z.id==='middle');
+  for(const depth of ['0','5','10','15','20','25','30']){
+    state.zones.hooks=depth;
+    for(const z of draw(players,state)){
+      assert.equal(z.depth,z.id==='middle'?middle.depth:Number(depth));
+      assert.equal(z.explicit,z.id!=='middle');
+      if(z.id==='middle')assert.equal(z.y,middle.y);
+    }
+  }
+});
+
 test('same-lane hook curls separate by defender order without changing their side or depth', () => {
   const players = [['left', 30, 45, 'lb'], ['right', 45, 45, 'lb']];
   const state = setup(players, { left: { job: 'hook', area: 'left' }, right: { job: 'hook', area: 'left' } });

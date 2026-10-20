@@ -1,5 +1,7 @@
 # Match Responsibilities Beta audit
 
+Historical audit. Its menu conclusions (including Cover 3 Combo, man-bunch defaults and Stump exclusion) are superseded by the [Tailgate source correction audit](TAILGATE_MATCH_AUDIT.md). The verification counts below describe the previous release.
+
 Reviewed October 19, 2026. Scope: the teaching animations, their coverage-check menus, release conditions, alignment diagrams, and controls. This audit does not change the recommendation engine, call-sheet rankings, or saved macros.
 
 ## Corrections

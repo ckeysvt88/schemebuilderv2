@@ -16,7 +16,7 @@ export function MotionPlayer({scene}){
   const leftLabel=scene.type==='single'?'Isolated side':scene.type==='base'?'Other side':'Backside',rightLabel=scene.type==='single'?'Trips side':'Focus side';
   const focusRoute=scene.routes.find(r=>r.id===selected.target);
   const landmark=responsibilityLandmark(selected,progress),reveal=responsibilityReveal(progress);
-  const zoneRoles=scene.check==='zoneIt'?scene.roles:[];
+  const zoneRoles=scene.roles.filter(r=>r.mode==='zone');
   const underneath=scene.roles.find(r=>r.readTargets?.length);
   const text=phase===0?selected.before:phase===1?selected.read:selected.after;
   function scrub(n){setPlaying(false);setProgress(n);}
@@ -28,9 +28,8 @@ export function MotionPlayer({scene}){
       <line data-field-center="true" x1={px(50)} x2={px(50)} y1="28" y2="258" stroke="var(--color-text-2)" opacity=".4" strokeDasharray="3 5"/>
       <ellipse data-ball="true" cx={px(50)} cy="224" rx="3" ry="6" fill="var(--color-text-1)"/>
       <line x1="10" x2={width-10} y1="224" y2="224" stroke="var(--color-gold)"/><text x="12" y="240" fontSize="11" fill="var(--color-text-2)">LOS</text>
-      {zoneRoles.map(r=><ellipse key={r.id} data-zone-owner={r.id} cx={px(r.zone[0])} cy={r.zone[1]} rx={Math.min(46,(width-40)*.14)} ry="28" fill="var(--color-pass)" fillOpacity={.08+.07*reveal} stroke="var(--color-pass)" strokeOpacity={r.id===follow?.8:.4}/>) }
+      {zoneRoles.map(r=><ellipse key={r.id} data-zone-owner={r.id} cx={px(r.zone[0])} cy={r.zone[1]} rx={Math.min(46,(width-40)*.14)} ry="28" opacity={scene.check==='zoneIt'?1:reveal} fill="var(--color-pass)" fillOpacity={.08+.07*reveal} stroke="var(--color-pass)" strokeOpacity={r.id===follow?.8:.4}><title>{r.mark} · Zone area</title></ellipse>) }
       {landmark&&<g data-landmark={landmark.kind} opacity={landmark.opacity}>
-        {landmark.area&&scene.check!=='zoneIt'&&<ellipse cx={px(selected.zone[0])} cy={selected.zone[1]} rx={Math.min(46,(width-40)*.14)} ry={landmark.area?28:18} fill="var(--color-pass)" fillOpacity=".1" stroke="var(--color-pass)" strokeOpacity=".65" strokeDasharray={landmark.area?undefined:'4 3'}/>}
         <title>{landmark.label}</title>
       </g>}
       {scene.roles.flatMap(r=>[...(r.target?[{id:r.target,read:false}]:[]),...(r.readTargets||[]).map(id=>({id,read:true}))].map(link=>{
@@ -40,7 +39,7 @@ export function MotionPlayer({scene}){
       {scene.routes.map(r=>{const point=routePoint(r,progress),knee=routePoint(r,Math.min(progress,.4)),highlight=focusRoute?.id===r.id;return <g key={r.id} opacity={scene.type==='single'&&r.id!=='X'||r.id.startsWith('X')&&!scene.roles.some(role=>role.id==='backCorner')?.4:1}>
         {progress>0&&<polyline points={`${px(r.x)},${r.y} ${px(knee[0])},${knee[1]} ${px(point[0])},${point[1]}`} fill="none" stroke="var(--color-danger)" strokeWidth={highlight?2.5:1.5} opacity={highlight?.9:.4}/>}
         <circle cx={px(point[0])} cy={point[1]} r="11" fill="var(--color-surface-1)" stroke="var(--color-danger)" strokeWidth="2"/>
-        <text x={px(point[0])} y={point[1]+4} textAnchor="middle" fontSize="12" fill="var(--color-text-1)">{r.id}</text>
+        <text x={px(point[0])} y={point[1]+4} textAnchor="middle" fontSize={r.position==='RB'?10:12} fill="var(--color-text-1)">{r.position==='RB'?'RB':r.id}</text><title>{r.position==='RB'?'RB · original #3':`Original receiver ${r.id}`}</title>
       </g>;})}
       {scene.roles.map(r=>{const point=defenderPoint(scene,r,progress),focused=r.id===follow;return <g key={r.id} data-defender={r.id}>
         {focused&&<circle cx={px(point[0])} cy={point[1]} r="21" fill="none" stroke="var(--color-gold)" strokeWidth="2"/>}
@@ -54,7 +53,7 @@ export function MotionPlayer({scene}){
     <div className="mm-stages">{[['Alignment',0],['First steps',.35],['Response',1]].map(([label,n])=><button key={label} onClick={()=>scrub(n)} aria-pressed={phase===(n===0?0:n===1?2:1)}>{label}</button>)}</div>
     <label className="ft-check"><input type="checkbox" checked={flipped} onChange={e=>setFlipped(e.target.checked)}/>Flip field</label>
     {selected.uncertain&&<p className="mm-scope">Read landmarks show responsibility, not exact coverage boundaries. A receiver pickup is only shown as a match when this example assigns it; unresolved exchanges remain reads.</p>}
-    <details className="ft-details"><summary>Diagram key &amp; reads</summary>    <p className="mm-legend">Circles = receivers · Squares = defenders · Gold ring = your focus{scene.type==='bunch'?' · #2 = point':''}{scene.type==='stack'?' · #1 = front, #2 = rear':''} · H = inside underneath (often LB) · Solid link = match · Dashed link = read / bracket help · Dimmed receivers = context</p>
+    <details className="ft-details"><summary>Diagram key &amp; reads</summary>    <p className="mm-legend">Circles = receivers · Numbers track original receivers, not permanent match assignments · RB = original #3 in the flat/drag example · Squares = defenders · Gold ring = your focus{scene.type==='bunch'?' · #2 = original point':''}{scene.type==='stack'?' · #1 = front, #2 = rear':''} · H = inside underneath (often LB) · Solid link = match · Dashed link = read / bracket help · Dimmed receivers = context</p>
     {underneath&&<p className="mm-underneath">H reads {underneath.readTargets.map(id=>`#${id}`).join(', ')} underneath. Dashed links show threats, not a confirmed pickup.</p>}
 </details>
     <details className="ft-details"><summary>All responsibilities</summary><div className="ft-details-body">{scene.roles.map(r=><div className="mm-assignment" key={r.id}><button aria-pressed={follow===r.id} onClick={()=>setFollow(r.id)}>{r.mark} · {r.label}</button><p>{r.after}{r.uncertain?' Read landmark; no fixed receiver assignment.':''}</p></div>)}</div></details>
@@ -74,8 +73,8 @@ export default function AdjustmentResponsibilities({initialFormation='Nickel Ove
     <div className="ft-pickers"><label>Match adjustment<select aria-label="Match adjustment" value={check} onChange={e=>setChosen(e.target.value)}>{options.map(id=><option value={id} key={id}>{CHECK_RULES[id].label}{id===defaultId?' · Default':''}</option>)}</select></label><label>Receiver releases<select aria-label="Receiver releases" value={pattern} onChange={e=>setRelease(e.target.value)}>{RELEASE_PATTERNS.filter(([id])=>patterns.includes(id)).map(([id,label])=><option value={id} key={id}>{scene?.type==='single'?(id==='verticals'?'Isolated X vertical':'Isolated X short inside'):label}</option>)}</select></label></div>
     {look==='spread'&&<p className="ft-sub">Base coverage teaching; this is not a separate 2×2 adjustment menu.</p>}
     {scene&&<MotionPlayer key={[scheme,look,check,pattern].join(':')} scene={scene}/>}
-    <details className="ft-details"><summary>{scene.rule.label} · Why &amp; Tradeoff</summary><div className="ft-details-body"><p className="ft-sub">{scene.rule.summary}</p><p className="ft-sub">{scene.rule.tradeoff}</p></div></details>
+    <details className="ft-details"><summary>{scene.rule.label} · Why &amp; Tradeoff</summary><div className="ft-details-body"><p className="ft-sub">{scene.rule.summary}</p><p className="ft-sub">{scene.rule.tradeoff}</p>{scene.notes.map(note=><p className="ft-sub" key={note}>{note}</p>)}</div></details>
     <p className="mm-scope">Schematic teaching animation, not a game simulation. Letters identify coverage roles, not fixed player positions. Only the relevant coverage group is shown.</p>
-    <details className="ft-details"><summary>Menu coverage &amp; sources</summary><div className="ft-details-body"><p className="ft-sub">{new Set(Object.values(CHECK_MENUS).flatMap(looks=>Object.values(looks).flat())).size} concepts including base/default behaviors. Man checks, Cover 3 Match, Quarters, Palms and Cover 6. Only source-identified defaults are labeled; man-bunch default behavior is not assumed. Only documented pairings are selectable. Top Hat uses EA’s name; the CFB guide repeats “Combo” in that position. Stump remains excluded because the CFB-specific menu is unconfirmed.</p><p className="ft-sub">Opened from {initialFormation}. This focused diagram does not claim to reproduce that formation’s exact player assignments. Timing, spacing and bracket choice are illustrative.</p><p><a href={COVERAGE_CHECK_SOURCES.official} target="_blank" rel="noreferrer">EA gameplay explanation</a></p><p><a href={COVERAGE_CHECK_SOURCES.menus} target="_blank" rel="noreferrer">CFB-specific adjustment menus</a></p></div></details>
+    <details className="ft-details"><summary>Menu coverage &amp; sources</summary><div className="ft-details-body"><p className="ft-sub">{new Set(Object.values(CHECK_MENUS).flatMap(looks=>Object.values(looks).flat())).size} concepts including base/default behaviors. Menus and defaults follow The Gaming Tailgate CFB27 guide, pages 5–7. Stump is available for Palms and Cover 6 trips. Top Hat and Triangle variants appear in broader EA coverage but are absent from this CFB-specific guide, so they are not selectable here.</p><p className="ft-sub">Opened from {initialFormation}. This focused diagram does not claim to reproduce that formation’s exact player assignments. Timing, spacing and help landmarks are illustrative. The guide does not specify every route exchange; those branches remain labeled reads. Stump uses an explicitly short route example, not a measured in-game depth trigger.</p><p><a href={COVERAGE_CHECK_SOURCES.official} target="_blank" rel="noreferrer">EA gameplay explanation</a></p><p><a href={COVERAGE_CHECK_SOURCES.menus} target="_blank" rel="noreferrer">CFB-specific adjustment menus</a></p></div></details>
   </main></div>;
 }

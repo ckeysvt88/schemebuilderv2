@@ -3,7 +3,7 @@
 // coordinate so decluttering can never silently change a numeric zone drop.
 export const zoneGroup = job => ['hard', 'cloud', 'soft'].includes(job) ? 'flats'
   : ['curl', 'seam', 'quarterflat'].includes(job) ? 'curls'
-    : ['hook', 'vertical', 'middle', 'rec3'].includes(job) ? 'hooks' : null;
+    : ['hook', 'vertical', 'rec3'].includes(job) ? 'hooks' : null;
 const defaultDrop = { hard: 1.5, cloud: 3.2, soft: 3.2, curl: 5.5, seam: 5.5, quarterflat: 5.5,
   hook: 6, vertical: 6, middle: 9, rec3: 5.5, bluff: 3.5, third: 13, half: 13, quarter: 13 };
 const laneBounds = { 'outside-left': [.105, .30], 'inside-left': [.25, .46],
