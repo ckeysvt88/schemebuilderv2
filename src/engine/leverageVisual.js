@@ -1,5 +1,6 @@
+export const hasCoverageLeverage = job => ['hook','vertical','middle','seam','rec3','bluff','curl','hard','cloud','soft','third','half','quarter','quarterflat','man'].includes(job);
 export function leverageAxes(choice) { return {horizontal:['inside','outside'].includes(choice)?choice:'default',vertical:['overtop','underneath'].includes(choice)?choice:'default'}; }
-export const DEFAULT_LEVERAGE = { choice: 'inside', scope: 'all', visible: true, strength: 0.65 };
+export const DEFAULT_LEVERAGE = { choice: 'none', scope: 'all', visible: false, strength: 0.65 };
 export function leverageLobes({x,y,center,sideX=x,horizontal='default',vertical='default',radius=50,radiusX=radius,radiusY=radius,strength=.55}) {
   if (![x,y,center,sideX,radiusX,radiusY,strength].every(Number.isFinite)) return [];
   if(radiusX<=0||radiusY<=0)return [];
@@ -27,8 +28,8 @@ export function leverageSVG(id,opts){
 
 // Follow the coverage landmark, with a soft halo extending beyond its outline.
 // The halo illustrates leverage direction; it does not enlarge the coverage zone.
-// Horizontal leverage uses the zone's side of the field, not its owner's starting side.
+// Use the zone side first; centered landmarks fall back to the defender side.
 export function zoneLeverageSVG(id, zone, opts) {
- return leverageSVG(id, {...opts, x:zone.x, y:zone.y, sideX:zone.x,
+ return leverageSVG(id, {...opts, x:zone.x, y:zone.y, sideX:Math.abs(zone.x-opts.center)<.1 ? (opts.sideX ?? zone.x) : zone.x,
   radiusX:zone.rx*1.15, radiusY:zone.ry*1.15});
 }

@@ -1,4 +1,4 @@
-import { leverageSVG, zoneLeverageSVG, leverageText, DEFAULT_LEVERAGE, leverageAxes } from '../../engine/leverageVisual.js';
+import { leverageSVG, zoneLeverageSVG, leverageText, DEFAULT_LEVERAGE, leverageAxes, hasCoverageLeverage } from '../../engine/leverageVisual.js';
 import '../leverage.css';
 import { callAssignments } from '../../data/authoredPlayArt.js';
 import { summarizeResponsibilities, safetyPresentation } from '../../engine/defensiveSetup.js';
@@ -76,7 +76,7 @@ function validState(s){
 function createApp(app,index){
 const persisted=readPlayArtStorage(validState);
 let teamLeverage={...DEFAULT_LEVERAGE,choice:'none',visible:false};
-const currentLeverage=()=>({...teamLeverage,choice:state.zones.shading==='default'?'none':state.zones.shading});
+const currentLeverage=()=>({...teamLeverage,choice:state.zones.shading==='default'?'none':state.zones.shading,visible:teamLeverage.visible&&state.zones.shading!=='default'});
 if(persisted.current){formation=persisted.current.formation;players=formations[formation];}
 if(initialFormation&&Object.hasOwn(formations,initialFormation)){formation=initialFormation;players=formations[formation];}
 
@@ -224,14 +224,15 @@ function draw(){
   text+='<text data-player-label="'+p[0]+'" x="'+labelX+'" y="'+labelY+'" text-anchor="'+anchor+'" style="fill:var(--nm-field-text);paint-order:stroke;stroke:var(--nm-grass);stroke-width:3px;stroke-linejoin:round;font:700 11px monospace">'+p[0]+'</text>';
  });
  const lv=currentLeverage(),axes=leverageAxes(lv.choice);
- const impact=lv.visible&&lv.scope!=='none'&&!comparing?(lv.scope==='all'?players:players.filter(p=>p[0]===selected)).map(p=>{const point=positions[p[0]],opts={...lv,...axes,center:width/2};
+ const impact=lv.visible&&lv.scope!=='none'&&!comparing?(lv.scope==='all'?players:players.filter(p=>p[0]===selected)).filter(p=>hasCoverageLeverage(shown.a[p[0]].job)).map(p=>{const point=positions[p[0]],opts={...lv,...axes,center:width/2,sideX:point.x};
   const zone=zones.find(z=>z.id===p[0]);
   return '<g data-leverage-owner="'+p[0]+'">'+(zone?'<g data-leverage-zone="'+p[0]+'">'+zoneLeverageSVG(uid+'-zone-leverage-'+p[0],zone,opts)+'</g>':leverageSVG(uid+'-leverage-'+p[0],{...opts,x:point.x,y:point.y,radius:Math.min(52,width*.14)}))+'</g>';}).join(''):'';
  const focus=app.querySelector('[data-leverage-defender]');if(focus){focus.parentElement.hidden=lv.scope!=='selected';focus.innerHTML=players.map(p=>'<option value="'+p[0]+'">'+p[0]+' · '+p[4]+'</option>').join('');focus.value=selected;}
  const selectedZone=zones.find(z=>z.id===selected);
- const centered=lv.scope==='selected'&&Math.abs((selectedZone||positions[selected]).x-width/2)<.1&&['inside','outside'].includes(lv.choice);
- const explanation=app.querySelector('.lv-explain');if(explanation)explanation.textContent=(lv.scope==='selected'?selected+' · ':'')+(centered?'This coverage reference is on the center line; inside/outside needs a side reference. Choose an off-center defender or vertical shading.':leverageText(axes.horizontal,axes.vertical));
- app.querySelectorAll('[data-leverage-setting]').forEach(el=>{const key=el.dataset.leverageSetting;if(key==='visible')el.checked=lv[key];else el.value=lv[key];});
+ const selectedRushing=isRush(shown.a[selected].job)||shown.a[selected].job==='contain';
+ const centered=lv.scope==='selected'&&Math.abs((selectedZone||positions[selected]).x-width/2)<.1&&Math.abs(positions[selected].x-width/2)<.1&&['inside','outside'].includes(lv.choice);
+ const explanation=app.querySelector('.lv-explain');if(explanation)explanation.textContent=(lv.scope==='selected'?selected+' · ':'')+(comparing?'Before preview: select After to view leverage.':lv.choice==='none'?'Choose coverage shading to show its benefit and tradeoff.':lv.scope==='selected'&&!hasCoverageLeverage(shown.a[selected].job)&&!selectedRushing?'No coverage assignment: no coverage leverage overlay.':lv.scope==='selected'&&selectedRushing?'Rushing and contain assignments do not receive coverage shading.':centered?'This coverage reference is on the center line; inside/outside needs a side reference. Choose an off-center defender or vertical shading.':leverageText(axes.horizontal,axes.vertical));
+ app.querySelectorAll('[data-leverage-setting]').forEach(el=>{const key=el.dataset.leverageSetting;if(key==='visible'){el.checked=lv.visible&&!comparing;el.disabled=comparing||lv.choice==='none';}else{el.value=lv[key];el.disabled=comparing;}});
  svg.innerHTML=base+'<g aria-hidden="true">'+overlay+'</g>'+art.lines+art.shapes+impact+text;
  svg.setAttribute('aria-label',formation+' · '+(comparisonMode==='before'?'Before':'After')+' · '+names[state.template]);
  app.artLayout={labels,zones,positions,rushes,stunt:plan,scale,los:LOS,mode:comparisonMode==='before'?'base':'macro',changedIds,changeCount:data.steps.length};
@@ -315,12 +316,12 @@ function savedRender(){
  app.querySelector('.nm-saved-count').textContent='('+saved.length+')';
  app.querySelector('.nm-saved-list').innerHTML=saved.length?'<p class="nm-sub">Load opens the saved formation. Apply here transfers matching adjustments to your current formation.</p>'+saved.map((s,i)=>'<div class="nm-save-item"><span title="'+esc(s.name+' · '+s.state.formation)+'"><strong>'+esc(s.name)+'</strong></span><div class="nm-inline"><button type="button" data-load="'+i+'">Load</button><button type="button" data-apply="'+i+'" aria-label="Apply '+esc(s.name)+' to current formation">Apply here</button><button type="button" data-delete="'+i+'" aria-label="Delete '+esc(s.name)+'">Delete</button></div></div>').join(''):'<div class="nm-empty">Saved macros stay on this device.</div>';
  app.querySelectorAll('[data-load]').forEach(b=>b.addEventListener('click',()=>{
-  const savedMacro=saved[Number(b.dataset.load)];switchFormation(savedMacro.state.formation);teamLeverage.visible=false;mutate(()=>state=clone(savedMacro.state));app.querySelector('.nm-name').value=savedMacro.name;app.querySelector('.nm-status').textContent='Saved macro loaded.';
+  const savedMacro=saved[Number(b.dataset.load)];switchFormation(savedMacro.state.formation);teamLeverage.visible=false;teamLeverage.scope='all';mutate(()=>state=clone(savedMacro.state));app.querySelector('.nm-name').value=savedMacro.name;app.querySelector('.nm-status').textContent='Saved macro loaded.';
  }));
  app.querySelectorAll('[data-apply]').forEach(b=>b.addEventListener('click',()=>{
   const source=saved[Number(b.dataset.apply)].state;
   const result=applyMacroToFormation(source,preset(source.template,source.formation),state);
-  closeEditor();mutate(()=>state=result.state);
+  closeEditor();teamLeverage.visible=false;teamLeverage.scope='all';mutate(()=>state=result.state);
   const message=(result.applied.length?'Applied to '+formation+': '+result.applied.join(', ')+'.':'No compatible adjustments to apply.')+(result.skipped.length?' Skipped: '+result.skipped.join('; ')+'.':'');
   app.querySelector('.nm-transfer-status').textContent=message;
  }));
@@ -332,7 +333,7 @@ const drafts=persisted.drafts,undoByFormation={},namesByFormation={};
 function switchFormation(next){
  if(next===formation)return;
  drafts[formation]=clone(state);undoByFormation[formation]=history;namesByFormation[formation]=app.querySelector('.nm-name').value;
- formation=next;players=formations[formation];state=clone(drafts[formation]?.template==='blank'?drafts[formation]:preset('blank'));history=undoByFormation[formation]||[];selected=players[0][0];open=false;comparing=false;comparisonMode='after';
+ teamLeverage.scope='all';formation=next;players=formations[formation];state=clone(drafts[formation]?.template==='blank'?drafts[formation]:preset('blank'));history=undoByFormation[formation]||[];selected=players[0][0];open=false;comparing=false;comparisonMode='after';
  buildMarkers();app.querySelector('.nm-name').value=namesByFormation[formation]||formation.slice(0,20);refresh();persist();
 }
 function refreshFront(){
@@ -393,7 +394,7 @@ app.querySelectorAll('[data-team]').forEach(el=>el.addEventListener('change',()=
 app.querySelectorAll('[data-tab]').forEach(b=>b.addEventListener('click',()=>{tab=b.dataset.tab;refresh();}));
 app.querySelectorAll('[data-step]').forEach(b=>b.addEventListener('click',()=>{step=Number(b.dataset.step);refresh();}));
 
-app.querySelector('[data-action=reset]').addEventListener('click',()=>mutate(()=>state=preset('blank')));
+app.querySelector('[data-action=reset]').addEventListener('click',()=>{teamLeverage.visible=false;teamLeverage.scope='all';mutate(()=>state=preset('blank'));});
 app.querySelector('[data-action=back]')?.addEventListener('click',()=>{step=Math.max(0,step-1);refresh();});
 app.querySelector('[data-action=next]')?.addEventListener('click',()=>{step=(step+1)%3;refresh();});
 app.querySelector('[data-action=save]').addEventListener('click',()=>{const status=app.querySelector('.nm-status'),name=app.querySelector('.nm-name').value.trim();if(!name){status.textContent='Give your macro a name first.';return;}if(name.length>20){status.textContent='Keep new macro names to 20 characters or fewer.';return;}if(saved.length>=50){status.textContent='You have 50 saved macros. Delete one before saving another.';return;}saved.push({name,state:clone(state)});savedRender();app.querySelector('.nm-saved').open=true;status.textContent=persist()?'Macro saved on this device.':'Macro kept for this visit only; device storage is unavailable.';});
@@ -405,7 +406,7 @@ function persist(){
  return ok;
 }
 const leveragePanel=document.createElement('div');leveragePanel.className='nm-leverage-content';
-leveragePanel.innerHTML='<div class="nm-grid"><label>Display concept<select aria-label="Gradient display" data-leverage-setting="scope"><option value="all">All defenders</option><option value="selected">Selected defender</option></select></label><div class="lv-row"><label>Intensity <input aria-label="Leverage intensity" type="range" data-leverage-setting="strength" min=".15" max=".8" step=".05" value=".65"></label></div></div><label class="nm-leverage-defender" hidden>Selected defender<select aria-label="Leverage defender" data-leverage-defender></select></label><p class="lv-explain" role="status"></p><p class="nm-leverage-note">Green = benefit · Red = tradeoff, at the zone, or at the defender when no zone is displayed. Colors illustrate direction, not a change in zone size. On rushers, colors indicate direction rather than coverage responsibility.</p>';
+leveragePanel.innerHTML='<div class="nm-grid"><label>Display concept<select aria-label="Gradient display" data-leverage-setting="scope"><option value="all">All defenders</option><option value="selected">Selected defender</option></select></label><div class="lv-row"><label>Intensity <input aria-label="Leverage intensity" type="range" data-leverage-setting="strength" min=".15" max=".8" step=".05" value=".65"></label></div></div><label class="nm-leverage-defender" hidden>Selected defender<select aria-label="Leverage defender" data-leverage-defender></select></label><p class="lv-explain" role="status"></p><p class="nm-leverage-note">Green = benefit · Red = tradeoff, at the zone, or at the defender when no zone is displayed. Colors illustrate direction, not a change in zone size. Rush, blitz, contain, spy and unassigned players are excluded. Centered zones use the defender’s side when available.</p>';
 const leverageToggle=document.createElement('label');leverageToggle.className='nm-leverage-toggle';leverageToggle.innerHTML='<input type="checkbox" data-leverage-setting="visible" aria-label="Show leverage"> Show leverage';
 leveragePanel.prepend(leverageToggle);
 app.querySelector('.nm-zone .nm-details-body').append(leveragePanel);

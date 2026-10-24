@@ -24,3 +24,22 @@ test('zone overlay follows actual landmark and ellipse dimensions, not starting 
  assert.equal(zoneLeverageSVG('bad',{...zone,rx:0},{center:100,vertical:'overtop'}),'');
  assert.deepEqual(zone,{x:160,y:70,rx:60,ry:24});
 });
+
+
+test('centered zone uses defender side without needing coverage reassignment',async()=>{
+ const {zoneLeverageSVG}=await import('../src/engine/leverageVisual.js');
+ const zone={x:100,y:80,rx:35,ry:15};
+ for(const sideX of [40,160]){
+  const svg=zoneLeverageSVG('centered',zone,{center:100,sideX,horizontal:'inside'});
+  const x=Number(svg.match(/data-leverage="benefit" cx="([^"]+)"/)[1]);
+  assert.ok(sideX<100?x>100:x<100);
+  assert.match(svg,/stop-opacity="0"/);
+ }
+});
+
+test('only coverage assignments qualify for leverage',async()=>{
+ const {hasCoverageLeverage,DEFAULT_LEVERAGE}=await import('../src/engine/leverageVisual.js');
+ for(const job of ['rush','standardRush','contain','spy','blank',undefined])assert.equal(hasCoverageLeverage(job),false);
+ for(const job of ['hook','bluff','quarterflat','man','half','third'])assert.equal(hasCoverageLeverage(job),true);
+ assert.equal(DEFAULT_LEVERAGE.visible,false);assert.equal(DEFAULT_LEVERAGE.choice,'none');
+});

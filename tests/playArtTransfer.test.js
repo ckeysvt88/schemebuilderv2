@@ -108,3 +108,10 @@ test('shading transfers to matching LB hooks but not unrelated linebackers',()=>
  const target=base('4-3 Over Wide');target.a.MIKE={job:'hook',area:'middle',shade:'default'};
  const other=applyMacroToFormation(source,baseline,target);assert.notEqual(other.state.zones.shading,'underneath');assert(other.skipped.some(s=>s.startsWith('Coverage shading')));
 });
+
+test('team shading transfers for deep-only coverage and rejects unmatched coverage participants',()=>{
+ const baseline=base(),source=clone(baseline);source.a.CB1={job:'half',area:'left',shade:'default',custom:true};source.zones.shading='inside';
+ const result=applyMacroToFormation(source,baseline,base());assert.equal(result.state.zones.shading,'inside');
+ const target=base('4-3 Over Wide');target.a.MIKE={job:'man',area:'middle',shade:'default'};
+ const blocked=applyMacroToFormation(source,baseline,target);assert.notEqual(blocked.state.zones.shading,'inside');assert.ok(blocked.skipped.includes('Coverage shading (unmatched or absent coverage players)'));
+});

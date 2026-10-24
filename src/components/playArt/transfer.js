@@ -1,3 +1,4 @@
+import { hasCoverageLeverage } from '../../engine/leverageVisual.js';
 import { PLAY_ART_FORMATIONS, shiftLinebacker } from './catalog.js';
 import { isRush, selectedContainIds, stuntRoutes } from './front.js';
 import { zoneGroup } from './zoneLayout.js';
@@ -68,9 +69,9 @@ export function applyMacroToFormation(source, baseline, target) {
     setting('zones', key, key + ' drops', to.filter(([id]) => zoneGroup(state.a[id].job) === key).map(p => p[0]));
   }
   if ((source.zones.shading || 'default') !== (baseline.zones.shading || 'default')) {
-    const ids = to.filter(([id,,,group]) => group === 'lb' && state.a[id].job === 'hook').map(p => p[0]);
+    const ids = to.filter(([id]) => hasCoverageLeverage(state.a[id].job)).map(p => p[0]);
     if (safe(ids)) { state.zones.shading = source.zones.shading || 'default'; applied.push('Coverage shading'); }
-    else skipped.push('Coverage shading (unmatched or absent LB hook players)');
+    else skipped.push('Coverage shading (unmatched or absent coverage players)');
   }
   // Rush controls can select different players in a different front. Apply as a
   // unit only when the same participants can execute it without reassignment.
