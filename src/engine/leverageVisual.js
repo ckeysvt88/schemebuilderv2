@@ -25,9 +25,10 @@ export function leverageSVG(id,opts){
  return '<defs>'+[['benefit','#27b881'],['risk','#e56672']].map(([kind,color])=>`<radialGradient id="${safe}-${kind}"><stop offset="0" stop-color="${color}" stop-opacity=".85"/><stop offset=".3" stop-color="${color}" stop-opacity=".62"/><stop offset=".6" stop-color="${color}" stop-opacity=".27"/><stop offset=".85" stop-color="${color}" stop-opacity=".06"/><stop offset="1" stop-color="${color}" stop-opacity="0"/></radialGradient>`).join('')+'</defs><g pointer-events="none" aria-hidden="true">'+lobes.map(l=>`<ellipse data-leverage="${l.kind}" cx="${l.x}" cy="${l.y}" rx="${l.rx}" ry="${l.ry}" opacity="${l.opacity}" fill="url(#${safe}-${l.kind})"/>`).join('')+'</g>';
 }
 
-// Follow the rendered coverage landmark and dimensions, without changing the zone.
+// Follow the coverage landmark, with a soft halo extending beyond its outline.
+// The halo illustrates leverage direction; it does not enlarge the coverage zone.
 // Horizontal leverage uses the zone's side of the field, not its owner's starting side.
 export function zoneLeverageSVG(id, zone, opts) {
  return leverageSVG(id, {...opts, x:zone.x, y:zone.y, sideX:zone.x,
-  radiusX:zone.rx*.75, radiusY:zone.ry*.75});
+  radiusX:zone.rx*1.15, radiusY:zone.ry*1.15});
 }

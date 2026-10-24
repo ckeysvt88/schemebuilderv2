@@ -226,11 +226,11 @@ function draw(){
  const lv=currentLeverage(),axes=leverageAxes(lv.choice);
  const impact=lv.visible&&lv.scope!=='none'&&!comparing?(lv.scope==='all'?players:players.filter(p=>p[0]===selected)).map(p=>{const point=positions[p[0]],opts={...lv,...axes,center:width/2};
   const zone=zones.find(z=>z.id===p[0]);
-  return '<g data-leverage-owner="'+p[0]+'">'+leverageSVG(uid+'-leverage-'+p[0],{...opts,x:point.x,y:point.y,radius:Math.min(52,width*.14)})+(zone?'<g data-leverage-zone="'+p[0]+'">'+zoneLeverageSVG(uid+'-zone-leverage-'+p[0],zone,opts)+'</g>':'')+'</g>';}).join(''):'';
+  return '<g data-leverage-owner="'+p[0]+'">'+(zone?'<g data-leverage-zone="'+p[0]+'">'+zoneLeverageSVG(uid+'-zone-leverage-'+p[0],zone,opts)+'</g>':leverageSVG(uid+'-leverage-'+p[0],{...opts,x:point.x,y:point.y,radius:Math.min(52,width*.14)}))+'</g>';}).join(''):'';
  const focus=app.querySelector('[data-leverage-defender]');if(focus){focus.parentElement.hidden=lv.scope!=='selected';focus.innerHTML=players.map(p=>'<option value="'+p[0]+'">'+p[0]+' · '+p[4]+'</option>').join('');focus.value=selected;}
  const selectedZone=zones.find(z=>z.id===selected);
- const centered=lv.scope==='selected'&&Math.abs(positions[selected].x-width/2)<.1&&(!selectedZone||Math.abs(selectedZone.x-width/2)<.1)&&['inside','outside'].includes(lv.choice);
- const explanation=app.querySelector('.lv-explain');if(explanation)explanation.textContent=(lv.scope==='selected'?selected+' · ':'')+(centered?'This defender is on the center line; inside/outside needs a side reference. Choose an off-center defender or vertical shading.':leverageText(axes.horizontal,axes.vertical));
+ const centered=lv.scope==='selected'&&Math.abs((selectedZone||positions[selected]).x-width/2)<.1&&['inside','outside'].includes(lv.choice);
+ const explanation=app.querySelector('.lv-explain');if(explanation)explanation.textContent=(lv.scope==='selected'?selected+' · ':'')+(centered?'This coverage reference is on the center line; inside/outside needs a side reference. Choose an off-center defender or vertical shading.':leverageText(axes.horizontal,axes.vertical));
  app.querySelectorAll('[data-leverage-setting]').forEach(el=>{const key=el.dataset.leverageSetting;if(key==='visible')el.checked=lv[key];else el.value=lv[key];});
  svg.innerHTML=base+'<g aria-hidden="true">'+overlay+'</g>'+art.lines+art.shapes+impact+text;
  svg.setAttribute('aria-label',formation+' · '+(comparisonMode==='before'?'Before':'After')+' · '+names[state.template]);
@@ -405,7 +405,7 @@ function persist(){
  return ok;
 }
 const leveragePanel=document.createElement('div');leveragePanel.className='nm-leverage-content';
-leveragePanel.innerHTML='<div class="nm-grid"><label>Display concept<select aria-label="Gradient display" data-leverage-setting="scope"><option value="all">All defenders</option><option value="selected">Selected defender</option></select></label><div class="lv-row"><label>Intensity <input aria-label="Leverage intensity" type="range" data-leverage-setting="strength" min=".15" max=".8" step=".05" value=".65"></label></div></div><label class="nm-leverage-defender" hidden>Selected defender<select aria-label="Leverage defender" data-leverage-defender></select></label><p class="lv-explain" role="status"></p><p class="nm-leverage-note">Green = benefit · Red = tradeoff, at the defender and their zone. Colors illustrate direction, not a change in zone size. On rushers, colors indicate direction rather than coverage responsibility.</p>';
+leveragePanel.innerHTML='<div class="nm-grid"><label>Display concept<select aria-label="Gradient display" data-leverage-setting="scope"><option value="all">All defenders</option><option value="selected">Selected defender</option></select></label><div class="lv-row"><label>Intensity <input aria-label="Leverage intensity" type="range" data-leverage-setting="strength" min=".15" max=".8" step=".05" value=".65"></label></div></div><label class="nm-leverage-defender" hidden>Selected defender<select aria-label="Leverage defender" data-leverage-defender></select></label><p class="lv-explain" role="status"></p><p class="nm-leverage-note">Green = benefit · Red = tradeoff, at the zone, or at the defender when no zone is displayed. Colors illustrate direction, not a change in zone size. On rushers, colors indicate direction rather than coverage responsibility.</p>';
 const leverageToggle=document.createElement('label');leverageToggle.className='nm-leverage-toggle';leverageToggle.innerHTML='<input type="checkbox" data-leverage-setting="visible" aria-label="Show leverage"> Show leverage';
 leveragePanel.prepend(leverageToggle);
 app.querySelector('.nm-zone .nm-details-body').append(leveragePanel);
