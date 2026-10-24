@@ -298,3 +298,5 @@ Smooth green/red gradients illustrate directional benefits and tradeoffs. Choose
 Shading is saved with the macro and drives both the existing supported LB Hook Curl depth adjustment and the new overlay. Numeric zone drops retain their set depth; the overlay still reflects shading changes. Existing Match Responsibilities remains available; the experimental Coverage Lab is not part of this release.
 
 Release maintenance: the dependency lockfile includes patched Vite and Zod versions; deployment retains the high-severity dependency audit gate.
+
+Leverage overlays also follow each rendered coverage zone, using its actual center and dimensions. Selected-defender mode highlights that defender and their zone; All defenders includes all displayed zones. Zone outlines, assignments, and numeric drops stay unchanged. Centered zones do not invent an inside/outside direction. Pre-snap view only shows position overlays.
