@@ -288,3 +288,11 @@ Local implementation review: `prototypes/defense-review/ImplementationReview.jsx
 Play Art **Zone drops & shading** includes Default, Underneath and Overtop. Shading slightly shifts only linebacker Hook Curl landmarks (closer/deeper); explicit numeric hook drops take priority. Zone size, pre-snap alignment and other assignments remain intact. Shading is saved with macros, included in Before/After, and transfers only when the affected positions match. Older macros default to neutral shading. The shift is illustrative, not a measured in-game distance.
 
 Mobile refinements: Zone drops & shading uses a 2×2 grid. Before/After remains; the redundant custom-canvas change list is removed. Match Responsibilities uses a shorter field with playback and the scrubber directly beneath it; the diagram key is collapsed and detailed jobs remain in All responsibilities. Custom Play Art starts LOS defensive linemen/edge players with standard Rush (coverage players remain unassigned); Reset restores that baseline. Users can still explicitly change rushers to other assignments.
+
+### Play Art: shading benefit and risk overlay
+
+Zone drops & shading now includes a single team-wide choice: None, Inside, Outside, Overtop, or Underneath. The Show leverage checkbox lives within that collapsed dropdown and starts unchecked, including when a saved macro is loaded. Selecting shading automatically checks it; selecting None clears it.
+
+Smooth green/red gradients illustrate directional benefits and tradeoffs. Choose All defenders or Selected defender; the latter adds a defender picker synchronized with field selection and a focus outline. A center-line defender has no assumed inside/outside reference. Intensity is adjustable with a high-contrast slider. Captions explain that overlays on rushers indicate direction rather than coverage responsibility. These are qualitative illustrations, not success probabilities or changes to match pickup rules.
+
+Shading is saved with the macro and drives both the existing supported LB Hook Curl depth adjustment and the new overlay. Numeric zone drops retain their set depth; the overlay still reflects shading changes. Existing Match Responsibilities remains available; the experimental Coverage Lab is not part of this release.
