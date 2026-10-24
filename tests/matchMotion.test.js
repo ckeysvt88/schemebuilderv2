@@ -5,7 +5,7 @@ import{buildMatchMotion,getReleaseOptions,routePoint,defenderPoint}from'../src/e
 const role=(scene,id)=>scene.roles.find(r=>r.id===id);
 test('every documented check and release animates with finite, continuous positions',()=>{
  const seen=new Set();let combinations=0;
- for(const[scheme]of CHECK_SCHEMES)for(const look of OFFENSIVE_LOOKS)for(const check of getCheckOptions(scheme,look.id))for(const release of getReleaseOptions(look.id)){
+ for(const[scheme]of CHECK_SCHEMES)for(const look of OFFENSIVE_LOOKS)for(const check of getCheckOptions(scheme,look.id))for(const release of getReleaseOptions(look.id,check)){
   const scene=buildMatchMotion(scheme,check,look.id,release);seen.add(check);combinations++;assert(scene);assert.equal(new Set(scene.roles.map(r=>r.id)).size,scene.roles.length);
   for(const r of scene.roles){assert(r.before&&r.read&&r.after);if(r.target)assert(scene.routes.some(t=>t.id===r.target));for(let i=0;i<=100;i++){const p=defenderPoint(scene,r,i/100);assert(p.every(Number.isFinite));assert(p[0]>=0&&p[0]<=100&&p[1]>=0&&p[1]<=300);}assert.deepEqual(defenderPoint(scene,r,0),r.start);}
   for(const r of scene.routes){assert.deepEqual(routePoint(r,0),[r.x,r.y]);assert.deepEqual(routePoint(r,1),[r.endX,r.endY]);const a=routePoint(r,.399999),b=routePoint(r,.400001);assert(Math.hypot(a[0]-b[0],a[1]-b[1])<.01);}
@@ -13,7 +13,7 @@ test('every documented check and release animates with finite, continuous positi
  assert.deepEqual([...seen].sort(),[...new Set(Object.values(CHECK_MENUS).flatMap(x=>Object.values(x).flat()))].sort());assert(combinations>400);
 });
 test('man Combo exchanges but Cover 3 uses Seam, with no unsupported Top Hat or Combo path',()=>{
- for(const pattern of ['cross','out']){const man=buildMatchMotion('cover1','combo','stack',pattern),three=buildMatchMotion('cover3','seam','stack',pattern);assert.equal(role(man,'corner').target,'2');assert.equal(role(man,'flat').target,'1');assert.equal(role(three,'flat').target,'2');}
+ for(const pattern of ['cross','out']){const man=buildMatchMotion('cover1','combo','stack',pattern),three=buildMatchMotion('cover3','seam','stack',pattern);assert.equal(role(man,'corner').target,pattern==='cross'?'2':'1');assert.equal(role(man,'flat').target,pattern==='cross'?'1':'2');assert.equal(role(three,'flat').target,'2');}
  assert.equal(buildMatchMotion('cover1','topHat','stack','verticals'),null);
  assert.equal(buildMatchMotion('cover3','combo','stack','verticals'),null);
 });
@@ -31,7 +31,7 @@ test('zone checks retain areas and unsupported menus/reference concepts cannot p
 });
 
 test('Cover 3 checks keep the safety in the middle rather than inheriting a quarters assignment',()=>{
- for(const look of OFFENSIVE_LOOKS)for(const check of getCheckOptions('cover3',look.id))for(const pattern of getReleaseOptions(look.id)){const scene=buildMatchMotion('cover3',check,look.id,pattern),safety=role(scene,'safety');assert.equal(safety.target,undefined);assert.deepEqual(safety.zone,[50,48]);}
+ for(const look of OFFENSIVE_LOOKS)for(const check of getCheckOptions('cover3',look.id))for(const pattern of getReleaseOptions(look.id,check)){const scene=buildMatchMotion('cover3',check,look.id,pattern),safety=role(scene,'safety');assert.equal(safety.target,undefined);assert.deepEqual(safety.zone,[50,48]);}
 });
 
 test('compressed alignments move the matching defenders and keep isolated verticals straight',()=>{
@@ -44,7 +44,7 @@ test('compressed alignments move the matching defenders and keep isolated vertic
  assert.deepEqual(getReleaseOptions('single'),['verticals','shortOne']);assert.deepEqual(getReleaseOptions('singleTight'),['verticals','shortOne']);
 });
 test('Cover 3 reads seam releases and distributes the receivers after their breaks',()=>{
- for(const look of OFFENSIVE_LOOKS)for(const check of getCheckOptions('cover3',look.id).filter(c=>['seam','skinny','skinnyMeg'].includes(c)))for(const pattern of getReleaseOptions(look.id)){
+ for(const look of OFFENSIVE_LOOKS)for(const check of getCheckOptions('cover3',look.id).filter(c=>['seam','skinny','skinnyMeg'].includes(c)))for(const pattern of getReleaseOptions(look.id,check)){
   const s=buildMatchMotion('cover3',check,look.id,pattern),two=s.routes.find(r=>r.id==='2');
   if(!s.routes.some(r=>r.id==='3')&&(two.endY<=120||two.endX>two.x))assert.equal(role(s,'flat').target,'2',`${check}/${look.id}/${pattern}`);
   if(pattern==='threeOut'){assert.equal(role(s,'hook').target,'2');assert.equal(role(s,'flat').target,'3');}
@@ -53,7 +53,7 @@ test('Cover 3 reads seam releases and distributes the receivers after their brea
  assert(!buildMatchMotion('cover3','seam','spread','verticals').roles.some(r=>r.id==='backCorner'));
 });
 test('Palms crossing-release explanation matches its actual outside and remaining-deep reads',()=>{
- const s=buildMatchMotion('palms','palms','stack','cross');assert.equal(role(s,'corner').target,'2');assert.equal(role(s,'safety').target,undefined);assert(role(s,'safety').uncertain);assert.match(role(s,'safety').read,/#2 breaks outside/);
+ const s=buildMatchMotion('palms','palms','stack','cross');assert.equal(role(s,'corner').target,'2');assert.equal(role(s,'safety').target,'1');assert.equal(role(s,'safety').uncertain,false);assert.equal(role(s,'flat').mode,'zone');assert.match(role(s,'safety').read,/#2 breaks outside/);
  const out=buildMatchMotion('palms','palms','stack','out');assert.equal(role(out,'safety').target,'1');
 });
 test('Stress uses the trips routes, and only converts the deep defenders to zone spacing',()=>{
@@ -69,7 +69,7 @@ test('Skate widening stays a space responsibility when #2 breaks outside',()=>{
 });
 
 test('stacks contain only the receiver pair and isolated X; underneath roles do not invent a third matchup',()=>{
- for(const look of ['stack','stackTight'])for(const [scheme]of CHECK_SCHEMES)for(const check of getCheckOptions(scheme,look))for(const release of getReleaseOptions(look)){
+ for(const look of ['stack','stackTight'])for(const [scheme]of CHECK_SCHEMES)for(const check of getCheckOptions(scheme,look))for(const release of getReleaseOptions(look,check)){
   const s=buildMatchMotion(scheme,check,look,release);
   assert.deepEqual(s.routes.map(r=>r.id),['1','2','X']);
   assert(s.roles.every(r=>r.target!=='3'));
@@ -80,7 +80,7 @@ test('underneath reads are visible but never presented as confirmed pickups',()=
  const s=buildMatchMotion('quarters','quarters','stack','cross'),h=role(s,'hook');
  assert.deepEqual(h.readTargets,['1']);assert.equal(h.target,undefined);assert.equal(h.mode,'read');assert.match(h.after,/confirmation/);
  const confirmed=buildMatchMotion('cover1','pointCombo','bunch','cross');assert.equal(role(confirmed,'hook').target,'1');assert.equal(role(confirmed,'hook').readTargets,undefined);
- for(const [scheme]of CHECK_SCHEMES)for(const look of OFFENSIVE_LOOKS)for(const check of getCheckOptions(scheme,look.id))for(const release of getReleaseOptions(look.id)){
+ for(const [scheme]of CHECK_SCHEMES)for(const look of OFFENSIVE_LOOKS)for(const check of getCheckOptions(scheme,look.id))for(const release of getReleaseOptions(look.id,check)){
   const s=buildMatchMotion(scheme,check,look.id,release);
   for(const r of s.roles)for(const id of r.readTargets||[]){assert.equal(r.target,undefined);assert(!s.roles.some(other=>other.target===id));assert(s.routes.some(route=>route.id===id));}
  }
@@ -89,8 +89,19 @@ test('landmarks have explicit owners and continuous, reversible fades for every 
  const {responsibilityReveal,responsibilityLandmark}=await import('../src/engine/matchMotion.js');
  assert.equal(responsibilityReveal(0),0);assert.equal(responsibilityReveal(.12),0);assert.equal(responsibilityReveal(.4),1);assert.equal(responsibilityReveal(1),1);
  assert(Math.abs(responsibilityReveal(.120001)-responsibilityReveal(.119999))<.0001);
- for(const [scheme]of CHECK_SCHEMES)for(const look of OFFENSIVE_LOOKS)for(const check of getCheckOptions(scheme,look.id))for(const release of getReleaseOptions(look.id)){
+ for(const [scheme]of CHECK_SCHEMES)for(const look of OFFENSIVE_LOOKS)for(const check of getCheckOptions(scheme,look.id))for(const release of getReleaseOptions(look.id,check)){
   const s=buildMatchMotion(scheme,check,look.id,release);
   for(const r of s.roles){const mark=responsibilityLandmark(r,.26);if(r.target)assert.equal(mark,null);else{assert(mark.label.startsWith(r.mark+' · '));assert(Math.abs(mark.opacity-.5)<.00001);assert.equal(mark.area,r.mode==='zone');}}
+ }
+});
+
+test('retained Cover 3 middle is explicitly a zone for every supported scene',()=>{
+ for(const look of OFFENSIVE_LOOKS)for(const check of getCheckOptions('cover3',look.id))for(const pattern of getReleaseOptions(look.id,check)){
+  const scene=buildMatchMotion('cover3',check,look.id,pattern);assert.equal(role(scene,'safety').mode,'zone');assert.equal(role(scene,'safety').target,undefined);
+ }
+});
+test('all supported scenes avoid duplicate exclusive receiver assignments',()=>{
+ for(const[scheme]of CHECK_SCHEMES)for(const look of OFFENSIVE_LOOKS)for(const check of getCheckOptions(scheme,look.id))for(const pattern of getReleaseOptions(look.id,check)){
+  const scene=buildMatchMotion(scheme,check,look.id,pattern);const targets=scene.roles.filter(r=>r.mode==='carry'&&r.target).map(r=>r.target);assert.equal(new Set(targets).size,targets.length,`${scheme}/${look.id}/${check}/${pattern}`);
  }
 });

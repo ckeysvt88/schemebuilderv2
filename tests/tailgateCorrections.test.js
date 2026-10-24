@@ -27,10 +27,10 @@ test('Quarters carries the receiver finishing in the #3 lane rather than its ori
     if(release==='twoIn'){assert.equal(role(scene,'flat').target,undefined);assert.equal(role(scene,'safety').target,'3');}
   }
 });
-test('Stump zones off only the scripted short #1 branches; Stubbie retains its lock',()=>{
-  for(const scheme of ['palms','cover6'])for(const look of ['trips','tripsTight'])for(const release of ['shortOne','shortOut']){
+test('Unconfirmed Stump short #1 examples are omitted; Stubbie retains its lock',()=>{
+  for(const scheme of ['palms','cover6'])for(const look of ['trips','tripsTight'])for(const release of ['shortOne','shortOut','cross']){
     const stump=buildMatchMotion(scheme,'stump',look,release),stubbie=buildMatchMotion(scheme,'stubbie',look,release);
-    for(const id of ['corner','flat']){assert.equal(role(stump,id).mode,'zone');assert.equal(role(stump,id).target,undefined);assert.deepEqual(defenderPoint(stump,role(stump,id),1),role(stump,id).zone);}
+    assert.equal(stump,null);
     assert.equal(role(stubbie,'corner').target,'1');
     assert.equal(role(buildMatchMotion(scheme,'stump',look,'verticals'),'corner').target,'1');
   }

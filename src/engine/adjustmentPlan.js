@@ -1,4 +1,4 @@
-import { getCheckRule } from '../data/coverageChecks.js';
+import { getMatchCheckRecommendation } from './matchCheckRecommendation.js';
 import { normalizeRunPass } from '../data/runPassBias.js';
 import { getGameObjective } from '../data/gameObjectives.js';
 import { getCoverageFamily } from './coverageGuidance.js';
@@ -55,33 +55,8 @@ function publicAdjustment(item) {
     why: item.why,
     tradeoff: item.tradeoff,
     ...(item.reset ? { reset: true } : {}),
+    ...(item.setting === 'Formation Check' ? { scheme: item.scheme, look: item.look, check: item.check } : {}),
   };
-}
-
-function matchCheckFor(family, coverageName, traits) {
-  const bunch = traits.includes('bunch');
-  const stack = traits.includes('stack_align');
-  const trips = traits.includes('trips');
-  const palms = /Palms/i.test(coverageName);
-
-  if (family === 'cover1' || family === 'twoMan') {
-    if (bunch) return { value: 'Bunch — Point Combo', why: 'Let defenders exchange bunch releases instead of chasing through traffic.' };
-    if (stack) return { value: 'Stack — Combo', why: 'Trade the two stacked releases so the offense cannot create an easy pick.' };
-  }
-  if (family === 'cover3') {
-    if (bunch) return { value: 'Cover 3 Bunch — Skate', why: 'Widen the underneath defenders toward the bunch and the likely Flood release.' };
-    if (stack) return { value: 'Cover 3 Stack — Seam', why: getCheckRule('cover3','seam').read };
-    if (trips) return { value: 'Cover 3 Trips — Skinny', why: 'Use the built-in trips distribution so #2 and #3 are not passed off blindly.' };
-  }
-  if (family === 'quarters' || family === 'split') {
-    const prefix = family === 'split' ? 'Cover 6' : palms ? 'Palms' : 'Quarters';
-    if (bunch) return { value: `${prefix} Bunch — Box`, why: 'Box the bunch with four defenders owning the four release directions.' };
-    if (stack) return { value: `${prefix} Stack — ${palms ? 'Palms' : 'Quarters'}`, why: getCheckRule(palms ? 'palms' : 'quarters', palms ? 'palms' : 'quarters').read };
-    if (trips && palms) return { value: 'Palms Trips — Stubbie', why: 'Lock #1 while three defenders distribute #2 and #3.' };
-    if (trips && family === 'split') return { value: 'Cover 6 Trips — Stubbie', why: 'Point the match side at trips and distribute #2 and #3 with inside help.' };
-    if (trips && traits.includes('deep_shots')) return { value: 'Quarters Trips — Stress', why: 'Consider only after seeing all three trips receivers go vertical. A deep-shot tendency alone does not prove that release pattern.' };
-  }
-  return null;
 }
 
 // No shell override is recommended from a post-snap coverage family alone.
@@ -162,11 +137,13 @@ export function buildAdjustmentPlan(fm, traits = [], situation = {}) {
   const gameObjective = getGameObjective(fm?.gameObjective);
   const purpose = getSituationalPurpose(situation.down, situation.distance, gameObjective.id);
   const { context, coverageKey: situationKey } = purpose;
+  const matchCheck = getMatchCheckRecommendation(activeCoverage, traits);
   if (gameObjective.id === 'no_quick_td') return {
     formation: fm?.name,
     objective: { ...gameObjective, situation: context.label },
     settings: isZone ? [{ setting: 'Zone Strategy', value: 'Conservative', why: 'Keep zone defenders above developing routes before driving on the short throw.', tradeoff: 'Short gains may be available. Reconsider this objective if those gains put the offense in winning field-goal range.' }] : [],
     tools: [
+      ...(matchCheck ? [publicAdjustment(matchCheck)] : []),
       ...(isZone ? [{ setting: 'Plaster', value: 'Off', why: 'Optional when keeping the zone structure on extended plays matters more than attaching to receivers.', tradeoff: 'Receivers can settle into gaps. This does not disable the called play’s match rules or replace defending seams and deep sidelines.' }] : []),
       ...(shellTool(family) ? [shellTool(family)] : []),
     ],
@@ -360,15 +337,7 @@ export function buildAdjustmentPlan(fm, traits = [], situation = {}) {
     tradeoff: 'The quarterback keep has less help from the pitch defender. Return to Balanced when that becomes the problem.',
   });
 
-  const supportsMatchCheck = /match|quarters|palms|cover 6/i.test(activeCoverage) || ['cover1', 'twoMan'].includes(family);
-  const matchCheck = supportsMatchCheck ? matchCheckFor(family, activeCoverage, traits) : null;
-  if (matchCheck) add(tools, 'match-check', {
-    setting: 'Formation Check', value: matchCheck.value,
-    why: matchCheck.why,
-    tradeoff: family === 'split'
-      ? 'Apply only on the quarters side of Cover 6. Check which side faces the receiver cluster; the half-field side does not use this check.'
-      : 'Use only with the named coverage family. A different call may use different rules.',
-  });
+  if (matchCheck) add(tools, 'match-check', matchCheck);
 
   if (mobileQb && isZone) add(tools, 'plaster-trigger', {
     setting: 'Plaster Trigger', value: 'O.O.P',
@@ -387,7 +356,7 @@ export function buildAdjustmentPlan(fm, traits = [], situation = {}) {
     action: 'Keep the call and the first adjustment you trust. Get lined up before opening another menu.',
   });
 
-  if (isZone && traits.includes('crossers') && !deep && !playAction && !runHeavy && !purpose.shotOpportunity && !purpose.recoveryDown && situationKey !== '3lg' && !settings.some(s=>s.setting==='Zone Strategy'&&s.value!=='Default')) add(settings, 'coverage-shading', {
+  if (isZone && !matchCheck && traits.includes('crossers') && !deep && !playAction && !runHeavy && !purpose.shotOpportunity && !purpose.recoveryDown && situationKey !== '3lg' && !settings.some(s=>s.setting==='Zone Strategy'&&s.value!=='Default')) add(settings, 'coverage-shading', {
     setting:'Coverage Shading', value:'Underneath', why:'Challenge the scouted short inside crossing window.',
     tradeoff:'More space can open behind underneath defenders. This is not a receiver-specific man assignment or an exact zone-depth instruction.',
   });
@@ -396,7 +365,7 @@ export function buildAdjustmentPlan(fm, traits = [], situation = {}) {
   const visibleSettings = changes.slice(0, 3);
   // Settings beyond the quick-setup budget remain available; do not silently
   // lose QB contain or prescribe duplicate/conflicting controls in the toolbox.
-  const displayedTools = [...changes.slice(3), ...tools].filter(item => !['Default', 'Balanced', 'Normal'].includes(item.value)).filter((item, index, all) =>
+  const displayedTools = [...tools.filter(item => item.family === 'match-check'), ...changes.slice(3), ...tools.filter(item => item.family !== 'match-check')].filter(item => !['Default', 'Balanced', 'Normal'].includes(item.value)).filter((item, index, all) =>
     !visibleSettings.some(current => current.family === item.family) &&
     all.findIndex(other => other.family === item.family) === index).slice(0, 8);
   const settingAlerts = visibleSettings.flatMap(item => {
@@ -404,6 +373,11 @@ export function buildAdjustmentPlan(fm, traits = [], situation = {}) {
     return note ? [{ setting: item.setting, ...note }] : [];
   });
   const preset = traits.includes('play_action') && !deep ? null : presetMacroFor(runHeavy && situationKey === 'base' ? traits.filter(t => !['quick_game', 'west_coast', 'slant_heavy', 'qb_checkdown'].includes(t)) : traits, situationKey);
+  const userKey = userKeyFor(traits, situationKey, purpose);
+  if (matchCheck) {
+    userKey.title = 'Play the match responsibility first';
+    userKey.text = 'If using the match check, follow its assigned receiver; a zone landmark is not a stop boundary. Read the release before committing to a carry or exchange. Rally after the catch without abandoning the next threat.';
+  }
   return {
     formation: fm?.name,
     objective: { ...gameObjective, label: purpose.label, text: purpose.text, situation: context.label },
@@ -411,6 +385,6 @@ export function buildAdjustmentPlan(fm, traits = [], situation = {}) {
     tools: displayedTools.map(publicAdjustment),
     preset: (purpose.shotOpportunity || purpose.recoveryDown) && preset?.value === 'Play Short Routes' ? null : preset,
     alerts: [...settingAlerts, ...alerts].slice(0, 2),
-    userKey: userKeyFor(traits, situationKey, purpose),
+    userKey,
   };
 }

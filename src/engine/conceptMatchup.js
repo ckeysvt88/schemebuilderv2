@@ -240,6 +240,7 @@ export function buildConceptScenarios(traits = [], situation = 'base', gameObjec
   const multipliers = profile.weights;
   const result = [...scenarios.values()].map(scenario => ({
     ...scenario,
+    receiverStructure: selected.has('bunch') ? 'bunch' : selected.has('trips') ? 'trips' : selected.has('stack_align') ? 'stack' : 'unspecified',
     baseWeight: scenario.weight,
     tendencyMultiplier: tendency(scenario.id),
     situationMultiplier: multipliers[scenario.id] || 1,
@@ -312,7 +313,7 @@ function gradeScenario(play, coverageName, scenario) {
             ? 'The seam can split the halves if the middle defender cannot carry it.'
             : 'Multiple vertical releases can divide the help; defender speed and the match check are not scored.' };
     }
-    return { grade, support: `${play.deep} deep defender${play.deep === 1 ? '' : 's'} remain assigned against the developing shot.`,
+    return { grade, support: play.badge === 'MATCH' ? 'The call can match vertical releases; check-specific assignments can leave a defender isolated rather than maintaining a permanent deep zone.' : `${play.deep} deep defender${play.deep === 1 ? '' : 's'} remain assigned against the developing shot.`,
       concession: play.deep >= 3 ? 'The underneath outlet may be available if the defense rallies and tackles.' : 'A won matchup can escape limited deep help.' };
   }
   if (scenario.id === 'play-action') {
@@ -381,16 +382,19 @@ function gradeScenario(play, coverageName, scenario) {
     if (!thinPressure && play.und >= 4 && responsibilities?.pole) insideGrade = 60;
     if (!thinPressure && play.und >= 4 && responsibilities?.buzz) insideGrade = 72;
     const hardFlat = responsibilities?.hardFlat;
+    // Palms changes to the selected bunch/trips check. The base #2-flat trap
+    // cannot earn a quick-throw bonus for an alignment using different reads.
+    const palmsTrap = responsibilities?.palms && !['bunch', 'trips'].includes(scenario.receiverStructure);
     // A broad quick-game tag includes inside throws. Never give the whole
     // concept the outside-only hard-flat grade, or bypass thin-pressure risk.
     const outsideGrade = hardFlat ? (thinPressure ? 58 : 80)
-      : !thinPressure && responsibilities?.palms ? 74
+      : !thinPressure && palmsTrap ? 74
         : !thinPressure && responsibilities?.pole ? 64 : insideGrade;
     const grade = scenario.attack === 'inside' ? insideGrade : Math.round((insideGrade + outsideGrade) / 2);
     return { grade,
       support: scenario.attack !== 'inside' && hardFlat
         ? 'Hard-flat defenders challenge the outside throw; short middle routes still need inside help.'
-        : scenario.attack !== 'inside' && responsibilities?.palms
+        : scenario.attack !== 'inside' && palmsTrap
           ? 'Palms uses a two-read exchange to contest the outside release; confirm the receiver distribution and check.'
         : thinPressure ? 'The ball can come out before pressure arrives; underneath help is limited.'
         : responsibilities?.pole ? 'The pole runner gains depth; the remaining hooks must close the short middle throw.'
@@ -398,7 +402,7 @@ function gradeScenario(play, coverageName, scenario) {
         : 'Keep help inside for slants and short crossing routes, then close on the catch.',
       concession: scenario.attack !== 'inside' && hardFlat
         ? 'Do not chase the flat with your inside defender and open the slant behind him.'
-        : responsibilities?.palms && scenario.attack !== 'inside'
+        : palmsTrap && scenario.attack !== 'inside'
           ? 'A wrong exchange or an outside double move can attack behind the corner; short middle help is still limited.'
         : responsibilities?.pole ? 'A short completion can enter the space below the pole runner.'
         : responsibilities?.buzz ? 'An outside throw can attack the space away from the inside rotation.'
@@ -417,6 +421,7 @@ function gradeScenario(play, coverageName, scenario) {
     if (play.und >= 4 && responsibilities?.buzz) return { grade: 68,
       support: 'The buzz safety adds an inside hook presence against the crossing window.',
       concession: 'A second crosser or outside high-low can attack away from the buzz; the rotation is not a complete mesh answer.' };
+    if (play.badge === 'MATCH') return { grade: play.und >= 4 ? 64 : 52, support: 'Match defenders exchange or carry crossing releases according to the selected check.', concession: 'Follow the assigned receiver when the check requires it; leaving a carry at a zone landmark can open the route.' };
     if (play.und >= 4) return { grade: 64, support: 'Four or more underneath zones can pass off crossing traffic.', concession: 'Do not chase a crosser out of your area and open the next window behind you.' };
     return { grade: 52, support: 'The call avoids a full man-traffic answer.', concession: 'Too few documented underneath defenders can open a crossing lane.' };
   }

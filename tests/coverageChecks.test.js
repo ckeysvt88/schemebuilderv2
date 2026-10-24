@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { CHECK_RULES,CHECK_SCHEMES,OFFENSIVE_LOOKS,CHECK_MENUS,RELEASE_PATTERNS,getCheckOptions,getCheckDefault,getCheckRule,receiverRoutes,checkResponsibilities } from '../src/data/coverageChecks.js';
+import { CHECK_RULES,CHECK_SCHEMES,OFFENSIVE_LOOKS,CHECK_MENUS,RELEASE_PATTERNS,getCheckOptions,getCheckDefault,getCheckRule,receiverRoutes,checkResponsibilities,isCheckReleaseSupported } from '../src/data/coverageChecks.js';
 
 test('check menus exclude unsupported pairings and separate reference-only concepts',()=>{
  assert.ok(!getCheckOptions('cover1','bunch').includes('pointTriangle'));
@@ -14,6 +14,7 @@ test('check menus exclude unsupported pairings and separate reference-only conce
 test('every supported branch resolves to real receiver IDs or finite zone landmarks',()=>{
  for(const[scheme]of CHECK_SCHEMES)for(const look of OFFENSIVE_LOOKS)for(const check of getCheckOptions(scheme,look.id))for(const[pattern]of RELEASE_PATTERNS){
   assert.ok(CHECK_RULES[check]);const routes=receiverRoutes(look.id,pattern);const roles=checkResponsibilities(scheme,check,look.id,pattern);
+  if(!isCheckReleaseSupported(check,look.id,pattern)){assert.equal(roles,null);continue;}
   for(const r of Object.values(roles)){assert.ok(r.text&&r.label);assert.ok(r.zone.every(Number.isFinite));if(r.target)assert.ok(routes.some(route=>route.id===r.target),`${scheme}/${look.id}/${check}/${pattern}: ${r.target}`);}
  }
 });

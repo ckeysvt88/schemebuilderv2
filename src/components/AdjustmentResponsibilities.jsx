@@ -1,6 +1,7 @@
+import { getMatchAdjustmentDescription } from '../data/matchAdjustmentDescriptions.js';
 import { useEffect, useRef, useState } from 'react';
-import { CHECK_SCHEMES, OFFENSIVE_LOOKS, CHECK_RULES, CHECK_MENUS, RELEASE_PATTERNS, COVERAGE_CHECK_SOURCES, getCheckOptions, getCheckDefault } from '../data/coverageChecks.js';
-import { buildMatchMotion, getReleaseOptions, routePoint, defenderPoint, responsibilityReveal, responsibilityLandmark } from '../engine/matchMotion.js';
+import { CHECK_SCHEMES, OFFENSIVE_LOOKS, CHECK_RULES, RELEASE_PATTERNS, getCheckOptions, getCheckDefault } from '../data/coverageChecks.js';
+import { buildMatchMotion, getReleaseOptions, routePoint, defenderPoint, responsibilityReveal } from '../engine/matchMotion.js';
 import './formationTools.css';
 import './matchMotion.css';
 
@@ -15,7 +16,7 @@ export function MotionPlayer({scene}){
   const px=x=>20+(width-40)*(flipped?100-x:x)/100,h=270;
   const leftLabel=scene.type==='single'?'Isolated side':scene.type==='base'?'Other side':'Backside',rightLabel=scene.type==='single'?'Trips side':'Focus side';
   const focusRoute=scene.routes.find(r=>r.id===selected.target);
-  const landmark=responsibilityLandmark(selected,progress),reveal=responsibilityReveal(progress);
+  const reveal=responsibilityReveal(progress);
   const zoneRoles=scene.roles.filter(r=>r.mode==='zone');
   const underneath=scene.roles.find(r=>r.readTargets?.length);
   const text=phase===0?selected.before:phase===1?selected.read:selected.after;
@@ -29,9 +30,11 @@ export function MotionPlayer({scene}){
       <ellipse data-ball="true" cx={px(50)} cy="224" rx="3" ry="6" fill="var(--color-text-1)"/>
       <line x1="10" x2={width-10} y1="224" y2="224" stroke="var(--color-gold)"/><text x="12" y="240" fontSize="11" fill="var(--color-text-2)">LOS</text>
       {zoneRoles.map(r=><ellipse key={r.id} data-zone-owner={r.id} cx={px(r.zone[0])} cy={r.zone[1]} rx={Math.min(46,(width-40)*.14)} ry="28" opacity={scene.check==='zoneIt'?1:reveal} fill="var(--color-pass)" fillOpacity={.08+.07*reveal} stroke="var(--color-pass)" strokeOpacity={r.id===follow?.8:.4}><title>{r.mark} · Zone area</title></ellipse>) }
-      {landmark&&<g data-landmark={landmark.kind} opacity={landmark.opacity}>
-        <title>{landmark.label}</title>
-      </g>}
+      {scene.roles.filter(r=>r.mode==='poach').map(r=><g key={r.id} data-help-owner={r.id} opacity={reveal}>
+        <circle cx={px(r.zone[0])} cy={r.zone[1]} r="12" fill="none" stroke="var(--color-gold)" strokeDasharray="3 3"/>
+        <text x={px(r.zone[0])} y={r.zone[1]+25} textAnchor="middle" fill="var(--color-text-1)" fontSize="11">{r.mark} · Help</text>
+        <title>Help toward trips; not a confirmed receiver pickup</title>
+      </g>)}
       {scene.roles.flatMap(r=>[...(r.target?[{id:r.target,read:false}]:[]),...(r.readTargets||[]).map(id=>({id,read:true}))].map(link=>{
         const point=defenderPoint(scene,r,progress),receiver=routePoint(scene.routes.find(route=>route.id===link.id),progress);
         return <line key={`${r.id}-${link.id}`} data-responsibility={link.read?'read':r.mode==='bracket'?'bracket':'match'} data-owner={r.id} data-receiver={link.id} x1={px(point[0])} y1={point[1]} x2={px(receiver[0])} y2={receiver[1]} stroke="var(--color-pass)" strokeWidth={r.id===follow?2:1.5} opacity={reveal*(r.id===follow?.85:.5)} strokeDasharray={link.read||r.mode==='bracket'?'3 4':undefined}/>;
@@ -54,6 +57,7 @@ export function MotionPlayer({scene}){
     <label className="ft-check"><input type="checkbox" checked={flipped} onChange={e=>setFlipped(e.target.checked)}/>Flip field</label>
     {selected.uncertain&&<p className="mm-scope">Read landmarks show responsibility, not exact coverage boundaries. A receiver pickup is only shown as a match when this example assigns it; unresolved exchanges remain reads.</p>}
     <details className="ft-details"><summary>Diagram key &amp; reads</summary>    <p className="mm-legend">Circles = receivers · Numbers track original receivers, not permanent match assignments · RB = original #3 in the flat/drag example · Squares = defenders · Gold ring = your focus{scene.type==='bunch'?' · #2 = original point':''}{scene.type==='stack'?' · #1 = front, #2 = rear':''} · H = inside underneath (often LB) · Solid link = match · Dashed link = read / bracket help · Dimmed receivers = context</p>
+    {scene.notes.map((note,index)=><p className="ft-sub" key={index}>{note}</p>)}
     {underneath&&<p className="mm-underneath">H reads {underneath.readTargets.map(id=>`#${id}`).join(', ')} underneath. Dashed links show threats, not a confirmed pickup.</p>}
 </details>
     <details className="ft-details"><summary>All responsibilities</summary><div className="ft-details-body">{scene.roles.map(r=><div className="mm-assignment" key={r.id}><button aria-pressed={follow===r.id} onClick={()=>setFollow(r.id)}>{r.mark} · {r.label}</button><p>{r.after}{r.uncertain?' Read landmark; no fixed receiver assignment.':''}</p></div>)}</div></details>
@@ -61,20 +65,20 @@ export function MotionPlayer({scene}){
 }
 export default function AdjustmentResponsibilities({initialFormation='Nickel Over',onBack}){
   const [scheme,setScheme]=useState('cover1'),[look,setLook]=useState('bunch'),[chosen,setChosen]=useState('pointCombo'),[release,setRelease]=useState('cross');
-  const options=getCheckOptions(scheme,look),check=options.includes(chosen)?chosen:options[0],patterns=getReleaseOptions(look),pattern=patterns.includes(release)?release:patterns[0];
+  const options=getCheckOptions(scheme,look),check=options.includes(chosen)?chosen:options[0],patterns=getReleaseOptions(look,check),pattern=patterns.includes(release)?release:patterns[0];
   const scene=buildMatchMotion(scheme,check,look,pattern),heading=useRef(null);
   useEffect(()=>{heading.current?.focus();},[]);
   const availableLooks=OFFENSIVE_LOOKS.filter(l=>getCheckOptions(scheme,l.id).length);
   function changeScheme(value){setScheme(value);if(!getCheckOptions(value,look).length)setLook(OFFENSIVE_LOOKS.find(l=>getCheckOptions(value,l.id).length).id);}
   const defaultId=getCheckDefault(scheme,look);
+  const description=getMatchAdjustmentDescription(scheme,look,check);
   return <div className="ft-page mm-page screen-enter"><header className="ft-header app-page-header"><div className="ft-brand">Scheme Builders</div><div className="ft-heading"><h1 ref={heading} tabIndex={-1}>Match Responsibilities <span className="mm-beta">Beta</span></h1>{onBack&&<button onClick={onBack}>← Back</button>}</div></header><main className="ft-body">
     <p className="mm-context">Coverage-role examples · Illustrative alignment, not {initialFormation} player assignments.</p>
     <div className="ft-pickers"><label>Called coverage<select aria-label="Called coverage" value={scheme} onChange={e=>changeScheme(e.target.value)}>{CHECK_SCHEMES.map(([id,label])=><option value={id} key={id}>{label}</option>)}</select></label><label>Offensive formation<select aria-label="Offensive formation" value={look} onChange={e=>setLook(e.target.value)}>{availableLooks.map(l=><option value={l.id} key={l.id}>{l.label}</option>)}</select></label></div>
     <div className="ft-pickers"><label>Match adjustment<select aria-label="Match adjustment" value={check} onChange={e=>setChosen(e.target.value)}>{options.map(id=><option value={id} key={id}>{CHECK_RULES[id].label}{id===defaultId?' · Default':''}</option>)}</select></label><label>Receiver releases<select aria-label="Receiver releases" value={pattern} onChange={e=>setRelease(e.target.value)}>{RELEASE_PATTERNS.filter(([id])=>patterns.includes(id)).map(([id,label])=><option value={id} key={id}>{scene?.type==='single'?(id==='verticals'?'Isolated X vertical':'Isolated X short inside'):label}</option>)}</select></label></div>
     {look==='spread'&&<p className="ft-sub">Base coverage teaching; this is not a separate 2×2 adjustment menu.</p>}
+    <details className="ft-details mm-match-description" key={[scheme,look,check].join(':')}><summary>{scene.rule.label} · Match Adjustment</summary><div className="ft-details-body">{(description?.text || scene.rule.summary).split('\n\n').map((paragraph,index)=><p className="ft-sub" key={index}>{paragraph}</p>)}</div></details>
     {scene&&<MotionPlayer key={[scheme,look,check,pattern].join(':')} scene={scene}/>}
-    <details className="ft-details"><summary>{scene.rule.label} · Why &amp; Tradeoff</summary><div className="ft-details-body"><p className="ft-sub">{scene.rule.summary}</p><p className="ft-sub">{scene.rule.tradeoff}</p>{scene.notes.map(note=><p className="ft-sub" key={note}>{note}</p>)}</div></details>
-    <p className="mm-scope">Schematic teaching animation, not a game simulation. Letters identify coverage roles, not fixed player positions. Only the relevant coverage group is shown.</p>
-    <details className="ft-details"><summary>Menu coverage &amp; sources</summary><div className="ft-details-body"><p className="ft-sub">{new Set(Object.values(CHECK_MENUS).flatMap(looks=>Object.values(looks).flat())).size} concepts including base/default behaviors. Menus and defaults follow The Gaming Tailgate CFB27 guide, pages 5–7. Stump is available for Palms and Cover 6 trips. Top Hat and Triangle variants appear in broader EA coverage but are absent from this CFB-specific guide, so they are not selectable here.</p><p className="ft-sub">Opened from {initialFormation}. This focused diagram does not claim to reproduce that formation’s exact player assignments. Timing, spacing and help landmarks are illustrative. The guide does not specify every route exchange; those branches remain labeled reads. Stump uses an explicitly short route example, not a measured in-game depth trigger.</p><p><a href={COVERAGE_CHECK_SOURCES.official} target="_blank" rel="noreferrer">EA gameplay explanation</a></p><p><a href={COVERAGE_CHECK_SOURCES.menus} target="_blank" rel="noreferrer">CFB-specific adjustment menus</a></p></div></details>
+    <p className="mm-scope">Schematic teaching animation, not a game simulation. Letters identify coverage roles, not fixed player positions. Only the relevant coverage group is shown. Default leverage and alignment are assumed; press, shading and four-strong releases can change these rules.</p>
   </main></div>;
 }

@@ -40,7 +40,7 @@ function quarters(p) {
     bestSpot: p.vertical
       ? 'When they are taking deep shots or sending the slot and tight end up the seams.'
       : 'Obvious passing downs when your first job is keeping the ball in front of the safeties.',
-    takesAway: 'Deep routes. Four defenders stay over the top so one vertical route cannot split the defense.',
+    takesAway: 'Vertical routes through match reads. Corners and safeties can attach to receivers; four deep assignments do not guarantee four defenders remain above every route.',
     offenseAnswer: p.quick
       ? 'The quick game you scouted—screens, hitches, and short throws underneath.'
       : 'Quick outs, screens, and the run. The offense will take easy yards underneath.',

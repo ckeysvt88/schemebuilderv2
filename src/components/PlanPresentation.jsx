@@ -2,6 +2,7 @@ import { useState } from 'react';
 import SetupDialog from './SetupDialog.jsx';
 import PlannedCallMix from './PlannedCallMix.jsx';
 import './planPresentation.css';
+import MatchCheckAdvice from './MatchCheckAdvice.jsx';
 
 export function PlanLayoutPicker({ layout, onChange }) {
   const [open, setOpen] = useState(false);
@@ -74,6 +75,7 @@ function CoachingDetails({ entry, onLogCall, includeAssignment = false, userPosi
         <p>{item.why}</p>
         <p><strong>What you give up:</strong> {item.tradeoff}</p>
       </div>)}
+      <MatchCheckAdvice plan={adjustmentPlan} />
       {onLogCall && <button type="button" className="plan-log-call" onClick={() => onLogCall(entry)}>Test this call</button>}
     </div>
   </details>;

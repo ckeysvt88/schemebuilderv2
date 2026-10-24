@@ -1,5 +1,6 @@
 // Public descriptions establish check intent, not exact stock-play/player mappings.
-// Selectable menus follow The Gaming Tailgate CFB27 PDF, pp. 5–7.
+// Selectable choices verified against owner-provided in-game screenshots, 2026-10-24.
+// PDF pp. 5–7 supplies the previously documented defaults, not screenshot evidence.
 // Exact timing, thresholds and unresolved exchanges remain schematic.
 export const COVERAGE_CHECK_SOURCES = {
   official: 'https://www.ea.com/games/ea-sports-college-football/college-football-27/news/college-football-27-gameplay',
@@ -31,7 +32,7 @@ export const CHECK_RULES = {
   skinnyMeg:rule('Skinny Meg','Use the strong-side match structure with a locked isolated receiver away from it.','The backside corner follows the lone receiver rather than waiting for a depth trigger.','The locked backside matchup has less freedom to help elsewhere.'),
   stress:rule('Stress','Space the deep defenders when the trips release is all vertical.','Check that all three trips receivers release vertically. Otherwise use the normal Quarters reads.','A vertical tendency alone does not activate the all-vertical branch.'),
   stubbie:rule('Stubbie','Lock the outside trips receiver and distribute the two inside receivers.','The corner owns #1; three other roles sort #2 and #3, including their quick-out/vertical branches.','The locked outside matchup still needs to hold up.'),
-  stump:rule('Stump','Use the trips distribution with a short-#1 zone-off branch.','When #1 stays short, C and N release their locks and defend space. Otherwise use the Stubbie reads.','The guide gives roughly six yards, not a validated exact trigger or every subsequent exchange.'),
+  stump:rule('Stump','Use a Stubbie-based trips check with additional help against short routes by #1.','Read #1 short while distributing the inside receivers. EA does not specify the complete short-route exchange.','Exact C/N/H ownership on the short-#1 branch remains unconfirmed; do not treat a schematic read as a declared match.'),
   solo:rule('Solo','Lock the isolated receiver with the backside corner and free safety help toward trips.','Confirm the single-receiver side before applying the poach idea.','The isolated receiver faces a more independent corner matchup.'),
   soloCut:rule('Solo Cut','Use the backside safety on the isolated receiver’s short inside route.','The cut is conditional on the short inside break; it is not a permanent assignment swap.','Other releases require the remaining coverage structure.'),
   zoneIt:rule('Zone It','Replace the matching behavior with spot-drop zone responsibilities.','Defend the assigned area rather than following the first receiver through it.','Receivers can settle between zones; this does not create man matchups.'),
@@ -92,10 +93,16 @@ export function matchReleaseDistribution(routes,check){
   const pair=focus.filter(r=>r!==one).sort((a,b)=>b.endX-a.endX||Number(a.id)-Number(b.id));
   return {one,two:pair[0],three:pair[1],order:Object.fromEntries([one,...pair].filter(Boolean).map((r,i)=>[r.id,String(i+1)]))};
 }
+// Omit Stump examples whose short/nonvertical #1 exchange is unconfirmed.
+export function isCheckReleaseSupported(check,lookId,pattern){
+  if(check!=='stump')return true;
+  const one=receiverRoutes(lookId,pattern).find(r=>r.id==='1');
+  return !!one&&one.endY<=120;
+}
 // Role-based outcomes. Labels and animation consume this same release decision.
 // These examples do not claim to reproduce every route exchange in the game.
 export function checkResponsibilities(scheme,check,lookId,pattern){
-  if(!getCheckOptions(scheme,lookId).includes(check))return null;
+  if(!getCheckOptions(scheme,lookId).includes(check)||!isCheckReleaseSupported(check,lookId,pattern))return null;
   const routes=receiverRoutes(lookId,pattern),type=OFFENSIVE_LOOKS.find(l=>l.id===lookId)?.type;
   const get=id=>routes.find(r=>r.id===id),vertical=r=>!!r&&r.endY<=120,out=r=>!!r&&!vertical(r)&&r.endX>r.x;
   const focus=routes.filter(r=>['1','2','3'].includes(r.id)),one=get('1'),two=get('2'),three=type==='base'?null:get('3');
@@ -106,15 +113,29 @@ export function checkResponsibilities(scheme,check,lookId,pattern){
   const poach=(role)=>{delete result[role].target;Object.assign(result[role],{text:'Help toward strong-side #3; the separate trips check controls the final exchange.',mode:'poach',zone:role==='backCorner'?[54,94]:[55,80]});};
   const quarters=()=>{
     if(vertical(releaseOne))assign('corner',releaseOne.id,'Carry the outside vertical after distributing the releases.');
+    else space('corner','No outside vertical: retain the deep outside zone.');
     if(vertical(releaseTwo))assign('safety',releaseTwo.id,'Take the vertical in the #2 release lane.');
-    else if(releaseTwo)assign('flat',releaseTwo.id,'Take the short route in the #2 release lane.');
+    else {
+      space('safety','No inside vertical: retain the deep quarter.');
+      if(releaseTwo)assign('flat',releaseTwo.id,'Take the short route in the #2 release lane.');
+    }
+    if(type==='base'&&!vertical(one)&&vertical(two))assign('flat','1','Pick up the short #1 release while the corner zones off and the safety handles #2.');
     if(releaseThree)assign('hook',releaseThree.id,'Take the receiver finishing in the #3 release lane, short or vertical; do not keep the original #3 when the releases exchange.');
   };
   const stubbie=()=>{
     assign('corner','1','Keep #1 locked through this release.');
-    if(vertical(releaseTwo)||out(releaseTwo))assign('flat',releaseTwo.id,'Take the outside or vertical route in the #2 release lane.');
-    if(vertical(releaseThree))assign('safety',releaseThree.id,'Carry the vertical in the #3 release lane.');
-    else if(releaseThree)assign('hook',releaseThree.id,'Take the short receiver entering the #3 release lane.');
+    // Ordered 3-2 reads preserve a vertical #3 for the safety even when #2
+    // crosses inside. Final horizontal sorting alone gives that route to N.
+    const inside=r=>!!r&&!vertical(r)&&!out(r);
+    if(out(three))assign('flat','3','Take #3 to the flat; the remaining inside releases redistribute.');
+    else if(vertical(two)||out(two))assign('flat','2','Carry #2 vertical or outside while the safety reads #3.');
+    else space('flat','Wall the inside release toward the hook, then settle in the flat.');
+    if(vertical(three))assign('safety','3','Carry #3 vertical; an inside break by #2 does not remove this assignment.');
+    else if(out(three)&&vertical(two))assign('safety','2','Take #2 vertical after #3 releases to the flat.');
+    else space('safety','No qualifying inside vertical: retain the deep quarter.');
+    if(inside(three))assign('hook','3','Match the quick inside #3 release.');
+    else if(inside(two))assign('hook','2','Pick up #2 inside after the release exchange.');
+    else space('hook','Wall the inside threat, then retain the hook area; no exclusive receiver carry.');
   };
   if(check==='zoneIt'){
     for(const id of Object.keys(result))space(id,'Defend the zone area; let receivers pass through without a man carry.');
@@ -131,10 +152,10 @@ export function checkResponsibilities(scheme,check,lookId,pattern){
     assign('corner','1','Stay with the assigned outside receiver.');assign('flat','2','Stay with the assigned inside receiver.');
     if(three)assign('hook','3','Stay with the third receiver.');
     if(check==='combo'||check==='pointCombo'){
-      const pair=check==='combo'?['1','2']:['1','3'];
-      const outside=[...focus].filter(r=>pair.includes(r.id)).sort((a,b)=>b.endX-a.endX)[0].id;
-      const inside=pair.find(id=>id!==outside);
-      assign('corner',outside,'Read the release and take the outside route.');assign(check==='combo'?'flat':'hook',inside,'Read the release and take the inside route.');
+      const partner=check==='combo'?'2':'3';
+      const exchanges=!vertical(one)&&one.endX<one.x;
+      assign('corner',exchanges?partner:'1',exchanges?'#1 breaks inside: exchange onto the other receiver.':'Keep #1 vertical or outside; another receiver reaching the flat does not trigger an exchange.');
+      assign(check==='combo'?'flat':'hook',exchanges?'1':partner,exchanges?'Take #1 breaking inside.':'Keep the other receiver until #1 triggers the inside exchange.');
       if(check==='pointCombo')assign('flat','2','Keep point receiver #2 locked; exchange only the off-point pair.');
     }
   }else if(['box','bingo'].includes(check)){
@@ -147,6 +168,7 @@ export function checkResponsibilities(scheme,check,lookId,pattern){
       const area=({corner:'deep outside',safety:'deep inside',flat:'short outside',hook:'short inside'})[role];
       result[role].text=`Read the ${area} release. `+(rs.length>1?'Multiple routes enter this responsibility; the exchange needs confirmation.':'No match declared yet.');
       if(rs.length===1)assign(role,rs[0].id,`Match #${rs[0].id} entering the ${area} responsibility in this example.`);
+      else if(!rs.length)space(role,`No qualifying ${area} release: defend the ${area} area.`);
     }
     // User-confirmed Box all-vertical distribution: C outside, S next, H
     // innermost. The hook carries the additional inside vertical instead of
@@ -157,8 +179,9 @@ export function checkResponsibilities(scheme,check,lookId,pattern){
       assign('hook',inner.id,'Carry the innermost deep release (#3); the safety takes the next receiver outside.');
     }
   }else if(check==='skate'){
-    if(vertical(one))assign('corner','1','Retain the outside deep threat.');
-    space('flat','Widen toward the strong-side short throw.',[92,190]);space('hook','Widen the underneath support toward the receiver cluster.',[68,174]);
+    space('corner','Retain the outside deep third; pass receivers through the zone rather than locking one.');
+    space('backCorner','Retain the backside deep third.');
+    space('flat','Widen toward the strong-side short throw.',[92,190]);space('hook','Widen the underneath support toward the receiver cluster.',[72,142]);
   }else if(['seam','skinny','skinnyMeg'].includes(check)){
     if(vertical(releaseOne))assign('corner',releaseOne.id,'Carry the outside vertical after distributing the releases.');
     if(vertical(releaseTwo)||out(releaseTwo))assign('flat',releaseTwo.id,vertical(releaseTwo)?'Carry the receiver in the #2 release lane up the seam.':'Take the outside release; follow the distribution, not the original receiver number.');
@@ -166,22 +189,26 @@ export function checkResponsibilities(scheme,check,lookId,pattern){
     if(check==='skinnyMeg')assign('backCorner','X','Keep the isolated receiver locked, including short routes.');
   }else if(['stubbie','stump'].includes(check)){
     stubbie();
-    if(check==='stump'&&one.shortForStump){space('corner','Short #1 triggers zone-off: release the lock and defend outside space.');space('flat','Short #1 triggers zone-off: defend underneath space rather than carry #2.');}
+
   }else{
     quarters();
     if(check==='palms'&&out(two)){
-      assign('corner','2','Drive the #2 outside break.');delete result.flat.target;result.flat.mode='read';result.flat.text='Keep underneath support after the corner takes #2.';
+      assign('corner','2','Drive the #2 outside break.');space('flat','The corner takes #2 outside: retain flat support without duplicating his match.');
       delete result.safety.target;result.safety.mode='read';
-      if(vertical(one))assign('safety','1','Stay above #1 after the corner takes #2.');
-      else result.safety.text='Neither receiver stays vertical; the remaining exchange needs confirmation.';
+      assign('safety','1','Take #1 after the corner responds to #2 outside.');
+    }
+    if(check==='stress'&&!vertical(two)&&vertical(three)){
+      assign('safety','3','Read #2 then #3: take the remaining inside vertical.');
+      if(result.hook.target==='3')space('hook','Wall the inside vertical toward the safety, then retain hook support.');
+      if(result.flat.target==='3')space('flat','Wall the inside release toward the hook, then settle in the flat.');
     }
     if(check==='stress'&&focus.length===3&&focus.every(vertical)){
       space('corner','All three are vertical: protect spaced deep outside area.');space('safety','All three are vertical: protect spaced deep inside area.');
     }
   }
   if(scheme==='cover3'){
-    if(check!=='zoneIt'&&check!=='skinnyMeg'&&vertical(get('X')))assign('backCorner','X','Carry the backside vertical.');
-    result.safety.zone=[50,48];delete result.safety.target;result.safety.text='Retain the deep middle in the three-deep structure.';
+    if(check!=='zoneIt'&&check!=='skinnyMeg'&&check!=='skate'&&vertical(get('X')))assign('backCorner','X','Carry the backside vertical.');
+    space('safety','Retain the deep middle in the three-deep structure.',[50,48]);
   }
   if(scheme==='cover6'){result.backCorner.zone=[12,195];result.backCorner.text='Cover 2 side: short outside responsibility.';result.backSafety.zone=[25,65];result.backSafety.text='Cover 2 side: deep-half help. This adjustment affects the quarters side.';}
   return result;

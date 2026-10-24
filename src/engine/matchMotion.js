@@ -1,12 +1,12 @@
-import { OFFENSIVE_LOOKS, getCheckOptions, getCheckRule, receiverRoutes, checkResponsibilities, matchReleaseDistribution } from '../data/coverageChecks.js';
+import { OFFENSIVE_LOOKS, getCheckOptions, getCheckRule, receiverRoutes, checkResponsibilities, matchReleaseDistribution, isCheckReleaseSupported } from '../data/coverageChecks.js';
 
 const clamp = n => Math.max(0, Math.min(1, Number.isFinite(n) ? n : 0));
 const mix = (a,b,t) => a.map((n,i)=>n+(b[i]-n)*t);
 export const MOTION_ROLE_MARKS={corner:'C',flat:'N',hook:'H',safety:'S',backCorner:'c',backSafety:'s'};
-export function getReleaseOptions(lookId){
+export function getReleaseOptions(lookId,check){
   const type=OFFENSIVE_LOOKS.find(l=>l.id===lookId)?.type;
   if(type==='single')return ['verticals','shortOne'];
-  return ['verticals','out','cross','shortOne','shortOut','twoIn',...(['bunch','trips'].includes(type)?['threeOut','threeIn','rbFlatDrag']:[]),...(['bunch','stack','trips'].includes(type)?['isolatedShort']:[])];
+  return ['verticals','out','cross','shortOne','shortOut','twoIn',...(['bunch','trips'].includes(type)?['threeOut','threeIn','rbFlatDrag']:[]),...(['bunch','stack','trips'].includes(type)?['isolatedShort']:[])].filter(pattern=>isCheckReleaseSupported(check,lookId,pattern));
 }
 // The route knee is the early release, not a teleport to the final receiver location.
 export function routePoint(route,progress){
@@ -15,7 +15,7 @@ export function routePoint(route,progress){
   return t<=.4?mix(start,knee,t/.4):mix(knee,end,(t-.4)/.6);
 }
 export function buildMatchMotion(scheme,check,lookId,pattern){
-  if(!getCheckOptions(scheme,lookId).includes(check)||!getReleaseOptions(lookId).includes(pattern))return null;
+  if(!getCheckOptions(scheme,lookId).includes(check)||!getReleaseOptions(lookId,check).includes(pattern))return null;
   const type=OFFENSIVE_LOOKS.find(l=>l.id===lookId)?.type;
   const routes=receiverRoutes(lookId,pattern),outcomes=checkResponsibilities(scheme,check,lookId,pattern);
   const distribution=matchReleaseDistribution(routes,check);
@@ -40,9 +40,9 @@ export function buildMatchMotion(scheme,check,lookId,pattern){
       const two=routes.find(r=>r.id==='2');
       read=two.endY<=120?'#2 stays vertical in this example. Keep the deep matching structure.':two.endX>two.x?'#2 breaks outside. C responds outside; S checks the remaining deep threat.':'#2 breaks inside. Keep the Quarters-style short-route distribution.';
     }
-    if(check==='stress')read=tripsVertical?'All three trips receivers go vertical: deep defenders gain spaced leverage.':'The trips releases are not all vertical: use the normal Quarters reads.';
+    if(check==='stress')read=tripsVertical?'All three trips receivers go vertical: deep defenders gain spaced leverage.':'Read the releases: the safety reads #2 then #3; underneath defenders handle the short breaks.';
     if(check==='soloCut')read=pattern==='shortOne'?'X breaks short inside: s cuts X; c is freed toward trips.':'X does not break short inside: retain Solo rules, with c on X and s helping toward trips.';
-    if(check==='stump')read=routes.find(r=>r.id==='1')?.shortForStump?'#1 stays short in this scripted example: C and N zone off.':'#1 continues deep: this example retains the Stubbie distribution.';
+    if(check==='stump')read=routes.find(r=>r.id==='1')?.shortForStump?'#1 stays short: Stump adds help here, but the exact defender exchange is not specified by EA.':'#1 does not trigger the short-route branch: retain the Stubbie distribution.';
     if(check==='zoneIt')read='Receivers move through your area. Drop to the landmark rather than attaching to one.';
     if(check==='bingo')read=['cross','shortOne'].includes(pattern)?'#1 releases inside: C returns to deep-outside Box rules.':'#1 stays outside: C locks #1; the other defenders retain Box rules.';
     let before=rule.summary;
@@ -66,6 +66,8 @@ export function buildMatchMotion(scheme,check,lookId,pattern){
     }
   }
   const notes=[];
+  if(type==='base')notes.push('One-side base teaching. The short-inside #2 example uses the side away from the running back; RB-side pickups and opposite-side defenders need additional context.');
+  if(pattern==='rbFlatDrag')notes.push('This shows the confirmed three-receiver exchange. A fourth receiver created by a backside RB swing and opposite-side push rules is not modeled.');
   if(exchangesInsidePair&&distribution.three)notes.push('Read where the receivers finish their releases. The diagram keeps original receiver numbers so you can follow who exchanged; match responsibilities follow the release distribution. Fixed locks still follow the selected check.');
   if(type==='single'&&check==='quarters')notes.push('The dashed safety link means isolated-side help, not a guaranteed double-team on every route. Exact exchanges need game confirmation.');
   return {scheme,check,lookId,pattern,type,routes,roles,rule,notes};

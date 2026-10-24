@@ -1,6 +1,7 @@
 import { useId, useRef, useState } from 'react';
 import { MIX_ROLE_LABELS, splitSharedCallInstructions } from '../engine/sharedCallInstructions.js';
 import './plannedCallMix.css';
+import MatchCheckAdvice from './MatchCheckAdvice.jsx';
 
 const cues = { foundation: 'Keep your base answer sound.', 'coverage-variation': 'Change coverage before it becomes a tell.', 'response-counter': 'Answer their possible adjustment.', 'conditional-pressure': 'Check the hot outlet first.', 'pressure-look': 'Present pressure while retaining coverage.', 'additional-variation': 'Keep another coverage answer ready.' };
 
@@ -86,6 +87,7 @@ export default function PlannedCallMix({ mix, purpose, layout = 'original', user
         {entry.localWatchFor && <div className="mix-section"><strong>Be ready for</strong><p>{entry.localWatchFor}</p></div>}
         {!!entry.tradeoffs.length && <div className="mix-section"><strong>What you give up</strong>{entry.tradeoffs.map(item => <p key={item.threat}><strong>{item.threat}:</strong> {item.watchFor}</p>)}</div>}
         <AdjustmentNotes settings={entry.localAdjustmentSettings} />
+        <MatchCheckAdvice plan={entry.adjustmentPlan} />
         <div className="mix-section"><strong>Formation &amp; audible check</strong><p>{entry.setupWarning}</p></div>
         {onLogCall && <button type="button" className="mix-back" onClick={() => onLogCall(entry)}>Test this call</button>}
       </section>}
