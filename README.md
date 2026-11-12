@@ -4,7 +4,7 @@
 
 Scheme Builders is a free, standalone defensive companion for **EA SPORTS College Football 27**, built with user-versus-user games in mind. Describe the offense, choose your defensive playbook and situation, and get formation, exact-call, and adjustment recommendations with coaching and tradeoffs. The app runs in your browser; it does not connect to the game or execute adjustments for you.
 
-**[Open the app](https://schemebuilders.com)** · **[Report an issue](https://github.com/ckeysvt88/schemebuilderv2/issues)** · **[Technical handoff](docs/CLAUDE_HANDOFF.md)**
+**[Open the app](https://schemebuilders.com)** · **[Report an issue](https://github.com/ckeysvt88/schemebuilderv2/issues)**
 
 No account required. No ads. Light and dark themes. Installable on supported phones and browsers. Recommendations run locally without a required backend or live AI service.
 
@@ -185,11 +185,11 @@ Keep the server running. HTTPS is needed for secure browser/installed-app featur
 | `npm run lint` | Repository-wide ESLint; includes historical files and is not the same as CI's focused lint list. |
 | `node scripts/auditFormationCoverage.js` | Inventory/formation audit; regenerates its report, so inspect the resulting diff. |
 
-The app uses React 19, Vite 8, JavaScript, CSS/SVG, React PDF, and PDF.js. `src/App.jsx` owns navigation and shared inputs; `src/engine/recommendations.js` is the recommendation entry point. See [CLAUDE_HANDOFF.md](docs/CLAUDE_HANDOFF.md) for the full module map, storage contracts, evidence hierarchy, regression cases, and release procedure.
+The app uses React 19, Vite 8, JavaScript, CSS/SVG, React PDF, and PDF.js. `src/App.jsx` owns navigation and shared inputs; `src/engine/recommendations.js` is the recommendation entry point. Feature components are in `src/components/`, catalogs and rules in `src/data/`, regression tests in `tests/`, and research/validation records in `docs/`.
 
 GitHub Actions deploys `main` to [schemebuilders.com](https://schemebuilders.com) through GitHub Pages. Deployment runs locked install, a high-severity dependency audit, tests, and build. `public/CNAME` defines the domain. Review workflow definitions before assuming a particular check runs on every push.
 
-The November 10 documentation review rechecked the dataset and ran the regression suite/build. Detailed results and prior visual-validation scope are recorded in the handoff. A successful build may still report a large-chunk warning; performance splitting remains follow-up work.
+The November 10 documentation review rechecked the dataset and ran the regression suite/build. All 338 tests and the production build passed; prior match visual-validation scope is recorded in [the research audit](docs/MATCH_COVERAGE_RESEARCH_2026_10.md). A successful build may still report a large-chunk warning; performance splitting remains follow-up work.
 
 ## Contributing and accuracy
 
