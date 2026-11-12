@@ -38,7 +38,7 @@ These outcomes apply through shared rules, not team-specific exceptions. Exact r
 
 ## Conflicts requiring owner review
 
-1. **Stump: #1 drag, #2/#3 vertical.** Earlier description zones C/N; newer guide sends C to #2 but gives overlapping N/H instructions for the drag. EA is now the intent authority: extra help against short #1. Because EA does not name the complete exchange, the disputed C/N/H roles now remain explicit unresolved reads rather than asserted zone drops. Confirm the actual C/N/H/S pickups. Also test #1 hitch/quick-out with #2/#3 vertical.
+1. **Stump: #1 drag, #2/#3 vertical.** Earlier description zones C/N; newer guide sends C to #2 but gives overlapping N/H instructions for the drag. EA is now the intent authority: extra help against short #1. Because EA does not name the complete exchange, these nonvertical-#1 examples are now omitted from the selector and assignment/motion engines, per the owner’s final direction. The intermediate unresolved-read presentation was superseded. Confirm the actual C/N/H/S pickups before restoring them; also confirm #1 hitch/quick-out with #2/#3 vertical.
 2. **Skinny: #3 quick inside, #1/#2 vertical.** New guide's hook conditions differ from the owner's previous distributed-#3 pickup. Owner-confirmed behavior remains intact.
 3. **Box/Bingo: three verticals.** Owner-confirmed C1/S2/H3 remains authoritative despite a guide describing a quick-inside-only hook rule.
 4. **Skate post safety.** One guide labels a deep half while describing corners in thirds. Deep-middle behavior remains pending replay evidence.
@@ -80,7 +80,7 @@ Not reviewed due to retrieval failure: https://www.youtube.com/watch?v=flFikgISR
 
 ## Follow-up: description presentation and EA Stump authority
 
-The first Match Adjustment panel starts collapsed and uses the existing gold surface/border/text tokens in both themes. Stump references EA internally with no source link in the panel. Quarters/Palms/Cover 3 guides informed movement, eligibility and advice, with a targeted Palms alignment scoring correction. Cover 2 Match was reviewed as background; it did not create a new selectable check or numeric scoring rule. Match check selection currently uses the named coverage, one unambiguous bunch/stack/trips trait, and conditional deep-shot advice. Broader route tendencies affect call scoring but do not yet choose among all match-check alternatives.
+The first Match Adjustment panel starts collapsed and uses the existing gold surface/border/text tokens in both themes. Stump references EA internally with no source link in the panel. Quarters/Palms/Cover 3 guides informed movement, eligibility and advice, with a targeted Palms alignment scoring correction. Cover 2 Match was reviewed as background; it did not create a new selectable check or numeric scoring rule. At this intermediate stage, check selection used the named coverage, one unambiguous bunch/stack/trips trait, and conditional deep-shot advice. The final follow-up below additionally connects outside/vertical scouting to eligible checks; it still does not choose among every alternative.
 
 The follow-up also fixes a UI omission: generated match checks now render within expanded call-mix cards and coaching details, not only the formation-detail toolbox. Their score effect remains zero unless explicitly modeled as applied settings.
 
